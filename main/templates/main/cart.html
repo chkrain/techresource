@@ -1,0 +1,242 @@
+<!-- main/templates/main/cart.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Корзина - Техресурс{% endblock %}
+
+{% block content %}
+<h2>Корзина покупок</h2>
+
+{% if cart_items %}
+<div class="cart-container">
+    <div class="cart-items">
+        {% for item in cart_items %}
+        <div class="cart-item">
+            {% if item.product.image %}
+            <div class="item-image">
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+            </div>
+            {% endif %}
+            <div class="item-details">
+                <h3>{{ item.product.name }}</h3>
+                <p class="article">Артикул: {{ item.product.article }}</p>
+                <p class="price">{{ item.product.price }} руб.</p>
+            </div>
+            <div class="item-quantity">
+                <form method="post" action="{% url 'update_cart_item' item.id %}">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="decrease" class="quantity-btn">-</button>
+                    <span class="quantity">{{ item.quantity }}</span>
+                    <button type="submit" name="action" value="increase" class="quantity-btn" 
+                            {% if item.quantity >= item.product.quantity %}disabled{% endif %}>+</button>
+                </form>
+            </div>
+            <div class="item-total">
+                <p>{{ item.get_total_price }} руб.</p>
+            </div>
+            <div class="item-remove">
+                <form method="post" action="{% url 'update_cart_item' item.id %}">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="remove" class="remove-btn">🗑️</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="cart-summary">
+        <h3>Итого: {{ cart.get_total_price }} руб.</h3>
+        
+        <form method="post" class="order-form">
+            {% csrf_token %}
+            <h4>Данные для заказа</h4>
+            
+            <!-- Выбор адреса -->
+            <div class="form-group">
+                <label>Адрес доставки*</label>
+                <select name="address_id" required>
+                    <option value="">Выберите адрес</option>
+                    {% for address in addresses %}
+                    <option value="{{ address.id }}">
+                        {{ address.title }} - {{ address.city }}, {{ address.address }}
+                        {% if address.is_default %} (по умолчанию){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+                <small><a href="{% url 'profile' %}" style="color: #3498db;">Управление адресами</a></small>
+            </div>
+            
+            <!-- Способ оплаты -->
+            <div class="form-group">
+                <label>Способ оплаты*</label>
+                <select name="payment_method" required>
+                    <option value="">Выберите способ оплаты</option>
+                    <option value="card">Банковская карта</option>
+                    <option value="invoice">Оплата по счету</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="checkout-btn">Перейти к оплате</button>
+        </form>
+    </div>
+</div>
+{% else %}
+<div class="empty-cart">
+    <p>Ваша корзина пуста</p>
+    <a href="{% url 'products' %}" class="continue-shopping">Продолжить покупки</a>
+</div>
+{% endif %}
+
+<style>
+.cart-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.cart-item {
+    display: grid;
+    grid-template-columns: 100px 1fr auto auto auto;
+    gap: 1rem;
+    align-items: center;
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.item-image {
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-details h3 {
+    margin: 0 0 0.5rem 0;
+}
+
+.item-quantity form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quantity-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.quantity-btn:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.quantity {
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+}
+
+.item-total {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.remove-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cart-summary {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.order-form {
+    margin-top: 1rem;
+}
+
+.order-form input,
+.order-form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.checkout-btn {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1.1rem;
+}
+
+.checkout-btn:hover {
+    background: #219a52;
+}
+
+.empty-cart {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.continue-shopping {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .cart-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .cart-item {
+        grid-template-columns: 80px 1fr;
+        grid-template-areas: 
+            "image details"
+            "quantity total"
+            "remove remove";
+        gap: 0.5rem;
+    }
+    
+    .item-image { grid-area: image; }
+    .item-details { grid-area: details; }
+    .item-quantity { grid-area: quantity; }
+    .item-total { grid-area: total; }
+    .item-remove { grid-area: remove; text-align: right; }
+}
+</style>
+{% endblock %}

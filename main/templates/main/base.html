@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Техресурс{% endblock %}</title>
+    
+    <!-- Добавляем favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .service-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>ООО "Техресурс"</h1>
+            <p>Профессиональные инженерные решения</p>
+            <!-- В навигации base.html -->
+            <nav>
+                <a href="/">Главная</a>
+                <a href="/about/">О компании</a>
+                <a href="/services/">Услуги</a>
+                <a href="/products/">Товары</a>
+                {% if user.is_authenticated %}
+                    <a href="/cart/">Корзина</a>
+                    <a href="/orders/">Мои заказы</a>
+                    <a href="/profile/">Профиль</a>
+                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="background: none; border: none; color: white; cursor: pointer; text-decoration: underline; font-size: inherit;">
+                            Выйти ({{ user.username }})
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="/login/">Войти</a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+    
+    <div class="container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}
+        <!-- Сюда будет подставляться контент конкретных страниц -->
+        {% endblock %}
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <p>2025 ООО "Техресурс" все права защищены</p>
+        </div>
+    </div>
+</body>
+</html>

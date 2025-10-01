@@ -1,0 +1,275 @@
+<!-- main/templates/main/products.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Товары - Техресурс{% endblock %}
+
+{% block content %}
+<h2>Наши товары</h2>
+
+<!-- Форма поиска и фильтрации -->
+<div class="search-filter">
+    <form method="get" class="search-form">
+        <input type="text" name="search" placeholder="Поиск товаров..." value="{{ search_query }}">
+        <select name="category">
+            <option value="">Все категории</option>
+            {% for category in categories %}
+                <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>
+                    {{ category }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit">Найти</button>
+        {% if search_query or selected_category %}
+            <a href="{% url 'products' %}" class="clear-btn">Сбросить</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Список товаров -->
+<div class="products">
+    {% for product in products %}
+    <div class="product-card">
+        {% if product.image %}
+        <div class="product-image">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        </div>
+        {% endif %}
+        <div class="product-info">
+            <h3>{{ product.name }}</h3>
+            <p class="article">Артикул: {{ product.article }}</p>
+            <p class="category">Категория: {{ product.category }}</p>
+            <p class="price">Цена: {{ product.price }} руб.</p>
+            <p class="quantity {% if product.quantity > 0 %}in-stock{% else %}out-of-stock{% endif %}">
+                {% if product.quantity > 0 %}
+                    В наличии: {{ product.quantity }} шт.
+                {% else %}
+                    Нет в наличии
+                {% endif %}
+            </p>
+            {% if product.description %}
+            <p class="description">{{ product.description|truncatewords:20 }}</p>
+            {% endif %}
+            
+            <!-- Кнопка добавления в корзину -->
+            <div class="product-actions">
+                {% if product.quantity > 0 %}
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'add_to_cart' product.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="add-to-cart-btn">
+                                🛒 Добавить в корзину
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="login-to-buy-btn">
+                            🔐 Войдите чтобы купить
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <button class="out-of-stock-btn" disabled>Нет в наличии</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="no-products">
+        <p>Товары не найдены</p>
+        {% if search_query %}
+            <p>Попробуйте изменить параметры поиска</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+.product-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.add-to-cart-btn {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    width: 100%;
+    transition: background 0.2s;
+}
+
+.add-to-cart-btn:hover {
+    background: #219a52;
+}
+
+.login-to-buy-btn {
+    display: block;
+    background: #3498db;
+    color: white;
+    text-align: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.login-to-buy-btn:hover {
+    background: #2980b9;
+    color: white;
+}
+
+.out-of-stock-btn {
+    background: #bdc3c7;
+    color: #7f8c8d;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    width: 100%;
+    cursor: not-allowed;
+}
+
+.search-filter {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.search-form {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-form input[type="text"] {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    flex-grow: 1;
+    min-width: 200px;
+}
+
+.search-form select {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 150px;
+}
+
+.search-form button {
+    padding: 0.5rem 1rem;
+    background: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-form button:hover {
+    background: #34495e;
+}
+
+.clear-btn {
+    color: #e74c3c;
+    text-decoration: none;
+    margin-left: 1rem;
+}
+
+.products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.product-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-image {
+    height: 200px;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-info {
+    padding: 1.5rem;
+}
+
+.product-info h3 {
+    margin: 0 0 0.5rem 0;
+    color: #2c3e50;
+}
+
+.article, .category {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin: 0.25rem 0;
+}
+
+.price {
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 1.2rem;
+    margin: 0.5rem 0;
+}
+
+.quantity.in-stock {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.quantity.out-of-stock {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.description {
+    color: #555;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.no-products {
+    text-align: center;
+    padding: 3rem;
+    color: #7f8c8d;
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+    .search-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-form input,
+    .search-form select,
+    .search-form button {
+        width: 100%;
+    }
+    
+    .products {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

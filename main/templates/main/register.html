@@ -1,0 +1,153 @@
+<!-- main/templates/main/register.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Регистрация - Техресурс{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <h2>Регистрация</h2>
+    <form method="post" class="register-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Имя пользователя*</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+            <div class="error">{{ form.username.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label>Email*</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+            <div class="error">{{ form.email.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Телефон</label>
+                {{ form.phone }}
+            </div>
+            
+            <div class="form-group">
+                <label>Компания</label>
+                {{ form.company }}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Должность</label>
+            {{ form.position }}
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Пароль*</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                <div class="error">{{ form.password1.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label>Подтверждение пароля*</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                <div class="error">{{ form.password2.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <button type="submit" class="register-btn">Зарегистрироваться</button>
+    </form>
+    
+    <p class="login-link">
+        Уже есть аккаунт? <a href="{% url 'login' %}">Войдите</a>
+    </p>
+</div>
+
+<style>
+.register-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.register-form {
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+.error {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.register-btn {
+    width: 100%;
+    padding: 1rem;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+
+.register-btn:hover {
+    background: #219a52;
+}
+
+.login-link {
+    text-align: center;
+    color: #7f8c8d;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .register-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+}
+</style>
+{% endblock %}

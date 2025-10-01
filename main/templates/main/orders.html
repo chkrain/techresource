@@ -1,0 +1,158 @@
+<!-- main/templates/main/orders.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Мои заказы - Техресурс{% endblock %}
+
+{% block content %}
+<h2>Мои заказы</h2>
+
+{% if orders %}
+<div class="orders-container">
+    {% for order in orders %}
+    <div class="order-card">
+        <div class="order-header">
+            <h3>Заказ #{{ order.id }}</h3>
+            <span class="order-status {{ order.status }}">
+                {{ order.get_status_display }}
+            </span>
+        </div>
+        
+        <div class="order-details">
+            <p><strong>Дата:</strong> {{ order.created_at|date:"d.m.Y H:i" }}</p>
+            <p><strong>Сумма:</strong> {{ order.total_price }} руб.</p>
+            <p><strong>Имя:</strong> {{ order.customer_name }}</p>
+            <p><strong>Телефон:</strong> {{ order.customer_phone }}</p>
+            <p><strong>Email:</strong> {{ order.customer_email }}</p>
+            <p><strong>Адрес:</strong> {{ order.customer_address }}</p>
+        </div>
+        
+        <div class="order-items">
+            <h4>Товары:</h4>
+            {% for item in order.orderitem_set.all %}
+            <div class="order-item">
+                <span class="item-name">{{ item.product.name }}</span>
+                <span class="item-quantity">x{{ item.quantity }}</span>
+                <span class="item-price">{{ item.get_total_price }} руб.</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="no-orders">
+    <p>У вас пока нет заказов</p>
+    <a href="{% url 'products' %}" class="continue-shopping">Начать покупки</a>
+</div>
+{% endif %}
+
+<style>
+.orders-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.order-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-left: 4px solid #3498db;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.order-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.order-status.pending {
+    background: #f39c12;
+    color: white;
+}
+
+.order-status.processing {
+    background: #3498db;
+    color: white;
+}
+
+.order-status.completed {
+    background: #27ae60;
+    color: white;
+}
+
+.order-status.cancelled {
+    background: #e74c3c;
+    color: white;
+}
+
+.order-details {
+    margin-bottom: 1rem;
+}
+
+.order-details p {
+    margin: 0.25rem 0;
+}
+
+.order-items {
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.item-name {
+    flex-grow: 1;
+}
+
+.item-quantity {
+    color: #7f8c8d;
+    margin: 0 1rem;
+}
+
+.item-price {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.no-orders {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.continue-shopping {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+</style>
+{% endblock %}
