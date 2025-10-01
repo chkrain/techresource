@@ -3,21 +3,568 @@
 {% block title %}Услуги - Техресурс{% endblock %}
 
 {% block content %}
-<h2>Наши услуги</h2>
-<p>Полный спектр инженерных услуг для вашего бизнеса</p>
-
-<div class="services">
-    <div class="service-card">
-        <h3>Техническое консультирование</h3>
-        <p>Профессиональные консультации по подбору оборудования</p>
-    </div>
-    <div class="service-card">
-        <h3>Пусконаладочные работы</h3>
-        <p>Запуск и настройка промышленного оборудования</p>
-    </div>
-    <div class="service-card">
-        <h3>Сервисное обслуживание</h3>
-        <p>Гарантийное и постгарантийное обслуживание</p>
+<div class="services-hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Наши услуги</h1>
+        <p class="hero-subtitle">Полный спектр инженерных решений для цифровой трансформации вашего бизнеса</p>
+        <div class="scroll-indicator">
+            <div class="scroll-arrow"></div>
+        </div>
     </div>
 </div>
+
+<div class="services-container">
+    <!-- Основные услуги -->
+    <section class="services-section" id="main-services">
+        <div class="container">
+            <h2 class="section-title">Ключевые направления</h2>
+            <p class="section-subtitle">Комплексные решения от проектирования до технической поддержки</p>
+            
+            <div class="services-grid">
+                <div class="service-item" data-aos="fade-up">
+                    <div class="service-icon">📐</div>
+                    <h3>Проектирование систем</h3>
+                    <p>Разработка комплексных проектных решений и технической документации для промышленных объектов</p>
+                    <ul class="service-features">
+                        <li>3D-моделирование</li>
+                        <li>Технические спецификации</li>
+                        <li>Сметная документация</li>
+                    </ul>
+                    <button class="service-btn">Подробнее</button>
+                </div>
+
+                <div class="service-item" data-aos="fade-up" data-aos-delay="100">
+                    <div class="service-icon">⚡</div>
+                    <h3>Электромонтажные работы</h3>
+                    <p>Полный цикл электромонтажа промышленного оборудования и систем автоматизации</p>
+                    <ul class="service-features">
+                        <li>Прокладка кабельных линий</li>
+                        <li>Монтаж щитового оборудования</li>
+                        <li>Пусконаладочные работы</li>
+                    </ul>
+                    <button class="service-btn">Подробнее</button>
+                </div>
+
+                <div class="service-item" data-aos="fade-up" data-aos-delay="200">
+                    <div class="service-icon">💻</div>
+                    <h3>Разработка ПО и SCADA</h3>
+                    <p>Создание программного обеспечения и систем диспетчеризации для автоматизации процессов</p>
+                    <ul class="service-features">
+                        <li>SCADA/HMI системы</li>
+                        <li>ПО для АСУ ТП</li>
+                        <li>Мобильные приложения</li>
+                    </ul>
+                    <button class="service-btn">Подробнее</button>
+                </div>
+
+                <div class="service-item" data-aos="fade-up">
+                    <div class="service-icon">🚚</div>
+                    <h3>Поставка оборудования</h3>
+                    <p>Комплексные поставки промышленного оборудования от ведущих мировых производителей</p>
+                    <ul class="service-features">
+                        <li>Сертифицированное оборудование</li>
+                        <li>Таможенное оформление</li>
+                        <li>Гарантийная поддержка</li>
+                    </ul>
+                    <button class="service-btn">Подробнее</button>
+                </div>
+
+                <div class="service-item" data-aos="fade-up" data-aos-delay="100">
+                    <div class="service-icon">🛠️</div>
+                    <h3>Техническая поддержка</h3>
+                    <p>Круглосуточная техническая поддержка и оперативное реагирование на инциденты</p>
+                    <ul class="service-features">
+                        <li>24/7 техподдержка</li>
+                        <li>Выезд специалистов</li>
+                        <li>Дистанционная диагностика</li>
+                    </ul>
+                    <button class="service-btn">Подробнее</button>
+                </div>
+
+                <div class="service-item" data-aos="fade-up" data-aos-delay="200">
+                    <div class="service-icon">🔧</div>
+                    <h3>Сервисное обслуживание</h3>
+                    <p>Плановое техническое обслуживание и ремонт промышленного оборудования</p>
+                    <ul class="service-features">
+                        <li>Профилактические работы</li>
+                        <li>Ремонт любой сложности</li>
+                        <li>Запасные части</li>
+                    </ul>
+                    <button class="service-btn">Подробнее</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Дополнительные услуги -->
+    <section class="services-section alt-bg" id="additional-services">
+        <div class="container">
+            <h2 class="section-title">Специализированные услуги</h2>
+            
+            <div class="additional-services">
+                <div class="additional-service" data-aos="zoom-in">
+                    <div class="additional-icon">📊</div>
+                    <h4>Технический аудит</h4>
+                    <p>Комплексный анализ существующих систем и рекомендации по оптимизации</p>
+                </div>
+                
+                <div class="additional-service" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="additional-icon">🎯</div>
+                    <h4>Интеграция систем</h4>
+                    <p>Объединение разнородных систем в единый информационный контур</p>
+                </div>
+                
+                <div class="additional-service" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="additional-icon">🔒</div>
+                    <h4>Кибербезопасность</h4>
+                    <p>Защита промышленных систем от кибератак и несанкционированного доступа</p>
+                </div>
+                
+                <div class="additional-service" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="additional-icon">📈</div>
+                    <h4>Аналитика данных</h4>
+                    <p>Сбор и анализ телеметрии для повышения эффективности производства</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Процесс работы -->
+    <section class="process-section">
+        <div class="container">
+            <h2 class="section-title">Как мы работаем</h2>
+            
+            <div class="process-steps">
+                <div class="process-step" data-aos="fade-right">
+                    <div class="step-number">01</div>
+                    <div class="step-content">
+                        <h3>Консультация</h3>
+                        <p>Анализ требований и подготовка технического задания</p>
+                    </div>
+                </div>
+                
+                <div class="process-step" data-aos="fade-right" data-aos-delay="100">
+                    <div class="step-number">02</div>
+                    <div class="step-content">
+                        <h3>Проектирование</h3>
+                        <p>Разработка проектной документации и 3D-моделей</p>
+                    </div>
+                </div>
+                
+                <div class="process-step" data-aos="fade-right" data-aos-delay="200">
+                    <div class="step-number">03</div>
+                    <div class="step-content">
+                        <h3>Реализация</h3>
+                        <p>Поставка оборудования, монтаж и пусконаладка</p>
+                    </div>
+                </div>
+                
+                <div class="process-step" data-aos="fade-right" data-aos-delay="300">
+                    <div class="step-number">04</div>
+                    <div class="step-content">
+                        <h3>Поддержка</h3>
+                        <p>Гарантийное и постгарантийное обслуживание</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Подключение библиотек -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+<style>
+/* Базовые стили */
+.services-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 120px 0 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.scroll-arrow {
+    width: 30px;
+    height: 30px;
+    border-right: 2px solid white;
+    border-bottom: 2px solid white;
+    transform: rotate(45deg);
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: rotate(45deg) translate(0, 0); }
+    50% { transform: rotate(45deg) translate(-10px, -10px); }
+}
+
+.services-container {
+    opacity: 0;
+}
+
+.services-section {
+    padding: 80px 0;
+}
+
+.alt-bg {
+    background: #f8f9fa;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.section-subtitle {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #6c757d;
+    margin-bottom: 3rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Сетка услуг */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.service-item {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid #f1f3f4;
+    position: relative;
+    overflow: hidden;
+}
+
+.service-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.service-item:hover::before {
+    transform: scaleX(1);
+}
+
+.service-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+.service-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+}
+
+.service-item h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.service-item p {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.service-features {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+    text-align: left;
+}
+
+.service-features li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f3f4;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.service-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #48bb78;
+    font-weight: bold;
+}
+
+.service-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.service-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Дополнительные услуги */
+.additional-services {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.additional-service {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+}
+
+.additional-service:hover {
+    transform: scale(1.05);
+}
+
+.additional-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.additional-service h4 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+/* Процесс работы */
+.process-steps {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.process-step {
+    display: flex;
+    align-items: center;
+    margin-bottom: 3rem;
+    opacity: 0;
+}
+
+.step-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #667eea;
+    margin-right: 2rem;
+    min-width: 80px;
+}
+
+.step-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .services-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .service-item {
+        padding: 2rem;
+    }
+    
+    .process-step {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .step-number {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .additional-services {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .services-hero {
+        padding: 100px 0 60px;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .service-item {
+        padding: 1.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация AOS
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 100
+    });
+
+    // Анимация появления героя
+    anime({
+        targets: '.hero-title',
+        translateY: [30, 0],
+        opacity: [0, 1],
+        duration: 1000,
+        easing: 'easeOutCubic'
+    });
+
+    anime({
+        targets: '.hero-subtitle',
+        translateY: [30, 0],
+        opacity: [0, 1],
+        duration: 1000,
+        delay: 300,
+        easing: 'easeOutCubic'
+    });
+
+    // Появление основного контента
+    anime({
+        targets: '.services-container',
+        opacity: [0, 1],
+        duration: 800,
+        delay: 600,
+        easing: 'easeInOutQuad'
+    });
+
+    // Анимация шагов процесса
+    const processSteps = document.querySelectorAll('.process-step');
+    processSteps.forEach((step, index) => {
+        anime({
+            targets: step,
+            translateX: [-50, 0],
+            opacity: [0, 1],
+            duration: 800,
+            delay: index * 200,
+            easing: 'easeOutCubic'
+        });
+    });
+
+    // Параллакс эффект для героя
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const hero = document.querySelector('.services-hero');
+        hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+    });
+
+    // Интерактивность кнопок
+    document.querySelectorAll('.service-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const serviceName = this.closest('.service-item').querySelector('h3').textContent;
+            
+            // Анимация нажатия
+            anime({
+                targets: this,
+                scale: [1, 0.95, 1],
+                duration: 300,
+                easing: 'easeInOutQuad'
+            });
+            
+            // Здесь можно добавить логику перехода к детальной странице услуги
+            console.log(`Переход к услуге: ${serviceName}`);
+        });
+    });
+
+    // Анимация иконок при скролле
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                anime({
+                    targets: entry.target.querySelector('.service-icon'),
+                    scale: [0, 1],
+                    rotate: [180, 0],
+                    duration: 800,
+                    easing: 'easeOutElastic(1, .8)'
+                });
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.service-item').forEach(item => {
+        observer.observe(item);
+    });
+});
+</script>
 {% endblock %}

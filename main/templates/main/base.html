@@ -3,160 +3,541 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Техресурс{% endblock %}</title>
+    <title>{% block title %}Техресурс - Инженерные решения и оборудование{% endblock %}</title>
     
-    <!-- Добавляем favicon -->
+    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
     
+    <!-- Подключение шрифтов -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --dark: #2c3e50;
+            --dark-light: #34495e;
+            --light: #f8f9fa;
+            --white: #ffffff;
+            --gray: #6c757d;
+            --success: #48bb78;
+            --danger: #f56565;
+            --warning: #ed8936;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-hover: 0 20px 40px rgba(0,0,0,0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: var(--white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
         .header {
-            background: #2c3e50;
-            color: white;
-            padding: 1rem;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 100%);
+            color: var(--white);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-        .services {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--white);
+            text-decoration: none;
         }
-        .service-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+        .logo-icon {
+            font-size: 2rem;
         }
+
+        .tagline {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+
+        /* Navigation */
         nav {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.5rem;
             flex-wrap: wrap;
         }
-        nav a {
-            color: white;
+
+        .nav-link {
+            color: var(--white);
             text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: background 0.2s;
+            padding: 0.75rem 1.25rem;
+            border-radius: 25px;
+            transition: var(--transition);
+            font-weight: 500;
             position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        nav a:hover {
+
+        .nav-link:hover {
             background: rgba(255,255,255,0.1);
-            text-decoration: none;
+            transform: translateY(-2px);
         }
+
+        .nav-link.active {
+            background: var(--primary);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
         .cart-count {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #e74c3c;
-            color: white;
+            background: var(--danger);
+            color: var(--white);
             border-radius: 50%;
             width: 20px;
             height: 20px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 600;
+            position: absolute;
+            top: -5px;
+            right: -5px;
         }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Messages */
         .messages {
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
         }
+
         .message {
-            padding: 1rem;
-            border-radius: 4px;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid;
+        }
+
+        .message::before {
+            font-size: 1.2rem;
+        }
+
+        .message.success {
+            background: #f0fff4;
+            color: #22543d;
+            border-left-color: var(--success);
+        }
+
+        .message.success::before {
+            content: '✓';
+        }
+
+        .message.error {
+            background: #fff5f5;
+            color: #742a2a;
+            border-left-color: var(--danger);
+        }
+
+        .message.error::before {
+            content: '⚠';
+        }
+
+        .message.info {
+            background: #ebf8ff;
+            color: #1a365d;
+            border-left-color: var(--primary);
+        }
+
+        .message.info::before {
+            content: 'ℹ';
+        }
+
+        .message.warning {
+            background: #fffaf0;
+            color: #744210;
+            border-left-color: var(--warning);
+        }
+
+        .message.warning::before {
+            content: '⚠';
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--white);
+            border-color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: var(--white);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: var(--white);
+            padding: 3rem 0 2rem;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .footer-section p {
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
             margin-bottom: 0.5rem;
         }
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: var(--transition);
         }
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+
+        .footer-links a:hover {
+            opacity: 1;
+            padding-left: 0.5rem;
         }
-        .message.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 2rem;
+            text-align: center;
+            opacity: 0.7;
         }
-        .message.warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
+
+        /* Utility classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-1 { margin-top: 1rem; }
+        .mt-2 { margin-top: 2rem; }
+        .mb-1 { margin-bottom: 1rem; }
+        .mb-2 { margin-bottom: 2rem; }
+
+        /* Mobile menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header .container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                right: 1.5rem;
+            }
+
+            nav {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                margin-top: 1rem;
+            }
+
+            nav.active {
+                display: flex;
+            }
+
+            .nav-link {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .logo {
+                font-size: 1.25rem;
+            }
+            
+            .btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Loading animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-content {
+            animation: fadeIn 0.6s ease-out;
         }
     </style>
 </head>
 <body>
-    <div class="header">
+    <!-- Header -->
+    <header class="header">
         <div class="container">
-            <h1>ООО "Техресурс"</h1>
-            <p>Профессиональные инженерные решения</p>
-            <nav>
-                <a href="/">Главная</a>
-                <a href="/about/">О компании</a>
-                <a href="/services/">Услуги</a>
-                <a href="/products/">Товары</a>
+            <a href="/" class="logo">
+                <span class="logo-icon">⚙️</span>
+                <div>
+                    <div>Техресурс</div>
+                    <div class="tagline">Инженерные решения</div>
+                </div>
+            </a>
+
+            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+
+            <nav id="main-nav">
+                <a href="/" class="nav-link">🏠 Главная</a>
+                <a href="/about/" class="nav-link">👥 О компании</a>
+                <a href="/services/" class="nav-link">🛠️ Услуги</a>
+                <a href="/products/" class="nav-link">📦 Товары</a>
+                
                 {% if user.is_authenticated %}
-                    <a href="/cart/">
-                        Корзина
+                    <a href="/cart/" class="nav-link">
+                        🛒 Корзина
                         {% with cart_items_count=user.cart.cartitem_set.count %}
                             {% if cart_items_count > 0 %}
                                 <span class="cart-count">{{ cart_items_count }}</span>
                             {% endif %}
                         {% endwith %}
                     </a>
-                    <a href="/orders/">Мои заказы</a>
-                    <a href="/profile/">Профиль</a>
+                    <a href="/orders/" class="nav-link">📋 Заказы</a>
+                    <a href="/profile/" class="nav-link">👤 Профиль</a>
                     <form method="post" action="{% url 'logout' %}" style="display: inline;">
                         {% csrf_token %}
-                        <button type="submit" style="background: none; border: none; color: white; cursor: pointer; text-decoration: underline; font-size: inherit;">
-                            Выйти ({{ user.username }})
+                        <button type="submit" class="btn btn-secondary" style="border: none; background: transparent; font: inherit;">
+                            🚪 Выйти
                         </button>
                     </form>
                 {% else %}
-                    <a href="/login/">Войти</a>
+                    <a href="/login/" class="nav-link">🔐 Войти</a>
                 {% endif %}
+                
                 {% if user.is_staff %}
-                    <a href="/admin-dashboard/">Панель управления</a>
+                    <a href="/admin-dashboard/" class="nav-link">⚙️ Панель управления</a>
                 {% endif %}
             </nav>
         </div>
-    </div>
-    
-    <div class="container">
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-            <div class="message {{ message.tags }}">
-                {{ message }}
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
+    </header>
 
-        {% block content %}
-        <!-- Сюда будет подставляться контент конкретных страниц -->
-        {% endblock %}
-    </div>
-
-    <div class="footer">
+    <!-- Main Content -->
+    <main class="main-content">
         <div class="container">
-            <p>2025 ООО "Техресурс" все права защищены</p>
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}
+            <!-- Сюда будет подставляться контент конкретных страниц -->
+            {% endblock %}
         </div>
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Техресурс</h3>
+                    <p>Профессиональные инженерные решения и оборудование для цифровой трансформации вашего бизнеса.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <ul class="footer-links">
+                        <li>📞 +7 (800) 123-45-67</li>
+                        <li>✉️ info@techresurs.ru</li>
+                        <li>📍 Москва, ул. Техническая, 42</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Быстрые ссылки</h3>
+                    <ul class="footer-links">
+                        <li><a href="/services/">Наши услуги</a></li>
+                        <li><a href="/products/">Каталог товаров</a></li>
+                        <li><a href="/about/">О компании</a></li>
+                        <li><a href="/contacts/">Контакты</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 ООО "Техресурс". Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMenu() {
+            const nav = document.getElementById('main-nav');
+            nav.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const nav = document.getElementById('main-nav');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (!nav.contains(event.target) && !menuBtn.contains(event.target)) {
+                nav.classList.remove('active');
+            }
+        });
+
+        // Add active class to current page link
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+
+    {% block extra_scripts %}
+    <!-- Дополнительные скрипты для конкретных страниц -->
+    {% endblock %}
 </body>
 </html>

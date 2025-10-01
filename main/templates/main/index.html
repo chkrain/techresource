@@ -2,103 +2,993 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
-<h2>Добро пожаловать!</h2>
-<p>Мы предоставляем широкий спектр инженерных услуг и оборудования.</p>
-
-<div class="services">
-    <div class="service-card">
-        <h3>Проектирование</h3>
-        <p>Разработка технической документации и проектных решений</p>
+<!-- Hero секция с параллаксом -->
+<section class="hero-section">
+    <div class="hero-background">
+        <div class="hero-particles" id="hero-particles"></div>
     </div>
-    <div class="service-card">
-        <h3>Поставка оборудования</h3>
-        <p>Качественное оборудование от проверенных производителей</p>
-    </div>
-    <div class="service-card">
-        <h3>Техническая поддержка</h3>
-        <p>Круглосуточная поддержка и консультации</p>
-    </div>
-</div>
-
-<!-- Популярные товары на главной -->
-{% if featured_products %}
-<div class="featured-products">
-    <h2 style="margin-top: 3rem;">Популярные товары</h2>
-    <div class="products-preview">
-        {% for product in featured_products %}
-        <div class="product-preview-card">
-            {% if product.image %}
-            <div class="product-image">
-                <img src="{{ product.image.url }}" alt="{{ product.name }}">
-            </div>
-            {% else %}
-            <div class="product-image">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='150' viewBox='0 0 250 150'%3E%3Crect width='250' height='150' fill='%23f8f9fa'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='14' fill='%236c757d'%3E⚙️ Нет изображения%3C/text%3E%3C/svg%3E" alt="{{ product.name }}">
-            </div>
-            {% endif %}
-            <div class="product-info">
-                <h3>{{ product.name }}</h3>
-                <p class="price">{{ product.price }} руб.</p>
-                <p class="quantity {% if product.quantity > 0 %}in-stock{% else %}out-of-stock{% endif %}">
-                    {% if product.quantity > 0 %}В наличии{% else %}Нет в наличии{% endif %}
-                </p>
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title" data-aos="fade-up" data-aos-delay="200">
+                Техресурс
+            </h1>
+            <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="400">
+                Инновационные инженерные решения и оборудование для цифровой трансформации вашего бизнеса
+            </p>
+            <div class="hero-buttons" data-aos="fade-up" data-aos-delay="600">
+                <a href="{% url 'products' %}" class="btn btn-primary">Каталог товаров</a>
+                <a href="{% url 'services' %}" class="btn btn-secondary">Наши услуги</a>
             </div>
         </div>
-        {% endfor %}
+        <div class="hero-stats" data-aos="fade-up" data-aos-delay="800">
+            <div class="stat-item">
+                <div class="stat-number" data-count="150">0</div>
+                <div class="stat-label">Реализованных проектов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="500">0</div>
+                <div class="stat-label">Единиц оборудования</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="24">0</div>
+                <div class="stat-label">/7 Поддержка</div>
+            </div>
+        </div>
     </div>
-    <div style="text-align: center; margin-top: 1rem;">
-        <a href="{% url 'products' %}" class="view-all-btn">Все товары</a>
+    <div class="scroll-indicator">
+        <div class="scroll-arrow"></div>
     </div>
-</div>
+</section>
+
+<!-- Преимущества -->
+<section class="benefits-section">
+    <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Почему выбирают нас</h2>
+        <div class="benefits-grid">
+            <div class="benefit-card" data-aos="flip-left" data-aos-delay="200">
+                <div class="benefit-icon">⚡</div>
+                <h3>Скорость</h3>
+                <p>Быстрая реализация проектов благодаря отлаженным процессам</p>
+            </div>
+            <div class="benefit-card" data-aos="flip-left" data-aos-delay="400">
+                <div class="benefit-icon">🎯</div>
+                <h3>Точность</h3>
+                <p>Высокая точность расчетов и проектных решений</p>
+            </div>
+            <div class="benefit-card" data-aos="flip-left" data-aos-delay="600">
+                <div class="benefit-icon">🛡️</div>
+                <h3>Надежность</h3>
+                <p>Гарантия качества на все работы и оборудование</p>
+            </div>
+            <div class="benefit-card" data-aos="flip-left" data-aos-delay="800">
+                <div class="benefit-icon">💡</div>
+                <h3>Инновации</h3>
+                <p>Внедрение передовых технологий и решений</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Swiper слайдер с услугами -->
+<section class="services-section">
+    <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Наши услуги</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="200">
+            Полный цикл инженерных услуг от проектирования до технической поддержки
+        </p>
+    </div>
+
+    <div class="services-swiper">
+        <div class="swiper">
+            <div class="swiper-wrapper">
+                <!-- Заменил цикл на статические данные -->
+                <div class="swiper-slide">
+                    <div class="service-card" data-color="blue">
+                        <div class="service-icon">📐</div>
+                        <h3>Проектирование</h3>
+                        <p>Разработка технической документации и проектных решений</p>
+                        <div class="service-overlay">Подробнее →</div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="service-card" data-color="green">
+                        <div class="service-icon">⚡</div>
+                        <h3>Монтаж</h3>
+                        <p>Электромонтаж оборудования и пусконаладочные работы</p>
+                        <div class="service-overlay">Подробнее →</div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="service-card" data-color="purple">
+                        <div class="service-icon">💻</div>
+                        <h3>Разработка ПО</h3>
+                        <p>Создание СКАДА систем и программного обеспечения</p>
+                        <div class="service-overlay">Подробнее →</div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="service-card" data-color="orange">
+                        <div class="service-icon">🚚</div>
+                        <h3>Поставка оборудования</h3>
+                        <p>Качественное оборудование от проверенных производителей</p>
+                        <div class="service-overlay">Подробнее →</div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="service-card" data-color="red">
+                        <div class="service-icon">🛠️</div>
+                        <h3>Техническая поддержка</h3>
+                        <p>Круглосуточная поддержка и консультации</p>
+                        <div class="service-overlay">Подробнее →</div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="service-card" data-color="teal">
+                        <div class="service-icon">🔧</div>
+                        <h3>Сервисное обслуживание</h3>
+                        <p>Плановое техническое обслуживание и ремонт</p>
+                        <div class="service-overlay">Подробнее →</div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="service-card" data-color="indigo">
+                        <div class="service-icon">📊</div>
+                        <h3>Аудит и консалтинг</h3>
+                        <p>Технический аудит и консультации по оптимизации</p>
+                        <div class="service-overlay">Подробнее →</div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="service-card" data-color="pink">
+                        <div class="service-icon">🎯</div>
+                        <h3>Интеграция систем</h3>
+                        <p>Комплексная интеграция различных инженерных систем</p>
+                        <div class="service-overlay">Подробнее →</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-progress-bar">
+                <div class="swiper-progress"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Популярные товары -->
+{% if featured_products %}
+<section class="products-section">
+    <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Популярные товары</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="200">
+            Самые востребованные позиции из нашего каталога
+        </p>
+        
+        <div class="products-preview">
+            {% for product in featured_products %}
+            <div class="product-preview-card" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|add:100 }}">
+                {% if product.image %}
+                <div class="product-image">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                </div>
+                {% else %}
+                <div class="product-image">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='150' viewBox='0 0 250 150'%3E%3Crect width='250' height='150' fill='%23f8f9fa'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='14' fill='%236c757d'%3E⚙️ Нет изображения%3C/text%3E%3C/svg%3E" alt="{{ product.name }}">
+                </div>
+                {% endif %}
+                <div class="product-info">
+                    <h3>{{ product.name }}</h3>
+                    <p class="price">{{ product.price }} руб.</p>
+                    <p class="quantity {% if product.quantity > 0 %}in-stock{% else %}out-of-stock{% endif %}">
+                        {% if product.quantity > 0 %}В наличии{% else %}Нет в наличии{% endif %}
+                    </p>
+                    <button class="product-btn" data-product-id="{{ product.id }}">В корзину</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center" data-aos="fade-up">
+            <a href="{% url 'products' %}" class="view-all-btn">Все товары</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA секция -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content" data-aos="fade-up">
+            <h2>Готовы к сотрудничеству?</h2>
+            <p>Свяжитесь с нами для бесплатной консультации и расчета стоимости проекта</p>
+            <div class="cta-buttons">
+                <a href="tel:+78001234567" class="btn btn-primary">
+                    📞 +7 (800) 123-45-67
+                </a>
+                <a href="mailto:info@techresurs.ru" class="btn btn-secondary">
+                    ✉️ Написать нам
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Подключение библиотек -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
 <style>
-.products-preview {
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 120px 0 80px;
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.hero-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(45deg, #fff, #e0e7ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.4rem;
+    opacity: 0.9;
+    margin-bottom: 3rem;
+    line-height: 1.6;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.btn-primary {
+    background: white;
+    color: #667eea;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255,255,255,0.3);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: white;
+    border-color: white;
+}
+
+.btn-secondary:hover {
+    background: white;
+    color: #667eea;
+    transform: translateY(-3px);
+}
+
+.hero-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-top: 4rem;
+    position: relative;
+    z-index: 2;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.scroll-arrow {
+    width: 30px;
+    height: 30px;
+    border-right: 2px solid white;
+    border-bottom: 2px solid white;
+    transform: rotate(45deg);
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: rotate(45deg) translate(0, 0); }
+    50% { transform: rotate(45deg) translate(-10px, -10px); }
+}
+
+/* Секции */
+section {
+    padding: 80px 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.section-subtitle {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 3rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Преимущества */
+.benefits-section {
+    background: #f8f9fa;
+}
+
+.benefits-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1rem;
+    gap: 2rem;
+}
+
+.benefit-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.benefit-card:hover {
+    transform: translateY(-10px);
+}
+
+.benefit-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.benefit-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+/* Стили для свайпера */
+.services-swiper {
+    margin: 3rem 0;
+    padding: 2rem 0;
+    position: relative;
+}
+
+.swiper {
+    width: 100%;
+    height: 350px;
+    padding: 30px 0 60px 0;
+}
+
+.swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    transition: transform 0.3s ease;
+}
+
+.swiper-slide-active {
+    transform: scale(1.05);
+    z-index: 2;
+}
+
+.service-card {
+    position: relative;
+    background: white;
+    color: #2c3e50;
+    padding: 2.5rem 2rem;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 
+        0 4px 20px rgba(0,0,0,0.08),
+        0 2px 8px rgba(0,0,0,0.03);
+    height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    width: 100%;
+    max-width: 320px;
+    border: 1px solid rgba(0,0,0,0.05);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.service-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.service-card[data-color="blue"]::before { background: linear-gradient(90deg, #667eea, #764ba2); }
+.service-card[data-color="green"]::before { background: linear-gradient(90deg, #48bb78, #38a169); }
+.service-card[data-color="purple"]::before { background: linear-gradient(90deg, #9f7aea, #805ad5); }
+.service-card[data-color="orange"]::before { background: linear-gradient(90deg, #ed8936, #dd6b20); }
+.service-card[data-color="red"]::before { background: linear-gradient(90deg, #f56565, #e53e3e); }
+.service-card[data-color="teal"]::before { background: linear-gradient(90deg, #38b2ac, #319795); }
+.service-card[data-color="indigo"]::before { background: linear-gradient(90deg, #5a67d8, #4c51bf); }
+.service-card[data-color="pink"]::before { background: linear-gradient(90deg, #ed64a6, #d53f8c); }
+
+.service-card:hover::before,
+.swiper-slide-active .service-card::before {
+    transform: scaleX(1);
+}
+
+.service-card:hover,
+.swiper-slide-active .service-card {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+        0 20px 40px rgba(0,0,0,0.12),
+        0 8px 20px rgba(0,0,0,0.06);
+}
+
+.service-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.service-card:hover .service-icon {
+    transform: scale(1.1);
+}
+
+.service-card h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.service-card p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #718096;
+    font-weight: 400;
+}
+
+.service-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.service-card:hover .service-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Улучшенная навигация */
+.swiper-button-next,
+.swiper-button-prev {
+    color: #4a5568;
+    background: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    margin-top: -30px;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+    background: #2c3e50;
+    color: white;
+    transform: scale(1.1);
+}
+
+.swiper-pagination {
+    bottom: 20px !important;
+}
+
+.swiper-pagination-bullet {
+    width: 12px;
+    height: 12px;
+    background: #cbd5e0;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+    background: #2c3e50;
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* Прогресс бар */
+.swiper-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 3px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.swiper-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+/* Товары */
+.products-section {
+    background: #f8f9fa;
+}
+
+.products-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
 }
 
 .product-preview-card {
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.product-preview-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.product-image {
+    height: 200px;
     overflow: hidden;
 }
 
-.product-preview-card .product-image {
-    height: 150px;
-    overflow: hidden;
-}
-
-.product-preview-card .product-image img {
+.product-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
-.product-preview-card .product-info {
-    padding: 1rem;
+.product-preview-card:hover .product-image img {
+    transform: scale(1.1);
 }
 
-.product-preview-card h3 {
+.product-info {
+    padding: 1.5rem;
+}
+
+.product-info h3 {
     margin: 0 0 0.5rem 0;
-    font-size: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0.5rem 0;
+}
+
+.quantity {
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+}
+
+.in-stock {
+    color: #48bb78;
+}
+
+.out-of-stock {
+    color: #f56565;
+}
+
+.product-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.product-btn:hover {
+    background: #5a67d8;
+    transform: translateY(-2px);
+}
+
+.text-center {
+    text-align: center;
 }
 
 .view-all-btn {
     display: inline-block;
-    padding: 0.75rem 1.5rem;
+    padding: 1rem 2rem;
     background: #2c3e50;
     color: white;
     text-decoration: none;
-    border-radius: 4px;
-    transition: background 0.2s;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
 .view-all-btn:hover {
     background: #34495e;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* CTA секция */
+.cta-section {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    text-align: center;
+}
+
+.cta-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.cta-content p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn {
+        width: 200px;
+    }
+    
+    .benefits-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .products-preview {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .swiper {
+        height: 300px;
+        padding: 20px 0 50px 0;
+    }
+    
+    .service-card {
+        height: 200px;
+        padding: 1.5rem 1rem;
+    }
+    
+    .service-icon {
+        font-size: 2.5rem;
+    }
+    
+    .service-card h3 {
+        font-size: 1.2rem;
+    }
+    
+    .swiper-button-next,
+    .swiper-button-prev {
+        width: 45px;
+        height: 45px;
+        margin-top: -22px;
+    }
+    
+    .swiper-progress-bar {
+        width: 150px;
+    }
 }
 </style>
-{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 100
+    });
+
+    function animateNumbers() {
+        const counters = document.querySelectorAll('.stat-number');
+        counters.forEach(counter => {
+            const target = +counter.getAttribute('data-count');
+            const duration = 2000;
+            const step = target / (duration / 16);
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    counter.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.floor(current);
+                }
+            }, 16);
+        });
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateNumbers();
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+
+    const statsSection = document.querySelector('.hero-stats');
+    if (statsSection) {
+        observer.observe(statsSection);
+    }
+
+    function createParticles() {
+        const container = document.getElementById('hero-particles');
+        if (!container) return;
+        
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: 2px;
+                height: 2px;
+                background: rgba(255,255,255,0.5);
+                border-radius: 50%;
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                animation: float ${5 + Math.random() * 10}s linear infinite;
+            `;
+            container.appendChild(particle);
+        }
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    createParticles();
+
+    const swiper = new Swiper('.swiper', {
+        loop: true,
+        slidesPerView: 1,
+        spaceBetween: 25,
+        centeredSlides: true,
+        speed: 800,
+        autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+            dynamicBullets: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        breakpoints: {
+            640: {
+                slidesPerView: 1,
+                spaceBetween: 20,
+            },
+            768: {
+                slidesPerView: 2,
+                spaceBetween: 25,
+                centeredSlides: false,
+            },
+            1024: {
+                slidesPerView: 3,
+                spaceBetween: 30,
+                centeredSlides: true,
+            },
+            1280: {
+                slidesPerView: 4,
+                spaceBetween: 30,
+                centeredSlides: false,
+            }
+        },
+        on: {
+            init: function() {
+                updateProgressBar(this);
+            },
+            slideChange: function() {
+                updateProgressBar(this);
+            },
+        }
+    });
+
+    function updateProgressBar(swiper) {
+        const progress = document.querySelector('.swiper-progress');
+        const total = swiper.slides.length - (swiper.params.loop ? 2 : 0);
+        const current = swiper.realIndex;
+        const progressWidth = ((current + 1) / total) * 100;
+        progress.style.width = progressWidth + '%';
+    }
+
+    document.querySelectorAll('.service-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const serviceName = this.querySelector('h3').textContent;
+            anime({
+                targets: this,
+                scale: [1, 0.95, 1],
+                duration: 300,
+                easing: 'easeInOutQuad'
+            });
+            console.log(`Переход к услуге: ${serviceName}`);
+        });
+    });
+
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const hero = document.querySelector('.hero-section');
+        if (hero) {
+            hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+        }
+    });
+
+    document.querySelectorAll('.product-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const productId = this.getAttribute('data-product-id');
+            
+            anime({
+                targets: this,
+                scale: [1, 0.8, 1],
+                backgroundColor: ['#667eea', '#48bb78', '#667eea'],
+                duration: 600,
+                easing: 'easeInOutQuad'
+            });
+            
+            console.log(`Добавлен товар ID: ${productId}`);
+        });
+    });
+});
+</script>
+
 {% endblock %}
