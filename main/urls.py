@@ -17,6 +17,7 @@ urlpatterns = [
     # Профиль
     path('profile/', views.profile, name='profile'),
     path('profile/address/delete/<int:address_id>/', views.delete_address, name='delete_address'),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     
     # Корзина и заказы
     path('cart/', views.cart_view, name='cart'),
@@ -25,8 +26,10 @@ urlpatterns = [
     path('orders/', views.orders_view, name='orders'),
     path('order/cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
     
-    # Оплата
-    path('payment/<int:order_id>/', views.payment_view, name='payment'),
+    # Оплата через ЮКассу
+    path('payment/create/<int:order_id>/', views.create_payment, name='create_payment'),
+    path('payment/success/<int:order_id>/', views.payment_success, name='payment_success'),
+    path('webhook/yookassa/', views.yookassa_webhook, name='yookassa_webhook'),
     
     # API
     path('api/update-quantity/<int:product_id>/', views.update_quantity_ajax, name='update_quantity_ajax'),

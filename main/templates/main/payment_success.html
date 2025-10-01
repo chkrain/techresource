@@ -1,0 +1,125 @@
+<!-- main/templates/main/payment_success.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Статус оплаты - Техресурс{% endblock %}
+
+{% block content %}
+<div class="payment-status-container">
+    {% if order.status == 'paid' %}
+    <div class="success-card">
+        <div class="success-icon">✅</div>
+        <h2>Оплата прошла успешно!</h2>
+        <p>Заказ #{{ order.id }} подтвержден и передан в обработку.</p>
+        
+        <div class="order-details">
+            <h3>Детали заказа:</h3>
+            <p><strong>Сумма:</strong> {{ order.total_price }} руб.</p>
+            <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+            <p><strong>Дата:</strong> {{ order.paid_at|date:"d.m.Y H:i" }}</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="error-card">
+        <div class="error-icon">❌</div>
+        <h2>Проблема с оплатой</h2>
+        <p>Заказ #{{ order.id }} не был оплачен.</p>
+        
+        <div class="order-details">
+            <h3>Статус платежа:</h3>
+            <p><strong>Текущий статус:</strong> {{ order.get_status_display }}</p>
+            <p><strong>Сумма:</strong> {{ order.total_price }} руб.</p>
+            <p class="warning-text">Пожалуйста, попробуйте оплатить заказ еще раз или выберите другой способ оплаты.</p>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="actions">
+        {% if order.status == 'paid' %}
+            <a href="{% url 'orders' %}" class="btn btn-primary">Мои заказы</a>
+            <a href="{% url 'products' %}" class="btn btn-secondary">Продолжить покупки</a>
+        {% else %}
+            <a href="{% url 'orders' %}" class="btn btn-primary">Мои заказы</a>
+            <a href="{% url 'cart' %}" class="btn btn-warning">Вернуться к корзине</a>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.payment-status-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    text-align: center;
+}
+
+.success-card, .error-card {
+    background: white;
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.success-icon, .error-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.error-card {
+    border-left: 5px solid #e74c3c;
+}
+
+.success-card {
+    border-left: 5px solid #27ae60;
+}
+
+.order-details {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+    text-align: left;
+}
+
+.warning-text {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    margin: 0 0.5rem;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.btn-primary {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #219a52;
+}
+
+.btn-secondary {
+    background: #3498db;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #2980b9;
+}
+
+.btn-warning {
+    background: #e67e22;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #d35400;
+}
+</style>
+{% endblock %}

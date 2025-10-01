@@ -14,6 +14,8 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -78,8 +80,12 @@ WSGI_APPLICATION = 'techresource.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('NAME_DB', ''),           
+        'USER': os.getenv('USER_DB', ''),     
+        'PASSWORD': os.getenv('PASSWORD_DB', ''),
+        'HOST': os.getenv('HOST_DB', ''),                
+        'PORT': os.getenv('PORT_DB', ''),                   
     }
 }
 
@@ -147,6 +153,7 @@ LOGOUT_REDIRECT_URL = '/'
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '')
 
-# Настройки платежной системы (например, Stripe)
-# STRIPE_PUBLIC_KEY = 'pk_test_your_key'
-# STRIPE_SECRET_KEY = 'sk_test_your_key'
+# Настройки платежной системы 
+YOOKASSA_SHOP_ID = os.getenv('YOOKASSA_SHOP_ID')
+YOOKASSA_SECRET_KEY = os.getenv('YOOKASSA_SECRET_KEY')
+YOOKASSA_RETURN_URL = os.getenv('YOOKASSA_RETURN_URL', 'http://localhost:8000/payment/success/')

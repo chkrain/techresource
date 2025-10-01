@@ -1,0 +1,277 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Панель управления - Техресурс{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <h2>Панель управления заказами</h2>
+    
+    <!-- Статистика -->
+    <div class="stats-cards">
+        <div class="stat-card">
+            <h3>Всего заказов</h3>
+            <p class="stat-number">{{ total_orders }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Ожидают оплаты</h3>
+            <p class="stat-number pending">{{ pending_orders }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Оплаченные</h3>
+            <p class="stat-number paid">{{ paid_orders }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Выручка</h3>
+            <p class="stat-number revenue">{{ total_revenue }} руб.</p>
+        </div>
+    </div>
+    
+    <!-- Фильтры -->
+    <div class="filters">
+        <form method="get" class="filter-form">
+            <select name="status">
+                <option value="">Все статусы</option>
+                {% for status_value, status_name in status_choices %}
+                    <option value="{{ status_value }}" {% if selected_status == status_value %}selected{% endif %}>
+                        {{ status_name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <input type="date" name="date" value="{{ selected_date }}">
+            <button type="submit">Фильтровать</button>
+            {% if selected_status or selected_date %}
+                <a href="{% url 'admin_dashboard' %}" class="clear-btn">Сбросить</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <!-- Список заказов -->
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-admin-card">
+            <div class="order-header">
+                <h3>Заказ #{{ order.id }}</h3>
+                <div class="order-meta">
+                    <span class="status {{ order.status }}">{{ order.get_status_display }}</span>
+                    <span class="date">{{ order.created_at|date:"d.m.Y H:i" }}</span>
+                </div>
+            </div>
+            
+            <div class="order-details">
+                <div class="customer-info">
+                    <p><strong>Клиент:</strong> {{ order.customer_name }}</p>
+                    <p><strong>Телефон:</strong> {{ order.customer_phone }}</p>
+                    <p><strong>Email:</strong> {{ order.customer_email }}</p>
+                    <p><strong>Адрес:</strong> {{ order.delivery_address }}</p>
+                </div>
+                
+                <div class="order-summary">
+                    <p><strong>Сумма:</strong> {{ order.total_price }} руб.</p>
+                    <p><strong>Оплата:</strong> {{ order.get_payment_method_display }}</p>
+                    {% if order.paid_at %}
+                    <p><strong>Оплачен:</strong> {{ order.paid_at|date:"d.m.Y H:i" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="order-items">
+                <h4>Товары:</h4>
+                {% for item in order.orderitem_set.all %}
+                <div class="order-item">
+                    <span class="item-name">{{ item.product.name }}</span>
+                    <span class="item-quantity">x{{ item.quantity }}</span>
+                    <span class="item-price">{{ item.get_total_price }} руб.</span>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="notifications-log">
+                <h4>Уведомления:</h4>
+                {% for log in order.notificationlog_set.all %}
+                <div class="notification-item {% if log.success %}success{% else %}error{% endif %}">
+                    <span class="log-type">{{ log.get_notification_type_display }}</span>
+                    <span class="log-time">{{ log.created_at|date:"H:i" }}</span>
+                    <span class="log-status">{% if log.success %}✅{% else %}❌{% endif %}</span>
+                </div>
+                {% empty %}
+                <p class="no-notifications">Нет уведомлений</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-orders">
+            <p>Заказы не найдены</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.admin-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0.5rem 0 0 0;
+}
+
+.stat-number.paid {
+    color: #27ae60;
+}
+
+.stat-number.pending {
+    color: #f39c12;
+}
+
+.stat-number.revenue {
+    color: #3498db;
+}
+
+.filters {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.filter-form {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.order-admin-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-left: 4px solid #3498db;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.order-meta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+}
+
+.status.paid { background: #27ae60; }
+.status.pending { background: #f39c12; }
+.status.processing { background: #3498db; }
+.status.completed { background: #2c3e50; }
+.status.cancelled { background: #e74c3c; }
+
+.order-details {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.customer-info p, .order-summary p {
+    margin: 0.25rem 0;
+}
+
+.order-items, .notifications-log {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.notification-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    margin-bottom: 0.25rem;
+    border-radius: 4px;
+}
+
+.notification-item.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.notification-item.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.log-type {
+    flex-grow: 1;
+}
+
+.no-notifications {
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .order-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+</style>
+{% endblock %}

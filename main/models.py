@@ -68,6 +68,10 @@ class Cart(models.Model):
     def get_total_price(self):
         return sum(item.get_total_price() for item in self.cartitem_set.all())
     
+    def get_items_count(self):
+        """Возвращает общее количество товаров в корзине"""
+        return sum(item.quantity for item in self.cartitem_set.all())
+    
     class Meta:
         verbose_name = "Корзина"
         verbose_name_plural = "Корзины"
@@ -161,3 +165,29 @@ def save_user_profile(sender, instance, **kwargs):
     # Используем get_or_create чтобы избежать ошибки если профиля нет
     UserProfile.objects.get_or_create(user=instance)
     instance.userprofile.save()
+
+class NotificationLog(models.Model):
+    NOTIFICATION_TYPES = [
+        ('order_created', 'Создан заказ'),
+        ('payment_success', 'Успешная оплата'),
+        ('order_cancelled', 'Заказ отменен'),
+        ('telegram_sent', 'Отправлено в Telegram'),
+        ('email_sent', 'Отправлено по email'),
+        ('webhook_received', 'Получен webhook'),
+    ]
+    
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name="Заказ")
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, verbose_name="Тип уведомления")
+    message = models.TextField(verbose_name="Сообщение")
+    sent_to = models.CharField(max_length=200, verbose_name="Получатель", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    success = models.BooleanField(default=True, verbose_name="Успешно")
+    error_message = models.TextField(verbose_name="Ошибка", blank=True)
+    
+    def __str__(self):
+        return f"Уведомление #{self.id} для заказа #{self.order.id}"
+    
+    class Meta:
+        verbose_name = "Лог уведомлений"
+        verbose_name_plural = "Логи уведомлений"
+        ordering = ['-created_at']

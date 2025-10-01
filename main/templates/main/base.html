@@ -37,13 +37,66 @@
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
         nav a {
             color: white;
             text-decoration: none;
-            margin-right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+            position: relative;
         }
         nav a:hover {
-            text-decoration: underline;
+            background: rgba(255,255,255,0.1);
+            text-decoration: none;
+        }
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .messages {
+            margin-bottom: 1rem;
+        }
+        .message {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .message.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
         }
     </style>
 </head>
@@ -52,14 +105,20 @@
         <div class="container">
             <h1>ООО "Техресурс"</h1>
             <p>Профессиональные инженерные решения</p>
-            <!-- В навигации base.html -->
             <nav>
                 <a href="/">Главная</a>
                 <a href="/about/">О компании</a>
                 <a href="/services/">Услуги</a>
                 <a href="/products/">Товары</a>
                 {% if user.is_authenticated %}
-                    <a href="/cart/">Корзина</a>
+                    <a href="/cart/">
+                        Корзина
+                        {% with cart_items_count=user.cart.cartitem_set.count %}
+                            {% if cart_items_count > 0 %}
+                                <span class="cart-count">{{ cart_items_count }}</span>
+                            {% endif %}
+                        {% endwith %}
+                    </a>
                     <a href="/orders/">Мои заказы</a>
                     <a href="/profile/">Профиль</a>
                     <form method="post" action="{% url 'logout' %}" style="display: inline;">
@@ -70,6 +129,9 @@
                     </form>
                 {% else %}
                     <a href="/login/">Войти</a>
+                {% endif %}
+                {% if user.is_staff %}
+                    <a href="/admin-dashboard/">Панель управления</a>
                 {% endif %}
             </nav>
         </div>
