@@ -3,31 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Техресурс - Инженерные решения и оборудование{% endblock %}</title>
+    <title>{% block title %}Техресурс - Инновационные инженерные решения{% endblock %}</title>
     
+    {% csrf_token %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <meta name="description" content="Профессиональные инженерные решения, оборудование и услуги для цифровой трансформации вашего бизнеса">
+
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
     
     <!-- Подключение шрифтов -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Иконки -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     <style>
         :root {
-            --primary: #667eea;
-            --primary-dark: #5a67d8;
-            --secondary: #764ba2;
+            --primary: #0052cc;
+            --primary-dark: #0047b3;
+            --primary-light: #0066cc;
+            --secondary: #0066cc;
+            --accent: #48bb78;
             --dark: #2c3e50;
             --dark-light: #34495e;
             --light: #f8f9fa;
             --white: #ffffff;
             --gray: #6c757d;
+            --gray-light: #e9ecef;
             --success: #48bb78;
-            --danger: #f56565;
+            --danger: #e53e3e;
             --warning: #ed8936;
+            --info: #4299e1;
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
             --shadow: 0 10px 30px rgba(0,0,0,0.1);
-            --shadow-hover: 0 20px 40px rgba(0,0,0,0.15);
-            --border-radius: 12px;
-            --transition: all 0.3s ease;
+            --shadow-lg: 0 20px 60px rgba(0,0,0,0.15);
+            --shadow-hover: 0 25px 50px rgba(0,0,0,0.2);
+            
+            --border-radius: 16px;
+            --border-radius-lg: 24px;
+            --border-radius-xl: 32px;
+            
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            --header-height: 80px;
+            --section-spacing: 6rem;
         }
 
         * {
@@ -36,249 +61,508 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            line-height: 1.6;
-            color: #2d3748;
-            background: var(--white);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.7;
+            color: var(--dark);
+            background: linear-gradient(135deg, var(--light) 0%, var(--white) 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 100%);
+            background: rgba(44, 62, 80, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             color: var(--white);
-            padding: 1rem 0;
-            position: sticky;
+            padding: 0;
+            position: fixed;
             top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
+            left: 0;
+            right: 0;
+            z-index: 10000;
+            height: var(--header-height);
+            transition: var(--transition);
+        }
+
+        .header.scrolled {
+            background: rgba(44, 62, 80, 0.98);
+            box-shadow: var(--shadow-lg);
+            height: 70px;
         }
 
         .header .container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
+            height: 100%;
+            padding: 0 2rem;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--white);
+            gap: 0.75rem;
             text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            transform: translateY(-2px);
         }
 
         .logo-icon {
-            font-size: 2rem;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 4px 8px rgba(0, 82, 204, 0.3));
         }
 
-        .tagline {
-            font-size: 0.9rem;
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-main {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--white);
+            line-height: 1;
+        }
+
+        .logo-tagline {
+            font-size: 0.75rem;
             opacity: 0.8;
-            margin-top: 0.25rem;
+            color: #a3bffa;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
         /* Navigation */
-        nav {
+        .nav-main {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            flex-wrap: wrap;
         }
 
         .nav-link {
             color: var(--white);
             text-decoration: none;
-            padding: 0.75rem 1.25rem;
-            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
             transition: var(--transition);
-            font-weight: 500;
+            font-weight: 600;
             position: relative;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .admin-panel {
+            padding: 0.2rem 0.6rem !important;
         }
 
         .nav-link:hover {
             background: rgba(255,255,255,0.1);
             transform: translateY(-2px);
+            opacity: 1;
         }
 
         .nav-link.active {
-            background: var(--primary);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            box-shadow: 0 8px 25px rgba(0, 82, 204, 0.3);
+            opacity: 1;
         }
 
-        .cart-count {
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .nav-badge {
+            background: var(--accent);
+            color: var(--dark);
+            border-radius: 12px;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 800;
+            margin-left: 0.25rem;
+            box-shadow: 0 2px 8px rgba(72, 187, 120, 0.4);
+        }
+
+        /* .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: 1rem;
+            padding-left: 1rem;
+            border-left: 1px solid rgba(255,255,255,0.2);
+        } */
+
+        .user-menu {
+            margin-left: 1rem;
+            padding-left: 1rem;
+            border-left: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-trigger {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .user-trigger:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .dropdown-arrow {
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .user-dropdown:hover .dropdown-arrow {
+            transform: rotate(180deg);
+            opacity: 1;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 280px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: 1rem 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .user-dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0 1.25rem 1rem;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .user-email {
+            font-size: 0.85rem;
+            color: var(--gray);
+            opacity: 0.8;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--gray-light);
+            margin: 0.5rem 0;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            color: var(--dark);
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .dropdown-item.logout-btn {
+            color: var(--danger);
+        }
+
+        .dropdown-item.logout-btn:hover {
+            background: #fff5f5;
+            color: var(--danger);
+        }
+
+        .cart-badge {
             background: var(--danger);
             color: var(--white);
+            border-radius: 10px;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        .dropdown-form {
+            margin: 0;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.75rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            position: absolute;
-            top: -5px;
-            right: -5px;
+            font-size: 1rem;
+            box-shadow: var(--shadow);
         }
 
         /* Main content */
         .main-content {
             flex: 1;
-            padding: 2rem 0;
+            padding-top: var(--header-height);
+            min-height: calc(100vh - var(--header-height));
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 1.5rem;
+            padding: 0 2rem;
+        }
+
+        .container-narrow {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
         }
 
         /* Messages */
         .messages {
-            margin-bottom: 2rem;
+            margin: 2rem 0;
         }
 
         .message {
-            padding: 1rem 1.5rem;
+            padding: 1.25rem 1.5rem;
             border-radius: var(--border-radius);
             margin-bottom: 1rem;
             font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
             box-shadow: var(--shadow);
             border-left: 4px solid;
+            backdrop-filter: blur(10px);
+            animation: slideInRight 0.5s ease-out;
         }
 
-        .message::before {
-            font-size: 1.2rem;
+        .message i {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
         }
 
         .message.success {
-            background: #f0fff4;
+            background: linear-gradient(135deg, #f0fff4, #c6f6d5);
             color: #22543d;
             border-left-color: var(--success);
         }
 
-        .message.success::before {
-            content: '✓';
-        }
-
         .message.error {
-            background: #fff5f5;
+            background: linear-gradient(135deg, #fff5f5, #fed7d7);
             color: #742a2a;
             border-left-color: var(--danger);
         }
 
-        .message.error::before {
-            content: '⚠';
-        }
-
         .message.info {
-            background: #ebf8ff;
+            background: linear-gradient(135deg, #ebf8ff, #bee3f8);
             color: #1a365d;
-            border-left-color: var(--primary);
-        }
-
-        .message.info::before {
-            content: 'ℹ';
+            border-left-color: var(--info);
         }
 
         .message.warning {
-            background: #fffaf0;
+            background: linear-gradient(135deg, #fffaf0, #feebc8);
             color: #744210;
             border-left-color: var(--warning);
-        }
-
-        .message.warning::before {
-            content: '⚠';
         }
 
         /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: 25px;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            border-radius: 50px;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
             transition: var(--transition);
-            border: 2px solid transparent;
+            border: none;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn-primary {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: var(--white);
+            box-shadow: 0 8px 25px rgba(0, 82, 204, 0.3);
         }
 
         .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 82, 204, 0.4);
         }
 
         .btn-secondary {
-            background: transparent;
+            background: rgba(255,255,255,0.1);
             color: var(--white);
-            border-color: var(--white);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
         .btn-secondary:hover {
-            background: var(--white);
-            color: var(--primary);
-            transform: translateY(-2px);
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
         }
 
         .btn-outline {
             background: transparent;
             color: var(--primary);
-            border-color: var(--primary);
+            border: 2px solid var(--primary);
         }
 
         .btn-outline:hover {
             background: var(--primary);
             color: var(--white);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 82, 204, 0.3);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--dark);
+            border: 2px solid transparent;
+        }
+
+        .btn-ghost:hover {
+            background: var(--gray-light);
             transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-lg {
+            padding: 1.25rem 2.5rem;
+            font-size: 1.1rem;
         }
 
         /* Footer */
         .footer {
-            background: var(--dark);
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 100%);
             color: var(--white);
-            padding: 3rem 0 2rem;
-            margin-top: auto;
+            padding: 4rem 0 2rem;
+            margin-top: 36px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
         }
 
         .footer-content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 2;
         }
 
         .footer-section h3 {
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--white);
         }
 
         .footer-section p {
             opacity: 0.8;
-            line-height: 1.6;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
         }
 
         .footer-links {
@@ -286,7 +570,7 @@
         }
 
         .footer-links li {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
         .footer-links a {
@@ -294,11 +578,46 @@
             text-decoration: none;
             opacity: 0.8;
             transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .footer-links a:hover {
             opacity: 1;
-            padding-left: 0.5rem;
+            color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        .footer-links a i {
+            width: 16px;
+            text-align: center;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-link {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-decoration: none;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 82, 204, 0.3);
         }
 
         .footer-bottom {
@@ -306,17 +625,30 @@
             padding-top: 2rem;
             text-align: center;
             opacity: 0.7;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 2;
         }
 
         /* Utility classes */
-        .text-center {
-            text-align: center;
-        }
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
 
         .mt-1 { margin-top: 1rem; }
         .mt-2 { margin-top: 2rem; }
+        .mt-3 { margin-top: 3rem; }
+        .mt-4 { margin-top: 4rem; }
+
         .mb-1 { margin-bottom: 1rem; }
         .mb-2 { margin-bottom: 2rem; }
+        .mb-3 { margin-bottom: 3rem; }
+        .mb-4 { margin-bottom: 4rem; }
+
+        .py-1 { padding: 1rem 0; }
+        .py-2 { padding: 2rem 0; }
+        .py-3 { padding: 3rem 0; }
+        .py-4 { padding: 4rem 0; }
 
         /* Mobile menu */
         .mobile-menu-btn {
@@ -326,113 +658,352 @@
             color: var(--white);
             font-size: 1.5rem;
             cursor: pointer;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Back to top */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-lg);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 15px 35px rgba(0, 82, 204, 0.4);
+        }
+
+        /* Loading animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .main-content {
+            animation: fadeInUp 0.8s ease-out;
         }
 
         /* Responsive */
+        @media (max-width: 1200px) {
+            .footer-content {
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+        }
+
         @media (max-width: 768px) {
+            :root {
+                --header-height: 70px;
+            }
+
             .header .container {
-                flex-direction: column;
-                align-items: flex-start;
+                padding: 0 1rem;
             }
 
             .mobile-menu-btn {
-                display: block;
-                position: absolute;
-                top: 1rem;
-                right: 1.5rem;
-            }
-
-            nav {
-                display: none;
-                width: 100%;
-                flex-direction: column;
-                margin-top: 1rem;
-            }
-
-            nav.active {
                 display: flex;
+            }
+
+            .nav-main {
+                position: fixed;
+                top: var(--header-height);
+                left: 0;
+                right: 0;
+                background: var(--dark);
+                flex-direction: column;
+                padding: 2rem;
+                box-shadow: var(--shadow-lg);
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition-slow);
+                gap: 0.5rem;
+            }
+
+            .nav-main.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
             }
 
             .nav-link {
                 width: 100%;
+                justify-content: flex-start;
+                padding: 1rem 1.5rem;
+                border-radius: var(--border-radius);
+            }
+
+            /* .user-menu {
+                border-left: none;
+                border-top: 1px solid rgba(255,255,255,0.2);
+                padding: 1rem 0 0;
+                margin: 1rem 0 0;
+                width: 100%;
                 justify-content: center;
+            } */
+
+                .user-menu {
+                border-left: none;
+                border-top: 1px solid rgba(255,255,255,0.2);
+                padding: 1rem 0 0;
+                margin: 1rem 0 0;
+                width: 100%;
+            }
+            
+            .user-dropdown {
+                width: 100%;
+            }
+            
+            .user-trigger {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                width: 100%;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                background: transparent;
+                padding: 1rem 0 0;
+                display: none;
+            }
+            
+            .user-dropdown:hover .dropdown-menu,
+            .user-dropdown.active .dropdown-menu {
+                display: block;
+            }
+            
+            .dropdown-header {
+                display: none;
+            }
+            
+            .dropdown-item {
+                color: var(--white);
+                padding: 1rem 1.5rem;
+                border-radius: var(--border-radius);
+                margin-bottom: 0.25rem;
+            }
+            
+            .dropdown-item:hover {
+                background: rgba(255,255,255,0.1);
+                color: var(--white);
+            }
+
+            .container {
+                padding: 0 1rem;
             }
 
             .footer-content {
                 grid-template-columns: 1fr;
                 text-align: center;
+                gap: 2rem;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+
+            .back-to-top {
+                bottom: 1rem;
+                right: 1rem;
             }
         }
 
         @media (max-width: 480px) {
-            .container {
-                padding: 0 1rem;
-            }
-            
-            .logo {
+            .logo-main {
                 font-size: 1.25rem;
             }
-            
+
+            .logo-tagline {
+                font-size: 0.7rem;
+            }
+
             .btn {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.85rem;
+                padding: 0.875rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .footer {
+                padding: 3rem 0 1.5rem;
             }
         }
 
-        /* Loading animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: var(--dark);
+                color: var(--white);
+            }
         }
 
-        .main-content {
-            animation: fadeIn 0.6s ease-out;
+        /* Print styles */
+        @media print {
+            .header, .footer, .back-to-top {
+                display: none;
+            }
+
+            .main-content {
+                padding-top: 0;
+            }
         }
     </style>
 </head>
 <body>
+    <div style="display: none;">
+        {% csrf_token %}
+    </div>
+
     <!-- Header -->
-    <header class="header">
+    <header class="header" id="header">
         <div class="container">
             <a href="/" class="logo">
                 <span class="logo-icon">⚙️</span>
-                <div>
-                    <div>Техресурс</div>
-                    <div class="tagline">Инженерные решения</div>
+                <div class="logo-text">
+                    <div class="logo-main">Техресурс</div>
                 </div>
             </a>
 
-            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
 
-            <nav id="main-nav">
-                <a href="/" class="nav-link">🏠 Главная</a>
-                <a href="/about/" class="nav-link">👥 О компании</a>
-                <a href="/services/" class="nav-link">🛠️ Услуги</a>
-                <a href="/products/" class="nav-link">📦 Товары</a>
+            <nav class="nav-main" id="main-nav">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Главная
+                </a>
+                <a href="/about/" class="nav-link">
+                    <i class="fas fa-building"></i>
+                    О&nbsp;компании
+                </a>
+                <a href="/services/" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    Услуги
+                </a>
+                <a href="/products/" class="nav-link">
+                    <i class="fas fa-box"></i>
+                    Товары
+                    <span class="nav-badge">NEW</span>
+                </a>
                 
                 {% if user.is_authenticated %}
-                    <a href="/cart/" class="nav-link">
-                        🛒 Корзина
-                        {% with cart_items_count=user.cart.cartitem_set.count %}
-                            {% if cart_items_count > 0 %}
-                                <span class="cart-count">{{ cart_items_count }}</span>
-                            {% endif %}
-                        {% endwith %}
-                    </a>
-                    <a href="/orders/" class="nav-link">📋 Заказы</a>
-                    <a href="/profile/" class="nav-link">👤 Профиль</a>
-                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-secondary" style="border: none; background: transparent; font: inherit;">
-                            🚪 Выйти
-                        </button>
-                    </form>
+                    <div class="user-menu">
+                        <div class="user-dropdown">
+                            <button class="user-trigger">
+                                <div class="user-avatar">
+                                    {{ user.username|first|upper }}
+                                </div>
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </button>
+                            
+                            <div class="dropdown-menu">
+                                <div class="dropdown-header">
+                                    <div class="user-avatar">
+                                        {{ user.username|first|upper }}
+                                    </div>
+                                    <div class="user-info">
+                                        <div class="user-name">{{ user.username }}</div>
+                                        <div class="user-email">{{ user.email }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="dropdown-divider"></div>
+                                
+                                <a href="/profile/" class="dropdown-item">
+                                    <i class="fas fa-user"></i>
+                                    Профиль
+                                </a>
+                                <a href="/orders/" class="dropdown-item">
+                                    <i class="fas fa-clipboard-list"></i>
+                                    Мои заказы
+                                </a>
+                                <a href="/cart/" class="dropdown-item">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    Корзина
+                                    {% with cart_items_count=user.cart.cartitem_set.count %}
+                                        {% if cart_items_count > 0 %}
+                                            <span class="cart-badge">{{ cart_items_count }}</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </a>
+                                
+                                <div class="dropdown-divider"></div>
+                                
+                                <form method="post" action="{% url 'logout' %}" class="dropdown-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item logout-btn">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        Выйти
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 {% else %}
-                    <a href="/login/" class="nav-link">🔐 Войти</a>
+                    <a href="/login/" class="nav-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Войти
+                    </a>
+                    <a href="/register/" class="nav-link" style="background: var(--success);">
+                        <i class="fas fa-user-plus"></i>
+                        Регистрация
+                    </a>
                 {% endif %}
                 
                 {% if user.is_staff %}
-                    <a href="/admin-dashboard/" class="nav-link">⚙️ Панель управления</a>
+                    <a href="/admin-dashboard/" class="nav-link admin-panel">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Панель управления
+                    </a>
                 {% endif %}
             </nav>
         </div>
@@ -445,6 +1016,15 @@
             <div class="messages">
                 {% for message in messages %}
                 <div class="message {{ message.tags }}">
+                    {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle"></i>
+                    {% elif message.tags == 'error' %}
+                        <i class="fas fa-exclamation-circle"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i class="fas fa-exclamation-triangle"></i>
+                    {% else %}
+                        <i class="fas fa-info-circle"></i>
+                    {% endif %}
                     {{ message }}
                 </div>
                 {% endfor %}
@@ -463,36 +1043,94 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>Техресурс</h3>
-                    <p>Профессиональные инженерные решения и оборудование для цифровой трансформации вашего бизнеса.</p>
+                    <p>Ведущий поставщик инновационных инженерных решений и высокотехнологичного оборудования для промышленности и бизнеса.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link" aria-label="VKontakte">
+                            <i class="fab fa-vk"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Telegram">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
                 </div>
                 
                 <div class="footer-section">
                     <h3>Контакты</h3>
                     <ul class="footer-links">
-                        <li>📞 +7 (800) 123-45-67</li>
-                        <li>✉️ info@techresurs.ru</li>
-                        <li>📍 Москва, ул. Техническая, 42</li>
+                        <li>
+                            <a href="tel:+78001234567">
+                                <i class="fas fa-phone"></i>
+                                +79375246888
+                            </a>
+                        </li>
+                        <li>
+                            <a href="mailto:info@techresurs.ru">
+                                <i class="fas fa-envelope"></i>
+                                info@techresurs.ru
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Казань, ул. Техническая, 52
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="fas fa-clock"></i>
+                                Пн-Пт: 8:00-17:00
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 
                 <div class="footer-section">
-                    <h3>Быстрые ссылки</h3>
+                    <h3>Услуги</h3>
                     <ul class="footer-links">
-                        <li><a href="/services/">Наши услуги</a></li>
-                        <li><a href="/products/">Каталог товаров</a></li>
-                        <li><a href="/about/">О компании</a></li>
-                        <li><a href="/contacts/">Контакты</a></li>
+                        <li><a href="/services/"><i class="fas fa-chevron-right"></i>Проектирование</a></li>
+                        <li><a href="/services/"><i class="fas fa-chevron-right"></i>Монтаж</a></li>
+                        <li><a href="/services/"><i class="fas fa-chevron-right"></i>Разработка&nbsp;ПО</a></li>
+                        <li><a href="/services/"><i class="fas fa-chevron-right"></i>Техподдержка</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Ресурсы</h3>
+                    <ul class="footer-links">
+                        <li><a href="/about/"><i class="fas fa-chevron-right"></i>О&nbsp;компании</a></li>
+                        <li><a href="/products/"><i class="fas fa-chevron-right"></i>Каталог</a></li>
+                        <li><a href="/blog/"><i class="fas fa-chevron-right"></i>Блог</a></li>
+                        <li><a href="/support/"><i class="fas fa-chevron-right"></i>Поддержка</a></li>
                     </ul>
                 </div>
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2025 ООО "Техресурс". Все права защищены.</p>
+                <p>&copy; 2025 ООО "Техресурс". Все права защищены. <a href="/privacy/" style="color: var(--accent);">Политика конфиденциальности</a></p>
             </div>
         </div>
     </footer>
 
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Вернуться наверх">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
+        // Инициализация AOS
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
         // Mobile menu toggle
         function toggleMenu() {
             const nav = document.getElementById('main-nav');
@@ -509,6 +1147,28 @@
             }
         });
 
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            const backToTop = document.getElementById('backToTop');
+            
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+                backToTop.classList.add('visible');
+            } else {
+                header.classList.remove('scrolled');
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        // Back to top
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
         // Add active class to current page link
         document.addEventListener('DOMContentLoaded', function() {
             const currentPath = window.location.pathname;
@@ -519,6 +1179,9 @@
                     link.classList.add('active');
                 }
             });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
         });
 
         // Smooth scroll for anchor links
@@ -531,6 +1194,18 @@
                         behavior: 'smooth',
                         block: 'start'
                     });
+                }
+            });
+        });
+
+        // Add loading animation to buttons
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (this.getAttribute('href') === '#' || this.type === 'submit') {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
                 }
             });
         });

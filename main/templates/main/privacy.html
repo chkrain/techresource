@@ -1,0 +1,831 @@
+<!-- main/templates/main/privacy.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Политика конфиденциальности - Техресурс{% endblock %}
+
+{% block content %}
+<section class="privacy-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1 data-aos="fade-up">Политика конфиденциальности</h1>
+            <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="200">
+                Прозрачность и защита ваших данных — наш приоритет
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="privacy-section">
+    <div class="container">
+        <div class="privacy-layout">
+            <!-- Боковая навигация -->
+            <aside class="privacy-nav" data-aos="fade-right">
+                <div class="nav-card">
+                    <h3>Содержание</h3>
+                    <nav class="nav-links">
+                        <a href="#general" class="nav-link active">Общие положения</a>
+                        <a href="#data-collection" class="nav-link">Сбор данных</a>
+                        <a href="#data-usage" class="nav-link">Использование</a>
+                        <a href="#data-protection" class="nav-link">Защита</a>
+                        <a href="#cookies" class="nav-link">Cookies</a>
+                        <a href="#rights" class="nav-link">Ваши права</a>
+                        <a href="#contacts" class="nav-link">Контакты</a>
+                    </nav>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-icon">📄</div>
+                    <div class="info-content">
+                        <h4>Последнее обновление</h4>
+                        <p>1 января 2025 г.</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Основной контент -->
+            <main class="privacy-content">
+                <div class="content-card" data-aos="fade-up">
+                    <!-- Общие положения -->
+                    <article id="general" class="privacy-article">
+                        <div class="article-header">
+                            <span class="article-number">01</span>
+                            <h2>Общие положения</h2>
+                        </div>
+                        <div class="article-content">
+                            <p>Мы в ООО "Техресурс" серьезно относимся к защите ваших персональных данных. Эта политика объясняет, как мы собираем, используем и защищаем информацию о вас.</p>
+                            
+                            <div class="info-box">
+                                <div class="info-box-icon">ℹ️</div>
+                                <div class="info-box-content">
+                                    <p><strong>Основные принципы:</strong> прозрачность, безопасность, минимальный объем данных, законность обработки.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Сбор данных -->
+                    <article id="data-collection" class="privacy-article">
+                        <div class="article-header">
+                            <span class="article-number">02</span>
+                            <h2>Какие данные мы собираем</h2>
+                        </div>
+                        <div class="article-content">
+                            <p>Мы собираем только те данные, которые необходимы для предоставления наших услуг:</p>
+                            
+                            <div class="data-grid">
+                                <div class="data-item">
+                                    <div class="data-icon">👤</div>
+                                    <div class="data-content">
+                                        <h4>Контактные данные</h4>
+                                        <p>Имя, email, телефон для связи с вами</p>
+                                    </div>
+                                </div>
+                                <div class="data-item">
+                                    <div class="data-icon">🏠</div>
+                                    <div class="data-content">
+                                        <h4>Адрес доставки</h4>
+                                        <p>Только при оформлении заказа</p>
+                                    </div>
+                                </div>
+                                <div class="data-item">
+                                    <div class="data-icon">🛒</div>
+                                    <div class="data-content">
+                                        <h4>История заказов</h4>
+                                        <p>Для улучшения сервиса и поддержки</p>
+                                    </div>
+                                </div>
+                                <div class="data-item">
+                                    <div class="data-icon">🌐</div>
+                                    <div class="data-content">
+                                        <h4>Техническая информация</h4>
+                                        <p>IP-адрес, тип браузера для аналитики</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Использование данных -->
+                    <article id="data-usage" class="privacy-article">
+                        <div class="article-header">
+                            <span class="article-number">03</span>
+                            <h2>Как мы используем ваши данные</h2>
+                        </div>
+                        <div class="article-content">
+                            <p>Ваши данные помогают нам предоставлять качественные услуги:</p>
+                            
+                            <div class="usage-list">
+                                <div class="usage-item">
+                                    <div class="usage-check">✓</div>
+                                    <div class="usage-text">
+                                        <strong>Обработка заказов</strong>
+                                        <p>Оформление и доставка ваших покупок</p>
+                                    </div>
+                                </div>
+                                <div class="usage-item">
+                                    <div class="usage-check">✓</div>
+                                    <div class="usage-text">
+                                        <strong>Поддержка клиентов</strong>
+                                        <p>Быстрое решение ваших вопросов</p>
+                                    </div>
+                                </div>
+                                <div class="usage-item">
+                                    <div class="usage-check">✓</div>
+                                    <div class="usage-text">
+                                        <strong>Улучшение сервиса</strong>
+                                        <p>Анализ для постоянного развития</p>
+                                    </div>
+                                </div>
+                                <div class="usage-item">
+                                    <div class="usage-check">✓</div>
+                                    <div class="usage-text">
+                                        <strong>Безопасность</strong>
+                                        <p>Защита от мошеннических действий</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Защита данных -->
+                    <article id="data-protection" class="privacy-article">
+                        <div class="article-header">
+                            <span class="article-number">04</span>
+                            <h2>Защита ваших данных</h2>
+                        </div>
+                        <div class="article-content">
+                            <p>Мы используем современные технологии для защиты вашей информации:</p>
+                            
+                            <div class="protection-features">
+                                <div class="feature">
+                                    <div class="feature-icon">🔒</div>
+                                    <h4>SSL-шифрование</h4>
+                                    <p>Все данные передаются в зашифрованном виде</p>
+                                </div>
+                                <div class="feature">
+                                    <div class="feature-icon">🛡️</div>
+                                    <h4>Контроль доступа</h4>
+                                    <p>Строгий контроль доступа к персональным данным</p>
+                                </div>
+                                <div class="feature">
+                                    <div class="feature-icon">📊</div>
+                                    <h4>Регулярный аудит</h4>
+                                    <p>Постоянный мониторинг систем безопасности</p>
+                                </div>
+                                <div class="feature">
+                                    <div class="feature-icon">🤝</div>
+                                    <h4>Надежные партнеры</h4>
+                                    <p>Работаем только с проверенными поставщиками</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Cookies -->
+                    <article id="cookies" class="privacy-article">
+                        <div class="article-header">
+                            <span class="article-number">05</span>
+                            <h2>Использование Cookies</h2>
+                        </div>
+                        <div class="article-content">
+                            <p>Cookies помогают нам сделать использование сайта более удобным:</p>
+                            
+                            <div class="cookies-info">
+                                <div class="cookie-type">
+                                    <h4>Необходимые cookies</h4>
+                                    <p>Обеспечивают работу основных функций сайта</p>
+                                </div>
+                                <div class="cookie-type">
+                                    <h4>Аналитические cookies</h4>
+                                    <p>Помогают понять, как используется наш сайт</p>
+                                </div>
+                                <div class="cookie-type">
+                                    <h4>Функциональные cookies</h4>
+                                    <p>Запоминают ваши предпочтения и настройки</p>
+                                </div>
+                            </div>
+                            
+                            <div class="notice-box">
+                                <p>Вы можете управлять cookies через настройки браузера. Отключение некоторых cookies может ограничить функциональность сайта.</p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Ваши права -->
+                    <article id="rights" class="privacy-article">
+                        <div class="article-header">
+                            <span class="article-number">06</span>
+                            <h2>Ваши права</h2>
+                        </div>
+                        <div class="article-content">
+                            <p>Вы имеете полный контроль над своими персональными данными:</p>
+                            
+                            <div class="rights-grid">
+                                <div class="right-card">
+                                    <div class="right-icon">👁️</div>
+                                    <h4>Право на доступ</h4>
+                                    <p>Получить информацию о хранящихся данных</p>
+                                </div>
+                                <div class="right-card">
+                                    <div class="right-icon">✏️</div>
+                                    <h4>Право на исправление</h4>
+                                    <p>Изменить неточные или неполные данные</p>
+                                </div>
+                                <div class="right-card">
+                                    <div class="right-icon">🗑️</div>
+                                    <h4>Право на удаление</h4>
+                                    <p>Удалить ваши персональные данные</p>
+                                </div>
+                                <div class="right-card">
+                                    <div class="right-icon">⛔</div>
+                                    <h4>Право на отзыв</h4>
+                                    <p>Отозвать согласие на обработку данных</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Контакты -->
+                    <article id="contacts" class="privacy-article">
+                        <div class="article-header">
+                            <span class="article-number">07</span>
+                            <h2>Контакты и вопросы</h2>
+                        </div>
+                        <div class="article-content">
+                            <p>Если у вас есть вопросы о политике конфиденциальности или вы хотите воспользоваться своими правами:</p>
+                            
+                            <div class="contact-methods">
+                                <div class="contact-method">
+                                    <div class="contact-icon">📧</div>
+                                    <div class="contact-details">
+                                        <h4>Email</h4>
+                                        <a href="mailto:privacy@techresurs.ru">privacy@techresurs.ru</a>
+                                        <p>Ответим в течение 24 часов</p>
+                                    </div>
+                                </div>
+                                <div class="contact-method">
+                                    <div class="contact-icon">📞</div>
+                                    <div class="contact-details">
+                                        <h4>Телефон</h4>
+                                        <a href="tel:+79375246888">+7 (937) 524-68-88</a>
+                                        <p>Пн-Пт с 9:00 до 18:00</p>
+                                    </div>
+                                </div>
+                                <div class="contact-method">
+                                    <div class="contact-icon">🏢</div>
+                                    <div class="contact-details">
+                                        <h4>Почтовый адрес</h4>
+                                        <p>Казань, ул. Техническая, 52</p>
+                                        <p>ООО "Техресурс"</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </main>
+        </div>
+    </div>
+</section>
+
+<style>
+section {
+    border-radius: 20px;
+    margin-top: 2%;
+}
+
+.privacy-hero {
+    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
+    color: white;
+    padding: 120px 0 80px;
+    text-align: center;
+}
+
+.privacy-hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.privacy-section {
+    padding: 4rem 0;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.privacy-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+/* Навигация */
+.privacy-nav {
+    position: sticky;
+    top: 120px;
+}
+
+.nav-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+}
+
+.nav-card h3 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.nav-link {
+    padding: 0.75rem 1rem;
+    color: #6c757d;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    border-left: 3px solid transparent;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: #f1f5ff;
+    color: #0052cc;
+    border-left-color: #0052cc;
+}
+
+.info-card {
+    background: linear-gradient(135deg, #0052cc, #0066cc);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.info-icon {
+    font-size: 2rem;
+}
+
+.info-content h4 {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.info-content p {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Основной контент */
+.privacy-content {
+    min-height: 100vh;
+}
+
+.content-card {
+    background: white;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.privacy-article {
+    margin-bottom: 4rem;
+}
+
+.privacy-article:last-child {
+    margin-bottom: 0;
+}
+
+.article-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f1f5ff;
+}
+
+.article-number {
+    background: linear-gradient(135deg, #0052cc, #0066cc);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+}
+
+.article-header h2 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    font-weight: 700;
+    margin: 0;
+}
+
+.article-content {
+    color: #4a5568;
+    line-height: 1.7;
+}
+
+.article-content p {
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+}
+
+/* Компоненты */
+.info-box {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.info-box-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.info-box-content p {
+    margin: 0;
+    color: #0369a1;
+    font-weight: 500;
+}
+
+.data-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.data-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.data-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.data-content h4 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.data-content p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.usage-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.usage-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f0fff4;
+    border-radius: 8px;
+    border-left: 4px solid #48bb78;
+}
+
+.usage-check {
+    background: #48bb78;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.usage-text strong {
+    color: #22543d;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.usage-text p {
+    margin: 0;
+    color: #38a169;
+    font-size: 0.95rem;
+}
+
+.protection-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.feature {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.feature h4 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.feature p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.cookies-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.cookie-type {
+    padding: 1.5rem;
+    background: #fffaf0;
+    border-radius: 12px;
+    border-left: 4px solid #ed8936;
+}
+
+.cookie-type h4 {
+    color: #744210;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.cookie-type p {
+    margin: 0;
+    color: #dd6b20;
+}
+
+.notice-box {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+}
+
+.notice-box p {
+    margin: 0;
+    color: #4a5568;
+    font-style: italic;
+}
+
+.rights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.right-card {
+    text-align: center;
+    padding: 2rem 1rem;
+    background: white;
+    border: 2px solid #f1f5ff;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.right-card:hover {
+    border-color: #0052cc;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 82, 204, 0.15);
+}
+
+.right-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.right-card h4 {
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.right-card p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.contact-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.contact-method {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.contact-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.contact-details h4 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.contact-details a {
+    color: #0052cc;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.contact-details a:hover {
+    text-decoration: underline;
+}
+
+.contact-details p {
+    margin: 0.25rem 0 0 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .privacy-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .privacy-nav {
+        position: static;
+    }
+    
+    .nav-card {
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .privacy-hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .content-card {
+        padding: 2rem;
+    }
+    
+    .article-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .data-grid,
+    .protection-features,
+    .rights-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-method {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .privacy-hero {
+        padding: 100px 0 60px;
+    }
+    
+    .privacy-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .content-card {
+        padding: 1.5rem;
+    }
+    
+    .article-header h2 {
+        font-size: 1.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Активация навигации
+    const navLinks = document.querySelectorAll('.nav-link');
+    const articles = document.querySelectorAll('.privacy-article');
+    
+    function updateActiveNav() {
+        const scrollPos = window.scrollY + 100;
+        
+        articles.forEach(article => {
+            const articleTop = article.offsetTop;
+            const articleBottom = articleTop + article.offsetHeight;
+            const articleId = article.getAttribute('id');
+            
+            if (scrollPos >= articleTop && scrollPos < articleBottom) {
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${articleId}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }
+    
+    // Плавная прокрутка для навигации
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    window.addEventListener('scroll', updateActiveNav);
+    updateActiveNav();
+    
+    // Инициализация AOS
+    AOS.init({
+        duration: 600,
+        once: true,
+        offset: 100
+    });
+});
+</script>
+{% endblock %}

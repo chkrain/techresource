@@ -3,15 +3,38 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from datetime import date
+from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
+import secrets
+import hashlib
+import time
+from datetime import timedelta
+from django.conf import settings
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь")
-    phone = models.CharField(max_length=20, verbose_name="Телефон", blank=True)
-    company = models.CharField(max_length=200, verbose_name="Компания", blank=True)
-    position = models.CharField(max_length=100, verbose_name="Должность", blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE) 
+    phone = models.CharField(max_length=20, blank=True, null=True, verbose_name='Телефон')
+    company = models.CharField(max_length=100, blank=True, verbose_name='Компания')
+    position = models.CharField(max_length=100, blank=True, verbose_name='Должность')
+    date_of_birth = models.DateField(blank=True, null=True, verbose_name='Дата рождения')
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name='Аватар')
+    
+    # Поля для восстановления пароля
+    phone_verified = models.BooleanField(default=False, verbose_name='Телефон подтвержден')
+    sms_code = models.CharField(max_length=6, blank=True, null=True, verbose_name='Код из SMS')
+    sms_code_expires = models.DateTimeField(blank=True, null=True, verbose_name='Код действует до')
+    reset_token = models.CharField(max_length=100, blank=True, null=True, verbose_name='Токен сброса')
+    reset_token_expires = models.DateTimeField(blank=True, null=True, verbose_name='Токен действует до')
     
     def __str__(self):
         return f"Профиль {self.user.username}"
+    
+    def age(self):
+        if self.date_of_birth:
+            today = date.today()
+            return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+        return None
     
     class Meta:
         verbose_name = "Профиль пользователя"
@@ -32,7 +55,6 @@ class Address(models.Model):
     
     def save(self, *args, **kwargs):
         if self.is_default:
-            # Снимаем флаг default с других адресов этого пользователя
             Address.objects.filter(user=self.user, is_default=True).update(is_default=False)
         super().save(*args, **kwargs)
     
@@ -71,6 +93,10 @@ class Cart(models.Model):
     def get_items_count(self):
         """Возвращает общее количество товаров в корзине"""
         return sum(item.quantity for item in self.cartitem_set.all())
+    
+    def get_total_quantity(self):
+        """Возвращает количество позиций (разных товаров) в корзине"""
+        return self.cartitem_set.count()
     
     class Meta:
         verbose_name = "Корзина"
@@ -154,7 +180,6 @@ class OrderItem(models.Model):
         verbose_name = "Элемент заказа"
         verbose_name_plural = "Элементы заказа"
 
-# Исправленные сигналы для создания профиля пользователя
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -162,9 +187,9 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    # Используем get_or_create чтобы избежать ошибки если профиля нет
-    UserProfile.objects.get_or_create(user=instance)
-    instance.userprofile.save()
+    profile, created = UserProfile.objects.get_or_create(user=instance)
+    if not created:
+        profile.save()
 
 class NotificationLog(models.Model):
     NOTIFICATION_TYPES = [
@@ -191,3 +216,37 @@ class NotificationLog(models.Model):
         verbose_name = "Лог уведомлений"
         verbose_name_plural = "Логи уведомлений"
         ordering = ['-created_at']
+
+class LoginAttempt(models.Model):
+    username = models.CharField(max_length=150)
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    success = models.BooleanField(default=False)
+    
+    @classmethod
+    def is_ip_blocked(cls, ip_address):
+        """Проверяет, заблокирован ли IP из-за множества неудачных попыток"""
+        time_threshold = timezone.now() - timedelta(minutes=15)
+        failed_attempts = cls.objects.filter(
+            ip_address=ip_address,
+            timestamp__gte=time_threshold,
+            success=False
+        ).count()
+        return failed_attempts >= 5
+    
+class SecurityLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    action = models.CharField(max_length=100)
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    success = models.BooleanField(default=True)
+
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    used = models.BooleanField(default=False)
+    ip_address = models.GenericIPAddressField()

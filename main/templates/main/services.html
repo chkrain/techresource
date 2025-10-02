@@ -7,9 +7,6 @@
     <div class="hero-content">
         <h1 class="hero-title">Наши услуги</h1>
         <p class="hero-subtitle">Полный спектр инженерных решений для цифровой трансформации вашего бизнеса</p>
-        <div class="scroll-indicator">
-            <div class="scroll-arrow"></div>
-        </div>
     </div>
 </div>
 
@@ -179,13 +176,18 @@
 <style>
 /* Базовые стили */
 .services-hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
     color: white;
     padding: 120px 0 80px;
     text-align: center;
     position: relative;
     overflow: hidden;
 }
+
+section, .services-hero {
+    border-radius: 20px;
+}
+
 
 .hero-title {
     font-size: 3.5rem;
@@ -204,21 +206,6 @@
     transform: translateY(30px);
 }
 
-.scroll-indicator {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.scroll-arrow {
-    width: 30px;
-    height: 30px;
-    border-right: 2px solid white;
-    border-bottom: 2px solid white;
-    transform: rotate(45deg);
-    animation: bounce 2s infinite;
-}
 
 @keyframes bounce {
     0%, 100% { transform: rotate(45deg) translate(0, 0); }
@@ -287,7 +274,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #0052cc, #0066cc);
     transform: scaleX(0);
     transition: transform 0.3s ease;
 }
@@ -330,6 +317,7 @@
     border-bottom: 1px solid #f1f3f4;
     position: relative;
     padding-left: 1.5rem;
+    color: black;
 }
 
 .service-features li::before {
@@ -341,7 +329,7 @@
 }
 
 .service-btn {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #0052cc, #0066cc);
     color: white;
     border: none;
     padding: 12px 30px;
@@ -388,6 +376,10 @@
     color: #2c3e50;
 }
 
+.additional-service {
+    color: black;
+}
+
 /* Процесс работы */
 .process-steps {
     max-width: 800px;
@@ -404,7 +396,7 @@
 .step-number {
     font-size: 3rem;
     font-weight: 700;
-    color: #667eea;
+    color: #0052cc;;
     margin-right: 2rem;
     min-width: 80px;
 }

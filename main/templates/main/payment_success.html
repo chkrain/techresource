@@ -1,125 +1,802 @@
 <!-- main/templates/main/payment_success.html -->
 {% extends 'main/base.html' %}
+{% load tz %}
 
 {% block title %}Статус оплаты - Техресурс{% endblock %}
 
 {% block content %}
-<div class="payment-status-container">
-    {% if order.status == 'paid' %}
-    <div class="success-card">
-        <div class="success-icon">✅</div>
-        <h2>Оплата прошла успешно!</h2>
-        <p>Заказ #{{ order.id }} подтвержден и передан в обработку.</p>
-        
-        <div class="order-details">
-            <h3>Детали заказа:</h3>
-            <p><strong>Сумма:</strong> {{ order.total_price }} руб.</p>
-            <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
-            <p><strong>Дата:</strong> {{ order.paid_at|date:"d.m.Y H:i" }}</p>
+<!-- Hero секция -->
+<section class="status-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Статус оплаты</h1>
+            <p class="hero-subtitle">Информация о вашем заказе</p>
         </div>
     </div>
-    {% else %}
-    <div class="error-card">
-        <div class="error-icon">❌</div>
-        <h2>Проблема с оплатой</h2>
-        <p>Заказ #{{ order.id }} не был оплачен.</p>
-        
-        <div class="order-details">
-            <h3>Статус платежа:</h3>
-            <p><strong>Текущий статус:</strong> {{ order.get_status_display }}</p>
-            <p><strong>Сумма:</strong> {{ order.total_price }} руб.</p>
-            <p class="warning-text">Пожалуйста, попробуйте оплатить заказ еще раз или выберите другой способ оплаты.</p>
-        </div>
-    </div>
-    {% endif %}
-    
-    <div class="actions">
+</section>
+
+<section class="status-section">
+    <div class="container">
         {% if order.status == 'paid' %}
-            <a href="{% url 'orders' %}" class="btn btn-primary">Мои заказы</a>
-            <a href="{% url 'products' %}" class="btn btn-secondary">Продолжить покупки</a>
+        <!-- Успешная оплата -->
+        <div class="status-card success">
+            <div class="status-header">
+                <div class="status-icon success">✅</div>
+                <div class="status-text">
+                    <h2>Оплата прошла успешно!</h2>
+                    <p>Заказ #{{ order.id }} подтвержден и передан в обработку</p>
+                </div>
+            </div>
+
+            <div class="order-details">
+                <h3>Детали заказа</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Номер заказа:</span>
+                        <strong class="detail-value">#{{ order.id }}</strong>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Сумма:</span>
+                        <strong class="detail-value">{{ order.total_price }} руб.</strong>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Статус:</span>
+                        <span class="status-badge success">{{ order.get_status_display }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Дата оплаты:</span>
+                        <span class="detail-value">{{ order.paid_at|timezone:"Europe/Moscow"|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Способ оплаты:</span>
+                        <span class="detail-value">{{ order.get_payment_method_display }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Адрес доставки:</span>
+                        <span class="detail-value">{{ order.delivery_address }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="next-steps">
+                <h4>Что дальше?</h4>
+                <div class="steps-timeline">
+                    <div class="step completed">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Оплата получена</strong>
+                            <small>Заказ подтвержден</small>
+                        </div>
+                    </div>
+                    <div class="step active">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Обработка заказа</strong>
+                            <small>Собираем ваш заказ</small>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Доставка</strong>
+                            <small>Передаем в службу доставки</small>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Завершен</strong>
+                            <small>Товар у вас</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-actions">
+                <a href="{% url 'orders' %}" class="btn btn-primary">
+                    📦 Мои заказы
+                </a>
+                <a href="{% url 'products' %}" class="btn btn-secondary">
+                    🛒 Продолжить покупки
+                </a>
+                <button class="btn btn-outline" onclick="window.print()">
+                    🖨️ Распечатать
+                </button>
+            </div>
+        </div>
         {% else %}
-            <a href="{% url 'orders' %}" class="btn btn-primary">Мои заказы</a>
-            <a href="{% url 'cart' %}" class="btn btn-warning">Вернуться к корзине</a>
+        <!-- Ошибка оплаты -->
+        <div class="status-card error">
+            <div class="status-header">
+                <div class="status-icon error">❌</div>
+                <div class="status-text">
+                    <h2>Проблема с оплатой</h2>
+                    <p>Заказ #{{ order.id }} не был оплачен</p>
+                </div>
+            </div>
+
+            <div class="order-details">
+                <h3>Информация о платеже</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Номер заказа:</span>
+                        <strong class="detail-value">#{{ order.id }}</strong>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Сумма:</span>
+                        <strong class="detail-value">{{ order.total_price }} руб.</strong>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Статус:</span>
+                        <span class="status-badge error">{{ order.get_status_display }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Время:</span>
+                        <span class="detail-value">{{ order.updated_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                </div>
+
+                <div class="error-notice">
+                    <div class="notice-icon">⚠️</div>
+                    <div class="notice-content">
+                        <strong>Возможные причины:</strong>
+                        <ul>
+                            <li>Недостаточно средств на карте</li>
+                            <li>Банк отклонил операцию</li>
+                            <li>Техническая ошибка при обработке</li>
+                            <li>Истек срок действия карты</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="retry-options">
+                <h4>Как продолжить?</h4>
+                <div class="options-grid">
+                    <div class="option-card">
+                        <div class="option-icon">🔄</div>
+                        <h5>Повторить оплату</h5>
+                        <p>Попробуйте оплатить заказ еще раз</p>
+                        <a href="{% url 'payment' order.id %}" class="btn btn-primary btn-small">
+                            Попробовать снова
+                        </a>
+                    </div>
+                    <div class="option-card">
+                        <div class="option-icon">💳</div>
+                        <h5>Изменить способ оплаты</h5>
+                        <p>Выберите другой способ оплаты</p>
+                        <a href="{% url 'cart' %}" class="btn btn-secondary btn-small">
+                            Изменить способ
+                        </a>
+                    </div>
+                    <div class="option-card">
+                        <div class="option-icon">📞</div>
+                        <h5>Связаться с поддержкой</h5>
+                        <p>Наши специалисты помогут решить проблему</p>
+                        <a href="tel:+78001234567" class="btn btn-outline btn-small">
+                            Позвонить
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-actions">
+                <a href="{% url 'orders' %}" class="btn btn-primary">
+                    📋 Мои заказы
+                </a>
+                <a href="{% url 'cart' %}" class="btn btn-warning">
+                    🛒 Вернуться к корзине
+                </a>
+            </div>
+        </div>
         {% endif %}
+
+        <!-- Информация о поддержке -->
+        <div class="support-info">
+            <div class="support-card">
+                <div class="support-icon">💬</div>
+                <div class="support-content">
+                    <h4>Нужна помощь?</h4>
+                    <p>Наша служба поддержки всегда готова помочь вам</p>
+                    <div class="support-contacts">
+                        <a href="tel:+78001234567" class="contact-link">
+                            📞 +7 (800) 123-45-67
+                        </a>
+                        <a href="mailto:support@techresurs.ru" class="contact-link">
+                            ✉️ support@techresurs.ru
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</section>
 
 <style>
-.payment-status-container {
-    max-width: 600px;
-    margin: 2rem auto;
+section {
+    border-radius: 20px;
+    margin-top: 2%;
+}
+/* Hero секция */
+.status-hero {
+    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
+    color: white;
+    padding: 80px 0 40px;
     text-align: center;
 }
 
-.success-card, .error-card {
+.status-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Основная секция */
+.status-section {
+    padding: 3rem 0;
+    background: #f8f9fa;
+    min-height: 70vh;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Карточка статуса */
+.status-card {
     background: white;
-    padding: 3rem;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
     margin-bottom: 2rem;
 }
 
-.success-icon, .error-icon {
-    font-size: 4rem;
+.status-card.success {
+    border-top: 4px solid #48bb78;
+}
+
+.status-card.error {
+    border-top: 4px solid #e53e3e;
+}
+
+/* Заголовок статуса */
+.status-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2.5rem 2rem 2rem;
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+}
+
+.status-icon {
+    font-size: 3.5rem;
+    flex-shrink: 0;
+}
+
+.status-icon.success {
+    color: #48bb78;
+}
+
+.status-icon.error {
+    color: #e53e3e;
+}
+
+.status-text h2 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+}
+
+.status-text p {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin: 0;
+}
+
+/* Детали заказа */
+.order-details {
+    padding: 0 2rem 2rem;
+}
+
+.order-details h3 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin: 0 0 1.5rem 0;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.detail-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-badge.success {
+    background: #c6f6d5;
+    color: #22543d;
+}
+
+.status-badge.error {
+    background: #fed7d7;
+    color: #742a2a;
+}
+
+/* Таймлайн следующих шагов */
+.next-steps {
+    padding: 0 2rem 2rem;
+}
+
+.next-steps h4 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin: 0 0 1.5rem 0;
+}
+
+.steps-timeline {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 2rem 0;
+}
+
+.steps-timeline::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: #e9ecef;
+    z-index: 1;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    flex: 1;
+}
+
+.step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: #e9ecef;
+    color: #6c757d;
+    border: 3px solid white;
+}
+
+.step.completed .step-icon {
+    background: #48bb78;
+    color: white;
+}
+
+.step.active .step-icon {
+    background: #0052cc;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.step-content {
+    max-width: 120px;
+}
+
+.step-content strong {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.step-content small {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 82, 204, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 82, 204, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 82, 204, 0); }
+}
+
+/* Уведомление об ошибке */
+.error-notice {
+    display: flex;
+    gap: 1rem;
+    background: #fff5f5;
+    border: 1px solid #fed7d7;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.notice-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    color: #e53e3e;
+}
+
+.notice-content strong {
+    display: block;
+    color: #742a2a;
+    margin-bottom: 0.5rem;
+}
+
+.notice-content ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: #742a2a;
+}
+
+.notice-content li {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+/* Опции повторной оплаты */
+.retry-options {
+    padding: 0 2rem 2rem;
+}
+
+.retry-options h4 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.option-card {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.option-card:hover {
+    border-color: #0052cc;
+    transform: translateY(-2px);
+}
+
+.option-icon {
+    font-size: 2.5rem;
     margin-bottom: 1rem;
 }
 
-.error-card {
-    border-left: 5px solid #e74c3c;
+.option-card h5 {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
 }
 
-.success-card {
-    border-left: 5px solid #27ae60;
+.option-card p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0 0 1rem 0;
+    line-height: 1.4;
 }
 
-.order-details {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin: 2rem 0;
-    text-align: left;
-}
-
-.warning-text {
-    color: #e74c3c;
-    font-weight: bold;
+/* Кнопки */
+.status-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    padding: 0 2rem 2rem;
+    flex-wrap: wrap;
 }
 
 .btn {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    margin: 0 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 12px;
     text-decoration: none;
-    border-radius: 4px;
-    font-weight: bold;
-    transition: background 0.2s;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: 1rem;
 }
 
 .btn-primary {
-    background: #27ae60;
+    background: #0052cc;
     color: white;
 }
 
 .btn-primary:hover {
-    background: #219a52;
+    background: #0047b3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 82, 204, 0.3);
 }
 
 .btn-secondary {
-    background: #3498db;
+    background: #48bb78;
     color: white;
 }
 
 .btn-secondary:hover {
-    background: #2980b9;
+    background: #38a169;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
 }
 
 .btn-warning {
-    background: #e67e22;
+    background: #ed8936;
     color: white;
 }
 
 .btn-warning:hover {
-    background: #d35400;
+    background: #dd6b20;
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: white;
+    color: #2c3e50;
+    border-color: #e9ecef;
+}
+
+.btn-outline:hover {
+    border-color: #0052cc;
+    color: #0052cc;
+    transform: translateY(-2px);
+}
+
+.btn-small {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+}
+
+/* Информация о поддержке */
+.support-info {
+    margin-top: 2rem;
+}
+
+.support-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.support-icon {
+    font-size: 3rem;
+    flex-shrink: 0;
+}
+
+.support-content h4 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+}
+
+.support-content p {
+    color: #6c757d;
+    margin: 0 0 1rem 0;
+}
+
+.support-contacts {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #0052cc;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.contact-link:hover {
+    color: #0047b3;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .status-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .status-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+        padding: 2rem 1.5rem 1.5rem;
+    }
+    
+    .steps-timeline {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .steps-timeline::before {
+        display: none;
+    }
+    
+    .step {
+        flex-direction: row;
+        text-align: left;
+        gap: 1rem;
+    }
+    
+    .step-content {
+        max-width: none;
+        flex: 1;
+    }
+    
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .status-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .support-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .support-contacts {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .status-section {
+        padding: 1.5rem 0;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
+    
+    .order-details, .next-steps, .retry-options {
+        padding: 0 1rem 1.5rem;
+    }
+    
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .error-notice {
+        flex-direction: column;
+        text-align: center;
+    }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Анимация появления элементов
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Анимируем карточки
+    document.querySelectorAll('.status-card, .support-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+
+    // Анимация шагов в таймлайне
+    if (document.querySelector('.steps-timeline')) {
+        const steps = document.querySelectorAll('.step');
+        steps.forEach((step, index) => {
+            step.style.opacity = '0';
+            step.style.transform = 'translateX(-20px)';
+            step.style.transition = `opacity 0.5s ease ${index * 0.2}s, transform 0.5s ease ${index * 0.2}s`;
+            
+            setTimeout(() => {
+                step.style.opacity = '1';
+                step.style.transform = 'translateX(0)';
+            }, 500 + index * 200);
+        });
+    }
+
+    // Добавляем интерактивность к опциям
+    document.querySelectorAll('.option-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // Печать страницы
+    const printBtn = document.querySelector('button[onclick="window.print()"]');
+    if (printBtn) {
+        printBtn.addEventListener('click', function() {
+            // Добавляем специальные стили для печати
+            const printStyle = document.createElement('style');
+            printStyle.textContent = `
+                @media print {
+                    .status-actions, .support-info, .btn-outline {
+                        display: none !important;
+                    }
+                    .status-card {
+                        box-shadow: none !important;
+                        border: 2px solid #000 !important;
+                    }
+                }
+            `;
+            document.head.appendChild(printStyle);
+        });
+    }
+});
+</script>
 {% endblock %}

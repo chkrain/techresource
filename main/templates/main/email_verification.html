@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%); color: white; padding: 30px; text-align: center; }
+        .content { background: #f8f9fa; padding: 30px; }
+        .button { display: inline-block; padding: 12px 24px; background: #0052cc; color: white; text-decoration: none; border-radius: 5px; }
+        .footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Техресурс</h1>
+            <p>Подтверждение email</p>
+        </div>
+        <div class="content">
+            <h2>Здравствуйте, {{ user.username }}!</h2>
+            <p>Для завершения регистрации подтвердите ваш email адрес:</p>
+            <p style="text-align: center;">
+                <a href="{{ verification_url }}" class="button">Подтвердить Email</a>
+            </p>
+            <p>Или скопируйте ссылку в браузер:</p>
+            <p style="word-break: break-all; background: white; padding: 10px; border-radius: 5px;">
+                {{ verification_url }}
+            </p>
+            <p><strong>Ссылка действительна 24 часа.</strong></p>
+        </div>
+        <div class="footer">
+            <p>Если вы не регистрировались на нашем сайте, проигнорируйте это письмо.</p>
+            <p>С уважением,<br>Команда Техресурс</p>
+        </div>
+    </div>
+</body>
+</html>

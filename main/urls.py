@@ -10,9 +10,21 @@ urlpatterns = [
     path('products/', views.products, name='products'),
     
     # Аутентификация
-    path('register/', views.register, name='register'),
-    path('login/', auth_views.LoginView.as_view(template_name='main/login.html'), name='login'),
+    path('register/', views.secure_register, name='register'),
+    path('login/', views.secure_login, name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='index'), name='logout'),
+
+    path('debug/codes/', views.debug_codes, name='debug_codes'), #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    # Восстановление пароля
+    path('password-reset/', views.secure_password_reset, name='password_reset'),
+    path('password-reset-confirm/<str:token>/', views.secure_password_reset_confirm, name='password_reset_confirm'),
+
+    # Смена пароля
+    path('change-password/', views.secure_change_password, name='change_password'),
+
+    # Подтверждение email
+    path('verify-email/<str:token>/', views.verify_email, name='verify_email'),
     
     # Профиль
     path('profile/', views.profile, name='profile'),
@@ -33,4 +45,7 @@ urlpatterns = [
     
     # API
     path('api/update-quantity/<int:product_id>/', views.update_quantity_ajax, name='update_quantity_ajax'),
+    
+    # Политика конфиденциальности
+    path('privacy/', views.privacy_policy, name='privacy'),
 ]

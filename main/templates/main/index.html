@@ -2,6 +2,69 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
+<!-- Cookie уведомление -->
+<div id="cookie-notification" class="cookie-notification">
+    <div class="cookie-content">
+        <div class="cookie-text">
+            <p>Мы используем файлы cookie для улучшения работы сайта. Ознакомьтесь с нашей 
+               <a href="{% url 'privacy' %}#cookies" target="_blank">Политикой использования cookies</a>.
+            </p>
+        </div>
+        <div class="cookie-buttons">
+            <button id="accept-cookies" class="btn-cookie btn-cookie-primary">
+                Принять все
+            </button>
+            <button id="settings-cookies" class="btn-cookie btn-cookie-secondary">
+                Настройки
+            </button>
+        </div>
+    </div>
+    
+    <!-- Расширенные настройки (скрыты по умолчанию) -->
+    <div id="cookie-settings" class="cookie-settings">
+        <div class="settings-header">
+            <h4>Настройки cookies</h4>
+            <button id="close-settings" class="close-btn">×</button>
+        </div>
+        <div class="settings-content">
+            <div class="setting-item">
+                <label class="setting-label">
+                    <input type="checkbox" name="necessary" checked disabled>
+                    <span class="checkmark"></span>
+                    <div class="setting-text">
+                        <strong>Необходимые cookies</strong>
+                        <p>Обеспечивают работу сайта. Не могут быть отключены.</p>
+                    </div>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">
+                    <input type="checkbox" name="analytical" checked>
+                    <span class="checkmark"></span>
+                    <div class="setting-text">
+                        <strong>Аналитические cookies</strong>
+                        <p>Помогают улучшать сайт через сбор анонимной статистики.</p>
+                    </div>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">
+                    <input type="checkbox" name="functional" checked>
+                    <span class="checkmark"></span>
+                    <div class="setting-text">
+                        <strong>Функциональные cookies</strong>
+                        <p>Запоминают ваши предпочтения и настройки.</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+        <div class="settings-footer">
+            <button id="save-settings" class="btn-cookie btn-cookie-primary">
+                Сохранить настройки
+            </button>
+        </div>
+    </div>
+</div>
 <!-- Hero секция с параллаксом -->
 <section class="hero-section">
     <div class="hero-background">
@@ -34,9 +97,6 @@
                 <div class="stat-label">/7 Поддержка</div>
             </div>
         </div>
-    </div>
-    <div class="scroll-indicator">
-        <div class="scroll-arrow"></div>
     </div>
 </section>
 
@@ -72,8 +132,8 @@
 <!-- Swiper слайдер с услугами -->
 <section class="services-section">
     <div class="container">
-        <h2 class="section-title" data-aos="fade-up">Наши услуги</h2>
-        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="200">
+        <h2 class="section-title our-services" data-aos="fade-up">Наши услуги</h2>
+        <p class="section-subtitle our-services" data-aos="fade-up" data-aos-delay="200">
             Полный цикл инженерных услуг от проектирования до технической поддержки
         </p>
     </div>
@@ -225,7 +285,7 @@
 
 <style>
 .hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
     color: white;
     padding: 120px 0 80px;
     position: relative;
@@ -233,6 +293,28 @@
     min-height: 100vh;
     display: flex;
     align-items: center;
+}
+
+.hero-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 1000;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.hero-section.hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+}
+
+.benefits-section {
+    margin-top: 100vh; /* Отступ равен высоте hero-секции */
+    position: relative;
+    z-index: 1001;
 }
 
 .hero-background {
@@ -298,6 +380,10 @@
     color: #667eea;
 }
 
+.our-services {
+    color: white !important;
+}
+
 .btn-primary:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 30px rgba(255,255,255,0.3);
@@ -339,23 +425,6 @@
     font-size: 0.9rem;
 }
 
-.scroll-indicator {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
-}
-
-.scroll-arrow {
-    width: 30px;
-    height: 30px;
-    border-right: 2px solid white;
-    border-bottom: 2px solid white;
-    transform: rotate(45deg);
-    animation: bounce 2s infinite;
-}
-
 @keyframes bounce {
     0%, 100% { transform: rotate(45deg) translate(0, 0); }
     50% { transform: rotate(45deg) translate(-10px, -10px); }
@@ -364,6 +433,7 @@
 /* Секции */
 section {
     padding: 80px 0;
+    border-radius: 20px;
 }
 
 .container {
@@ -407,6 +477,7 @@ section {
     text-align: center;
     box-shadow: 0 10px 40px rgba(0,0,0,0.1);
     transition: transform 0.3s ease;
+    color: #2c3e50;
 }
 
 .benefit-card:hover {
@@ -433,7 +504,7 @@ section {
 
 .swiper {
     width: 100%;
-    height: 350px;
+    height: auto;
     padding: 30px 0 60px 0;
 }
 
@@ -460,7 +531,7 @@ section {
     box-shadow: 
         0 4px 20px rgba(0,0,0,0.08),
         0 2px 8px rgba(0,0,0,0.03);
-    height: 220px;
+    height: 350px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -480,7 +551,7 @@ section {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #0052cc, #0066cc);
     transform: scaleX(0);
     transition: transform 0.3s ease;
 }
@@ -538,7 +609,7 @@ section {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -566,7 +637,15 @@ section {
     border-radius: 50%;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
-    margin-top: -30px;
+    opacity: 0.5;
+}
+
+.swiper-button-next {
+    right: 0;
+}
+
+.swiper-button-prev {
+    left: 0;
 }
 
 .swiper-button-next:after,
@@ -595,7 +674,7 @@ section {
 }
 
 .swiper-pagination-bullet-active {
-    background: #2c3e50;
+    background: #f0f2f5;
     opacity: 1;
     transform: scale(1.2);
 }
@@ -615,7 +694,7 @@ section {
 
 .swiper-progress {
     height: 100%;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #0052cc, #0066cc);
     width: 0%;
     transition: width 0.1s linear;
 }
@@ -695,7 +774,7 @@ section {
 .product-btn {
     width: 100%;
     padding: 0.75rem;
-    background: #667eea;
+    background: #0052cc;
     color: white;
     border: none;
     border-radius: 8px;
@@ -706,7 +785,7 @@ section {
 }
 
 .product-btn:hover {
-    background: #5a67d8;
+    background: #0047b3;
     transform: translateY(-2px);
 }
 
@@ -817,9 +896,297 @@ section {
         width: 150px;
     }
 }
+
+/* Стили для Cookie уведомления */
+.cookie-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background: #2c3e50;
+    color: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    z-index: 9999;
+    transform: translateY(150%);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    max-width: 500px;
+    margin: 0 auto;
+    border: 1px solid #34495e;
+}
+
+.cookie-notification.show {
+    transform: translateY(0);
+}
+
+.cookie-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.cookie-text {
+    flex: 1;
+    min-width: 250px;
+}
+
+.cookie-text p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #e2e8f0;
+}
+
+.cookie-text a {
+    color: #667eea;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.cookie-text a:hover {
+    color: #764ba2;
+}
+
+.cookie-buttons {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.btn-cookie {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.btn-cookie-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-cookie-primary:hover {
+    background: #764ba2;
+    transform: translateY(-2px);
+}
+
+.btn-cookie-secondary {
+    background: transparent;
+    color: #cbd5e0;
+    border: 1px solid #4a5568;
+}
+
+.btn-cookie-secondary:hover {
+    background: #4a5568;
+    color: white;
+}
+
+/* Стили для расширенных настроек */
+.cookie-settings {
+    display: none;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #4a5568;
+}
+
+.cookie-settings.show {
+    display: block;
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.settings-header h4 {
+    margin: 0;
+    color: white;
+    font-size: 1.1rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #cbd5e0;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.close-btn:hover {
+    background: #4a5568;
+    color: white;
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.setting-item {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid #4a5568;
+}
+
+.setting-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.setting-label input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #667eea;
+    border-radius: 4px;
+    margin-top: 2px;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.setting-label input[type="checkbox"]:checked + .checkmark {
+    background: #667eea;
+    border-color: #667eea;
+}
+
+.setting-label input[type="checkbox"]:checked + .checkmark::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.setting-label input[type="checkbox"]:disabled + .checkmark {
+    background: #4a5568;
+    border-color: #4a5568;
+    cursor: not-allowed;
+}
+
+.setting-text strong {
+    color: white;
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+}
+
+.setting-text p {
+    margin: 0;
+    color: #cbd5e0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.settings-footer {
+    text-align: right;
+}
+
+/* Анимация появления */
+@keyframes slideInUp {
+    from {
+        transform: translateY(150%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.cookie-notification.show {
+    animation: slideInUp 0.5s ease-out;
+}
+
+/* Адаптивность для Cookie уведомления */
+@media (max-width: 768px) {
+    .cookie-notification {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        padding: 15px;
+    }
+    
+    .cookie-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .cookie-text {
+        text-align: left;
+        min-width: auto;
+    }
+    
+    .cookie-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .btn-cookie {
+        flex: 1;
+        max-width: 140px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cookie-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-cookie {
+        max-width: none;
+    }
+}
 </style>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const heroSection = document.querySelector('.hero-section');
+    const benefitsSection = document.querySelector('.benefits-section');
+    
+    function handleScroll() {
+        const benefitsTop = benefitsSection.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        
+        // Когда секция преимуществ появляется в viewport, скрываем hero
+        if (benefitsTop < windowHeight * 0.8) {
+            heroSection.classList.add('hidden');
+        } else {
+            heroSection.classList.remove('hidden');
+        }
+    }
+    
+    window.addEventListener('scroll', handleScroll);
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     AOS.init({
         duration: 800,
@@ -988,6 +1355,195 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log(`Добавлен товар ID: ${productId}`);
         });
     });
+});
+
+// Обработка Cookie
+document.addEventListener('DOMContentLoaded', function() {
+    const cookieNotification = document.getElementById('cookie-notification');
+    const acceptCookiesBtn = document.getElementById('accept-cookies');
+    const settingsCookiesBtn = document.getElementById('settings-cookies');
+    const cookieSettings = document.getElementById('cookie-settings');
+    const closeSettingsBtn = document.getElementById('close-settings');
+    const saveSettingsBtn = document.getElementById('save-settings');
+    
+    // Ключи для localStorage
+    const COOKIES_ACCEPTED = 'cookiesAccepted';
+    const COOKIE_SETTINGS = 'cookieSettings';
+    
+    // Проверяем, было ли уже принято соглашение
+    function checkCookiesAccepted() {
+        return localStorage.getItem(COOKIES_ACCEPTED) === 'true';
+    }
+    
+    // Получаем текущие настройки
+    function getCookieSettings() {
+        const settings = localStorage.getItem(COOKIE_SETTINGS);
+        return settings ? JSON.parse(settings) : {
+            necessary: true,
+            analytical: true,
+            functional: true
+        };
+    }
+    
+    // Показываем уведомление, если cookies еще не приняты
+    function showCookieNotification() {
+        if (!checkCookiesAccepted()) {
+            setTimeout(() => {
+                cookieNotification.classList.add('show');
+            }, 2000); // Показываем через 2 секунды после загрузки
+        }
+    }
+    
+    // Принимаем все cookies
+    function acceptAllCookies() {
+        const settings = {
+            necessary: true,
+            analytical: true,
+            functional: true
+        };
+        
+        localStorage.setItem(COOKIES_ACCEPTED, 'true');
+        localStorage.setItem(COOKIE_SETTINGS, JSON.stringify(settings));
+        cookieNotification.classList.remove('show');
+        
+        initializeCookies(settings);
+        showAcceptanceMessage('Все cookies приняты');
+    }
+    
+    // Сохраняем выбранные настройки
+    function saveCookieSettings() {
+        const settings = {
+            necessary: true, // Всегда true, так как необходимые cookies обязательны
+            analytical: document.querySelector('input[name="analytical"]').checked,
+            functional: document.querySelector('input[name="functional"]').checked
+        };
+        
+        localStorage.setItem(COOKIES_ACCEPTED, 'true');
+        localStorage.setItem(COOKIE_SETTINGS, JSON.stringify(settings));
+        cookieNotification.classList.remove('show');
+        cookieSettings.classList.remove('show');
+        
+        initializeCookies(settings);
+        showAcceptanceMessage('Настройки cookies сохранены');
+    }
+    
+    // Инициализация cookies на основе настроек
+    function initializeCookies(settings) {
+        console.log('Инициализация cookies с настройками:', settings);
+        
+        // Необходимые cookies (всегда инициализируются)
+        initializeNecessaryCookies();
+        
+        // Аналитические cookies
+        if (settings.analytical) {
+            initializeAnalyticalCookies();
+        }
+        
+        // Функциональные cookies
+        if (settings.functional) {
+            initializeFunctionalCookies();
+        }
+        
+        // Можно добавить инициализацию конкретных сервисов:
+        // Google Analytics, Yandex.Metrika и т.д.
+    }
+    
+    // Заглушки для инициализации разных типов cookies
+    function initializeNecessaryCookies() {
+        console.log('🚀 Инициализация необходимых cookies');
+        // Сессионные cookies, корзина, аутентификация и т.д.
+    }
+    
+    function initializeAnalyticalCookies() {
+        console.log('📊 Инициализация аналитических cookies');
+        // Google Analytics, Yandex.Metrika и другие системы аналитики
+    }
+    
+    function initializeFunctionalCookies() {
+        console.log('⚙️ Инициализация функциональных cookies');
+        // Настройки темы, языка, предпочтения пользователя
+    }
+    
+    // Показываем сообщение о принятии
+    function showAcceptanceMessage(message) {
+        // Можно добавить toast-уведомление
+        console.log('✅ ' + message);
+    }
+    
+    // Загружаем настройки в форму
+    function loadSettingsToForm() {
+        const settings = getCookieSettings();
+        document.querySelector('input[name="analytical"]').checked = settings.analytical;
+        document.querySelector('input[name="functional"]').checked = settings.functional;
+    }
+    
+    // Обработчики событий
+    acceptCookiesBtn.addEventListener('click', acceptAllCookies);
+    
+    settingsCookiesBtn.addEventListener('click', function() {
+        loadSettingsToForm();
+        cookieSettings.classList.add('show');
+    });
+    
+    closeSettingsBtn.addEventListener('click', function() {
+        cookieSettings.classList.remove('show');
+    });
+    
+    saveSettingsBtn.addEventListener('click', saveCookieSettings);
+    
+    // Закрытие по клику вне области (опционально)
+    document.addEventListener('click', function(e) {
+        if (!cookieNotification.contains(e.target) && cookieSettings.classList.contains('show')) {
+            cookieSettings.classList.remove('show');
+        }
+    });
+    
+    // Проверяем и показываем уведомление при загрузке
+    showCookieNotification();
+    
+    // Если cookies уже приняты, инициализируем их сразу
+    if (checkCookiesAccepted()) {
+        const settings = getCookieSettings();
+        initializeCookies(settings);
+    }
+    
+    // Добавляем кнопку управления cookies в футер (опционально)
+    function addCookieManagementButton() {
+        const footer = document.querySelector('footer');
+        if (footer && !document.getElementById('cookie-management-btn')) {
+            const manageBtn = document.createElement('button');
+            manageBtn.id = 'cookie-management-btn';
+            manageBtn.innerHTML = 'Управление cookies';
+            manageBtn.style.cssText = `
+                background: transparent;
+                border: 1px solid #667eea;
+                color: #667eea;
+                padding: 8px 16px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 0.8rem;
+                margin: 10px;
+                transition: all 0.3s ease;
+            `;
+            manageBtn.onmouseover = function() {
+                this.style.background = '#667eea';
+                this.style.color = 'white';
+            };
+            manageBtn.onmouseout = function() {
+                this.style.background = 'transparent';
+                this.style.color = '#667eea';
+            };
+            manageBtn.onclick = function() {
+                localStorage.removeItem(COOKIES_ACCEPTED);
+                localStorage.removeItem(COOKIE_SETTINGS);
+                location.reload();
+            };
+            footer.appendChild(manageBtn);
+        }
+    }
+    
+    // кнопкa управления
+    // addCookieManagementButton();
 });
 </script>
 

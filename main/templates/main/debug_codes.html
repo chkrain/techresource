@@ -1,0 +1,13 @@
+{% extends 'main/base.html' %}
+{% block content %}
+<h2>Активные коды восстановления</h2>
+{% for profile in profiles %}
+<div>
+    <strong>{{ profile.user.email }}</strong>: 
+    Код: {{ profile.sms_code }} 
+    (действует до: {{ profile.sms_code_expires|timezone:"Europe/Moscow"|date:"d.m.Y H:i" }})
+</div>
+{% empty %}
+<p>Нет активных кодов</p>
+{% endfor %}
+{% endblock %}

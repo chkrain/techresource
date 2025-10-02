@@ -108,6 +108,26 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SESSION_COOKIE_SECURE = False
+SECURE_SSL_REDIRECT = False
+CSRF_COOKIE_SECURE = False
+
+# SESSION_COOKIE_AGE = 1209600 
+# SESSION_COOKIE_SECURE = True  
+# SESSION_COOKIE_HTTPONLY = True
+# SESSION_COOKIE_SAMESITE = 'Lax'
+
+# CSRF_COOKIE_SECURE = True
+# CSRF_COOKIE_HTTPONLY = True
+# CSRF_USE_SESSIONS = True
+
+# SECURE_BROWSER_XSS_FILTER = True
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# X_FRAME_OPTIONS = 'DENY'
+# SECURE_SSL_REDIRECT = True  
+# SECURE_HSTS_SECONDS = 31536000  # 
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -141,13 +161,15 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Настройки email (для уведомлений)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.yandex.ru' 
+# EMAIL_HOST = 'smtp.mail.ru'
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'noreply@techresource.ru'
-# EMAIL_HOST_PASSWORD = 'your_password'
-# DEFAULT_FROM_EMAIL = 'noreply@techresource.ru'
+# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+# DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', '')
+# SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
 
 # Настройки Telegram бота (опционально)
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')

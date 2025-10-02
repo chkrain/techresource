@@ -1,158 +1,822 @@
-<!-- main/templates/main/orders.html -->
 {% extends 'main/base.html' %}
 
 {% block title %}Мои заказы - Техресурс{% endblock %}
 
 {% block content %}
-<h2>Мои заказы</h2>
+<!-- Hero секция -->
+<section class="orders-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">Мои заказы</h1>
+            <p class="hero-subtitle">История ваших заказов и их текущий статус</p>
+        </div>
+    </div>
+</section>
 
-{% if orders %}
-<div class="orders-container">
-    {% for order in orders %}
-    <div class="order-card">
-        <div class="order-header">
-            <h3>Заказ #{{ order.id }}</h3>
-            <span class="order-status {{ order.status }}">
-                {{ order.get_status_display }}
-            </span>
+<section class="orders-section">
+    <div class="container">
+        {% if orders %}
+        <div class="orders-header">
+            <h2 class="section-title">История заказов</h2>
+            <div class="orders-stats">
+                <div class="stat-card">
+                    <div class="stat-number">{{ orders|length }}</div>
+                    <div class="stat-label">Всего заказов</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ completed_orders }}</div>
+                    <div class="stat-label">Завершено</div>
+                </div>
+            </div>
         </div>
-        
-        <div class="order-details">
-            <p><strong>Дата:</strong> {{ order.created_at|date:"d.m.Y H:i" }}</p>
-            <p><strong>Сумма:</strong> {{ order.total_price }} руб.</p>
-            <p><strong>Имя:</strong> {{ order.customer_name }}</p>
-            <p><strong>Телефон:</strong> {{ order.customer_phone }}</p>
-            <p><strong>Email:</strong> {{ order.customer_email }}</p>
-            <p><strong>Адрес:</strong> {{ order.customer_address }}</p>
-        </div>
-        
-        <div class="order-items">
-            <h4>Товары:</h4>
-            {% for item in order.orderitem_set.all %}
-            <div class="order-item">
-                <span class="item-name">{{ item.product.name }}</span>
-                <span class="item-quantity">x{{ item.quantity }}</span>
-                <span class="item-price">{{ item.get_total_price }} руб.</span>
+
+        <div class="orders-container">
+            {% for order in orders %}
+            <div class="order-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:100 }}">
+                <div class="order-header">
+                    <div class="order-info">
+                        <h3 class="order-number">Заказ #{{ order.id }}</h3>
+                        <span class="order-date">{{ order.created_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    <div class="order-status-wrapper">
+                        <span class="order-status {{ order.status }}">
+                            <span class="status-dot"></span>
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="order-content">
+                    <div class="order-details">
+                        <div class="detail-group">
+                            <h4>Контактная информация</h4>
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <span class="detail-label">Имя:</span>
+                                    <span class="detail-value">{{ order.customer_name }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Телефон:</span>
+                                    <span class="detail-value">{{ order.customer_phone }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Email:</span>
+                                    <span class="detail-value">{{ order.customer_email }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-group">
+                            <h4>Адрес доставки</h4>
+                            <p class="address-text">{{ order.customer_address }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="order-summary">
+                        <div class="summary-header">
+                            <h4>Состав заказа</h4>
+                            <span class="total-amount">{{ order.total_price }} ₽</span>
+                        </div>
+                        
+                        <div class="order-items">
+                            {% for item in order.orderitem_set.all %}
+                            <div class="order-item">
+                                <div class="item-info">
+                                    <span class="item-name">{{ item.product.name }}</span>
+                                    <span class="item-article">Артикул: {{ item.product.article }}</span>
+                                </div>
+                                <div class="item-quantity">×{{ item.quantity }}</div>
+                                <div class="item-price">{{ item.get_total_price }} ₽</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="order-actions">
+                            <button class="action-btn reorder-btn" data-order-id="{{ order.id }}">
+                                📋 Повторить заказ
+                            </button>
+                            <button class="action-btn details-btn" data-order-id="{{ order.id }}">
+                                📄 Детали
+                            </button>
+                            {% if order.status == 'pending' or order.status == 'processing' %}
+                            <button class="action-btn cancel-btn" data-order-id="{{ order.id }}">
+                                ❌ Отменить
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </div>
+        {% else %}
+        <!-- Пустая страница заказов -->
+        <div class="empty-orders" data-aos="zoom-in">
+            <div class="empty-icon">📦</div>
+            <h2>У вас пока нет заказов</h2>
+            <p>Совершите первую покупку, чтобы увидеть здесь историю ваших заказов</p>
+            <div class="empty-actions">
+                <a href="{% url 'products' %}" class="btn btn-primary">
+                    🛍️ Начать покупки
+                </a>
+                <a href="{% url 'services' %}" class="btn btn-secondary">
+                    💼 Наши услуги
+                </a>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    {% endfor %}
-</div>
-{% else %}
-<div class="no-orders">
-    <p>У вас пока нет заказов</p>
-    <a href="{% url 'products' %}" class="continue-shopping">Начать покупки</a>
-</div>
-{% endif %}
+</section>
+
+<!-- Подключение библиотек -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
 <style>
+section {
+    border-radius: 20px;
+    margin-top: 4%;
+}
+
+/* Hero секция */
+.orders-hero {
+    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
+    color: white;
+    padding: 100px 0 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, #fff, #e0e7ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Основная секция */
+.orders-section {
+    padding: 4rem 0;
+    background: #f8f9fa;
+    min-height: 60vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Шапка страницы */
+.orders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 3rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.section-title {
+    font-size: 2.2rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.orders-stats {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    min-width: 120px;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0052cc;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Карточка заказа */
 .orders-container {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 2rem;
+    gap: 2rem;
 }
 
 .order-card {
     background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    border-left: 4px solid #3498db;
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.15);
 }
 
 .order-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
+    padding: 2rem 2rem 1rem;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-bottom: 1px solid #e9ecef;
+}
+
+.order-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.order-number {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.order-date {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.order-status-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .order-status {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Статусы заказов */
 .order-status.pending {
+    background: rgba(243, 156, 18, 0.1);
+    color: #f39c12;
+    border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+.order-status.pending .status-dot {
     background: #f39c12;
-    color: white;
 }
 
 .order-status.processing {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
+.order-status.processing .status-dot {
     background: #3498db;
-    color: white;
 }
 
 .order-status.completed {
+    background: rgba(39, 174, 96, 0.1);
+    color: #27ae60;
+    border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.order-status.completed .status-dot {
     background: #27ae60;
-    color: white;
 }
 
 .order-status.cancelled {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.order-status.cancelled .status-dot {
     background: #e74c3c;
-    color: white;
+}
+
+.order-status.shipped {
+    background: rgba(155, 89, 182, 0.1);
+    color: #9b59b6;
+    border: 1px solid rgba(155, 89, 182, 0.3);
+}
+
+.order-status.shipped .status-dot {
+    background: #9b59b6;
+}
+
+/* Контент заказа */
+.order-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem;
 }
 
 .order-details {
-    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-.order-details p {
-    margin: 0.25rem 0;
+.detail-group h4 {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin: 0 0 1rem 0;
+    font-weight: 600;
 }
 
+.detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.detail-label {
+    color: #6c757d;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.address-text {
+    color: #2c3e50;
+    line-height: 1.5;
+    margin: 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #0052cc;
+}
+
+/* Сводка заказа */
+.order-summary {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.summary-header h4 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.total-amount {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0052cc;
+}
+
+/* Товары в заказе */
 .order-items {
-    border-top: 1px solid #eee;
-    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .order-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #f8f9fa;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
 }
 
-.order-item:last-child {
-    border-bottom: none;
+.order-item:hover {
+    transform: translateX(5px);
+    border-color: #0052cc;
+}
+
+.item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .item-name {
-    flex-grow: 1;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.item-article {
+    font-size: 0.8rem;
+    color: #6c757d;
 }
 
 .item-quantity {
-    color: #7f8c8d;
+    color: #6c757d;
+    font-weight: 500;
     margin: 0 1rem;
 }
 
 .item-price {
-    font-weight: bold;
+    font-weight: 700;
     color: #2c3e50;
+    min-width: 80px;
+    text-align: right;
 }
 
-.no-orders {
-    text-align: center;
-    padding: 3rem;
+/* Действия с заказом */
+.order-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e9ecef;
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
-.continue-shopping {
-    display: inline-block;
-    margin-top: 1rem;
-    padding: 0.75rem 1.5rem;
-    background: #3498db;
+.reorder-btn:hover {
+    background: #0052cc;
     color: white;
+    border-color: #0052cc;
+    transform: translateY(-2px);
+}
+
+.details-btn:hover {
+    background: #6c757d;
+    color: white;
+    border-color: #6c757d;
+    transform: translateY(-2px);
+}
+
+.cancel-btn:hover {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+    transform: translateY(-2px);
+}
+
+/* Пустая страница */
+.empty-orders {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.7;
+}
+
+.empty-orders h2 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+}
+
+.empty-orders p {
+    color: #6c757d;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.empty-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
     text-decoration: none;
-    border-radius: 4px;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.btn-primary {
+    background: #0052cc;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0047b3;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 82, 204, 0.3);
+    color: white;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #0052cc;
+    border-color: #0052cc;
+}
+
+.btn-secondary:hover {
+    background: #0052cc;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 82, 204, 0.3);
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .order-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .orders-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+    
+    .orders-stats {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.2rem;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .order-content {
+        padding: 1.5rem;
+    }
+    
+    .order-status-wrapper {
+        align-self: flex-start;
+    }
+    
+    .detail-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .order-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .item-quantity,
+    .item-price {
+        align-self: flex-end;
+        margin: 0;
+    }
+    
+    .order-actions {
+        flex-direction: column;
+    }
+    
+    .action-btn {
+        min-width: auto;
+    }
+    
+    .empty-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn {
+        width: 200px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .orders-section {
+        padding: 2rem 0;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
+    
+    .orders-stats {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .stat-card {
+        width: 100%;
+    }
+    
+    .order-card {
+        border-radius: 12px;
+    }
+    
+    .order-header,
+    .order-content {
+        padding: 1rem;
+    }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация AOS
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 100
+    });
+
+    // Анимация появления героя
+    anime({
+        targets: '.hero-title',
+        translateY: [30, 0],
+        opacity: [0, 1],
+        duration: 1000,
+        easing: 'easeOutCubic'
+    });
+
+    anime({
+        targets: '.hero-subtitle',
+        translateY: [30, 0],
+        opacity: [0, 1],
+        duration: 1000,
+        delay: 300,
+        easing: 'easeOutCubic'
+    });
+
+    // Обработчики кнопок действий
+    document.querySelectorAll('.reorder-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            anime({
+                targets: this,
+                scale: [1, 0.9, 1],
+                duration: 300,
+                easing: 'easeInOutQuad'
+            });
+            console.log(`Повтор заказа: ${orderId}`);
+            // Здесь можно добавить логику повторения заказа
+        });
+    });
+
+    document.querySelectorAll('.details-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            const orderCard = this.closest('.order-card');
+            
+            anime({
+                targets: orderCard,
+                translateX: [0, 10, -10, 0],
+                duration: 400,
+                easing: 'easeInOutQuad'
+            });
+            
+            console.log(`Детали заказа: ${orderId}`);
+            // Здесь можно добавить логику показа деталей заказа
+        });
+    });
+
+    document.querySelectorAll('.cancel-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            
+            if (confirm('Вы уверены, что хотите отменить этот заказ?')) {
+                anime({
+                    targets: this.closest('.order-card'),
+                    opacity: [1, 0],
+                    translateY: [0, -20],
+                    duration: 500,
+                    easing: 'easeInOutQuad',
+                    complete: function() {
+                        console.log(`Отмена заказа: ${orderId}`);
+                        // Здесь можно добавить логику отмены заказа
+                    }
+                });
+            }
+        });
+    });
+
+    // Анимация статусов заказов
+    document.querySelectorAll('.status-dot').forEach(dot => {
+        anime({
+            targets: dot,
+            scale: [1, 1.2, 1],
+            duration: 2000,
+            loop: true,
+            easing: 'easeInOutSine'
+        });
+    });
+
+    // Параллакс эффект для героя
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const hero = document.querySelector('.orders-hero');
+        if (hero) {
+            hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+        }
+    });
+});
+</script>
 {% endblock %}

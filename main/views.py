@@ -3,21 +3,45 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
-from django.contrib.auth import login
 from django.utils import timezone
+from django.utils.html import strip_tags
 import json
+import hashlib
+from django.utils import timezone
+import secrets
 import requests
 from .models import NotificationLog
 import uuid
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
+import random
+from datetime import timedelta
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.contrib.auth import login, authenticate
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth import get_user_model
+from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm
 
-from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address
-from .forms import UserRegisterForm, UserProfileForm, AddressForm
+from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt
+from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm
+
 
 # Импорт ЮКассы
 from yookassa import Payment, Configuration
 from django.db.models import Sum
+
+User = get_user_model()
 
 # Настройка ЮКассы
 Configuration.account_id = settings.YOOKASSA_SHOP_ID
@@ -32,6 +56,9 @@ def about(request):
 
 def services(request):
     return render(request, 'main/services.html')
+
+def privacy_policy(request):
+    return render(request, 'main/privacy.html')
 
 @login_required
 def admin_dashboard(request):
@@ -110,33 +137,45 @@ def register(request):
 
 @login_required
 def profile(request):
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    try:
+        user_profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        user_profile = UserProfile.objects.create(user=request.user)
+    
     addresses = Address.objects.filter(user=request.user)
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
     
     if request.method == 'POST':
-        profile_form = UserProfileForm(request.POST, instance=profile)
-        address_form = AddressForm(request.POST)
-        
-        if 'update_profile' in request.POST and profile_form.is_valid():
-            profile_form.save()
-            messages.success(request, 'Профиль обновлен')
-            return redirect('profile')
-        
-        elif 'add_address' in request.POST and address_form.is_valid():
-            address = address_form.save(commit=False)
-            address.user = request.user
-            address.save()
-            messages.success(request, 'Адрес добавлен')
-            return redirect('profile')
+        if 'update_profile' in request.POST:
+            profile_form = UserProfileForm(request.POST, instance=user_profile)
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, 'Профиль обновлен')
+                return redirect('profile')
+            else:
+                address_form = AddressForm()
+                
+        elif 'add_address' in request.POST:
+            address_form = AddressForm(request.POST)
+            if address_form.is_valid():
+                address = address_form.save(commit=False)
+                address.user = request.user
+                address.save()
+                messages.success(request, 'Адрес добавлен')
+                return redirect('profile')
+            else:
+                profile_form = UserProfileForm(instance=user_profile)
     
     else:
-        profile_form = UserProfileForm(instance=profile)
+        profile_form = UserProfileForm(instance=user_profile)
         address_form = AddressForm()
     
     context = {
+        'user_profile': user_profile,  
         'profile_form': profile_form,
         'address_form': address_form,
         'addresses': addresses,
+        'orders': orders, 
     }
     return render(request, 'main/profile.html', context)
 
@@ -149,32 +188,46 @@ def delete_address(request, address_id):
 
 @login_required
 def add_to_cart(request, product_id):
+    print(f"DEBUG: add_to_cart called for product {product_id}")
+    print(f"DEBUG: Method: {request.method}")
+    print(f"DEBUG: AJAX header: {request.headers.get('X-Requested-With')}")
+    print(f"DEBUG: User: {request.user}")
+    
     if request.method == 'POST':
-        product = get_object_or_404(Product, id=product_id, is_active=True)
-        
-        if product.quantity <= 0:
-            messages.error(request, 'Товар отсутствует на складе')
-            return redirect('products')
-        
-        cart, created = Cart.objects.get_or_create(user=request.user)
-        
-        cart_item, created = CartItem.objects.get_or_create(
-            cart=cart,
-            product=product,
-            defaults={'quantity': 1}
-        )
-        
-        if not created:
-            if cart_item.quantity < product.quantity:
+        try:
+            product = Product.objects.get(id=product_id)
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+            
+            if not created:
                 cart_item.quantity += 1
                 cart_item.save()
-                messages.success(request, f'Товар "{product.name}" добавлен в корзину')
-            else:
-                messages.error(request, 'Недостаточно товара в наличии')
-        else:
-            messages.success(request, f'Товар "{product.name}" добавлен в корзину')
-        
-        return redirect('products')
+            
+            cart_count = cart.cartitem_set.count()
+            
+            print(f"DEBUG: Success - cart_count: {cart_count}")
+            
+            return JsonResponse({
+                'success': True,
+                'cart_count': cart_count,
+                'message': 'Товар добавлен в корзину'
+            })
+        except Product.DoesNotExist:
+            print("DEBUG: Product not found")
+            return JsonResponse({
+                'success': False,
+                'error': 'Товар не найден'
+            })
+        except Exception as e:
+            print(f"DEBUG: Exception: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    
+    print("DEBUG: Not a POST request or not AJAX")
+    # Если это не AJAX запрос, возвращаем JSON с ошибкой
+    return JsonResponse({'success': False, 'error': 'Неверный запрос'})
 
 @login_required
 def cart_view(request):
@@ -289,20 +342,87 @@ def update_cart_item(request, item_id):
         cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
         action = request.POST.get('action')
         
+        # Проверяем AJAX запрос
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
         if action == 'increase':
             if cart_item.quantity < cart_item.product.quantity:
                 cart_item.quantity += 1
                 cart_item.save()
+                success = True
+                message = 'Количество увеличено'
+            else:
+                success = False
+                message = f'Максимальное количество: {cart_item.product.quantity}'
+                
         elif action == 'decrease':
             if cart_item.quantity > 1:
                 cart_item.quantity -= 1
                 cart_item.save()
+                success = True
+                message = 'Количество уменьшено'
             else:
                 cart_item.delete()
+                success = True
+                message = 'Товар удален из корзины'
+                
         elif action == 'remove':
             cart_item.delete()
+            success = True
+            message = 'Товар удален из корзины'
+            
+        elif action == 'set':
+            # Новое действие - установка конкретного количества
+            try:
+                new_quantity = int(request.POST.get('quantity', 1))
+                if 1 <= new_quantity <= cart_item.product.quantity:
+                    cart_item.quantity = new_quantity
+                    cart_item.save()
+                    success = True
+                    message = 'Количество обновлено'
+                else:
+                    success = False
+                    message = f'Количество должно быть от 1 до {cart_item.product.quantity}'
+            except ValueError:
+                success = False
+                message = 'Некорректное количество'
+        else:
+            success = False
+            message = 'Неизвестное действие'
+
+        # Получаем обновленные данные корзины
+        cart = Cart.objects.get(user=request.user)
+        cart_total = cart.get_total_price()
+        item_count = cart.get_items_count()  # Общее количество товаров
+        total_quantity = cart.get_total_quantity()  # Количество позиций
+        
+        if is_ajax:
+            response_data = {
+                'success': success,
+                'message': message,
+                'cart_total': float(cart_total),
+                'item_count': item_count,
+                'total_quantity': total_quantity,
+            }
+            
+            # Добавляем данные об элементе, если он не удален
+            if success and action != 'remove' and hasattr(cart_item, 'quantity'):
+                response_data.update({
+                    'new_quantity': cart_item.quantity,
+                    'item_total': float(cart_item.get_total_price())
+                })
+            
+            return JsonResponse(response_data)
+        
+        # Если не AJAX, показываем сообщения и редирект
+        if success:
+            messages.success(request, message)
+        else:
+            messages.error(request, message)
         
         return redirect('cart')
+    
+    return redirect('cart')
 
 @login_required
 def create_payment(request, order_id):
@@ -577,6 +697,109 @@ def send_order_notification(order):
         )
         return False
     
+def password_reset_request(request):
+    """Восстановление пароля через Email"""
+    if request.method == "POST":
+        email = request.POST.get('email')
+        
+        if not email:
+            return JsonResponse({
+                'success': False,
+                'error': 'Пожалуйста, введите email адрес'
+            })
+        
+        # Проверяем валидность email
+        if not isValidEmail(email):
+            return JsonResponse({
+                'success': False,
+                'error': 'Пожалуйста, введите корректный email адрес'
+            })
+        
+        # Ищем пользователя по email
+        try:
+            user = User.objects.get(email=email)
+            
+            # Генерируем код
+            reset_code = str(random.randint(100000, 999999))
+            
+            # Сохраняем код в профиль
+            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile.sms_code = reset_code
+            profile.sms_code_expires = timezone.now() + timedelta(minutes=10)
+            profile.save()
+            
+            # Отправляем email с кодом
+            email_sent = send_password_reset_email(email, reset_code)
+            
+            if email_sent:
+                # Логируем отправку
+                NotificationLog.objects.create(
+                    notification_type='email_sent',
+                    message=f'Код восстановления отправлен на {email}',
+                    sent_to=email,
+                    success=True
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Код восстановления отправлен на ваш email',
+                    'email': email,
+                    'next_step': 'verify_code'
+                })
+            else:
+                # Логируем ошибку
+                NotificationLog.objects.create(
+                    notification_type='email_sent',
+                    message=f'Ошибка отправки кода на {email}',
+                    sent_to=email,
+                    success=False,
+                    error_message='Ошибка SMTP сервера'
+                )
+                
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Ошибка отправки email. Попробуйте позже.'
+                })
+                
+        except User.DoesNotExist:
+            # Для безопасности не сообщаем, что email не найден
+            return JsonResponse({
+                'success': True,
+                'message': 'Если email зарегистрирован, код будет отправлен'
+            })
+        except Exception as e:
+            print(f"❌ Ошибка при восстановлении пароля: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Произошла ошибка. Попробуйте позже.'
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+def password_reset_confirm(request, uidb64=None, token=None):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Пароль успешно изменен! Теперь вы можете войти с новым паролем.')
+                return redirect('login')
+        else:
+            form = SetPasswordForm(user)
+        
+        return render(request, 'main/password_reset_confirm.html', {'form': form})
+    else:
+        messages.error(request, 'Ссылка для восстановления пароля недействительна или устарела.')
+        return redirect('password_reset_request')
+
+def password_reset_done(request):
+    return render(request, 'main/password_reset_done.html')
 
 def send_cancellation_notification(order):
     """Отправка уведомления об отмене заказа"""
@@ -623,3 +846,534 @@ def update_quantity_ajax(request, product_id):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+def set_new_password(request):
+    """Установка нового пароля после проверки кода"""
+    if request.method == "POST":
+        reset_token = request.POST.get('reset_token')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        if not reset_token or not new_password:
+            return JsonResponse({
+                'success': False,
+                'error': 'Все поля обязательны'
+            })
+        
+        if new_password != confirm_password:
+            return JsonResponse({
+                'success': False,
+                'error': 'Пароли не совпадают'
+            })
+        
+        try:
+            profile = UserProfile.objects.get(
+                reset_token=reset_token,
+                reset_token_expires__gt=timezone.now()
+            )
+            
+            # Устанавливаем новый пароль
+            user = profile.user
+            user.set_password(new_password)
+            user.save()
+            
+            # Очищаем токен
+            profile.reset_token = None
+            profile.reset_token_expires = None
+            profile.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Пароль успешно изменен!'
+            })
+            
+        except UserProfile.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Ссылка недействительна или устарела'
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+def send_password_reset_email(email, code):
+    """Отправка email с кодом восстановления"""
+    try:
+        subject = "Код восстановления пароля - Техресурс"
+        
+        message = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{ font-family: Arial, sans-serif; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
+                .content {{ background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }}
+                .code {{ font-size: 32px; font-weight: bold; color: #667eea; text-align: center; margin: 20px 0; padding: 15px; background: white; border-radius: 8px; }}
+                .footer {{ margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 14px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>Техресурс</h1>
+                    <p>Восстановление пароля</p>
+                </div>
+                <div class="content">
+                    <h2>Здравствуйте!</h2>
+                    <p>Вы запросили восстановление пароля для вашего аккаунта.</p>
+                    <p>Используйте следующий код для подтверждения:</p>
+                    <div class="code">{code}</div>
+                    <p><strong>Код действителен в течение 10 минут.</strong></p>
+                    <p>Если вы не запрашивали восстановление пароля, просто проигнорируйте это письмо.</p>
+                </div>
+                <div class="footer">
+                    <p>С уважением,<br>Команда Техресурс</p>
+                    <p>Это письмо отправлено автоматически, пожалуйста, не отвечайте на него.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        plain_message = f"""
+        Восстановление пароля - Техресурс
+        
+        Здравствуйте!
+        
+        Вы запросили восстановление пароля для вашего аккаунта.
+        Используйте следующий код для подтверждения:
+        
+        {code}
+        
+        Код действителен в течение 10 минут.
+        
+        Если вы не запрашивали восстановление пароля, просто проигнорируйте это письмо.
+        
+        С уважением,
+        Команда Техресурс
+        """
+        
+        send_mail(
+            subject,
+            plain_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+            html_message=message
+        )
+        return True
+        
+    except Exception as e:
+        print(f"❌ Ошибка отправки email: {e}")
+        return False
+    
+def verify_reset_code(request):
+    """Проверка кода восстановления"""
+    if request.method == "POST":
+        email = request.POST.get('email')
+        code = request.POST.get('code')
+        
+        if not email or not code:
+            return JsonResponse({
+                'success': False,
+                'error': 'Все поля обязательны для заполнения'
+            })
+        
+        try:
+            user = User.objects.get(email=email)
+            profile = UserProfile.objects.get(user=user)
+            
+            # Проверяем код и его срок действия
+            if (profile.sms_code == code and 
+                profile.sms_code_expires and 
+                profile.sms_code_expires > timezone.now()):
+                
+                # Код верный, генерируем временный токен
+                reset_token = str(uuid.uuid4())
+                profile.sms_code = None
+                profile.sms_code_expires = None
+                profile.reset_token = reset_token
+                profile.reset_token_expires = timezone.now() + timedelta(hours=1)
+                profile.save()
+                
+                # Логируем успешную проверку
+                NotificationLog.objects.create(
+                    notification_type='email_sent',
+                    message=f'Код подтвержден для {email}',
+                    sent_to=email,
+                    success=True
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Код подтвержден',
+                    'reset_token': reset_token,
+                    'next_step': 'set_password'
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Неверный код или код устарел'
+                })
+                
+        except User.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Пользователь не найден'
+            })
+        except Exception as e:
+            print(f"❌ Ошибка при проверке кода: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Произошла ошибка. Попробуйте позже.'
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+def isValidEmail(email):
+    import re
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+def log_security_event(user, action, ip_address, user_agent, success=True):
+    SecurityLog.objects.create(
+        user=user,
+        action=action,
+        ip_address=ip_address,
+        user_agent=user_agent,
+        success=success
+    )
+
+
+@csrf_protect
+@require_http_methods(["GET", "POST"])
+def secure_register(request):
+    if request.method == 'POST':
+        form = SecureUserCreationForm(request.POST)
+        
+        # Логируем попытку регистрации
+        ip_address = get_client_ip(request)
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.email = form.cleaned_data['email']
+            user.is_active = True  # Сразу активируем аккаунт для простоты
+            user.save()
+            
+            # Создаем профиль пользователя
+            profile, created = UserProfile.objects.get_or_create(user=user)
+            
+            # Логируем успешную регистрацию
+            log_security_event(user, 'register', ip_address, user_agent, True)
+            
+            messages.success(
+                request, 
+                'Регистрация успешна! Теперь вы можете войти в систему.'
+            )
+            return redirect('login')
+        else:
+            # Логируем неудачную попытку регистрации
+            if hasattr(form, 'cleaned_data') and 'username' in form.cleaned_data:
+                try:
+                    user = User.objects.get(username=form.cleaned_data['username'])
+                    log_security_event(user, 'register_failed', ip_address, user_agent, False)
+                except User.DoesNotExist:
+                    pass
+            
+    else:
+        form = SecureUserCreationForm()
+    
+    return render(request, 'main/register.html', {'form': form})
+
+def send_verification_email(user, request):
+    verification_url = f"{request.scheme}://{request.get_host()}/verify-email/{user.verification_token}/"
+    
+    subject = "Подтверждение email - Техресурс"
+    html_message = render_to_string('main/email_verification.html', {
+        'user': user,
+        'verification_url': verification_url,
+    })
+    plain_message = strip_tags(html_message)
+    
+    send_mail(
+        subject,
+        plain_message,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        html_message=html_message,
+        fail_silently=False,
+    )
+
+@csrf_protect
+@require_http_methods(["GET", "POST"])
+def secure_login(request):
+    if request.method == 'POST':
+        form = SecureAuthenticationForm(data=request.POST, request=request)
+        
+        ip_address = get_client_ip(request)
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        
+        # Логируем попытку входа
+        LoginAttempt.objects.create(
+            username=request.POST.get('username', ''),
+            ip_address=ip_address,
+            user_agent=user_agent,
+            success=False
+        )
+        
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            
+            if user is not None:
+                login(request, user)
+                
+                # Обновляем попытку входа как успешную
+                attempt = LoginAttempt.objects.filter(
+                    username=username, 
+                    ip_address=ip_address
+                ).last()
+                if attempt:
+                    attempt.success = True
+                    attempt.save()
+                
+                # Логируем успешный вход
+                log_security_event(user, 'login', ip_address, user_agent, True)
+                
+                # Очищаем сессию от неудачных попыток
+                if 'login_attempts' in request.session:
+                    del request.session['login_attempts']
+                
+                messages.success(request, 'Вход выполнен успешно!')
+                return redirect('profile')
+        
+        # Логируем неудачную попытку входа
+        if form.cleaned_data.get('username'):
+            try:
+                user = User.objects.get(username=form.cleaned_data['username'])
+                log_security_event(user, 'login_failed', ip_address, user_agent, False)
+            except User.DoesNotExist:
+                pass
+        
+        messages.error(request, 'Неверное имя пользователя или пароль.')
+    
+    else:
+        form = SecureAuthenticationForm(request=request)
+    
+    return render(request, 'main/login.html', {'form': form})
+
+@csrf_protect
+@require_http_methods(["GET", "POST"])
+def secure_password_reset(request):
+    if request.method == 'POST':
+        form = SecurePasswordResetForm(request.POST)
+        ip_address = get_client_ip(request)
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            
+            try:
+                user = User.objects.get(email=email, is_active=True)
+                
+                # Создаем токен сброса пароля
+                token = secrets.token_urlsafe(32)
+                expires_at = timezone.now() + timedelta(hours=1)
+                
+                PasswordResetToken.objects.create(
+                    user=user,
+                    token=token,
+                    expires_at=expires_at,
+                    ip_address=ip_address
+                )
+                
+                # Отправляем email
+                send_password_reset_email(user, token, request)
+                
+                # Логируем запрос сброса пароля
+                log_security_event(user, 'password_reset_request', ip_address, user_agent, True)
+                
+            except User.DoesNotExist:
+                pass
+            
+            # Всегда показываем одинаковое сообщение для безопасности
+            messages.success(
+                request, 
+                'Если email зарегистрирован, инструкции по сбросу пароля будут отправлены.'
+            )
+            return redirect('login')
+    
+    else:
+        form = SecurePasswordResetForm()
+    
+    return render(request, 'main/password_reset.html', {'form': form})
+
+def send_password_reset_email(user, token, request):
+    reset_url = f"{request.scheme}://{request.get_host()}/password-reset-confirm/{token}/"
+    
+    subject = "Сброс пароля - Техресурс"
+    html_message = render_to_string('main/password_reset_email.html', {
+        'user': user,
+        'reset_url': reset_url,
+    })
+    plain_message = strip_tags(html_message)
+    
+    send_mail(
+        subject,
+        plain_message,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        html_message=html_message,
+        fail_silently=False,
+    )
+
+@csrf_protect
+@require_http_methods(["GET", "POST"])
+def secure_password_reset_confirm(request, token):
+    try:
+        reset_token = PasswordResetToken.objects.get(
+            token=token,
+            used=False,
+            expires_at__gt=timezone.now()
+        )
+    except PasswordResetToken.DoesNotExist:
+        messages.error(request, 'Ссылка для сброса пароля недействительна или устарела.')
+        return redirect('password_reset')
+    
+    if request.method == 'POST':
+        form = SecureSetPasswordForm(request.POST)
+        ip_address = get_client_ip(request)
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        
+        if form.is_valid():
+            # Устанавливаем новый пароль
+            user = reset_token.user
+            user.set_password(form.cleaned_data['password1'])
+            user.save()
+            
+            # Помечаем токен как использованный
+            reset_token.used = True
+            reset_token.save()
+            
+            # Логируем смену пароля
+            log_security_event(user, 'password_reset_success', ip_address, user_agent, True)
+            
+            # Отправляем уведомление о смене пароля
+            send_password_change_notification(user, request)
+            
+            messages.success(request, 'Пароль успешно изменен! Теперь вы можете войти.')
+            return redirect('login')
+    
+    else:
+        form = SecureSetPasswordForm()
+    
+    return render(request, 'main/password_reset_confirm.html', {
+        'form': form,
+        'token': token
+    })
+
+def send_password_change_notification(user, request):
+    ip_address = get_client_ip(request)
+    
+    subject = "Пароль изменен - Техресурс"
+    html_message = render_to_string('main/password_change_notification.html', {
+        'user': user,
+        'ip_address': ip_address,
+        'timestamp': timezone.now(),
+    })
+    plain_message = strip_tags(html_message)
+    
+    send_mail(
+        subject,
+        plain_message,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        html_message=html_message,
+        fail_silently=False,
+    )
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def secure_change_password(request):
+    if request.method == 'POST':
+        form = SecureSetPasswordForm(request.POST)
+        ip_address = get_client_ip(request)
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        
+        if form.is_valid():
+            # Проверяем текущий пароль
+            current_password = request.POST.get('current_password')
+            if not request.user.check_password(current_password):
+                messages.error(request, 'Текущий пароль неверен.')
+                log_security_event(request.user, 'password_change_failed', ip_address, user_agent, False)
+            else:
+                # Устанавливаем новый пароль
+                request.user.set_password(form.cleaned_data['password1'])
+                request.user.save()
+                
+                # Обновляем сессию
+                from django.contrib.auth import update_session_auth_hash
+                update_session_auth_hash(request, request.user)
+                
+                # Логируем смену пароля
+                log_security_event(request.user, 'password_change', ip_address, user_agent, True)
+                
+                # Отправляем уведомление
+                send_password_change_notification(request.user, request)
+                
+                messages.success(request, 'Пароль успешно изменен!')
+                return redirect('profile')
+    
+    else:
+        form = SecureSetPasswordForm()
+    
+    return render(request, 'main/change_password.html', {'form': form})
+
+def verify_email(request, token):
+    try:
+        user = User.objects.get(
+            verification_token=token,
+            verification_token_created__gt=timezone.now()-timedelta(hours=24)
+        )
+        
+        # Проверяем наличие полей перед установкой
+        if hasattr(user, 'email_verified'):
+            user.email_verified = True
+        user.is_active = True
+        user.verification_token = ''
+        user.save()
+        
+        messages.success(request, 'Email успешно подтвержден! Теперь вы можете войти.')
+        return redirect('login')
+        
+    except User.DoesNotExist:
+        messages.error(request, 'Ссылка подтверждения недействительна или устарела.')
+        return redirect('register')
+    
+# ------------------------------------------- !!! --------------------------------------
+@login_required
+def debug_codes(request):
+    """Страница для отладки - показывает последние коды восстановления"""
+    if not request.user.is_staff:
+        return redirect('index')
+    
+    profiles = UserProfile.objects.filter(
+        sms_code__isnull=False,
+        sms_code_expires__gt=timezone.now()
+    ).select_related('user')
+    
+    return render(request, 'main/debug_codes.html', {'profiles': profiles})
+
+# ------------------------------------------- !!! --------------------------------------

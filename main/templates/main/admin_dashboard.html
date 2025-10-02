@@ -4,224 +4,556 @@
 {% block title %}Панель управления - Техресурс{% endblock %}
 
 {% block content %}
+<!-- Hero секция -->
+<section class="admin-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Панель управления</h1>
+            <p class="hero-subtitle">Управление заказами и мониторинг бизнес-показателей</p>
+        </div>
+    </div>
+</section>
+
 <div class="admin-dashboard">
-    <h2>Панель управления заказами</h2>
-    
-    <!-- Статистика -->
-    <div class="stats-cards">
-        <div class="stat-card">
-            <h3>Всего заказов</h3>
-            <p class="stat-number">{{ total_orders }}</p>
-        </div>
-        <div class="stat-card">
-            <h3>Ожидают оплаты</h3>
-            <p class="stat-number pending">{{ pending_orders }}</p>
-        </div>
-        <div class="stat-card">
-            <h3>Оплаченные</h3>
-            <p class="stat-number paid">{{ paid_orders }}</p>
-        </div>
-        <div class="stat-card">
-            <h3>Выручка</h3>
-            <p class="stat-number revenue">{{ total_revenue }} руб.</p>
-        </div>
-    </div>
-    
-    <!-- Фильтры -->
-    <div class="filters">
-        <form method="get" class="filter-form">
-            <select name="status">
-                <option value="">Все статусы</option>
-                {% for status_value, status_name in status_choices %}
-                    <option value="{{ status_value }}" {% if selected_status == status_value %}selected{% endif %}>
-                        {{ status_name }}
-                    </option>
-                {% endfor %}
-            </select>
-            <input type="date" name="date" value="{{ selected_date }}">
-            <button type="submit">Фильтровать</button>
-            {% if selected_status or selected_date %}
-                <a href="{% url 'admin_dashboard' %}" class="clear-btn">Сбросить</a>
-            {% endif %}
-        </form>
-    </div>
-    
-    <!-- Список заказов -->
-    <div class="orders-list">
-        {% for order in orders %}
-        <div class="order-admin-card">
-            <div class="order-header">
-                <h3>Заказ #{{ order.id }}</h3>
-                <div class="order-meta">
-                    <span class="status {{ order.status }}">{{ order.get_status_display }}</span>
-                    <span class="date">{{ order.created_at|date:"d.m.Y H:i" }}</span>
+    <div class="container">
+        <!-- Статистика в карточках -->
+        <div class="stats-grid">
+            <div class="stat-card" data-aos="fade-up">
+                <div class="stat-icon">📊</div>
+                <div class="stat-info">
+                    <h3>Всего заказов</h3>
+                    <p class="stat-number">{{ total_orders }}</p>
                 </div>
             </div>
             
-            <div class="order-details">
-                <div class="customer-info">
-                    <p><strong>Клиент:</strong> {{ order.customer_name }}</p>
-                    <p><strong>Телефон:</strong> {{ order.customer_phone }}</p>
-                    <p><strong>Email:</strong> {{ order.customer_email }}</p>
-                    <p><strong>Адрес:</strong> {{ order.delivery_address }}</p>
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-info">
+                    <h3>Ожидают оплаты</h3>
+                    <p class="stat-number pending">{{ pending_orders }}</p>
+                </div>
+            </div>
+            
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <h3>Оплаченные</h3>
+                    <p class="stat-number paid">{{ paid_orders }}</p>
+                </div>
+            </div>
+            
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="stat-icon">💵</div>
+                <div class="stat-info">
+                    <h3>Общая выручка</h3>
+                    <p class="stat-number revenue">{{ total_revenue }} ₽</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Фильтры -->
+        <div class="filters-section" data-aos="fade-up">
+            <div class="filters-card">
+                <div class="card-header">
+                    <h3>Фильтры заказов</h3>
+                    <div class="card-badge">Поиск</div>
                 </div>
                 
-                <div class="order-summary">
-                    <p><strong>Сумма:</strong> {{ order.total_price }} руб.</p>
-                    <p><strong>Оплата:</strong> {{ order.get_payment_method_display }}</p>
-                    {% if order.paid_at %}
-                    <p><strong>Оплачен:</strong> {{ order.paid_at|date:"d.m.Y H:i" }}</p>
-                    {% endif %}
-                </div>
+                <form method="get" class="filter-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-icon">📋</span>
+                                Статус заказа
+                            </label>
+                            <select name="status" class="form-select">
+                                <option value="">Все статусы</option>
+                                {% for status_value, status_name in status_choices %}
+                                    <option value="{{ status_value }}" {% if selected_status == status_value %}selected{% endif %}>
+                                        {{ status_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-icon">📅</span>
+                                Дата заказа
+                            </label>
+                            <input type="date" name="date" value="{{ selected_date }}" class="form-input">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="btn-icon">🔍</span>
+                            Применить фильтры
+                        </button>
+                        
+                        {% if selected_status or selected_date %}
+                        <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                            <span class="btn-icon">🔄</span>
+                            Сбросить фильтры
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Список заказов -->
+        <div class="orders-section" data-aos="fade-up">
+            <div class="section-header">
+                <h2>Список заказов</h2>
+                <div class="section-badge">{{ orders|length }} заказ(ов)</div>
             </div>
             
-            <div class="order-items">
-                <h4>Товары:</h4>
-                {% for item in order.orderitem_set.all %}
-                <div class="order-item">
-                    <span class="item-name">{{ item.product.name }}</span>
-                    <span class="item-quantity">x{{ item.quantity }}</span>
-                    <span class="item-price">{{ item.get_total_price }} руб.</span>
+            {% if orders %}
+            <div class="orders-grid">
+                {% for order in orders %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-title">
+                            <h3>Заказ #{{ order.id }}</h3>
+                            <div class="order-meta">
+                                <span class="order-date">📅 {{ order.created_at|date:"d.m.Y H:i" }}</span>
+                                <span class="order-status status-{{ order.status }}">{{ order.get_status_display }}</span>
+                                <span class="order-total">💰 {{ order.total_price }} ₽</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-details">
+                        <div class="detail-section">
+                            <h4>👤 Информация о клиенте</h4>
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <span class="detail-label">Имя:</span>
+                                    <span class="detail-value">{{ order.customer_name }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Телефон:</span>
+                                    <span class="detail-value">{{ order.customer_phone }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Email:</span>
+                                    <span class="detail-value">{{ order.customer_email }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Адрес:</span>
+                                    <span class="detail-value">{{ order.delivery_address }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4>💳 Детали оплаты</h4>
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <span class="detail-label">Способ оплаты:</span>
+                                    <span class="detail-value">{{ order.get_payment_method_display }}</span>
+                                </div>
+                                {% if order.paid_at %}
+                                <div class="detail-item">
+                                    <span class="detail-label">Оплачен:</span>
+                                    <span class="detail-value">{{ order.paid_at|date:"d.m.Y H:i" }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-items-section">
+                        <h4>🛒 Товары в заказе</h4>
+                        <div class="order-items">
+                            {% for item in order.orderitem_set.all %}
+                            <div class="order-item">
+                                <div class="item-info">
+                                    <h5>{{ item.product.name }}</h5>
+                                    <p class="item-meta">Количество: {{ item.quantity }} × {{ item.price }} ₽</p>
+                                </div>
+                                <div class="item-total">
+                                    <strong>{{ item.get_total_price }} ₽</strong>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="notifications-section">
+                        <h4>📢 История уведомлений</h4>
+                        <div class="notifications-list">
+                            {% for log in order.notificationlog_set.all %}
+                            <div class="notification-item {% if log.success %}success{% else %}error{% endif %}">
+                                <div class="notification-info">
+                                    <span class="notification-type">{{ log.get_notification_type_display }}</span>
+                                    <span class="notification-time">{{ log.created_at|date:"H:i" }}</span>
+                                </div>
+                                <div class="notification-status">
+                                    {% if log.success %}
+                                    <span class="status-badge success">✅ Успешно</span>
+                                    {% else %}
+                                    <span class="status-badge error">❌ Ошибка</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="empty-notifications">
+                                <span class="empty-icon">📭</span>
+                                <p>Нет отправленных уведомлений</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
-            
-            <div class="notifications-log">
-                <h4>Уведомления:</h4>
-                {% for log in order.notificationlog_set.all %}
-                <div class="notification-item {% if log.success %}success{% else %}error{% endif %}">
-                    <span class="log-type">{{ log.get_notification_type_display }}</span>
-                    <span class="log-time">{{ log.created_at|date:"H:i" }}</span>
-                    <span class="log-status">{% if log.success %}✅{% else %}❌{% endif %}</span>
-                </div>
-                {% empty %}
-                <p class="no-notifications">Нет уведомлений</p>
-                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📦</div>
+                <h3>Заказы не найдены</h3>
+                <p>Попробуйте изменить параметры фильтрации</p>
             </div>
+            {% endif %}
         </div>
-        {% empty %}
-        <div class="no-orders">
-            <p>Заказы не найдены</p>
-        </div>
-        {% endfor %}
     </div>
 </div>
 
+<!-- Подключение библиотек -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
 <style>
-.admin-dashboard {
-    max-width: 1200px;
-    margin: 0 auto;
+/* Hero секция */
+.admin-hero {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 80px 0 40px;
+    text-align: center;
 }
 
-.stats-cards {
+.admin-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Основной контейнер */
+.admin-dashboard {
+    padding: 3rem 0;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Сетка статистики */
+.stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
 }
 
 .stat-card {
     background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    text-align: center;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    border-color: #667eea;
+}
+
+.stat-icon {
+    font-size: 3rem;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 20px;
+}
+
+.stat-info h3 {
+    font-size: 1rem;
+    color: #6c757d;
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
 }
 
 .stat-number {
     font-size: 2rem;
-    font-weight: bold;
-    margin: 0.5rem 0 0 0;
+    font-weight: 800;
+    margin: 0;
+    color: #2c3e50;
 }
 
-.stat-number.paid {
-    color: #27ae60;
+.stat-number.paid { color: #48bb78; }
+.stat-number.pending { color: #ed8936; }
+.stat-number.revenue { color: #667eea; }
+
+/* Секция фильтров */
+.filters-section {
+    margin-bottom: 3rem;
 }
 
-.stat-number.pending {
-    color: #f39c12;
-}
-
-.stat-number.revenue {
-    color: #3498db;
-}
-
-.filters {
+.filters-card {
     background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-bottom: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 2rem 1rem;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.card-header h3 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.card-badge {
+    background: #e3f2fd;
+    color: #667eea;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
 }
 
 .filter-form {
+    padding: 0 2rem 2rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.label-icon {
+    font-size: 1.1rem;
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-actions {
     display: flex;
     gap: 1rem;
     align-items: center;
     flex-wrap: wrap;
 }
 
-.orders-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
 }
 
-.order-admin-card {
+.btn-primary {
+    background: linear-gradient(135deg, #0052cc, #0066cc);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #2c3e50;
+    border: 2px solid #e9ecef;
+}
+
+.btn-secondary:hover {
     background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    border-left: 4px solid #3498db;
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
 }
 
-.order-header {
+.btn-icon {
+    font-size: 1.1rem;
+}
+
+/* Секция заказов */
+.orders-section {
+    margin-bottom: 3rem;
+}
+
+.section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.section-header h2 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.section-badge {
+    background: #e3f2fd;
+    color: #667eea;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.orders-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.order-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    padding: 2rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    border-color: #e9ecef;
+}
+
+.order-header {
+    margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.order-title h3 {
+    font-size: 1.4rem;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
 }
 
 .order-meta {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
     align-items: center;
 }
 
-.status {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: white;
+.order-date {
+    color: #6c757d;
+    font-size: 0.9rem;
 }
 
-.status.paid { background: #27ae60; }
-.status.pending { background: #f39c12; }
-.status.processing { background: #3498db; }
-.status.completed { background: #2c3e50; }
-.status.cancelled { background: #e74c3c; }
+.order-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-pending { background: #fff3cd; color: #856404; }
+.status-paid { background: #d4edda; color: #155724; }
+-status-processing { background: #cce7ff; color: #004085; }
+.status-completed { background: #d1ecf1; color: #0c5460; }
+.status-cancelled { background: #f8d7da; color: #721c24; }
+
+.order-total {
+    font-weight: 700;
+    color: #2c3e50;
+}
 
 .order-details {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 2rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
-.customer-info p, .order-summary p {
-    margin: 0.25rem 0;
+.detail-section h4 {
+    font-size: 1rem;
+    color: #2c3e50;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.order-items, .notifications-log {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
+.detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.order-item {
+.detail-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -229,49 +561,306 @@
     border-bottom: 1px solid #f8f9fa;
 }
 
+.detail-label {
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.detail-value {
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.order-items-section,
+.notifications-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f8f9fa;
+}
+
+.order-items-section h4,
+.notifications-section h4 {
+    font-size: 1rem;
+    color: #2c3e50;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.order-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.order-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.item-info h5 {
+    margin: 0 0 0.25rem 0;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.item-meta {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.item-total {
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 .notification-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem;
-    margin-bottom: 0.25rem;
-    border-radius: 4px;
+    padding: 1rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
 }
 
 .notification-item.success {
     background: #d4edda;
-    color: #155724;
+    border: 1px solid #c3e6cb;
 }
 
 .notification-item.error {
     background: #f8d7da;
-    color: #721c24;
+    border: 1px solid #f5c6cb;
 }
 
-.log-type {
-    flex-grow: 1;
+.notification-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-.no-notifications {
-    color: #7f8c8d;
-    font-style: italic;
+.notification-type {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.notification-time {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-badge.success {
+    background: #48bb78;
+    color: white;
+}
+
+.status-badge.error {
+    background: #e53e3e;
+    color: white;
+}
+
+.empty-notifications {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.empty-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.empty-notifications p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Пустые состояния */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    margin-bottom: 2rem;
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+/* Анимации */
+[data-aos] {
+    opacity: 0;
+    transition-property: opacity, transform;
+}
+
+[data-aos].aos-animate {
+    opacity: 1;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .order-details {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
 }
 
 @media (max-width: 768px) {
-    .order-details {
-        grid-template-columns: 1fr;
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
     
-    .order-header {
+    .stat-card {
+        padding: 1.5rem;
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 1.5rem 1.5rem 1rem;
+    }
+    
+    .filter-form {
+        padding: 0 1.5rem 1.5rem;
+    }
+    
+    .order-card {
+        padding: 1.5rem;
+    }
+    
+    .order-meta {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
     }
     
-    .filter-form {
+    .form-actions {
         flex-direction: column;
         align-items: stretch;
     }
+    
+    .btn {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .admin-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .order-header {
+        text-align: center;
+    }
+    
+    .detail-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .notification-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация AOS
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 100
+    });
+    
+    // Анимация карточек при наведении
+    document.querySelectorAll('.order-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+    
+    // Подсветка статусов
+    document.querySelectorAll('.order-status').forEach(status => {
+        status.addEventListener('click', function() {
+            const statusClass = this.className.split(' ')[1];
+            const statusText = this.textContent;
+            console.log(`Статус заказа: ${statusText} (${statusClass})`);
+        });
+    });
+    
+    // Быстрые действия для заказов
+    document.querySelectorAll('.order-card').forEach(card => {
+        card.addEventListener('dblclick', function() {
+            const orderId = this.querySelector('h3').textContent.replace('Заказ #', '');
+            console.log(`Быстрое действие для заказа #${orderId}`);
+            // Здесь можно добавить модальное окно с быстрыми действиями
+        });
+    });
+});
+</script>
 {% endblock %}

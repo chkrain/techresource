@@ -4,280 +4,1309 @@
 {% block title %}Профиль - Техресурс{% endblock %}
 
 {% block content %}
-<div class="profile-container">
-    <h2>Мой профиль</h2>
-    
-    <div class="profile-sections">
-        <!-- Основная информация -->
-        <div class="profile-section">
-            <h3>Основная информация</h3>
-            <form method="post" class="profile-form">
-                {% csrf_token %}
-                <input type="hidden" name="update_profile" value="1">
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Имя пользователя</label>
-                        <input type="text" value="{{ user.username }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" value="{{ user.email }}" disabled>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Телефон</label>
-                        {{ profile_form.phone }}
-                    </div>
-                    <div class="form-group">
-                        <label>Компания</label>
-                        {{ profile_form.company }}
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Должность</label>
-                    {{ profile_form.position }}
-                </div>
-                
-                <button type="submit" class="save-btn">Сохранить изменения</button>
-            </form>
+<!-- Hero секция -->
+<section class="profile-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Мой профиль</h1>
+            <p class="hero-subtitle">Управление личной информацией и адресами доставки</p>
         </div>
-        
-        <!-- Адреса доставки -->
-        <div class="profile-section">
-            <h3>Мои адреса</h3>
-            
-            {% for address in addresses %}
-            <div class="address-card {% if address.is_default %}default-address{% endif %}">
-                <div class="address-header">
-                    <h4>{{ address.title }}</h4>
-                    {% if address.is_default %}
-                    <span class="default-badge">По умолчанию</span>
-                    {% endif %}
+    </div>
+</section>
+
+<section class="profile-section">
+    <div class="container">
+        <div class="profile-layout">
+            <!-- Боковое меню -->
+            <div class="profile-sidebar">
+                <div class="user-card">
+                    <div class="user-avatar">
+                        <span class="avatar-icon">👤</span>
+                    </div>
+                    <div class="user-info">
+                        <h3>{{ user.username }}</h3>
+                        <p class="user-email">{{ user.email }}</p>
+                        <div class="user-stats">
+                            <div class="stat">
+                                <span class="stat-number">{{ addresses|length }}</span>
+                                <span class="stat-label">адресов</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">{{ orders|length }}</span>
+                                <span class="stat-label">заказов</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <p><strong>ФИО:</strong> {{ address.full_name }}</p>
-                <p><strong>Телефон:</strong> {{ address.phone }}</p>
-                <p><strong>Адрес:</strong> {{ address.address }}</p>
-                <p><strong>Город:</strong> {{ address.city }}</p>
-                <p><strong>Индекс:</strong> {{ address.postal_code }}</p>
-                <div class="address-actions">
-                    <form method="post" action="{% url 'delete_address' address.id %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="delete-btn" onclick="return confirm('Удалить этот адрес?')">Удалить</button>
-                    </form>
-                </div>
+                
+                <nav class="profile-nav">
+                    <a href="#main-info" class="nav-item active" data-tab="main-info">
+                        <span class="nav-icon">📋</span>
+                        Основная информация
+                    </a>
+                    <a href="#addresses" class="nav-item" data-tab="addresses">
+                        <span class="nav-icon">📍</span>
+                        Мои адреса
+                    </a>
+                    <a href="#orders" class="nav-item" data-tab="orders">
+                        <span class="nav-icon">📦</span>
+                        История заказов
+                    </a>
+                </nav>
             </div>
-            {% endfor %}
             
-            <div class="add-address-form">
-                <h4>Добавить новый адрес</h4>
-                <form method="post" class="address-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="add_address" value="1">
-                    
-                    <div class="form-group">
-                        <label>Название адреса</label>
-                        {{ address_form.title }}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>ФИО*</label>
-                        {{ address_form.full_name }}
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Телефон*</label>
-                            {{ address_form.phone }}
+            <!-- Основной контент -->
+            <div class="profile-content">
+                <!-- Основная информация -->
+                <div id="main-info" class="tab-content active">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h2>Основная информация</h2>
+                            <div class="card-badge">Личные данные</div>
                         </div>
-                        <div class="form-group">
-                            <label>Город*</label>
-                            {{ address_form.city }}
+                        
+                        <form method="post" class="profile-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="update_profile" value="1">
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <span class="label-icon">👤</span>
+                                        Имя пользователя
+                                    </label>
+                                    <input type="text" value="{{ user.username }}" class="form-input" disabled>
+                                    <div class="form-help">Имя пользователя нельзя изменить</div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <span class="label-icon">📧</span>
+                                        Email
+                                    </label>
+                                    <input type="email" value="{{ user.email }}" class="form-input" disabled>
+                                    <div class="form-help">Email используется для входа в систему</div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <span class="label-icon">📱</span>
+                                        Телефон
+                                    </label>
+                                    {{ profile_form.phone }}
+                                    {% if profile_form.phone.errors %}
+                                    <div class="form-error">{{ profile_form.phone.errors }}</div>
+                                    {% endif %}
+                                    <div class="form-help">Формат: +7 (XXX) XXX-XX-XX</div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <span class="label-icon">🏢</span>
+                                        Компания
+                                    </label>
+                                    {{ profile_form.company }}
+                                    {% if profile_form.company.errors %}
+                                    <div class="form-error">{{ profile_form.company.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span class="label-icon">💼</span>
+                                    Должность
+                                </label>
+                                {{ profile_form.position }}
+                                {% if profile_form.position.errors %}
+                                <div class="form-error">{{ profile_form.position.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="btn-icon">💾</span>
+                                    Сохранить изменения
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Адреса доставки -->
+                <div id="addresses" class="tab-content">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h2>Мои адреса</h2>
+                            <div class="card-badge">{{ addresses|length }} адрес(ов)</div>
+                        </div>
+                        
+                        {% if addresses %}
+                        <div class="addresses-grid">
+                            {% for address in addresses %}
+                            <div class="address-card {% if address.is_default %}default-address{% endif %}">
+                                <div class="address-header">
+                                    <div class="address-title">
+                                        <h3>{{ address.title }}</h3>
+                                        {% if address.is_default %}
+                                        <span class="default-badge">
+                                            <span class="badge-icon">⭐</span>
+                                            По умолчанию
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <form method="post" action="{% url 'delete_address' address.id %}" class="delete-form">
+                                        {% csrf_token %}
+                                        <button type="submit" class="delete-btn" 
+                                                onclick="return confirm('Вы уверены, что хотите удалить этот адрес?')"
+                                                title="Удалить адрес">
+                                            🗑️
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <div class="address-details">
+                                    <div class="detail-item">
+                                        <span class="detail-icon">👤</span>
+                                        <span class="detail-text">{{ address.full_name }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-icon">📱</span>
+                                        <span class="detail-text">{{ address.phone }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-icon">🏠</span>
+                                        <span class="detail-text">{{ address.address }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-icon">🏙️</span>
+                                        <span class="detail-text">{{ address.city }}</span>
+                                    </div>
+                                    {% if address.postal_code %}
+                                    <div class="detail-item">
+                                        <span class="detail-icon">📮</span>
+                                        <span class="detail-text">{{ address.postal_code }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon">📍</div>
+                            <h3>Нет сохраненных адресов</h3>
+                            <p>Добавьте адрес для быстрого оформления заказов</p>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Форма добавления адреса -->
+                        <div class="add-address-section">
+                            <div class="section-header">
+                                <h3>Добавить новый адрес</h3>
+                                <div class="section-badge">Новый</div>
+                            </div>
+                            
+                            <form method="post" class="address-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="add_address" value="1">
+                                
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <span class="label-icon">🏷️</span>
+                                            Название адреса
+                                        </label>
+                                        {{ address_form.title }}
+                                        <div class="form-help">Например: Дом, Офис, Склад</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <span class="label-icon">👤</span>
+                                            ФИО*
+                                        </label>
+                                        {{ address_form.full_name }}
+                                        {% if address_form.full_name.errors %}
+                                        <div class="form-error">{{ address_form.full_name.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <span class="label-icon">📱</span>
+                                            Телефон*
+                                        </label>
+                                        {{ address_form.phone }}
+                                        {% if address_form.phone.errors %}
+                                        <div class="form-error">{{ address_form.phone.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <span class="label-icon">🏙️</span>
+                                            Город*
+                                        </label>
+                                        {{ address_form.city }}
+                                        {% if address_form.city.errors %}
+                                        <div class="form-error">{{ address_form.city.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <span class="label-icon">📮</span>
+                                            Почтовый индекс
+                                        </label>
+                                        {{ address_form.postal_code }}
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <span class="label-icon">🏠</span>
+                                        Адрес*
+                                    </label>
+                                    {{ address_form.address }}
+                                    {% if address_form.address.errors %}
+                                    <div class="form-error">{{ address_form.address.errors }}</div>
+                                    {% endif %}
+                                    <div class="form-help">Улица, дом, квартира/офис</div>
+                                </div>
+                                
+                                <div class="form-group checkbox-group">
+                                    <label class="checkbox-label">
+                                        {{ address_form.is_default }}
+                                        <span class="checkmark"></span>
+                                        <span class="checkbox-text">
+                                            <span class="checkbox-icon">⭐</span>
+                                            Использовать как адрес по умолчанию
+                                        </span>
+                                    </label>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <span class="btn-icon">➕</span>
+                                        Добавить адрес
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label>Адрес*</label>
-                        {{ address_form.address }}
+                </div>
+                
+                <!-- История заказов -->
+                <div id="orders" class="tab-content">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h2>История заказов</h2>
+                            <div class="card-badge">{{ orders|length }} заказ(ов)</div>
+                        </div>
+                        
+                        {% if orders %}
+                        <div class="orders-list">
+                            {% for order in orders %}
+                            <div class="order-card">
+                                <div class="order-header">
+                                    <div class="order-info">
+                                        <h3>Заказ #{{ order.id }}</h3>
+                                        <div class="order-meta">
+                                            <span class="order-date">📅 {{ order.created_at|date:"d.m.Y H:i" }}</span>
+                                            <span class="order-status status-{{ order.status }}">{{ order.get_status_display }}</span>
+                                            <span class="order-total">💰 {{ order.total_price }} ₽</span>
+                                        </div>
+                                    </div>
+                                    <div class="order-actions">
+                                        {% if order.status == 'pending' %}
+                                        <a href="{% url 'create_payment' order.id %}" class="btn btn-primary btn-sm">
+                                            <span class="btn-icon">💳</span>
+                                            Оплатить
+                                        </a>
+                                        {% endif %}
+                                        {% if order.can_be_cancelled %}
+                                        <a href="{% url 'cancel_order' order.id %}" class="btn btn-secondary btn-sm" 
+                                        onclick="return confirm('Вы уверены, что хотите отменить заказ?')">
+                                            <span class="btn-icon">❌</span>
+                                            Отменить
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="order-items">
+                                    {% for item in order.orderitem_set.all %}
+                                    <div class="order-item">
+                                        <div class="item-info">
+                                            <h4>{{ item.product.name }}</h4>
+                                            <p class="item-quantity">Количество: {{ item.quantity }}</p>
+                                            <p class="item-price">{{ item.price }} ₽ × {{ item.quantity }}</p>
+                                        </div>
+                                        <div class="item-total">
+                                            <strong>{{ item.get_total_price }} ₽</strong>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="order-footer">
+                                    <div class="delivery-info">
+                                        <strong>Адрес доставки:</strong> {{ order.delivery_address }}
+                                    </div>
+                                    <div class="payment-method">
+                                        <strong>Способ оплаты:</strong> {{ order.get_payment_method_display }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon">📦</div>
+                            <h3>Заказы не найдены</h3>
+                            <p>Здесь будет отображаться история ваших заказов</p>
+                            <a href="{% url 'products' %}" class="btn btn-primary">
+                                <span class="btn-icon">🛒</span>
+                                Сделать первый заказ
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
-                    
-                    <div class="form-group">
-                        <label>Почтовый индекс</label>
-                        {{ address_form.postal_code }}
-                    </div>
-                    
-                    <div class="form-group checkbox-group">
-                        {{ address_form.is_default }}
-                        <label for="{{ address_form.is_default.id_for_label }}">Использовать как адрес по умолчанию</label>
-                    </div>
-                    
-                    <button type="submit" class="add-btn">Добавить адрес</button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <style>
-.profile-container {
-    max-width: 1000px;
-    margin: 0 auto;
+section {
+    margin-top: 2%;
+    border-radius: 20px;
+}
+/* Hero секция */
+.profile-hero {
+    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
+    color: white;
+    padding: 80px 0 40px;
+    text-align: center;
 }
 
-.profile-sections {
-    display: grid;
-    gap: 2rem;
-    margin-top: 2rem;
+.profile-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
 }
 
+.hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Основная секция */
 .profile-section {
+    padding: 3rem 0;
+    background: #f8f9fa;
+    min-height: 60vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Макет профиля */
+.profile-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+/* Боковая панель */
+.profile-sidebar {
+    position: sticky;
+    top: 2rem;
+}
+
+.user-card {
     background: white;
     padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.profile-section h3 {
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    text-align: center;
     margin-bottom: 1.5rem;
-    color: #2c3e50;
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 0.5rem;
 }
 
-.profile-form, .address-form {
-    margin-bottom: 2rem;
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #0052cc, #0066cc);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-icon {
+    font-size: 2.5rem;
+}
+
+.user-info h3 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+}
+
+.user-email {
+    color: #6c757d;
+    margin: 0 0 1rem 0;
+}
+
+.user-stats {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #667eea;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* Навигация */
+.profile-nav {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    color: #6c757d;
+    text-decoration: none;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-item:hover {
+    background: #f8f9fa;
+    color: #667eea;
+    border-left-color: #667eea;
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, #0052cc, #0066cc);
+    color: white;
+    border-left-color: #764ba2;
+}
+
+.nav-icon {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+/* Основной контент */
+.profile-content {
+    min-height: 500px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Карточки контента */
+.content-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 2rem 1rem;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.card-header h2 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.card-badge {
+    background: #e3f2fd;
+    color: #667eea;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Формы */
+.profile-form,
+.address-form {
+    padding: 0 2rem 2rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
     color: #2c3e50;
 }
 
-.form-group input, .form-group textarea {
+.label-icon {
+    font-size: 1.1rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: white;
 }
 
-.form-group input:focus, .form-group textarea:focus {
-    border-color: #3498db;
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
     outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.form-input:disabled {
+    background: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.form-help {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.form-error {
+    font-size: 0.8rem;
+    color: #e53e3e;
+    margin-top: 0.5rem;
+}
+
+/* Чекбокс */
 .checkbox-group {
+    margin: 2rem 0;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark {
+    background: #667eea;
+    border-color: #667eea;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.checkbox-text {
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.checkbox-group input {
-    width: auto;
+.checkbox-icon {
+    font-size: 1.1rem;
 }
 
-.save-btn, .add-btn {
-    padding: 0.75rem 1.5rem;
-    background: #27ae60;
-    color: white;
+/* Кнопки */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
     border: none;
-    border-radius: 4px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
-.save-btn:hover, .add-btn:hover {
-    background: #219a52;
+.btn-primary {
+    background: linear-gradient(135deg, #0052cc, #0066cc);
+    color: white;
+}
+
+/* Стилизация полей формы адреса */
+.address-form .form-input,
+.address-form .form-textarea {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.address-form .form-input:focus,
+.address-form .form-textarea:focus {
+    background: white;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Стили для обязательных полей */
+.address-form [required] + .form-help::after {
+    content: " *";
+    color: #e53e3e;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #2c3e50;
+    border: 2px solid #e9ecef;
+}
+
+.btn-secondary:hover {
+    background: white;
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
+}
+
+.btn-icon {
+    font-size: 1.1rem;
+}
+
+/* Адреса */
+.addresses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
 }
 
 .address-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 16px;
     padding: 1.5rem;
-    margin-bottom: 1rem;
-    background: #f8f9fa;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.address-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
 .default-address {
-    border-color: #3498db;
-    background: #e3f2fd;
+    border-color: #667eea;
+    background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
 }
 
 .address-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 1rem;
+}
+
+.address-title {
+    flex: 1;
+}
+
+.address-title h3 {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
 }
 
 .default-badge {
-    background: #27ae60;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #48bb78;
     color: white;
     padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
 }
 
-.address-actions {
-    margin-top: 1rem;
-    text-align: right;
+.badge-icon {
+    font-size: 0.8rem;
 }
 
 .delete-btn {
-    background: #e74c3c;
-    color: white;
+    background: none;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    font-size: 1.2rem;
     cursor: pointer;
-    font-size: 0.9rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    opacity: 0.7;
 }
 
 .delete-btn:hover {
-    background: #c0392b;
+    background: #fff5f5;
+    color: #e53e3e;
+    opacity: 1;
+    transform: scale(1.1);
 }
 
-.add-address-form {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 2px solid #eee;
+.address-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
-.add-address-form h4 {
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.detail-icon {
+    font-size: 1rem;
+    opacity: 0.7;
+    width: 16px;
+    text-align: center;
+}
+
+.detail-text {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Добавление адреса */
+.add-address-section {
+    padding: 2rem;
+    border-top: 2px solid #f8f9fa;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-header h3 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.section-badge {
+    background: #48bb78;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* Пустые состояния */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6c757d;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    color: #2c3e50;
     margin-bottom: 1rem;
+}
+
+.empty-state p {
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
+/* Стили для истории заказов */
+.orders-list {
+    padding: 2rem;
+}
+
+.order-card {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.order-info h3 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+}
+
+.order-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.order-date,
+.order-total {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.order-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-pending { background: #fff3cd; color: #856404; }
+.status-processing { background: #cce7ff; color: #004085; }
+.status-completed { background: #d4edda; color: #155724; }
+.status-cancelled { background: #f8d7da; color: #721c24; }
+
+.order-items {
+    border-top: 1px solid #e9ecef;
+    padding-top: 1rem;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.item-info h4 {
+    margin: 0 0 0.25rem 0;
     color: #2c3e50;
 }
 
-@media (max-width: 768px) {
-    .form-row {
+.item-quantity {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.item-price {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Стили для всех полей ввода как у имени пользователя и email */
+.profile-form input[type="text"],
+.profile-form input[type="email"],
+.profile-form input[type="tel"],
+.profile-form select,
+.profile-form textarea,
+.address-form input[type="text"],
+.address-form input[type="tel"],
+.address-form select,
+.address-form textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: white;
+    font-family: inherit;
+}
+
+/* Стили для disabled полей (как у имени пользователя и email) */
+.profile-form input:disabled,
+.address-form input:disabled {
+    background: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Фокус состояния для всех полей */
+.profile-form input:focus,
+.profile-form select:focus,
+.profile-form textarea:focus,
+.address-form input:focus,
+.address-form select:focus,
+.address-form textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Убираем специальные стили для формы адреса которые были раньше */
+.address-form .form-input,
+.address-form .form-textarea {
+    background: white; /* Убираем серый фон */
+    border: 2px solid #e9ecef; /* Стандартная граница */
+}
+
+.address-form .form-input:focus,
+.address-form .form-textarea:focus {
+    background: white; /* Белый фон при фокусе */
+    border-color: #667eea; /* Синяя граница при фокусе */
+}
+
+/* Убираем специальные стили для обязательных полей формы адреса */
+.address-form [required] + .form-help::after {
+    content: ""; /* Убираем звездочку */
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .profile-layout {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
     
-    .profile-section {
+    .profile-sidebar {
+        position: static;
+    }
+    
+    .profile-nav {
+        display: flex;
+        overflow-x: auto;
+    }
+    
+    .nav-item {
+        flex: 1;
+        min-width: 150px;
+        justify-content: center;
+        border-left: none;
+        border-bottom: 4px solid transparent;
+    }
+    
+    .nav-item.active {
+        border-left: none;
+        border-bottom-color: #764ba2;
+    }
+    
+    .nav-item:hover {
+        border-left: none;
+        border-bottom-color: #667eea;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .addresses-grid {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 1.5rem 1.5rem 1rem;
+    }
+    
+    .profile-form,
+    .address-form {
+        padding: 0 1.5rem 1.5rem;
+    }
+    
+    .add-address-section {
         padding: 1.5rem;
     }
     
-    .address-header {
+    .form-actions {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
+        align-items: stretch;
+    }
+    
+    .btn {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .user-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .profile-nav {
+        flex-direction: column;
+    }
+    
+    .nav-item {
+        justify-content: flex-start;
+        border-bottom: none;
+        border-left: 4px solid transparent;
+    }
+    
+    .nav-item.active {
+        border-bottom: none;
+        border-left-color: #764ba2;
+    }
+    
+    .nav-item:hover {
+        border-bottom: none;
+        border-left-color: #667eea;
     }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Переключение табов
+    const navItems = document.querySelectorAll('.nav-item');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Убираем активный класс у всех элементов
+            navItems.forEach(nav => nav.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Добавляем активный класс к текущему элементу
+            this.classList.add('active');
+            
+            // Показываем соответствующий контент
+            const tabId = this.getAttribute('data-tab');
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+        });
+    });
+    
+    // Маска для телефона
+    const phoneInput = document.querySelector('input[type="tel"]');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, '');
+            
+            if (value.startsWith('7') || value.startsWith('8')) {
+                value = value.substring(1);
+            }
+            
+            let formattedValue = '+7 (';
+            
+            if (value.length > 0) {
+                formattedValue += value.substring(0, 3);
+            }
+            if (value.length > 3) {
+                formattedValue += ') ' + value.substring(3, 6);
+            }
+            if (value.length > 6) {
+                formattedValue += '-' + value.substring(6, 8);
+            }
+            if (value.length > 8) {
+                formattedValue += '-' + value.substring(8, 10);
+            }
+            
+            this.value = formattedValue;
+        });
+    }
+    
+    // Анимация форм
+    document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            if (!this.value) {
+                this.parentElement.classList.remove('focused');
+            }
+        });
+    });
+    
+    // Подтверждение удаления с улучшенным UI
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            if (!confirm('Вы уверены, что хотите удалить этот адрес?')) {
+                e.preventDefault();
+            } else {
+                // Анимация удаления
+                const card = this.closest('.address-card');
+                if (card) {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateX(-100px)';
+                    setTimeout(() => {
+                        card.remove();
+                    }, 300);
+                }
+            }
+        });
+    });
+    
+    // Валидация форм в реальном времени
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            const requiredFields = this.querySelectorAll('[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.style.borderColor = '#e53e3e';
+                } else {
+                    field.style.borderColor = '#48bb78';
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                // Показываем сообщение об ошибке
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'form-error';
+                errorMsg.textContent = 'Пожалуйста, заполните все обязательные поля';
+                errorMsg.style.marginTop = '1rem';
+                errorMsg.style.padding = '1rem';
+                errorMsg.style.background = '#fff5f5';
+                errorMsg.style.borderRadius = '8px';
+                errorMsg.style.border = '1px solid #fed7d7';
+                
+                const existingError = this.querySelector('.submit-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                errorMsg.className = 'submit-error';
+                this.appendChild(errorMsg);
+                
+                // Прокрутка к ошибке
+                errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

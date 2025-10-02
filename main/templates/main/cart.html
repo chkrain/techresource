@@ -4,113 +4,435 @@
 {% block title %}Корзина - Техресурс{% endblock %}
 
 {% block content %}
-<h2>Корзина покупок</h2>
+<!-- Hero секция -->
+<section class="cart-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Корзина покупок</h1>
+            <p class="hero-subtitle">Оформление заказа</p>
+        </div>
+    </div>
+</section>
 
-{% if cart_items %}
-<div class="cart-container">
-    <div class="cart-items">
-        {% for item in cart_items %}
-        <div class="cart-item">
-            {% if item.product.image %}
-            <div class="item-image">
-                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+<section class="cart-section">
+    <div class="container">
+        {% if cart_items %}
+        <div class="cart-layout">
+            <!-- Основная часть с товарами -->
+            <div class="cart-main">
+                <div class="cart-header">
+                    <h2>Товары в корзине</h2>
+                    <span class="items-count">{{ cart_items|length }} товар(ов)</span>
+                </div>
+                
+                <div class="cart-items">
+                    {% for item in cart_items %}
+                    <div class="cart-item" data-item-id="{{ item.id }}">
+                        <div class="item-image">
+                            {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy">
+                            {% else %}
+                            <div class="image-placeholder">
+                                <span class="placeholder-icon">⚙️</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="item-details">
+                            <h3 class="item-title">{{ item.product.name }}</h3>
+                            <p class="item-article">Артикул: {{ item.product.article }}</p>
+                            <p class="item-category">{{ item.product.category }}</p>
+                            
+                            {% if item.product.description %}
+                            <p class="item-description">{{ item.product.description|truncatewords:10 }}</p>
+                            {% endif %}
+                            
+                            <div class="item-price-mobile">
+                                <span class="price">{{ item.product.price }} ₽</span>
+                                <span class="total">Итого: <span class="mobile-total-price">{{ item.get_total_price }}</span> ₽</span>
+                            </div>
+                        </div>
+                        
+                        <div class="item-quantity">
+                            <div class="quantity-controls">
+                                <button type="button" class="quantity-btn decrease" 
+                                        data-item-id="{{ item.id }}"
+                                        {% if item.quantity <= 1 %}disabled{% endif %}>
+                                    −
+                                </button>
+                                
+                                <input type="number" 
+                                       class="quantity-input" 
+                                       value="{{ item.quantity }}" 
+                                       min="1" 
+                                       max="{{ item.product.quantity }}"
+                                       data-item-id="{{ item.id }}"
+                                       data-price="{{ item.product.price }}"
+                                       data-max-quantity="{{ item.product.quantity }}">
+                                
+                                <button type="button" class="quantity-btn increase"
+                                        data-item-id="{{ item.id }}"
+                                        {% if item.quantity >= item.product.quantity %}disabled{% endif %}>
+                                    +
+                                </button>
+                            </div>
+                            
+                            <div class="quantity-actions">
+                                <button type="button" class="update-quantity-btn" data-item-id="{{ item.id }}">
+                                    Обновить
+                                </button>
+                                <button type="button" class="remove-item-btn" data-item-id="{{ item.id }}">
+                                    Удалить
+                                </button>
+                            </div>
+                            
+                            <div class="stock-info">
+                                {% if item.product.quantity > 0 %}
+                                В наличии: {{ item.product.quantity }} шт.
+                                {% else %}
+                                <span class="out-of-stock">Нет в наличии</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="item-price">
+                            <div class="price-per-item">{{ item.product.price }} ₽/шт</div>
+                            <div class="total-price">{{ item.get_total_price }} ₽</div>
+                        </div>
+                        
+                        <div class="item-remove">
+                            <button type="button" class="remove-btn" data-item-id="{{ item.id }}" title="Удалить из корзины">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="continue-shopping">
+                    <a href="{% url 'products' %}" class="back-to-shopping">
+                        ← Продолжить покупки
+                    </a>
+                </div>
             </div>
-            {% endif %}
-            <div class="item-details">
-                <h3>{{ item.product.name }}</h3>
-                <p class="article">Артикул: {{ item.product.article }}</p>
-                <p class="price">{{ item.product.price }} руб.</p>
-            </div>
-            <div class="item-quantity">
-                <form method="post" action="{% url 'update_cart_item' item.id %}">
-                    {% csrf_token %}
-                    <button type="submit" name="action" value="decrease" class="quantity-btn">-</button>
-                    <span class="quantity">{{ item.quantity }}</span>
-                    <button type="submit" name="action" value="increase" class="quantity-btn" 
-                            {% if item.quantity >= item.product.quantity %}disabled{% endif %}>+</button>
-                </form>
-            </div>
-            <div class="item-total">
-                <p>{{ item.get_total_price }} руб.</p>
-            </div>
-            <div class="item-remove">
-                <form method="post" action="{% url 'update_cart_item' item.id %}">
-                    {% csrf_token %}
-                    <button type="submit" name="action" value="remove" class="remove-btn">🗑️</button>
-                </form>
+            
+            <!-- Боковая панель с итогами и оформлением -->
+            <div class="cart-sidebar">
+                <div class="order-summary">
+                    <h3>Сводка заказа</h3>
+                    
+                    <div class="summary-row">
+                        <span>Товары (<span id="total-quantity">{{ cart.get_total_quantity }}</span>)</span>
+                        <span id="subtotal-price">{{ cart.get_total_price }} ₽</span>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span>Доставка</span>
+                        <span class="free-shipping">Бесплатно</span>
+                    </div>
+                    
+                    <div class="summary-divider"></div>
+                    
+                    <div class="summary-total">
+                        <span>Итого</span>
+                        <span class="total-amount" id="total-price">{{ cart.get_total_price }} ₽</span>
+                    </div>
+                    
+                    <form method="post" class="order-form">
+                        {% csrf_token %}
+                        
+                        <div class="form-section">
+                            <h4>Адрес доставки</h4>
+                            <div class="form-group">
+                                <select name="address_id" class="form-select" required>
+                                    <option value="">Выберите адрес доставки</option>
+                                    {% for address in addresses %}
+                                    <option value="{{ address.id }}" {% if address.is_default %}selected{% endif %}>
+                                        {{ address.title }} - {{ address.city }}, {{ address.address }}
+                                        {% if address.is_default %}(по умолчанию){% endif %}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <small class="form-help">
+                                    <a href="{% url 'profile' %}" class="manage-addresses">Управление адресами</a>
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h4>Способ оплаты</h4>
+                            <div class="payment-methods">
+                                <label class="payment-option">
+                                    <input type="radio" name="payment_method" value="card" checked>
+                                    <span class="payment-content">
+                                        <span class="payment-icon">💳</span>
+                                        <span class="payment-text">
+                                            <strong>Банковская карта</strong>
+                                            <small>Онлайн оплата</small>
+                                        </span>
+                                    </span>
+                                </label>
+                                
+                                <label class="payment-option">
+                                    <input type="radio" name="payment_method" value="invoice">
+                                    <span class="payment-content">
+                                        <span class="payment-icon">📄</span>
+                                        <span class="payment-text">
+                                            <strong>Оплата по счету</strong>
+                                            <small>Для юридических лиц</small>
+                                        </span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="checkout-btn">
+                            🛒 Перейти к оплате
+                        </button>
+                        
+                        <div class="security-notice">
+                            <span class="security-icon">🔒</span>
+                            <span>Безопасная оплата. Ваши данные защищены</span>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="support-card">
+                    <div class="support-icon">💬</div>
+                    <h4>Нужна помощь?</h4>
+                    <p>Наши специалисты ответят на все вопросы по заказу</p>
+                    <a href="tel:+78001234567" class="support-phone">📞 +7 (800) 123-45-67</a>
+                </div>
             </div>
         </div>
-        {% endfor %}
+        {% else %}
+        <!-- Пустая корзина -->
+        <div class="empty-cart">
+            <div class="empty-cart-icon">🛒</div>
+            <h2>Ваша корзина пуста</h2>
+            <p>Добавьте товары из каталога, чтобы сделать заказ</p>
+            <a href="{% url 'products' %}" class="btn btn-primary">
+                📦 Перейти к покупкам
+            </a>
+        </div>
+        {% endif %}
     </div>
-    
-    <div class="cart-summary">
-        <h3>Итого: {{ cart.get_total_price }} руб.</h3>
-        
-        <form method="post" class="order-form">
-            {% csrf_token %}
-            <h4>Данные для заказа</h4>
-            
-            <!-- Выбор адреса -->
-            <div class="form-group">
-                <label>Адрес доставки*</label>
-                <select name="address_id" required>
-                    <option value="">Выберите адрес</option>
-                    {% for address in addresses %}
-                    <option value="{{ address.id }}">
-                        {{ address.title }} - {{ address.city }}, {{ address.address }}
-                        {% if address.is_default %} (по умолчанию){% endif %}
-                    </option>
-                    {% endfor %}
-                </select>
-                <small><a href="{% url 'profile' %}" style="color: #3498db;">Управление адресами</a></small>
-            </div>
-            
-            <!-- Способ оплаты -->
-            <div class="form-group">
-                <label>Способ оплаты*</label>
-                <select name="payment_method" required>
-                    <option value="">Выберите способ оплаты</option>
-                    <option value="card">Банковская карта</option>
-                    <option value="invoice">Оплата по счету</option>
-                </select>
-            </div>
-            
-            <button type="submit" class="checkout-btn">Перейти к оплате</button>
-        </form>
-    </div>
-</div>
-{% else %}
-<div class="empty-cart">
-    <p>Ваша корзина пуста</p>
-    <a href="{% url 'products' %}" class="continue-shopping">Продолжить покупки</a>
-</div>
-{% endif %}
+</section>
 
 <style>
-.cart-container {
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+section {
+    border-radius: 20px;
+    margin-top: 2%;
+}
+
+.quantity-input {
+    width: 70px;
+    height: 40px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    transition: all 0.3s ease;
+}
+
+.quantity-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.quantity-input:invalid {
+    border-color: #e53e3e;
+    background: #fff5f5;
+}
+
+.quantity-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.update-quantity-btn,
+.remove-item-btn {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid #e9ecef;
+    background: white;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.update-quantity-btn {
+    color: #0052cc;
+    border-color: #0052cc;
+}
+
+.update-quantity-btn:hover {
+    background: #0052cc;
+    color: white;
+}
+
+.remove-item-btn {
+    color: #e53e3e;
+    border-color: #e53e3e;
+}
+
+.remove-item-btn:hover {
+    background: #e53e3e;
+    color: white;
+}
+
+/* Анимации */
+.quantity-updating {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.quantity-updated {
+    animation: highlightUpdate 0.6s ease;
+}
+
+@keyframes highlightUpdate {
+    0% { background-color: rgba(72, 187, 120, 0.1); }
+    100% { background-color: transparent; }
+}
+
+/* Оповещения */
+.cart-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    z-index: 10000;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    max-width: 300px;
+}
+
+.cart-message.show {
+    transform: translateX(0);
+}
+
+.cart-message.success {
+    background: #48bb78;
+}
+
+.cart-message.error {
+    background: #e53e3e;
+}
+
+.cart-message.info {
+    background: #0052cc;
+}
+/* Hero секция */
+.cart-hero {
+    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
+    color: white;
+    padding: 80px 0 40px;
+    text-align: center;
+}
+
+.cart-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Основная секция */
+.cart-section {
+    padding: 3rem 0;
+    background: #f8f9fa;
+    min-height: 60vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Макет корзины */
+.cart-layout {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 2rem;
-    margin-top: 2rem;
+    align-items: start;
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.cart-header h2 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.items-count {
+    background: #0052cc;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Элементы корзины */
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
 .cart-item {
     display: grid;
     grid-template-columns: 100px 1fr auto auto auto;
-    gap: 1rem;
+    gap: 1.5rem;
     align-items: center;
     background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-bottom: 1rem;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.cart-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
 }
 
 .item-image {
     width: 100px;
     height: 100px;
+    border-radius: 12px;
     overflow: hidden;
-    border-radius: 4px;
+    background: #f8f9fa;
 }
 
 .item-image img {
@@ -119,124 +441,816 @@
     object-fit: cover;
 }
 
-.item-details h3 {
+.image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+.placeholder-icon {
+    font-size: 2rem;
+}
+
+.item-details {
+    padding-right: 1rem;
+}
+
+.item-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.4;
+}
+
+.item-article {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin: 0 0 0.25rem 0;
+}
+
+.item-category {
+    color: #0052cc;
+    font-size: 0.85rem;
+    font-weight: 500;
     margin: 0 0 0.5rem 0;
 }
 
-.item-quantity form {
+.item-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.item-price-mobile {
+    display: none;
+}
+
+/* Управление количеством */
+.item-quantity {
+    text-align: center;
+}
+
+.quantity-form {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 .quantity-btn {
-    background: #3498db;
-    color: white;
-    border: none;
-    width: 30px;
-    height: 30px;
+    width: 36px;
+    height: 36px;
+    border: 2px solid #e9ecef;
+    background: white;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0052cc;
+    transition: all 0.3s ease;
+}
+
+.quantity-btn:hover:not(:disabled) {
+    background: #0052cc;
+    color: white;
+    border-color: #667eea;
+    transform: scale(1.1);
 }
 
 .quantity-btn:disabled {
-    background: #bdc3c7;
+    color: #ced4da;
     cursor: not-allowed;
+    background: #f8f9fa;
 }
 
-.quantity {
-    font-weight: bold;
-    min-width: 30px;
+.quantity-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2c3e50;
+    min-width: 40px;
+}
+
+.stock-info {
+    font-size: 0.8rem;
+    color: #48bb78;
+}
+
+.out-of-stock {
+    color: #e53e3e;
+}
+
+/* Цены */
+.item-price {
+    text-align: right;
+}
+
+.price-per-item {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.total-price {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #2c3e50;
+}
+
+/* Удаление */
+.remove-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.remove-btn:hover {
+    background: #fff5f5;
+    color: #e53e3e;
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Продолжение покупок */
+.continue-shopping {
+    margin-top: 2rem;
+    text-align: left;
+}
+
+.back-to-shopping {
+    color: #0052cc;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.back-to-shopping:hover {
+    color: #5a67d8;
+}
+
+/* Боковая панель */
+.cart-sidebar {
+    position: sticky;
+    top: 2rem;
+}
+
+.order-summary {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.order-summary h3 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin: 0 0 1.5rem 0;
     text-align: center;
 }
 
-.item-total {
-    font-weight: bold;
-    font-size: 1.1rem;
-}
-
-.remove-btn {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.cart-summary {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    height: fit-content;
-}
-
-.order-form {
-    margin-top: 1rem;
-}
-
-.order-form input,
-.order-form textarea {
-    width: 100%;
-    padding: 0.5rem;
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    color: #6c757d;
 }
 
+.free-shipping {
+    color: #48bb78;
+    font-weight: 600;
+}
+
+.summary-divider {
+    height: 1px;
+    background: #e9ecef;
+    margin: 1rem 0;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.total-amount {
+    font-size: 1.5rem;
+    color: #0052cc;
+}
+
+/* Форма заказа */
+.form-section {
+    margin: 1.5rem 0;
+}
+
+.form-section h4 {
+    font-size: 1rem;
+    color: #2c3e50;
+    margin: 0 0 1rem 0;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-select {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-help {
+    display: block;
+    margin-top: 0.5rem;
+    color: #6c757d;
+}
+
+.manage-addresses {
+    color: #0052cc;
+    text-decoration: none;
+}
+
+.manage-addresses:hover {
+    text-decoration: underline;
+}
+
+/* Способы оплаты */
+.payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payment-option:hover {
+    border-color: #667eea;
+}
+
+.payment-option input[type="radio"] {
+    margin-right: 1rem;
+}
+
+.payment-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.payment-icon {
+    font-size: 1.5rem;
+}
+
+.payment-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.payment-text strong {
+    color: #2c3e50;
+    font-size: 0.9rem;
+}
+
+.payment-text small {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+/* Кнопка оформления */
 .checkout-btn {
-    background: #27ae60;
+    width: 100%;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #48bb78, #38a169);
     color: white;
     border: none;
-    padding: 1rem 2rem;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
+    border-radius: 12px;
     font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 1.5rem 0 1rem 0;
 }
 
 .checkout-btn:hover {
-    background: #219a52;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
 }
 
-.empty-cart {
+.security-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+/* Карточка поддержки */
+.support-card {
+    background: linear-gradient(135deg, #0052cc, #0066cc);
+    color: white;
+    padding: 2rem;
+    border-radius: 20px;
     text-align: center;
-    padding: 3rem;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.continue-shopping {
-    display: inline-block;
-    margin-top: 1rem;
-    padding: 0.75rem 1.5rem;
-    background: #3498db;
+.support-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.support-card h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+}
+
+.support-card p {
+    margin: 0 0 1rem 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.support-phone {
     color: white;
     text-decoration: none;
-    border-radius: 4px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: opacity 0.3s ease;
+}
+
+.support-phone:hover {
+    opacity: 0.8;
+    color: white;
+}
+
+/* Пустая корзина */
+.empty-cart {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.empty-cart-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.empty-cart h2 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.empty-cart p {
+    color: #6c757d;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: #0052cc;
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    background: #5a67d8;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .cart-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .cart-sidebar {
+        position: static;
+    }
 }
 
 @media (max-width: 768px) {
-    .cart-container {
-        grid-template-columns: 1fr;
+    .cart-hero h1 {
+        font-size: 2rem;
     }
     
     .cart-item {
-        grid-template-columns: 80px 1fr;
+        grid-template-columns: 80px 1fr auto;
         grid-template-areas: 
-            "image details"
-            "quantity total"
-            "remove remove";
-        gap: 0.5rem;
+            "image details remove"
+            "image quantity price"
+            "image . .";
+        gap: 1rem;
+        padding: 1rem;
     }
     
-    .item-image { grid-area: image; }
-    .item-details { grid-area: details; }
-    .item-quantity { grid-area: quantity; }
-    .item-total { grid-area: total; }
-    .item-remove { grid-area: remove; text-align: right; }
+    .item-image { 
+        grid-area: image; 
+        width: 80px;
+        height: 80px;
+    }
+    
+    .item-details { 
+        grid-area: details; 
+        padding-right: 0;
+    }
+    
+    .item-quantity { 
+        grid-area: quantity; 
+        text-align: left;
+    }
+    
+    .item-price { 
+        grid-area: price; 
+        text-align: right;
+    }
+    
+    .item-remove { 
+        grid-area: remove; 
+        text-align: right;
+    }
+    
+    .item-price-mobile {
+        display: block;
+        margin-top: 0.5rem;
+    }
+    
+    .price-per-item,
+    .item-price .total-price {
+        display: none;
+    }
+    
+    .item-price-mobile .price {
+        font-size: 1rem;
+        color: #6c757d;
+    }
+    
+    .item-price-mobile .total {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-left: 1rem;
+    }
+    
+    .cart-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .payment-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-section {
+        padding: 1.5rem 0;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
+    
+    .cart-item {
+        grid-template-columns: 60px 1fr;
+        grid-template-areas: 
+            "image details"
+            "quantity price"
+            "remove remove";
+    }
+    
+    .item-remove {
+        text-align: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .quantity-form {
+        justify-content: center;
+    }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    let updateTimeout;
+    
+    // Функция для показа сообщений
+    function showMessage(message, type = 'success') {
+        // Удаляем предыдущее сообщение
+        const existingMessage = document.querySelector('.cart-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        // Создаем новое сообщение
+        const messageEl = document.createElement('div');
+        messageEl.className = `cart-message ${type}`;
+        messageEl.textContent = message;
+        document.body.appendChild(messageEl);
+        
+        // Показываем сообщение
+        setTimeout(() => messageEl.classList.add('show'), 100);
+        
+        // Скрываем через 3 секунды
+        setTimeout(() => {
+            messageEl.classList.remove('show');
+            setTimeout(() => messageEl.remove(), 300);
+        }, 3000);
+    }
+    
+    // Функция для обновления количества через AJAX
+    async function updateQuantity(itemId, newQuantity) {
+        const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+        
+        if (!itemElement) return;
+        
+        // Блокируем элемент на время обновления
+        itemElement.classList.add('quantity-updating');
+        
+        try {
+            const response = await fetch(`/cart/update/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `action=set&quantity=${newQuantity}`
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Обновляем интерфейс
+                updateCartUI(itemId, newQuantity, data);
+                itemElement.classList.add('quantity-updated');
+                setTimeout(() => itemElement.classList.remove('quantity-updated'), 600);
+                showMessage('Количество обновлено', 'success');
+            } else {
+                showMessage(data.error || 'Ошибка обновления', 'error');
+                // Восстанавливаем предыдущее значение
+                const input = itemElement.querySelector('.quantity-input');
+                input.value = input.getAttribute('data-previous-value') || newQuantity;
+            }
+            
+        } catch (error) {
+            console.error('Error updating quantity:', error);
+            showMessage('Ошибка соединения', 'error');
+            const input = itemElement.querySelector('.quantity-input');
+            input.value = input.getAttribute('data-previous-value') || newQuantity;
+        } finally {
+            itemElement.classList.remove('quantity-updating');
+        }
+    }
+    
+    // Функция для удаления товара
+    async function removeItem(itemId) {
+        if (!confirm('Вы уверены, что хотите удалить товар из корзины?')) {
+            return;
+        }
+        
+        const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+        
+        if (!itemElement) return;
+        
+        itemElement.classList.add('quantity-updating');
+        
+        try {
+            const response = await fetch(`/cart/update/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'action=remove'
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Анимация удаления
+                itemElement.style.opacity = '0';
+                itemElement.style.transform = 'translateX(-100px)';
+                setTimeout(() => {
+                    itemElement.remove();
+                    updateCartSummary(data.cart_total, data.item_count);
+                    
+                    // Если корзина пуста, перезагружаем страницу
+                    if (data.item_count === 0) {
+                        location.reload();
+                    }
+                }, 300);
+                
+                showMessage('Товар удален из корзины', 'success');
+            } else {
+                showMessage(data.error || 'Ошибка удаления', 'error');
+                itemElement.classList.remove('quantity-updating');
+            }
+            
+        } catch (error) {
+            console.error('Error removing item:', error);
+            showMessage('Ошибка соединения', 'error');
+            itemElement.classList.remove('quantity-updating');
+        }
+    }
+    
+    // Функция обновления UI
+    function updateCartUI(itemId, newQuantity, data) {
+        const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+        const price = parseFloat(itemElement.querySelector('.quantity-input').getAttribute('data-price'));
+        const totalPrice = price * newQuantity;
+        
+        // Обновляем значение в поле ввода
+        const input = itemElement.querySelector('.quantity-input');
+        input.value = newQuantity;
+        input.setAttribute('data-previous-value', newQuantity);
+        
+        // Обновляем цены
+        itemElement.querySelector('.total-price').textContent = `${totalPrice} ₽`;
+        itemElement.querySelector('.mobile-total-price').textContent = totalPrice;
+        
+        // Обновляем кнопки +/- 
+        const decreaseBtn = itemElement.querySelector('.decrease');
+        const increaseBtn = itemElement.querySelector('.increase');
+        const maxQuantity = parseInt(itemElement.querySelector('.quantity-input').getAttribute('data-max-quantity'));
+        
+        decreaseBtn.disabled = newQuantity <= 1;
+        increaseBtn.disabled = newQuantity >= maxQuantity;
+        
+        // Обновляем общую сводку
+        updateCartSummary(data.cart_total, data.item_count, data.total_quantity);
+    }
+    
+    // Функция обновления сводки корзины
+    function updateCartSummary(total, itemCount, totalQuantity) {
+        document.getElementById('subtotal-price').textContent = `${total} ₽`;
+        document.getElementById('total-price').textContent = `${total} ₽`;
+        document.getElementById('total-quantity').textContent = totalQuantity || itemCount;
+        
+        // Обновляем счетчик товаров в заголовке
+        const itemsCountElement = document.querySelector('.items-count');
+        if (itemsCountElement) {
+            itemsCountElement.textContent = `${totalQuantity || itemCount} товар(ов)`;
+        }
+    }
+    
+    // Обработчики событий
+    
+    // Кнопки +/-
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.getAttribute('data-item-id');
+            const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+            let currentValue = parseInt(input.value);
+            const maxQuantity = parseInt(input.getAttribute('data-max-quantity'));
+            
+            if (this.classList.contains('increase') && currentValue < maxQuantity) {
+                input.value = currentValue + 1;
+                updateQuantity(itemId, input.value);
+            } else if (this.classList.contains('decrease') && currentValue > 1) {
+                input.value = currentValue - 1;
+                updateQuantity(itemId, input.value);
+            }
+        });
+    });
+    
+    // Поле ввода количества
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        // Сохраняем предыдущее значение
+        input.setAttribute('data-previous-value', input.value);
+        
+        input.addEventListener('change', function() {
+            const itemId = this.getAttribute('data-item-id');
+            let newValue = parseInt(this.value);
+            const maxQuantity = parseInt(this.getAttribute('data-max-quantity'));
+            
+            // Валидация
+            if (isNaN(newValue) || newValue < 1) {
+                newValue = 1;
+            } else if (newValue > maxQuantity) {
+                newValue = maxQuantity;
+                showMessage(`Максимальное количество: ${maxQuantity}`, 'info');
+            }
+            
+            this.value = newValue;
+            this.setAttribute('data-previous-value', newValue);
+            
+            // Обновляем на сервере
+            updateQuantity(itemId, newValue);
+        });
+        
+        // Обновление при вводе (с задержкой)
+        input.addEventListener('input', function() {
+            clearTimeout(updateTimeout);
+            const itemId = this.getAttribute('data-item-id');
+            const value = this.value;
+            
+            // Только если число и больше 0
+            if (/^\d+$/.test(value) && parseInt(value) > 0) {
+                updateTimeout = setTimeout(() => {
+                    this.setAttribute('data-previous-value', value);
+                    updateQuantity(itemId, value);
+                }, 1000);
+            }
+        });
+        
+        // Блокируем отправку формы при нажатии Enter
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.blur(); // Убираем фокус, чтобы сработал change
+            }
+        });
+    });
+    
+    // Кнопка "Обновить"
+    document.querySelectorAll('.update-quantity-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.getAttribute('data-item-id');
+            const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+            updateQuantity(itemId, input.value);
+        });
+    });
+    
+    // Кнопки удаления
+    document.querySelectorAll('.remove-item-btn, .remove-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.getAttribute('data-item-id');
+            removeItem(itemId);
+        });
+    });
+    
+    // Обновление текста кнопки оформления при изменении способа оплаты
+    document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const checkoutBtn = document.querySelector('.checkout-btn');
+            if (this.value === 'invoice') {
+                checkoutBtn.textContent = '📄 Сформировать счет';
+            } else {
+                checkoutBtn.textContent = '🛒 Перейти к оплате';
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

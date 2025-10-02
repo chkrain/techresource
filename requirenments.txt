@@ -1,4 +1,5 @@
 Django==5.2.6
 python-dotenv==1.0.0
 Pillow==10.0.0
-requests==2.31.0pip install psycopg2-binary
+requests==2.31.0
+psycopg2-binary==2.9.7

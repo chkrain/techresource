@@ -4,50 +4,1573 @@
 {% block title %}Вход - Техресурс{% endblock %}
 
 {% block content %}
-<div class="login-container">
-    <h2>Вход в систему</h2>
-    <form method="post" class="login-form">
-        {% csrf_token %}
-        <input type="text" name="username" placeholder="Имя пользователя" required>
-        <input type="password" name="password" placeholder="Пароль" required>
-        <button type="submit">Войти</button>
-    </form>
-    <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрируйтесь</a></p>
+<!-- Hero секция -->
+<section class="login-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Вход в систему</h1>
+            <p class="hero-subtitle">Добро пожаловать обратно в Техресурс</p>
+        </div>
+    </div>
+</section>
+
+<section class="login-section">
+    <div class="container">
+        <div class="login-layout">
+            <!-- Основная форма -->
+            <div class="login-main">
+                <div class="login-card">
+                    <div class="card-header">
+                        <h2>Войдите в свой аккаунт</h2>
+                        <div class="card-badge">Безопасный вход</div>
+                    </div>
+                    
+                    <form method="post" class="login-form">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="error-message">
+                            <div class="error-icon">⚠️</div>
+                            <div class="error-content">
+                                <strong>Ошибка входа</strong>
+                                <p>Пожалуйста, проверьте правильность введенных данных</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-icon">👤</span>
+                                Имя пользователя или Email
+                            </label>
+                            <input type="text" name="username" class="form-input" 
+                                   placeholder="Введите имя пользователя или email" 
+                                   required autofocus>
+                            <div class="form-help">Введите имя пользователя или email, указанный при регистрации</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-icon">🔒</span>
+                                Пароль
+                            </label>
+                            <input type="password" name="password" class="form-input" 
+                                   placeholder="Введите ваш пароль" required>
+                            <div class="form-help">
+                                <a href="#forgot-password" class="forgot-password">Забыли пароль?</a>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="remember_me">
+                                <span class="checkmark"></span>
+                                <span class="checkbox-text">Запомнить меня</span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="login-btn">
+                            <span class="btn-icon">🚀</span>
+                            Войти в систему
+                        </button>
+                        
+                        <div class="login-divider">
+                            <span>или войдите с помощью</span>
+                        </div>
+                        
+                        <div class="social-login">
+                            <button type="button" class="social-btn google-btn">
+                                <span class="social-icon">🔍</span>
+                                Google
+                            </button>
+                            <button type="button" class="social-btn yandex-btn">
+                                <span class="social-icon">🌐</span>
+                                Yandex
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="login-footer">
+                    <p>Еще нет аккаунта? 
+                        <a href="{% url 'register' %}" class="register-link">
+                            <span class="link-icon">✨</span>
+                            Создать аккаунт
+                        </a>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Боковая панель с преимуществами -->
+            <div class="login-sidebar">
+                <div class="benefits-card">
+                    <div class="benefits-header">
+                        <h3>Преимущества аккаунта</h3>
+                        <div class="benefits-icon">⭐</div>
+                    </div>
+                    
+                    <div class="benefits-list">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">🛒</div>
+                            <div class="benefit-content">
+                                <h4>Быстрые заказы</h4>
+                                <p>Сохраняйте адреса доставки для моментального оформления</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon">📦</div>
+                            <div class="benefit-content">
+                                <h4>История заказов</h4>
+                                <p>Отслеживайте статусы и историю всех покупок</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon">🎯</div>
+                            <div class="benefit-content">
+                                <h4>Персональные скидки</h4>
+                                <p>Получайте специальные предложения и акции</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon">💼</div>
+                            <div class="benefit-content">
+                                <h4>Корпоративный доступ</h4>
+                                <p>Специальные условия для бизнес-клиентов</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="security-notice">
+                        <div class="security-icon">🔒</div>
+                        <div class="security-text">
+                            <strong>Безопасность данных</strong>
+                            <p>Все ваши данные защищены и шифруются</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Модальное окно восстановления пароля -->
+<div id="forgot-password" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Восстановление пароля</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Прогресс-бар -->
+            <div class="recovery-progress">
+                <div class="progress-steps">
+                    <div class="step-circle active" data-step="1">
+                        <span class="step-number">1</span>
+                        <span class="step-label">Email</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step-circle" data-step="2">
+                        <span class="step-number">2</span>
+                        <span class="step-label">Код</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step-circle" data-step="3">
+                        <span class="step-number">3</span>
+                        <span class="step-label">Пароль</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step-circle" data-step="4">
+                        <span class="step-number">4</span>
+                        <span class="step-label">Готово</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Шаг 1: Ввод email -->
+            <div class="recovery-step active" id="step1">
+                <div class="step-icon">📧</div>
+                <h4>Введите ваш email</h4>
+                <p class="step-description">Укажите email, который вы использовали при регистрации</p>
+                
+                <form class="recovery-form" id="emailForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="email" name="email" placeholder="your@email.com" class="form-input" required>
+                        <div class="form-help">На этот email мы отправим код подтверждения</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        Получить код
+                    </button>
+                </form>
+            </div>
+
+            <!-- Шаг 2: Ввод кода -->
+            <div class="recovery-step" id="step2">
+                <div class="step-icon">🔒</div>
+                <h4>Проверка кода</h4>
+                <p class="step-description">Мы отправили 6-значный код на email <strong id="email-display"></strong></p>
+                
+                <form class="recovery-form" id="codeForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="email" id="hidden-email">
+                    <div class="form-group">
+                        <input type="text" name="code" placeholder="Введите код из письма" class="form-input code-input" maxlength="6" required>
+                        <div class="form-help">Код действителен в течение 10 минут</div>
+                    </div>
+                    <div class="timer" id="code-timer">
+                        Отправить код повторно через: <span id="timer-count">60</span> сек
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        Подтвердить код
+                    </button>
+                </form>
+            </div>
+
+            <!-- Шаг 3: Новый пароль -->
+            <div class="recovery-step" id="step3">
+                <div class="step-icon">🔑</div>
+                <h4>Новый пароль</h4>
+                <p class="step-description">Придумайте надежный пароль для вашего аккаунта</p>
+                
+                <form class="recovery-form" id="passwordForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="reset_token" id="reset-token">
+                    <div class="form-group">
+                        <input type="password" name="new_password" placeholder="Новый пароль" class="form-input" required>
+                        <div class="password-requirements">
+                            <div class="requirement" data-requirement="length">Минимум 8 символов</div>
+                            <div class="requirement" data-requirement="uppercase">Заглавная буква</div>
+                            <div class="requirement" data-requirement="lowercase">Строчная буква</div>
+                            <div class="requirement" data-requirement="number">Цифра</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="confirm_password" placeholder="Повторите пароль" class="form-input" required>
+                        <div class="form-help">Пароли должны совпадать</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        Сохранить пароль
+                    </button>
+                </form>
+            </div>
+
+            <!-- Шаг 4: Успех -->
+            <div class="recovery-step" id="step4">
+                <div class="step-icon success">✅</div>
+                <h4>Пароль изменен!</h4>
+                <p class="step-description">Теперь вы можете войти в систему с новым паролем</p>
+                
+                <div class="success-actions">
+                    <button class="btn btn-primary btn-full close-modal">
+                        Войти в систему
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
-.login-container {
-    max-width: 400px;
-    margin: 2rem auto;
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+section {
+    border-radius: 20px;
+    margin-top: 4%;
+}
+
+/* Hero секция */
+.login-hero {
+    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
+    color: white;
+    padding: 80px 0 40px;
     text-align: center;
 }
 
-.login-form input {
-    width: 100%;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
+.login-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
 }
 
-.login-form button {
+.hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Основная секция */
+.login-section {
+    padding: 3rem 0;
+    background: #f8f9fa;
+    min-height: 70vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Макет логина */
+.login-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 3rem;
+    align-items: start;
+}
+
+/* Основная форма */
+.login-main {
+    max-width: 500px;
+}
+
+.login-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 2rem 1rem;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.card-header h2 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.card-badge {
+    background: #e3f2fd;
+    color: #0052cc;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Форма */
+.login-form {
+    padding: 0 2rem 2rem;
+}
+
+.error-message {
+    background: #fff5f5;
+    border: 1px solid #fed7d7;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.error-icon {
+    font-size: 1.2rem;
+    color: #e53e3e;
+}
+
+.error-content strong {
+    color: #e53e3e;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.error-content p {
+    color: #742a2a;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.label-icon {
+    font-size: 1.1rem;
+}
+
+.form-input {
     width: 100%;
-    padding: 0.75rem;
-    background: #2c3e50;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-help {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.forgot-password {
+    color: #0052cc;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Чекбокс */
+.checkbox-group {
+    margin: 1.5rem 0;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark {
+    background: #667eea;
+    border-color: #667eea;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+/* Кнопка входа */
+.login-btn {
+    width: 100%;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #0052cc, #0066cc);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
-    font-size: 1rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
 }
 
-.login-form button:hover {
-    background: #34495e;
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+/* Разделитель */
+.login-divider {
+    text-align: center;
+    margin: 2rem 0;
+    position: relative;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.login-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e9ecef;
+}
+
+.login-divider span {
+    background: white;
+    padding: 0 1rem;
+    position: relative;
+}
+
+/* Социальные кнопки */
+.social-login {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.social-btn {
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.social-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.google-btn:hover {
+    border-color: #db4437;
+    color: #db4437;
+}
+
+.yandex-btn:hover {
+    border-color: #ffcc00;
+    color: #ff3333;
+}
+
+/* Футер формы */
+.login-footer {
+    text-align: center;
+    color: #6c757d;
+}
+
+.register-link {
+    color: #0052cc;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: color 0.3s ease;
+}
+
+.register-link:hover {
+    color: #0047b3;
+}
+
+.link-icon {
+    font-size: 1.1rem;
+}
+
+/* Боковая панель */
+.login-sidebar {
+    position: sticky;
+    top: 2rem;
+}
+
+.benefits-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    padding: 2rem;
+}
+
+.benefits-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.benefits-header h3 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.benefits-icon {
+    font-size: 2rem;
+}
+
+.benefits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.benefit-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.benefit-content h4 {
+    font-size: 1rem;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+}
+
+.benefit-content p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.security-notice {
+    background: #f0fff4;
+    border: 1px solid #c6f6d5;
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.security-icon {
+    font-size: 1.5rem;
+    color: #48bb78;
+}
+
+.security-text strong {
+    color: #22543d;
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.security-text p {
+    color: #38a169;
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+/* Модальное окно */
+/* Стили для модального окна восстановления пароля */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 480px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    animation: modalSlideIn 0.4s ease;
+    overflow: hidden;
+}
+
+@keyframes modalSlideIn {
+    from { 
+        transform: translateY(-50px) scale(0.9);
+        opacity: 0;
+    }
+    to { 
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 2rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #64748b;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.modal-body {
+    padding: 0 2rem 2rem;
+}
+
+/* Прогресс-бар */
+.recovery-progress {
+    margin-bottom: 2rem;
+}
+
+.progress-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.step-circle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 2;
+}
+
+.step-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #e2e8f0;
+    margin: 0 4px;
+    transition: all 0.3s ease;
+}
+
+.step-circle.active .step-number {
+    background: #0052cc;
+    color: white;
+    border-color: #0052cc;
+}
+
+.step-circle.active .step-label {
+    color: #0052cc;
+    font-weight: 600;
+}
+
+.step-circle.completed .step-number {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+.step-circle.completed .step-label {
+    color: #10b981;
+}
+
+.step-line.active {
+    background: #0052cc;
+}
+
+/* Шаги восстановления */
+.recovery-step {
+    display: none;
+    text-align: center;
+}
+
+.recovery-step.active {
+    display: block;
+    animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.step-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.step-icon.success {
+    color: #10b981;
+}
+
+.recovery-step h4 {
+    font-size: 1.25rem;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.step-description {
+    color: #64748b;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.recovery-form {
+    text-align: left;
+}
+
+.btn-full {
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+/* Таймер для кода */
+.timer {
+    text-align: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin: 1rem 0;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.timer.active {
+    color: #0052cc;
+}
+
+.timer.expired {
+    color: #10b981;
+}
+
+#resend-code {
+    color: #0052cc;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#resend-code:hover {
+    text-decoration: underline;
+}
+
+/* Требования к паролю */
+.password-requirements {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.requirement {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.requirement::before {
+    content: '○';
+    font-size: 0.7rem;
+}
+
+.requirement.valid {
+    color: #10b981;
+}
+
+.requirement.valid::before {
+    content: '✓';
+    color: #10b981;
+}
+
+.requirement.invalid {
+    color: #ef4444;
+}
+
+.requirement.invalid::before {
+    content: '✕';
+    color: #ef4444;
+}
+
+/* Успешное завершение */
+.success-actions {
+    margin-top: 2rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+        border-radius: 20px;
+    }
+    
+    .modal-header {
+        padding: 1.5rem 1.5rem 1rem;
+    }
+    
+    .modal-body {
+        padding: 0 1.5rem 1.5rem;
+    }
+    
+    .step-label {
+        font-size: 0.7rem;
+    }
+    
+    .step-number {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        margin: 5% auto;
+    }
+    
+    .progress-steps {
+        gap: 4px;
+    }
+    
+    .step-label {
+        display: none;
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .login-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .login-sidebar {
+        position: static;
+    }
+    
+    .benefits-card {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .login-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 1.5rem 1.5rem 1rem;
+    }
+    
+    .login-form {
+        padding: 0 1.5rem 1.5rem;
+    }
+    
+    .social-login {
+        grid-template-columns: 1fr;
+    }
+    
+    .benefits-list {
+        gap: 1rem;
+    }
+    
+    .benefit-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .modal-content {
+        margin: 5% auto;
+        width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .login-hero {
+        padding: 60px 0 30px;
+    }
+    
+    .login-section {
+        padding: 1.5rem 0;
+    }
+    
+    .benefits-card {
+        padding: 1.5rem;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработка модального окна восстановления пароля
+    const forgotPasswordLink = document.querySelector('.forgot-password');
+    const modal = document.getElementById('forgot-password');
+    const modalClose = document.querySelector('.modal-close');
+    const closeModalBtn = document.querySelector('.close-modal');
+
+    let currentEmail = '';
+    let timerInterval = null;
+
+    // Открытие модального окна
+    if (forgotPasswordLink && modal) {
+        forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            modal.style.display = 'block';
+            resetRecoveryForm();
+        });
+    }
+
+    // Закрытие модального окна
+    function closeModal() {
+        modal.style.display = 'none';
+        resetRecoveryForm();
+    }
+
+    if (modalClose) {
+        modalClose.addEventListener('click', closeModal);
+    }
+
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeModal);
+    }
+
+    // Закрытие модального окна при клике вне его
+    window.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Сброс формы восстановления
+    function resetRecoveryForm() {
+        goToStep(1);
+        clearInterval(timerInterval);
+        if (document.getElementById('emailForm')) {
+            document.getElementById('emailForm').reset();
+        }
+        if (document.getElementById('codeForm')) {
+            document.getElementById('codeForm').reset();
+        }
+        if (document.getElementById('passwordForm')) {
+            document.getElementById('passwordForm').reset();
+        }
+        resetPasswordRequirements();
+    }
+
+    // Переход к определенному шагу
+    function goToStep(stepNumber) {
+        // Скрыть все шаги
+        document.querySelectorAll('.recovery-step').forEach(step => {
+            step.classList.remove('active');
+        });
+        
+        // Показать нужный шаг
+        const targetStep = document.getElementById(`step${stepNumber}`);
+        if (targetStep) {
+            targetStep.classList.add('active');
+        }
+        
+        // Обновить прогресс-бар
+        updateProgressBar(stepNumber);
+    }
+
+    // Обновление прогресс-бара
+    function updateProgressBar(currentStep) {
+        const steps = document.querySelectorAll('.step-circle');
+        const lines = document.querySelectorAll('.step-line');
+        
+        steps.forEach((step, index) => {
+            const stepNum = parseInt(step.dataset.step);
+            
+            step.classList.remove('active', 'completed');
+            if (stepNum < currentStep) {
+                step.classList.add('completed');
+            } else if (stepNum === currentStep) {
+                step.classList.add('active');
+            }
+        });
+        
+        lines.forEach((line, index) => {
+            line.classList.remove('active');
+            if (index < currentStep - 1) {
+                line.classList.add('active');
+            }
+        });
+    }
+
+    // Таймер для повторной отправки кода
+    function startTimer() {
+        const timerElement = document.getElementById('timer-count');
+        const timerContainer = document.getElementById('code-timer');
+        
+        if (!timerElement || !timerContainer) return;
+        
+        let timeLeft = 60;
+        
+        timerContainer.classList.add('active');
+        timerContainer.classList.remove('expired');
+        
+        clearInterval(timerInterval);
+        
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerContainer.classList.remove('active');
+                timerContainer.classList.add('expired');
+                timerContainer.innerHTML = 'Не получили код? <a href="#" id="resend-code">Отправить еще раз</a>';
+                
+                // Добавляем обработчик для повторной отправки
+                const resendLink = document.getElementById('resend-code');
+                if (resendLink) {
+                    resendLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        resendCode();
+                    });
+                }
+            }
+        }, 1000);
+    }
+
+    // Повторная отправка кода
+    function resendCode() {
+        const formData = new FormData();
+        formData.append('email', currentEmail);
+        formData.append('csrfmiddlewaretoken', getCSRFToken());
+        
+        fetch('/password-reset/', {
+            method: 'POST',
+            body: formData
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showRecoverySuccess('Код отправлен повторно');
+                startTimer();
+            } else {
+                showRecoveryError(data.error || 'Ошибка отправки');
+            }
+        }).catch(error => {
+            showRecoveryError('Ошибка сети');
+        });
+    }
+
+    // Валидация пароля
+    function validatePassword(password) {
+        const requirements = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /\d/.test(password)
+        };
+        
+        Object.keys(requirements).forEach(req => {
+            const element = document.querySelector(`[data-requirement="${req}"]`);
+            if (element) {
+                element.classList.remove('valid', 'invalid');
+                element.classList.add(requirements[req] ? 'valid' : 'invalid');
+            }
+        });
+        
+        return Object.values(requirements).every(Boolean);
+    }
+
+    // Сброс индикаторов пароля
+    function resetPasswordRequirements() {
+        document.querySelectorAll('.requirement').forEach(req => {
+            req.classList.remove('valid', 'invalid');
+        });
+    }
+
+    // Функция для получения CSRF токена
+    function getCSRFToken() {
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfInput) {
+            return csrfInput.value;
+        }
+        
+        const metaToken = document.querySelector('meta[name="csrf-token"]');
+        if (metaToken) {
+            return metaToken.getAttribute('content');
+        }
+        
+        const name = 'csrftoken';
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Функция валидации email
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    // Обработка формы email
+    const emailForm = document.getElementById('emailForm');
+    if (emailForm) {
+        emailForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const email = formData.get('email');
+            currentEmail = email;
+            
+            if (!isValidEmail(email)) {
+                showRecoveryError('Пожалуйста, введите корректный email адрес');
+                return;
+            }
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = 'Отправка...';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/password-reset/', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCSRFToken(),
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (document.getElementById('email-display')) {
+                        document.getElementById('email-display').textContent = email;
+                    }
+                    if (document.getElementById('hidden-email')) {
+                        document.getElementById('hidden-email').value = email;
+                    }
+                    goToStep(2);
+                    startTimer();
+                } else {
+                    showRecoveryError(data.error || 'Произошла ошибка');
+                }
+                
+            } catch (error) {
+                showRecoveryError('Ошибка сети. Проверьте подключение к интернету.');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    // Обработка формы кода
+    const codeForm = document.getElementById('codeForm');
+    if (codeForm) {
+        codeForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = 'Проверка...';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/password-reset/verify/', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCSRFToken(),
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (document.getElementById('reset-token')) {
+                        document.getElementById('reset-token').value = data.reset_token;
+                    }
+                    goToStep(3);
+                    clearInterval(timerInterval);
+                } else {
+                    showRecoveryError(data.error || 'Неверный код');
+                }
+                
+            } catch (error) {
+                showRecoveryError('Ошибка сети');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    // Обработка формы пароля
+    const passwordForm = document.getElementById('passwordForm');
+    if (passwordForm) {
+        // Валидация пароля в реальном времени
+        const passwordInput = passwordForm.querySelector('input[name="new_password"]');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                validatePassword(this.value);
+            });
+        }
+        
+        passwordForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const newPassword = formData.get('new_password');
+            const confirmPassword = formData.get('confirm_password');
+            
+            if (!validatePassword(newPassword)) {
+                showRecoveryError('Пароль не соответствует требованиям');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showRecoveryError('Пароли не совпадают');
+                return;
+            }
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = 'Сохранение...';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/password-reset/set-password/', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCSRFToken(),
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    goToStep(4);
+                } else {
+                    showRecoveryError(data.error || 'Ошибка сохранения пароля');
+                }
+                
+            } catch (error) {
+                showRecoveryError('Ошибка сети');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    // Показать ошибку
+    function showRecoveryError(message) {
+        // Удаляем старые сообщения об ошибках
+        const existingError = document.querySelector('.recovery-error');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        const activeStep = document.querySelector('.recovery-step.active');
+        if (!activeStep) return;
+        
+        // Создаем новое сообщение об ошибке
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message recovery-error';
+        errorDiv.innerHTML = `
+            <div class="error-icon">⚠️</div>
+            <div class="error-content">
+                <strong>Ошибка</strong>
+                <p>${message}</p>
+            </div>
+        `;
+        
+        activeStep.insertBefore(errorDiv, activeStep.firstChild);
+        
+        // Прокрутка к ошибке
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Показать успех
+    function showRecoverySuccess(message) {
+        // Можно добавить toast-уведомление
+        console.log('✅ ' + message);
+    }
+
+    // Анимация формы при фокусе
+    document.querySelectorAll('.form-input').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            if (!this.value) {
+                this.parentElement.classList.remove('focused');
+            }
+        });
+    });
+    
+    // Валидация формы входа
+    const loginForm = document.querySelector('.login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            const username = this.querySelector('input[name="username"]');
+            const password = this.querySelector('input[name="password"]');
+            let isValid = true;
+            
+            if (!username || !username.value.trim()) {
+                if (username) username.style.borderColor = '#e53e3e';
+                isValid = false;
+            } else {
+                username.style.borderColor = '#48bb78';
+            }
+            
+            if (!password || !password.value.trim()) {
+                if (password) password.style.borderColor = '#e53e3e';
+                isValid = false;
+            } else {
+                password.style.borderColor = '#48bb78';
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                
+                // Показываем сообщение об ошибке
+                let errorMsg = this.querySelector('.validation-error');
+                if (!errorMsg) {
+                    errorMsg = document.createElement('div');
+                    errorMsg.className = 'error-message validation-error';
+                    errorMsg.innerHTML = `
+                        <div class="error-icon">⚠️</div>
+                        <div class="error-content">
+                            <strong>Заполните все поля</strong>
+                            <p>Пожалуйста, введите имя пользователя и пароль</p>
+                        </div>
+                    `;
+                    this.insertBefore(errorMsg, this.firstChild);
+                }
+                
+                // Прокрутка к ошибке
+                errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+    
+    // Плавное появление элементов
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Наблюдаем за карточками
+    document.querySelectorAll('.login-card, .benefits-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+});
+</script>
 {% endblock %}
