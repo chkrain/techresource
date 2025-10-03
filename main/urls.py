@@ -18,6 +18,7 @@ urlpatterns = [
 
     path('contact/submit/', views.contact_form_submit, name='contact_submit'),
 
+
     # Восстановление пароля
     path('password-reset/', views.secure_password_reset, name='password_reset'),
     path('password-reset-confirm/<str:token>/', views.secure_password_reset_confirm, name='password_reset_confirm'),

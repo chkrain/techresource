@@ -1479,3 +1479,4 @@ def contact_form_submit(request):
             })
     
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
