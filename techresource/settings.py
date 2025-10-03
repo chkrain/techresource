@@ -163,7 +163,7 @@ LOGOUT_REDIRECT_URL = '/'
 # Настройки email (для уведомлений)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.mail.ru'
+# EMAIL_HOST = 'smtp.mail.ru'   
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
@@ -174,6 +174,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Настройки Telegram бота (опционально)
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '')
+TELEGRAM_CHAT_ID_CONTACTS = os.getenv('TELEGRAM_CHAT_ID_CONTACTS', '')
 
 # Настройки платежной системы 
 YOOKASSA_SHOP_ID = os.getenv('YOOKASSA_SHOP_ID')

@@ -1377,3 +1377,105 @@ def debug_codes(request):
     return render(request, 'main/debug_codes.html', {'profiles': profiles})
 
 # ------------------------------------------- !!! --------------------------------------
+
+
+def send_contact_message(name, email, phone, message, ip_address):
+    """Отправка сообщения обратной связи в Telegram"""
+    try:
+        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID_CONTACTS:
+            print("⚠️ TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID_CONTACTS не настроены")
+            return False
+        
+            
+        telegram_message = f"""
+📩 <b>НОВОЕ СООБЩЕНИЕ ОБРАТНОЙ СВЯЗИ</b>
+
+👤 <b>Имя:</b> {name}
+📧 <b>Email:</b> {email}
+📞 <b>Телефон:</b> {phone}
+🌐 <b>IP-адрес:</b> {ip_address}
+
+💬 <b>Сообщение:</b>
+{message}
+"""
+        
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            'chat_id': settings.TELEGRAM_CHAT_ID_CONTACTS,
+            'text': telegram_message,
+            'parse_mode': 'HTML'
+        }
+        
+        response = requests.post(url, json=payload, timeout=10)
+        return response.status_code == 200
+        
+    except Exception as e:
+        print(f"❌ Ошибка отправки сообщения обратной связи: {e}")
+        return False
+
+@csrf_exempt
+def contact_form_submit(request):
+    """Обработка формы обратной связи"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            name = data.get('name', '').strip()
+            email = data.get('email', '').strip()
+            phone = data.get('phone', '').strip()
+            message = data.get('message', '').strip()
+            
+            # Валидация
+            if not name or not message:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Пожалуйста, заполните имя и сообщение'
+                })
+            
+            if not email and not phone:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Пожалуйста, укажите email или телефон для связи'
+                })
+            
+            # Получаем IP-адрес
+            ip_address = get_client_ip(request)
+            
+            # Отправляем в Telegram
+            success = send_contact_message(name, email, phone, message, ip_address)
+            
+            if success:
+                # Логируем успешную отправку
+                NotificationLog.objects.create(
+                    notification_type='email_sent',
+                    message=f'Сообщение обратной связи от {name}',
+                    sent_to=f"Telegram: {settings.TELEGRAM_CHAT_ID_CONTACTS}",
+                    success=True
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.'
+                })
+            else:
+                # Логируем ошибку
+                NotificationLog.objects.create(
+                    notification_type='email_sent',
+                    message=f'Ошибка отправки сообщения от {name}',
+                    sent_to=f"Telegram: {settings.TELEGRAM_CHAT_ID_CONTACTS}",
+                    success=False,
+                    error_message='Ошибка Telegram API'
+                )
+                
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Ошибка при отправке сообщения. Попробуйте позже.'
+                })
+                
+        except Exception as e:
+            print(f"❌ Ошибка обработки формы: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Произошла ошибка. Попробуйте еще раз.'
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})

@@ -103,7 +103,7 @@
 <!-- Преимущества -->
 <section class="benefits-section">
     <div class="container">
-        <h2 class="section-title" data-aos="fade-up">Почему выбирают нас</h2>
+        <h2 class="section-title why-us" data-aos="fade-up" data-aos-delay="200">Почему выбирают нас</h2>
         <div class="benefits-grid">
             <div class="benefit-card" data-aos="flip-left" data-aos-delay="200">
                 <div class="benefit-icon">⚡</div>
@@ -266,15 +266,61 @@
             <p>Свяжитесь с нами для бесплатной консультации и расчета стоимости проекта</p>
             <div class="cta-buttons">
                 <a href="tel:+78001234567" class="btn btn-primary">
-                    📞 +7 (800) 123-45-67
+                    📞 +7 (937) 524-68-88
                 </a>
-                <a href="mailto:info@techresurs.ru" class="btn btn-secondary">
+                <a href="#" class="btn btn-secondary">
                     ✉️ Написать нам
                 </a>
             </div>
         </div>
     </div>
 </section>
+
+<div id="contactModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Написать нам</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="contactForm">
+                <div class="form-group">
+                    <label for="contactName">Ваше имя *</label>
+                    <input type="text" id="contactName" name="name" required>
+                    <div class="error-message" id="nameError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contactEmail">Email *</label>
+                    <input type="email" id="contactEmail" name="email">
+                    <div class="error-message" id="emailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contactPhone">Телефон *</label>
+                    <input type="tel" id="contactPhone" name="phone">
+                    <div class="error-message" id="phoneError"></div>
+                    <small>Укажите хотя бы один способ связи: email или телефон</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contactMessage">Сообщение *</label>
+                    <textarea id="contactMessage" name="message" rows="5" required placeholder="Опишите ваш вопрос или проект..."></textarea>
+                    <div class="error-message" id="messageError"></div>
+                </div>
+                
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span class="btn-text">Отправить сообщение</span>
+                        <span class="btn-loading" style="display: none;">
+                            <span class="spinner"></span> Отправка...
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- Подключение библиотек -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
@@ -285,7 +331,7 @@
 
 <style>
 .hero-section {
-    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
+    background: #2c3e50;
     color: white;
     padding: 120px 0 80px;
     position: relative;
@@ -312,7 +358,7 @@
 }
 
 .benefits-section {
-    margin-top: 100vh; /* Отступ равен высоте hero-секции */
+    margin-top: 100svh; 
     position: relative;
     z-index: 1001;
 }
@@ -448,6 +494,11 @@ section {
     margin-bottom: 1rem;
     color: #2c3e50;
 }
+
+.why-us {
+    margin-bottom: 8%;
+}
+
 
 .section-subtitle {
     text-align: center;
@@ -1165,6 +1216,194 @@ section {
         max-width: none;
     }
 }
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
+    color: white;
+    border-radius: 16px 16px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.close-modal {
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.3s ease;
+}
+
+.close-modal:hover {
+    color: #e2e8f0;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #0052cc;
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+
+.error-message {
+    color: #e53e3e;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+.form-footer {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+#submitBtn {
+    width: 100%;
+    padding: 1rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-loading .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.success-message {
+    background: #48bb78;
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1rem;
+    display: none;
+}
+
+.error-message-global {
+    background: #f56565;
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1rem;
+    display: none;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+    }
+    
+    .modal-header,
+    .modal-body {
+        padding: 1rem 1.5rem;
+    }
+}
+
+.debug-info {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #f56565;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 100000;
+    font-size: 12px;
+}
 </style>
 
 <script>
@@ -1177,7 +1416,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const windowHeight = window.innerHeight;
         
         // Когда секция преимуществ появляется в viewport, скрываем hero
-        if (benefitsTop < windowHeight * 0.8) {
+        if (benefitsTop < windowHeight * 0.6) {
             heroSection.classList.add('hidden');
         } else {
             heroSection.classList.remove('hidden');
@@ -1544,6 +1783,207 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // кнопкa управления
     // addCookieManagementButton();
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Элементы модального окна
+    const contactModal = document.getElementById('contactModal');
+    const closeModal = document.querySelector('.close-modal');
+    const contactForm = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+    
+    // Находим кнопку "Написать нам" в CTA секции - ИСПРАВЛЕННЫЙ ПОИСК
+    const writeUsBtn = document.querySelector('.cta-buttons .btn-secondary');
+    
+    // Открытие модального окна
+    if (writeUsBtn) {
+        writeUsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            contactModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+    } else {
+        console.log('Кнопка "Написать нам" не найдена');
+        // Альтернативный поиск по тексту
+        const allButtons = document.querySelectorAll('.btn');
+        allButtons.forEach(btn => {
+            if (btn.textContent.includes('Написать нам')) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    contactModal.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+        });
+    }
+    
+    // Закрытие модального окна
+    closeModal.addEventListener('click', function() {
+        contactModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    });
+    
+    // Закрытие при клике вне окна
+    window.addEventListener('click', function(e) {
+        if (e.target === contactModal) {
+            contactModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+    
+    // Валидация формы
+    function validateForm() {
+        let isValid = true;
+        const name = document.getElementById('contactName').value.trim();
+        const email = document.getElementById('contactEmail').value.trim();
+        const phone = document.getElementById('contactPhone').value.trim();
+        const message = document.getElementById('contactMessage').value.trim();
+        
+        // Сброс ошибок
+        document.querySelectorAll('.error-message').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // Проверка имени
+        if (!name) {
+            document.getElementById('nameError').textContent = 'Введите ваше имя';
+            document.getElementById('nameError').style.display = 'block';
+            isValid = false;
+        }
+        
+        // Проверка контактов
+        if (!email && !phone) {
+            document.getElementById('emailError').textContent = 'Укажите email или телефон';
+            document.getElementById('emailError').style.display = 'block';
+            document.getElementById('phoneError').textContent = 'Укажите email или телефон';
+            document.getElementById('phoneError').style.display = 'block';
+            isValid = false;
+        }
+        
+        // Проверка email формата
+        if (email && !isValidEmail(email)) {
+            document.getElementById('emailError').textContent = 'Введите корректный email';
+            document.getElementById('emailError').style.display = 'block';
+            isValid = false;
+        }
+        
+        // Проверка сообщения
+        if (!message) {
+            document.getElementById('messageError').textContent = 'Введите ваше сообщение';
+            document.getElementById('messageError').style.display = 'block';
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+    
+    function isValidEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+    
+    // Обработка отправки формы
+    contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        if (!validateForm()) return;
+        
+        // Показываем индикатор загрузки
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline-block';
+        submitBtn.disabled = true;
+        
+        try {
+            const formData = {
+                name: document.getElementById('contactName').value.trim(),
+                email: document.getElementById('contactEmail').value.trim(),
+                phone: document.getElementById('contactPhone').value.trim(),
+                message: document.getElementById('contactMessage').value.trim()
+            };
+            
+            const response = await fetch('/contact/submit/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showMessage('success', data.message);
+                contactForm.reset();
+                setTimeout(() => {
+                    contactModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }, 2000);
+            } else {
+                showMessage('error', data.error);
+            }
+            
+        } catch (error) {
+            console.error('Ошибка:', error);
+            showMessage('error', 'Произошла ошибка при отправке. Попробуйте еще раз.');
+        } finally {
+            // Скрываем индикатор загрузки
+            btnText.style.display = 'inline-block';
+            btnLoading.style.display = 'none';
+            submitBtn.disabled = false;
+        }
+    });
+    
+    function getCSRFToken() {
+        const name = 'csrftoken';
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    function showMessage(type, text) {
+        // Удаляем старые сообщения
+        const oldMessages = document.querySelectorAll('.success-message, .error-message-global');
+        oldMessages.forEach(msg => msg.remove());
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = type === 'success' ? 'success-message' : 'error-message-global';
+        messageDiv.textContent = text;
+        messageDiv.style.display = 'block';
+        
+        contactForm.insertBefore(messageDiv, contactForm.firstChild);
+        
+        // Автоматически скрываем успешное сообщение
+        if (type === 'success') {
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+    }
+    
+    // Закрытие по Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && contactModal.style.display === 'block') {
+            contactModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+
+    // Добавляем обработчик для отладки
+    console.log('Модальное окно инициализировано');
 });
 </script>
 

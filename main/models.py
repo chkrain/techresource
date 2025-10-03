@@ -199,9 +199,10 @@ class NotificationLog(models.Model):
         ('telegram_sent', 'Отправлено в Telegram'),
         ('email_sent', 'Отправлено по email'),
         ('webhook_received', 'Получен webhook'),
+        ('contact_form', 'Форма обратной связи'), 
     ]
     
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name="Заказ")
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name="Заказ", null=True, blank=True)
     notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, verbose_name="Тип уведомления")
     message = models.TextField(verbose_name="Сообщение")
     sent_to = models.CharField(max_length=200, verbose_name="Получатель", blank=True)
