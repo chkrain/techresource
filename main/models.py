@@ -122,7 +122,10 @@ class Order(models.Model):
         ('pending', 'Ожидает оплаты'),
         ('paid', 'Оплачен'),
         ('processing', 'В обработке'),
+        ('assembling', 'Собирается'),
+        ('ready_for_shipping', 'Готов к отправке'),
         ('shipped', 'Отправлен'),
+        ('delivered', 'Доставлен'),
         ('completed', 'Завершен'),
         ('cancelled', 'Отменен'),
         ('refunded', 'Возврат'),
@@ -146,6 +149,12 @@ class Order(models.Model):
     customer_email = models.EmailField(verbose_name="Email")
     delivery_address = models.TextField(verbose_name="Адрес доставки")
     
+    # Новые поля для отслеживания
+    status_changed_at = models.DateTimeField(auto_now=True, verbose_name="Время изменения статуса")  # Изменено на auto_now
+    tracking_number = models.CharField(max_length=100, blank=True, verbose_name="Трек-номер")
+    shipping_company = models.CharField(max_length=100, blank=True, verbose_name="Служба доставки")
+    estimated_delivery = models.DateField(null=True, blank=True, verbose_name="Примерная дата доставки")
+    
     # Таймстампы
     paid_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата оплаты")
     cancelled_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата отмены")
@@ -157,12 +166,78 @@ class Order(models.Model):
         """Можно отменить заказ в течение 10 минут после оплаты"""
         from django.utils import timezone
         if self.status == 'paid' and self.paid_at:
-            return (timezone.now() - self.paid_at).total_seconds() < 600  # 10 минут
+            return (timezone.now() - self.paid_at).total_seconds() < 3600  # час
         return False
+    
+    def get_status_timeline(self):
+        """Возвращает временную шкалу статусов"""
+        return {
+            'paid': {'title': 'Оплата получена', 'description': 'Заказ подтвержден', 'icon': '💰'},
+            'processing': {'title': 'Обработка заказа', 'description': 'Проверка деталей', 'icon': '📋'},
+            'assembling': {'title': 'Сборка заказа', 'description': 'Собираем ваш заказ', 'icon': '🛠️'},
+            'ready_for_shipping': {'title': 'Готов к отправке', 'description': 'Заказ упакован', 'icon': '📦'},
+            'shipped': {'title': 'Отправлен', 'description': 'Передан в службу доставки', 'icon': '🚚'},
+            'delivered': {'title': 'Доставлен', 'description': 'Товар у вас', 'icon': '🏠'},
+            'completed': {'title': 'Завершен', 'description': 'Заказ выполнен', 'icon': '✅'}
+        }
+    
+    def get_current_timeline(self):
+        """Возвращает текущий прогресс по временной шкале"""
+        timeline = self.get_status_timeline()
+        status_flow = ['paid', 'processing', 'assembling', 'ready_for_shipping', 'shipped', 'delivered', 'completed']
+        
+        try:
+            current_index = status_flow.index(self.status) if self.status in status_flow else -1
+        except ValueError:
+            current_index = -1
+            
+        result = {}
+        
+        for status_key, status_info in timeline.items():
+            try:
+                status_index = status_flow.index(status_key)
+                is_completed = status_index <= current_index
+                is_current = status_index == current_index
+                
+                result[status_key] = {
+                    **status_info,
+                    'completed': is_completed,
+                    'current': is_current,
+                    'order': status_index + 1
+                }
+            except ValueError:
+                continue
+        
+        return result
+    
+    def save(self, *args, **kwargs):
+        """Автоматическое обновление status_changed_at при изменении статуса"""
+        if self.pk:
+            old_status = Order.objects.get(pk=self.pk).status
+            if old_status != self.status:
+                self.status_changed_at = timezone.now()
+        super().save(*args, **kwargs)
     
     class Meta:
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
+
+class OrderStatusLog(models.Model):
+    """Лог изменений статуса заказа"""
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name="Заказ")
+    old_status = models.CharField(max_length=20, choices=Order.STATUS_CHOICES, verbose_name="Предыдущий статус")
+    new_status = models.CharField(max_length=20, choices=Order.STATUS_CHOICES, verbose_name="Новый статус")
+    changed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Изменил")
+    changed_at = models.DateTimeField(auto_now_add=True, verbose_name="Время изменения")
+    notes = models.TextField(blank=True, verbose_name="Примечания")
+    
+    def __str__(self):
+        return f"Лог #{self.id} для заказа #{self.order.id}"
+    
+    class Meta:
+        verbose_name = "Лог статуса заказа"
+        verbose_name_plural = "Логи статусов заказов"
+        ordering = ['-changed_at']
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name="Заказ")
@@ -174,7 +249,9 @@ class OrderItem(models.Model):
         return f"{self.product.name} x {self.quantity}"
     
     def get_total_price(self):
-        return self.price * self.quantity
+        if self.price is not None and self.quantity is not None:
+            return self.price * self.quantity
+        return 0 
     
     class Meta:
         verbose_name = "Элемент заказа"
@@ -211,7 +288,10 @@ class NotificationLog(models.Model):
     error_message = models.TextField(verbose_name="Ошибка", blank=True)
     
     def __str__(self):
-        return f"Уведомление #{self.id} для заказа #{self.order.id}"
+        if self.order:
+            return f"Уведомление #{self.id} для заказа #{self.order.id}"
+        else:
+            return f"Уведомление #{self.id} (без заказа)"
     
     class Meta:
         verbose_name = "Лог уведомлений"

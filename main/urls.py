@@ -8,6 +8,8 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('services/', views.services, name='services'),
     path('products/', views.products, name='products'),
+    path('api/search-suggestions/', views.search_suggestions, name='search_suggestions'),
+
     
     # Аутентификация
     path('register/', views.secure_register, name='register'),
@@ -40,6 +42,11 @@ urlpatterns = [
     path('cart/update/<int:item_id>/', views.update_cart_item, name='update_cart_item'),
     path('orders/', views.orders_view, name='orders'),
     path('order/cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
+    path('order/<int:order_id>/update-status/', views.update_order_status, name='update_order_status'),
+    path('order/<int:order_id>/timeline/', views.get_order_timeline, name='get_order_timeline'),
+    path('order/<int:order_id>/request-refund/', views.request_order_refund, name='request_order_refund'),
+    path('order/update-status/', views.update_order_status, name='update_order_status_post'),
+
     
     # Оплата через ЮКассу
     path('payment/create/<int:order_id>/', views.create_payment, name='create_payment'),

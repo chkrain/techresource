@@ -164,6 +164,72 @@
                         </div>
                     </div>
                     
+                    <!-- УПРАВЛЕНИЕ СТАТУСОМ ЗАКАЗА - ДОБАВЛЕНО В КАЖДУЮ КАРТОЧКУ -->
+                    <div class="admin-order-actions">
+                        <div class="section-header">
+                            <h4>🔄 Управление статусом</h4>
+                        </div>
+                        
+                        <form method="post" action="{% url 'update_order_status_post' %}" class="status-update-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+
+                            <div class="form-row">
+                                <select name="status" class="form-select">
+                                    {% for status_value, status_name in status_choices %}
+                                    <option value="{{ status_value }}" {% if order.status == status_value %}selected{% endif %}>
+                                        {{ status_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            {% if order.status == 'shipped' or order.status == 'ready_for_shipping' %}
+                            <div class="form-row">
+                                <input type="text" name="tracking_number" placeholder="Трек-номер" 
+                                    value="{{ order.tracking_number|default:'' }}" class="form-input">
+                                <input type="text" name="shipping_company" placeholder="Служба доставки" 
+                                    value="{{ order.shipping_company|default:'' }}" class="form-input">
+                                <input type="date" name="estimated_delivery" 
+                                    value="{{ order.estimated_delivery|date:'Y-m-d'|default:'' }}" class="form-input">
+                            </div>
+                            {% endif %}
+                            
+                            <div class="form-row">
+                                <textarea name="notes" placeholder="Примечания для клиента" class="form-textarea"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <span class="btn-icon">💾</span>
+                                Обновить статус
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Лог изменений статуса -->
+                    <div class="status-history">
+                        <h5>📋 История изменений статуса</h5>
+                        <div class="history-list">
+                            {% for log in order.orderstatuslog_set.all %}
+                            <div class="history-item">
+                                <span class="history-status">{{ log.get_old_status_display }} → {{ log.get_new_status_display }}</span>
+                                <span class="history-time">{{ log.changed_at|date:"d.m.Y H:i" }}</span>
+                                {% if log.changed_by %}
+                                <span class="history-user">👤 {{ log.changed_by.username }}</span>
+                                {% endif %}
+                                {% if log.notes %}
+                                <div class="history-notes">💬 {{ log.notes }}</div>
+                                {% endif %}
+                            </div>
+                            {% empty %}
+                            <div class="empty-history">
+                                <span class="empty-icon">📝</span>
+                                <p>История изменений отсутствует</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
                     <div class="order-items-section">
                         <h4>🛒 Товары в заказе</h4>
                         <div class="order-items">
@@ -225,6 +291,11 @@
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
 <style>
+section, .admin-dashboard {
+    border-radius: 20px;
+    margin-top: 4%;
+}
+
 /* Hero секция */
 .admin-hero {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
@@ -822,6 +893,133 @@
         gap: 0.25rem;
     }
 }
+/* Стили для управления статусом заказа */
+.admin-order-actions {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
+}
+
+.admin-order-actions .section-header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.admin-order-actions .section-header h4 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.status-update-form .form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.status-update-form .form-select,
+.status-update-form .form-input,
+.status-update-form .form-textarea {
+    flex: 1;
+    min-width: 200px;
+}
+
+.status-update-form .form-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Стили для истории статусов */
+.status-history {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
+
+.status-history h5 {
+    margin: 0 0 1rem 0;
+    color: #2c3e50;
+    font-size: 1rem;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.history-item {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.history-status {
+    font-weight: 600;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.history-time,
+.history-user {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-right: 1rem;
+}
+
+.history-notes {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #dee2e6;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.empty-history {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.empty-history .empty-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.empty-history p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Адаптивность для формы управления */
+@media (max-width: 768px) {
+    .status-update-form .form-row {
+        flex-direction: column;
+    }
+    
+    .status-update-form .form-select,
+    .status-update-form .form-input,
+    .status-update-form .form-textarea {
+        min-width: 100%;
+    }
+    
+    .admin-order-actions {
+        padding: 1rem;
+    }
+    
+    .status-history {
+        padding: 1rem;
+    }
+}
 </style>
 
 <script>
@@ -833,32 +1031,45 @@ document.addEventListener('DOMContentLoaded', function() {
         offset: 100
     });
     
-    // Анимация карточек при наведении
-    document.querySelectorAll('.order-card').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px)';
+    // Динамическое отображение полей доставки
+    document.querySelectorAll('.status-update-form select[name="status"]').forEach(select => {
+        select.addEventListener('change', function() {
+            const form = this.closest('.status-update-form');
+            const deliveryFields = form.querySelector('.form-row:nth-child(2)'); // Вторая строка формы
+            
+            if (this.value === 'shipped' || this.value === 'ready_for_shipping') {
+                if (!deliveryFields || !deliveryFields.querySelector('input[name="tracking_number"]')) {
+                    // Создаем поля доставки если их нет
+                    const newRow = document.createElement('div');
+                    newRow.className = 'form-row';
+                    newRow.innerHTML = `
+                        <input type="text" name="tracking_number" placeholder="Трек-номер" class="form-input">
+                        <input type="text" name="shipping_company" placeholder="Служба доставки" class="form-input">
+                        <input type="date" name="estimated_delivery" class="form-input">
+                    `;
+                    this.closest('.form-row').insertAdjacentElement('afterend', newRow);
+                } else if (deliveryFields) {
+                    deliveryFields.style.display = 'flex';
+                }
+            } else if (deliveryFields) {
+                deliveryFields.style.display = 'none';
+            }
         });
         
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-        });
+        // Триггерим изменение при загрузке
+        select.dispatchEvent(new Event('change'));
     });
     
-    // Подсветка статусов
-    document.querySelectorAll('.order-status').forEach(status => {
-        status.addEventListener('click', function() {
-            const statusClass = this.className.split(' ')[1];
-            const statusText = this.textContent;
-            console.log(`Статус заказа: ${statusText} (${statusClass})`);
-        });
-    });
-    
-    // Быстрые действия для заказов
-    document.querySelectorAll('.order-card').forEach(card => {
-        card.addEventListener('dblclick', function() {
-            const orderId = this.querySelector('h3').textContent.replace('Заказ #', '');
-            console.log(`Быстрое действие для заказа #${orderId}`);
-            // Здесь можно добавить модальное окно с быстрыми действиями
+    // Подтверждение изменения статуса
+    document.querySelectorAll('.status-update-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const orderId = this.querySelector('input[name="order_id"]').value;
+            const newStatus = this.querySelector('select[name="status"]').value;
+            const statusText = this.querySelector('select[name="status"] option:checked').textContent;
+            
+            if (!confirm(`Вы уверены, что хотите изменить статус заказа #${orderId} на "${statusText}"?`)) {
+                e.preventDefault();
+            }
         });
     });
 });

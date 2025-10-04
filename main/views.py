@@ -5,8 +5,11 @@ from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.utils.html import strip_tags
+from django.contrib.admin.views.decorators import staff_member_required
+import datetime
 import json
 import hashlib
+from django.db.models import Q
 from django.utils import timezone
 import secrets
 import requests
@@ -33,7 +36,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth import get_user_model
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm
 
-from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt
+from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm
 
 
@@ -108,20 +111,61 @@ def products(request):
     products_list = Product.objects.filter(is_active=True)
     
     if search_query:
-        products_list = products_list.filter(name__icontains=search_query)
+        # Ищем по названию, артикулу и описанию
+        products_list = products_list.filter(
+            Q(name__icontains=search_query) |
+            Q(article__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
     
     if category_filter:
         products_list = products_list.filter(category=category_filter)
     
     categories = Product.objects.filter(is_active=True).values_list('category', flat=True).distinct()
     
+    # Похожие товары (если есть поисковый запрос)
+    similar_products = None
+    if search_query:
+        # Ищем товары в той же категории, что и найденные
+        found_categories = products_list.values_list('category', flat=True).distinct()
+        if found_categories:
+            similar_products = Product.objects.filter(
+                is_active=True,
+                category__in=found_categories
+            ).exclude(
+                id__in=products_list.values_list('id', flat=True)
+            )[:6]
+    
     context = {
         'products': products_list,
+        'similar_products': similar_products,
         'categories': categories,
         'search_query': search_query,
         'selected_category': category_filter,
     }
     return render(request, 'main/products.html', context)
+
+def search_suggestions(request):
+    """API для подсказок поиска"""
+    query = request.GET.get('q', '')
+    suggestions = []
+    
+    if len(query) >= 2:
+        products = Product.objects.filter(
+            Q(name__icontains=query) |
+            Q(article__icontains=query) |
+            Q(category__icontains=query),
+            is_active=True
+        ).distinct()[:10]
+        
+        for product in products:
+            suggestions.append({
+                'name': product.name,
+                'category': product.category,
+                'article': product.article
+            })
+    
+    return JsonResponse({'suggestions': suggestions})
 
 def register(request):
     if request.method == 'POST':
@@ -588,27 +632,81 @@ def yookassa_webhook(request):
     return JsonResponse({'status': 'method not allowed'}, status=405)
 
 @login_required
+@require_http_methods(["POST"])
 def cancel_order(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     
-    if order.can_be_cancelled():
-        order.status = 'cancelled'
-        order.cancelled_at = timezone.now()
-        order.save()
-        
-        # Возвращаем товары на склад
-        for item in order.orderitem_set.all():
-            item.product.quantity += item.quantity
-            item.product.save()
-        
-        # Отправляем уведомление об отмене
-        send_cancellation_notification(order)
-        
-        messages.success(request, f'Заказ #{order.id} отменен. Средства будут возвращены.')
-    else:
-        messages.error(request, 'Невозможно отменить заказ. Срок отмены истек.')
+    # Проверяем, является ли запрос AJAX
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
-    return redirect('orders')
+    try:
+        if order.can_be_cancelled():
+            old_status = order.status
+            order.status = 'cancelled'
+            order.cancelled_at = timezone.now()
+            order.save()
+            
+            # Возвращаем товары на склад
+            for item in order.orderitem_set.all():
+                item.product.quantity += item.quantity
+                item.product.save()
+            
+            # Создаем лог изменения статуса
+            OrderStatusLog.objects.create(
+                order=order,
+                old_status=old_status,
+                new_status='cancelled',
+                changed_by=request.user,
+                notes="Отменен пользователем через сайт"
+            )
+            
+            # Отправляем уведомление об отмене в Telegram
+            send_cancellation_notification(order)
+            
+            # Логируем уведомление
+            NotificationLog.objects.create(
+                order=order,
+                notification_type='order_cancelled',
+                message=f'Заказ #{order.id} отменен пользователем',
+                sent_to=f"Telegram: {settings.TELEGRAM_CHAT_ID}",
+                success=True
+            )
+            
+            message = f'Заказ #{order.id} отменен. Уведомление отправлено администратору.'
+            
+            if is_ajax:
+                return JsonResponse({
+                    'success': True,
+                    'message': message
+                })
+            else:
+                messages.success(request, message)
+                
+        else:
+            message = 'Невозможно отменить заказ. Срок отмены истек или заказ уже обрабатывается. Если возникли вопросы - свяжитесь с нами, мы поможем!'
+            
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'error': message
+                })
+            else:
+                messages.error(request, message)
+                
+    except Exception as e:
+        error_msg = f'Ошибка при отмене заказа: {str(e)}'
+        print(f"❌ Ошибка отмены заказа #{order_id}: {e}")
+        
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            })
+        else:
+            messages.error(request, error_msg)
+    
+    if not is_ajax:
+        return redirect('orders')
 
 @login_required
 def orders_view(request):
@@ -802,19 +900,30 @@ def password_reset_done(request):
     return render(request, 'main/password_reset_done.html')
 
 def send_cancellation_notification(order):
-    """Отправка уведомления об отмене заказа"""
+    """Отправка уведомления об отмене заказа в Telegram"""
     try:
         if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
+            print("⚠️ TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не настроены")
             return False
             
         message = f"""
-❌ <b>ЗАКАЗ ОТМЕНЕН #{order.id}</b>
+                ❌ <b>ЗАКАЗ ОТМЕНЕН #{order.id}</b>
 
-👤 <b>Клиент:</b> {order.customer_name}
-📞 <b>Телефон:</b> {order.customer_phone}
-💰 <b>Сумма:</b> {order.total_price} руб.
-🕒 <b>Время отмены:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
-"""
+                👤 <b>Клиент:</b> {order.customer_name}
+                📞 <b>Телефон:</b> {order.customer_phone}
+                📧 <b>Email:</b> {order.customer_email}
+                💰 <b>Сумма:</b> {order.total_price} руб.
+                🚚 <b>Адрес:</b> {order.delivery_address}
+                🕒 <b>Время отмены:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
+
+                <b>Товары:</b>
+                """
+        
+        for item in order.orderitem_set.all():
+            message += f"• {item.product.name} x{item.quantity} - {item.get_total_price()} руб.\n"
+        
+        message += f"\n<b>Итого:</b> {order.total_price} руб."
+        message += f"\n\n⚠️ <b>Требуется вернуть средства клиенту</b>"
         
         url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
         payload = {
@@ -1480,3 +1589,201 @@ def contact_form_submit(request):
     
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
 
+@staff_member_required
+def update_order_status(request, order_id=None):
+    """Обновление статуса заказа (для админов)"""
+    # Если order_id не передан в URL, берем из POST данных
+    if not order_id:
+        order_id = request.POST.get('order_id')
+    
+    if not order_id:
+        messages.error(request, 'ID заказа не указан')
+        return redirect('admin_dashboard')
+    
+    try:
+        order = Order.objects.get(id=order_id)
+    except Order.DoesNotExist:
+        messages.error(request, f'Заказ #{order_id} не найден')
+        return redirect('admin_dashboard')
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        tracking_number = request.POST.get('tracking_number', '')
+        shipping_company = request.POST.get('shipping_company', '')
+        estimated_delivery = request.POST.get('estimated_delivery', '')
+        notes = request.POST.get('notes', '')
+        
+        if new_status and new_status in dict(Order.STATUS_CHOICES):
+            old_status = order.status
+            
+            # Создаем лог изменения
+            OrderStatusLog.objects.create(
+                order=order,
+                old_status=old_status,
+                new_status=new_status,
+                changed_by=request.user,
+                notes=notes
+            )
+            
+            # Обновляем заказ
+            order.status = new_status
+            order.status_changed_at = timezone.now()
+            
+            if tracking_number:
+                order.tracking_number = tracking_number
+            if shipping_company:
+                order.shipping_company = shipping_company
+            if estimated_delivery:
+                try:
+                    # ИСПРАВЛЕНИЕ: используем правильный импорт datetime
+                    from datetime import datetime
+                    order.estimated_delivery = datetime.strptime(estimated_delivery, '%Y-%m-%d').date()
+                except ValueError:
+                    pass
+                
+            order.save()
+            
+            # Отправляем уведомление
+            send_order_status_notification(order, old_status, new_status)
+            
+            messages.success(request, f'Статус заказа #{order.id} обновлен на "{order.get_status_display()}"')
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'new_status': order.get_status_display(),
+                    'timeline': order.get_current_timeline()
+                })
+        else:
+            messages.error(request, 'Неверный статус заказа')
+        
+        return redirect('admin_dashboard')
+    
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+@login_required
+def get_order_timeline(request, order_id):
+    """API для получения временной шкалы заказа"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    return JsonResponse({
+        'timeline': order.get_current_timeline(),
+        'tracking_info': {
+            'tracking_number': order.tracking_number,
+            'shipping_company': order.shipping_company,
+            'estimated_delivery': order.estimated_delivery.isoformat() if order.estimated_delivery else None
+        }
+    })
+
+def send_order_status_notification(order, old_status, new_status):
+    """Отправка уведомления об изменении статуса"""
+    try:
+        # Уведомление в Telegram для админов
+        if settings.TELEGRAM_BOT_TOKEN and settings.TELEGRAM_CHAT_ID:
+            message = f"""
+                    🔄 <b>ИЗМЕНЕНИЕ СТАТУСА ЗАКАЗА #{order.id}</b>
+
+                    📊 <b>Статус:</b> {dict(Order.STATUS_CHOICES)[old_status]} → {dict(Order.STATUS_CHOICES)[new_status]}
+                    👤 <b>Клиент:</b> {order.customer_name}
+                    📞 <b>Телефон:</b> {order.customer_phone}
+                    💰 <b>Сумма:</b> {order.total_price} руб.
+
+                    ⏰ <b>Время:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
+                    """
+            
+            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+            payload = {
+                'chat_id': settings.TELEGRAM_CHAT_ID,
+                'text': message,
+                'parse_mode': 'HTML'
+            }
+            requests.post(url, json=payload, timeout=10)
+            
+    except Exception as e:
+        print(f"❌ Ошибка отправки уведомления о статусе: {e}")
+
+def send_refund_request_notification(order, reason):
+    """Уведомление о запросе возврата"""
+    try:
+        if settings.TELEGRAM_BOT_TOKEN and settings.TELEGRAM_CHAT_ID:
+            message = f"""
+            💰 <b>ЗАПРОС ВОЗВРАТА СРЕДСТВ</b>
+
+            🆔 <b>Заказ:</b> #{order.id}
+            👤 <b>Клиент:</b> {order.customer_name}
+            📞 <b>Телефон:</b> {order.customer_phone}
+            💳 <b>Сумма:</b> {order.total_price} руб.
+
+            📝 <b>Причина:</b> {reason}
+
+            ⏰ <b>Время запроса:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
+            """
+            
+            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+            payload = {
+                'chat_id': settings.TELEGRAM_CHAT_ID,
+                'text': message,
+                'parse_mode': 'HTML'
+            }
+            requests.post(url, json=payload, timeout=10)
+            
+    except Exception as e:
+        print(f"❌ Ошибка отправки уведомления о возврате: {e}")
+
+
+def send_order_status_email(order, old_status, new_status):
+    """Отправка email уведомления клиенту"""
+    try:
+        subject = f"Статус вашего заказа #{order.id} обновлен - Техресурс"
+        
+        context = {
+            'order': order,
+            'old_status': dict(Order.STATUS_CHOICES)[old_status],
+            'new_status': dict(Order.STATUS_CHOICES)[new_status],
+            'timeline': order.get_current_timeline(),
+        }
+        
+        html_message = render_to_string('main/order_status_email.html', context)
+        plain_message = strip_tags(html_message)
+        
+        send_mail(
+            subject,
+            plain_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [order.customer_email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+    except Exception as e:
+        print(f"❌ Ошибка отправки email о статусе: {e}")
+
+@login_required
+def request_order_refund(request, order_id):
+    """Запрос на возврат средств"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    if request.method == 'POST':
+        reason = request.POST.get('reason', '')
+        
+        # Можно добавить дополнительные проверки
+        if order.status in ['paid', 'completed']:
+            order.status = 'refunded'
+            order.save()
+            
+            # Логируем запрос возврата
+            OrderStatusLog.objects.create(
+                order=order,
+                old_status=order.status,
+                new_status='refunded',
+                notes=f"Запрос возврата: {reason}"
+            )
+            
+            # Уведомление админов
+            send_refund_request_notification(order, reason)
+            
+            messages.success(request, 'Запрос на возврат отправлен. Мы свяжемся с вами для уточнения деталей.')
+        else:
+            messages.error(request, 'Невозможно оформить возврат для заказа с текущим статусом.')
+    
+    return redirect('orders')

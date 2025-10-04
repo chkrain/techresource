@@ -43,6 +43,10 @@
                             <span class="status-dot"></span>
                             {{ order.get_status_display }}
                         </span>
+                        <button class="timeline-toggle" data-order-id="{{ order.id }}">
+                            <span class="toggle-icon">▼</span>
+                            Статус заказа
+                        </button>
                     </div>
                 </div>
                 
@@ -68,7 +72,7 @@
                         
                         <div class="detail-group">
                             <h4>Адрес доставки</h4>
-                            <p class="address-text">{{ order.customer_address }}</p>
+                            <p class="address-text">{{ order.delivery_address }}</p>
                         </div>
                     </div>
                     
@@ -90,21 +94,63 @@
                             </div>
                             {% endfor %}
                         </div>
-                        
-                        <div class="order-actions">
-                            <button class="action-btn reorder-btn" data-order-id="{{ order.id }}">
-                                📋 Повторить заказ
-                            </button>
-                            <button class="action-btn details-btn" data-order-id="{{ order.id }}">
-                                📄 Детали
-                            </button>
-                            {% if order.status == 'pending' or order.status == 'processing' %}
-                            <button class="action-btn cancel-btn" data-order-id="{{ order.id }}">
-                                ❌ Отменить
-                            </button>
-                            {% endif %}
-                        </div>
                     </div>
+                </div>
+
+                <!-- Временная шкала статуса (скрыта по умолчанию) -->
+                <div class="order-timeline" id="timeline-{{ order.id }}" style="display: none;">
+                    <h4>📊 Статус заказа</h4>
+                    <div class="timeline-container">
+                        {% for step_key, step in order.get_current_timeline.items %}
+                        <div class="timeline-step {% if step.completed %}completed{% endif %} {% if step.current %}current{% endif %}">
+                            <div class="step-icon">{{ step.icon }}</div>
+                            <div class="step-content">
+                                <div class="step-title">{{ step.title }}</div>
+                                <div class="step-description">{{ step.description }}</div>
+                                {% if step_key == 'shipped' and order.tracking_number %}
+                                <div class="tracking-info">
+                                    <strong>Трек-номер:</strong> {{ order.tracking_number }}
+                                    {% if order.shipping_company %}
+                                    <br><strong>Служба доставки:</strong> {{ order.shipping_company }}
+                                    {% endif %}
+                                    {% if order.estimated_delivery %}
+                                    <br><strong>Примерная доставка:</strong> {{ order.estimated_delivery|date:"d.m.Y" }}
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="step-number">{{ step.order }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Кнопки действий -->
+                <div class="order-actions">
+                    <button class="action-btn reorder-btn" data-order-id="{{ order.id }}">
+                        📋 Повторить заказ
+                    </button>
+                    <button class="action-btn details-btn" data-order-id="{{ order.id }}">
+                        📄 Детали
+                    </button>
+                    
+                    {% if order.status == 'pending' or order.status == 'processing' or order.status == 'paid' %}
+                    <button class="action-btn cancel-btn" data-order-id="{{ order.id }}" data-order-number="#{{ order.id }}">
+                        ❌ Отменить заказ
+                    </button>
+                    {% endif %}
+                    
+                    {% if order.status == 'paid' or order.status == 'completed' and order.status != 'refunded' %}
+                    <button class="action-btn refund-btn" data-order-id="{{ order.id }}">
+                        💰 Запросить возврат
+                    </button>
+                    {% endif %}
+                    
+                    {% if order.status == 'shipped' and order.tracking_number %}
+                    <a href="#" class="action-btn track-btn" data-tracking="{{ order.tracking_number }}">
+                        🚚 Отследить посылку
+                    </a>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -141,7 +187,7 @@ section {
 
 /* Hero секция */
 .orders-hero {
-    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
     padding: 100px 0 60px;
     text-align: center;
@@ -199,6 +245,10 @@ section {
 .orders-stats {
     display: flex;
     gap: 1.5rem;
+}
+
+.timeline-container {
+    color: black;
 }
 
 .stat-card {
@@ -287,6 +337,7 @@ section {
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    color: black;
 }
 
 .status-dot {
@@ -299,6 +350,36 @@ section {
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
+}
+
+/* Кнопка раскрытия временной шкалы */
+.timeline-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.timeline-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.timeline-toggle.active .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+    font-size: 0.8rem;
 }
 
 /* Статусы заказов */
@@ -352,12 +433,17 @@ section {
     background: #9b59b6;
 }
 
+.order-timeline h4 {
+    color: black;
+}
+
 /* Контент заказа */
 .order-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
     padding: 2rem;
+    color: black;
 }
 
 .order-details {
@@ -406,6 +492,7 @@ section {
     background: #f8f9fa;
     border-radius: 8px;
     border-left: 4px solid #0052cc;
+    white-space: pre-line;
 }
 
 /* Сводка заказа */
@@ -496,6 +583,7 @@ section {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+    padding: 0 2rem 2rem;
 }
 
 .action-btn {
@@ -533,6 +621,20 @@ section {
     background: #e74c3c;
     color: white;
     border-color: #e74c3c;
+    transform: translateY(-2px);
+}
+
+.refund-btn:hover {
+    background: #f39c12;
+    color: white;
+    border-color: #f39c12;
+    transform: translateY(-2px);
+}
+
+.track-btn:hover {
+    background: #9b59b6;
+    color: white;
+    border-color: #9b59b6;
     transform: translateY(-2px);
 }
 
@@ -610,6 +712,203 @@ section {
     box-shadow: 0 10px 25px rgba(0, 82, 204, 0.3);
 }
 
+/* Стили для временной шкалы статуса заказа */
+.order-timeline {
+    background: white;
+    border-radius: 0 0 16px 16px;
+    padding: 2rem;
+    border-top: 1px solid #e9ecef;
+    box-shadow: inset 0 5px 10px rgba(0,0,0,0.02);
+}
+
+.order-timeline h4 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin: 0 0 1.5rem 0;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.timeline-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline-container::before {
+    content: '';
+    position: absolute;
+    left: 25px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #e9ecef, #e9ecef);
+    border-radius: 2px;
+}
+
+.timeline-container::after {
+    content: '';
+    position: absolute;
+    left: 25px;
+    top: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #27ae60, #2ecc71);
+    border-radius: 2px;
+    height: 0;
+    transition: height 1.5s ease;
+}
+
+.timeline-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    position: relative;
+    padding: 0.5rem 0;
+}
+
+.timeline-step.completed .step-icon {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+.timeline-step.current .step-icon {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    animation: pulse-blue 2s infinite;
+}
+
+.timeline-step:not(.completed):not(.current) .step-icon {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 2px solid #e9ecef;
+}
+
+.step-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.step-content {
+    flex: 1;
+    padding-top: 0.5rem;
+}
+
+.step-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-step.completed .step-title {
+    color: #27ae60;
+}
+
+.timeline-step.current .step-title {
+    color: #3498db;
+}
+
+.timeline-step:not(.completed):not(.current) .step-title {
+    color: #6c757d;
+}
+
+.step-description {
+    font-size: 0.9rem;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+.timeline-step.completed .step-description {
+    color: #27ae60;
+    font-weight: 500;
+}
+
+.timeline-step.current .step-description {
+    color: #3498db;
+    font-weight: 500;
+}
+
+.step-number {
+    position: absolute;
+    left: -2rem;
+    top: 1rem;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #6c757d;
+    z-index: 3;
+}
+
+.timeline-step.completed .step-number {
+    background: #27ae60;
+    border-color: #27ae60;
+    color: white;
+}
+
+.timeline-step.current .step-number {
+    background: #3498db;
+    border-color: #3498db;
+    color: white;
+}
+
+.tracking-info {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.tracking-info strong {
+    color: #2c3e50;
+}
+
+/* Анимации */
+@keyframes pulse-blue {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 25px rgba(52, 152, 219, 0.6);
+    }
+}
+
+@keyframes fill-line {
+    from {
+        height: 0;
+    }
+    to {
+        height: var(--fill-height);
+    }
+}
+
 /* Адаптивность */
 @media (max-width: 1024px) {
     .order-content {
@@ -651,6 +950,14 @@ section {
     
     .order-status-wrapper {
         align-self: flex-start;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .timeline-toggle {
+        width: 100%;
+        justify-content: center;
     }
     
     .detail-item {
@@ -673,6 +980,7 @@ section {
     
     .order-actions {
         flex-direction: column;
+        padding: 0 1.5rem 1.5rem;
     }
     
     .action-btn {
@@ -687,6 +995,43 @@ section {
     .btn {
         width: 200px;
         justify-content: center;
+    }
+    
+    /* Адаптивность для временной шкалы */
+    .order-timeline {
+        padding: 1.5rem;
+    }
+    
+    .timeline-container {
+        padding-left: 1.5rem;
+        gap: 1rem;
+    }
+    
+    .timeline-container::before,
+    .timeline-container::after {
+        left: 20px;
+    }
+    
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .step-number {
+        left: -1.5rem;
+        top: 0.8rem;
+        width: 20px;
+        height: 20px;
+        font-size: 0.6rem;
+    }
+    
+    .step-title {
+        font-size: 1rem;
+    }
+    
+    .step-description {
+        font-size: 0.85rem;
     }
 }
 
@@ -715,6 +1060,36 @@ section {
     .order-header,
     .order-content {
         padding: 1rem;
+    }
+    
+    .order-timeline {
+        padding: 1rem;
+    }
+    
+    .timeline-container {
+        padding-left: 1rem;
+    }
+    
+    .timeline-container::before,
+    .timeline-container::after {
+        left: 15px;
+    }
+    
+    .step-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+    
+    .step-number {
+        left: -1rem;
+        top: 0.7rem;
+        width: 18px;
+        height: 18px;
+    }
+    
+    .timeline-step {
+        gap: 0.75rem;
     }
 }
 </style>
@@ -746,6 +1121,108 @@ document.addEventListener('DOMContentLoaded', function() {
         easing: 'easeOutCubic'
     });
 
+    // Обработчики для кнопок раскрытия временной шкалы
+    document.querySelectorAll('.timeline-toggle').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            const timeline = document.getElementById(`timeline-${orderId}`);
+            const isVisible = timeline.style.display === 'block';
+            
+            if (isVisible) {
+                // Скрываем
+                anime({
+                    targets: timeline,
+                    opacity: [1, 0],
+                    height: [timeline.scrollHeight + 'px', 0],
+                    duration: 400,
+                    easing: 'easeOutCubic',
+                    complete: function() {
+                        timeline.style.display = 'none';
+                    }
+                });
+                this.classList.remove('active');
+            } else {
+                // Показываем
+                timeline.style.display = 'block';
+                anime({
+                    targets: timeline,
+                    opacity: [0, 1],
+                    height: [0, timeline.scrollHeight + 'px'],
+                    duration: 500,
+                    easing: 'easeOutCubic'
+                });
+                this.classList.add('active');
+                
+                // Запускаем анимацию заполнения линии
+                animateTimelineLine(timeline);
+            }
+        });
+    });
+
+    // Функция для анимации заполнения линии прогресса
+    function animateTimelineLine(timeline) {
+        const timelineContainer = timeline.querySelector('.timeline-container');
+        const steps = timeline.querySelectorAll('.timeline-step');
+        let completedSteps = 0;
+        
+        steps.forEach(step => {
+            if (step.classList.contains('completed') || step.classList.contains('current')) {
+                completedSteps++;
+            }
+        });
+        
+        if (completedSteps > 0) {
+            const totalSteps = steps.length;
+            const fillHeight = (completedSteps / totalSteps) * 100;
+            
+            // Создаем элемент для заполненной линии
+            const filledLine = timelineContainer.querySelector('.timeline-filled-line') || 
+                              document.createElement('div');
+            filledLine.className = 'timeline-filled-line';
+            filledLine.style.cssText = `
+                position: absolute;
+                left: 25px;
+                top: 0;
+                width: 3px;
+                background: linear-gradient(to bottom, #27ae60, #2ecc71);
+                border-radius: 2px;
+                height: 0;
+                z-index: 1;
+                transition: height 1.5s ease;
+            `;
+            
+            if (!timelineContainer.querySelector('.timeline-filled-line')) {
+                timelineContainer.appendChild(filledLine);
+            }
+            
+            // Анимация заполнения линии
+            anime({
+                targets: filledLine,
+                height: `${fillHeight}%`,
+                duration: 1500,
+                easing: 'easeOutCubic',
+                delay: 300
+            });
+        }
+    }
+
+    // Функция для получения CSRF токена
+    function getCSRFToken() {
+        const name = 'csrftoken';
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     // Обработчики кнопок действий
     document.querySelectorAll('.reorder-btn').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -757,7 +1234,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 easing: 'easeInOutQuad'
             });
             console.log(`Повтор заказа: ${orderId}`);
-            // Здесь можно добавить логику повторения заказа
         });
     });
 
@@ -774,29 +1250,177 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             console.log(`Детали заказа: ${orderId}`);
-            // Здесь можно добавить логику показа деталей заказа
         });
     });
 
+    // Обработчики кнопок отмены заказа
     document.querySelectorAll('.cancel-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', async function() {
             const orderId = this.getAttribute('data-order-id');
+            const orderNumber = this.getAttribute('data-order-number');
+            const orderCard = this.closest('.order-card');
             
             if (confirm('Вы уверены, что хотите отменить этот заказ?')) {
-                anime({
-                    targets: this.closest('.order-card'),
-                    opacity: [1, 0],
-                    translateY: [0, -20],
-                    duration: 500,
-                    easing: 'easeInOutQuad',
-                    complete: function() {
-                        console.log(`Отмена заказа: ${orderId}`);
-                        // Здесь можно добавить логику отмены заказа
+                // Показываем индикатор загрузки
+                const originalText = this.innerHTML;
+                this.innerHTML = '⏳ Отмена...';
+                this.disabled = true;
+
+                try {
+                    // Отправляем запрос на отмену заказа
+                    const response = await fetch(`/order/cancel/${orderId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCSRFToken(),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Анимация скрытия карточки заказа
+                        await anime({
+                            targets: orderCard,
+                            opacity: [1, 0],
+                            translateY: [0, -20],
+                            duration: 500,
+                            easing: 'easeInOutQuad'
+                        }).finished;
+
+                        // Показываем сообщение об успехе
+                        showNotification(result.message || 'Заказ успешно отменен', 'success');
+                        
+                        // Обновляем страницу через 1 секунду
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        throw new Error(result.error || 'Ошибка при отмене заказа');
                     }
-                });
+
+                } catch (error) {
+                    console.error('Ошибка при отмене заказа:', error);
+                    
+                    // Восстанавливаем кнопку
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    
+                    // Показываем сообщение об ошибке
+                    showNotification(error.message || 'Произошла ошибка при отмене заказа', 'error');
+                    
+                    // Анимация ошибки
+                    anime({
+                        targets: orderCard,
+                        translateX: [0, 10, -10, 0],
+                        duration: 400,
+                        easing: 'easeInOutQuad'
+                    });
+                }
             }
         });
     });
+
+    // Обработчики кнопок возврата
+    document.querySelectorAll('.refund-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            window.location.href = `/order/${orderId}/request-refund/`;
+        });
+    });
+
+    // Функция показа уведомлений
+    function showNotification(message, type = 'info') {
+        // Создаем элемент уведомления
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-message">${message}</span>
+                <button class="notification-close">&times;</button>
+            </div>
+        `;
+
+        // Стили для уведомления
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease;
+        `;
+
+        notification.querySelector('.notification-content').style.cssText = `
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        `;
+
+        notification.querySelector('.notification-close').style.cssText = `
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+
+        document.body.appendChild(notification);
+
+        // Автоматическое скрытие через 5 секунд
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
+
+        // Закрытие по клику
+        notification.querySelector('.notification-close').addEventListener('click', () => {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        });
+    }
+
+    // Добавляем стили для анимации уведомлений
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 
     // Анимация статусов заказов
     document.querySelectorAll('.status-dot').forEach(dot => {
@@ -806,6 +1430,45 @@ document.addEventListener('DOMContentLoaded', function() {
             duration: 2000,
             loop: true,
             easing: 'easeInOutSine'
+        });
+    });
+
+    // Анимация временной шкалы при загрузке
+    document.querySelectorAll('.timeline-step').forEach((step, index) => {
+        setTimeout(() => {
+            anime({
+                targets: step,
+                translateX: [-20, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutCubic'
+            });
+        }, index * 200);
+    });
+
+    // Анимация иконок статусов
+    document.querySelectorAll('.step-icon').forEach(icon => {
+        const step = icon.closest('.timeline-step');
+        if (step.classList.contains('current')) {
+            anime({
+                targets: icon,
+                scale: [1, 1.05, 1],
+                duration: 2000,
+                loop: true,
+                easing: 'easeInOutSine'
+            });
+        }
+    });
+
+    // Плавное раскрытие информации о трекинге
+    document.querySelectorAll('.tracking-info').forEach(info => {
+        anime({
+            targets: info,
+            opacity: [0, 1],
+            translateY: [10, 0],
+            duration: 800,
+            delay: 600,
+            easing: 'easeOutCubic'
         });
     });
 

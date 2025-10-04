@@ -18,11 +18,12 @@
 <section class="filters-section">
     <div class="container">
         <div class="filters-card">
-            <form method="get" class="search-filter-form">
+            <form method="get" class="search-filter-form" id="searchForm">
                 <div class="search-group">
                     <div class="search-input-wrapper">
                         <span class="search-icon">🔍</span>
-                        <input type="text" name="search" placeholder="Поиск товаров..." value="{{ search_query }}" class="search-input">
+                        <input type="text" name="search" placeholder="Поиск товаров..." value="{{ search_query }}" class="search-input" id="searchInput" autocomplete="off">
+                        <div class="search-suggestions" id="searchSuggestions"></div>
                     </div>
                     <button type="submit" class="search-btn">Найти</button>
                 </div>
@@ -55,67 +56,111 @@
 <section class="products-section">
     <div class="container">
         {% if products %}
-        <div class="products-grid">
-            {% for product in products %}
-            <div class="product-card">
-                <div class="product-badge">
-                    {% if product.quantity > 0 %}
-                        <span class="badge in-stock-badge">В наличии</span>
-                    {% else %}
-                        <span class="badge out-of-stock-badge">Нет в наличии</span>
-                    {% endif %}
-                </div>
-                
-                <div class="product-image">
-                    {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-                    {% else %}
-                    <div class="product-image-placeholder">
-                        <span class="placeholder-icon">⚙️</span>
-                        <p>Нет изображения</p>
-                    </div>
-                    {% endif %}
-                </div>
-                
-                <div class="product-content">
-                    <h3 class="product-title">{{ product.name }}</h3>
-                    <p class="product-article">Артикул: {{ product.article }}</p>
-                    <p class="product-category">{{ product.category }}</p>
-                    
-                    <div class="product-meta">
-                        <div class="price-section">
-                            <span class="price">{{ product.price }} ₽</span>
+            <!-- Похожие товары -->
+            {% if similar_products and search_query %}
+            <div class="similar-products-section">
+                <h3 class="similar-title">Похожие товары на "{{ search_query }}"</h3>
+                <div class="similar-products-grid">
+                    {% for product in similar_products %}
+                    <div class="similar-product-card">
+                        <div class="similar-product-image">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                            {% else %}
+                            <div class="product-image-placeholder">
+                                <span class="placeholder-icon">⚙️</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="similar-product-info">
+                            <h4>{{ product.name }}</h4>
+                            <p class="similar-product-price">{{ product.price }} ₽</p>
                             {% if product.quantity > 0 %}
-                                <span class="stock-info">В наличии: {{ product.quantity }} шт.</span>
+                                <span class="similar-stock in-stock">В наличии</span>
+                            {% else %}
+                                <span class="similar-stock out-of-stock">Нет в наличии</span>
+                            {% endif %}
+                            <a href="{% url 'products' %}?search={{ product.name|urlencode }}" class="similar-view-btn">Посмотреть</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Основные результаты -->
+            <div class="search-results-info">
+                <h2 class="results-title">
+                    {% if search_query %}
+                        Результаты поиска для "{{ search_query }}"
+                    {% else %}
+                        Все товары
+                    {% endif %}
+                    <span class="results-count">({{ products.paginator.count }})</span>
+                </h2>
+            </div>
+            
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <div class="product-badge">
+                        {% if product.quantity > 0 %}
+                            <span class="badge in-stock-badge">В наличии</span>
+                        {% else %}
+                            <span class="badge out-of-stock-badge">Нет в наличии</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="product-image">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        {% else %}
+                        <div class="product-image-placeholder">
+                            <span class="placeholder-icon">⚙️</span>
+                            <p>Нет изображения</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="product-content">
+                        <h3 class="product-title">{{ product.name }}</h3>
+                        <p class="product-article">Артикул: {{ product.article }}</p>
+                        <p class="product-category">{{ product.category }}</p>
+                        
+                        <div class="product-meta">
+                            <div class="price-section">
+                                <span class="price">{{ product.price }} ₽</span>
+                                {% if product.quantity > 0 %}
+                                    <span class="stock-info">В наличии: {{ product.quantity }} шт.</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if product.description %}
+                        <p class="product-description">{{ product.description|truncatewords:15 }}</p>
+                        {% endif %}
+                        
+                        <div class="product-actions">
+                            {% if product.quantity > 0 %}
+                                {% if user.is_authenticated %}
+                                    <button type="button" class="add-to-cart-btn" data-product-id="{{ product.id }}">
+                                        🛒 Добавить в корзину
+                                    </button>
+                                {% else %}
+                                    <a href="{% url 'login' %}?next={{ request.path }}" class="login-to-buy-btn">
+                                        🔐 Войдите чтобы купить
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <button class="out-of-stock-btn" disabled>
+                                    ⏸️ Нет в наличии
+                                </button>
                             {% endif %}
                         </div>
                     </div>
-                    
-                    {% if product.description %}
-                    <p class="product-description">{{ product.description|truncatewords:15 }}</p>
-                    {% endif %}
-                    
-                    <div class="product-actions">
-                        {% if product.quantity > 0 %}
-                            {% if user.is_authenticated %}
-                                <button type="button" class="add-to-cart-btn" data-product-id="{{ product.id }}">
-                                    🛒 Добавить в корзину
-                                </button>
-                            {% else %}
-                                <a href="{% url 'login' %}?next={{ request.path }}" class="login-to-buy-btn">
-                                    🔐 Войдите чтобы купить
-                                </a>
-                            {% endif %}
-                        {% else %}
-                            <button class="out-of-stock-btn" disabled>
-                                ⏸️ Нет в наличии
-                            </button>
-                        {% endif %}
-                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
         {% else %}
         <div class="no-products">
             <div class="no-products-icon">🔍</div>
@@ -170,10 +215,201 @@
 
 <style>
 .products-section .container {
-    background: #4b555f;
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     border-radius: 20px;
     padding: 32px;
 }
+
+/* Стили для похожих товаров */
+.similar-products-section {
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.similar-title {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.similar-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.similar-product-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.similar-product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.similar-product-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.similar-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.similar-product-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.similar-product-info h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.similar-product-price {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0052cc;
+    margin-bottom: 0.25rem;
+}
+
+.similar-stock {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+.similar-stock.in-stock {
+    background: #e6ffed;
+    color: #38a169;
+}
+
+.similar-stock.out-of-stock {
+    background: #fed7d7;
+    color: #e53e3e;
+}
+
+.similar-view-btn {
+    display: inline-block;
+    background: #0052cc;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.similar-view-btn:hover {
+    background: #0047b3;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Стили для подсказок поиска */
+.search-input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+}
+
+.search-suggestion-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f3f4;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: background-color 0.2s ease;
+}
+
+.search-suggestion-item:hover {
+    background: #f8f9fa;
+}
+
+.search-suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-icon {
+    font-size: 1rem;
+    color: #6c757d;
+    flex-shrink: 0;
+}
+
+.suggestion-text {
+    flex: 1;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.suggestion-category {
+    font-size: 0.8rem;
+    color: #6c757d;
+    background: #f8f9fa;
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+}
+
+/* Информация о результатах поиска */
+.search-results-info {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.results-title {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.results-count {
+    color: #a0aec0;
+    font-size: 1.2rem;
+    font-weight: 400;
+}
+
 /* Toast уведомления */
 .toast-container {
     position: fixed;
@@ -229,7 +465,7 @@ section {
 
 /* Остальные стили остаются без изменений */
 .products-hero {
-    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
     padding: 100px 0 60px;
     text-align: center;
@@ -255,7 +491,7 @@ section {
 
 .filters-section {
     padding: 2rem 0;
-    background: #4b555f;
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
 }
 
 .filters-card {
@@ -672,6 +908,20 @@ section {
         grid-template-columns: 1fr;
     }
     
+    .similar-products-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .similar-product-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .similar-product-image {
+        width: 80px;
+        height: 80px;
+    }
+    
     .pagination {
         flex-direction: column;
         gap: 1rem;
@@ -696,16 +946,135 @@ section {
     .toast {
         min-width: auto;
     }
+    
+    .results-title {
+        font-size: 1.4rem;
+    }
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const categorySelect = document.querySelector('.category-select');
+    const searchInput = document.getElementById('searchInput');
+    const searchSuggestions = document.getElementById('searchSuggestions');
+    let searchTimeout;
+
     if (categorySelect) {
         categorySelect.addEventListener('change', function() {
             this.form.submit();
         });
+    }
+
+    // Функция для поиска подсказок
+    function fetchSearchSuggestions(query) {
+        if (query.length < 2) {
+            hideSuggestions();
+            return;
+        }
+
+        fetch(`/api/search-suggestions/?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                showSuggestions(data.suggestions, query);
+            })
+            .catch(error => {
+                console.error('Error fetching suggestions:', error);
+                hideSuggestions();
+            });
+    }
+
+    // Показать подсказки
+    function showSuggestions(suggestions, query) {
+        if (!suggestions || suggestions.length === 0) {
+            hideSuggestions();
+            return;
+        }
+
+        searchSuggestions.innerHTML = '';
+        
+        suggestions.forEach(suggestion => {
+            const item = document.createElement('div');
+            item.className = 'search-suggestion-item';
+            item.innerHTML = `
+                <span class="suggestion-icon">🔍</span>
+                <span class="suggestion-text">${highlightMatch(suggestion.name, query)}</span>
+                <span class="suggestion-category">${suggestion.category}</span>
+            `;
+            
+            item.addEventListener('click', function() {
+                searchInput.value = suggestion.name;
+                hideSuggestions();
+                document.getElementById('searchForm').submit();
+            });
+            
+            searchSuggestions.appendChild(item);
+        });
+
+        searchSuggestions.style.display = 'block';
+    }
+
+    // Подсветка совпадений в тексте
+    function highlightMatch(text, query) {
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    // Скрыть подсказки
+    function hideSuggestions() {
+        searchSuggestions.style.display = 'none';
+    }
+
+    // Обработчики событий для поиска
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                fetchSearchSuggestions(this.value);
+            }, 300);
+        });
+
+        searchInput.addEventListener('focus', function() {
+            if (this.value.length >= 2) {
+                fetchSearchSuggestions(this.value);
+            }
+        });
+
+        // Скрыть подсказки при клике вне поля
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                hideSuggestions();
+            }
+        });
+
+        // Навигация по подсказкам с клавиатуры
+        let selectedSuggestion = -1;
+        
+        searchInput.addEventListener('keydown', function(e) {
+            const items = searchSuggestions.querySelectorAll('.search-suggestion-item');
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedSuggestion = Math.min(selectedSuggestion + 1, items.length - 1);
+                updateSelectedSuggestion(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedSuggestion = Math.max(selectedSuggestion - 1, -1);
+                updateSelectedSuggestion(items);
+            } else if (e.key === 'Enter' && selectedSuggestion >= 0) {
+                e.preventDefault();
+                items[selectedSuggestion].click();
+            } else if (e.key === 'Escape') {
+                hideSuggestions();
+                selectedSuggestion = -1;
+            }
+        });
+
+        function updateSelectedSuggestion(items) {
+            items.forEach((item, index) => {
+                item.style.background = index === selectedSuggestion ? '#f8f9fa' : '';
+            });
+        }
     }
 
     // Функция для показа toast уведомлений
