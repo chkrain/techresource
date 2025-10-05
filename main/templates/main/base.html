@@ -340,8 +340,8 @@
         }
 
         .cart-badge {
-            background: var(--danger);
-            color: var(--white);
+            background: rgb(217, 219, 218);
+            color: black;
             border-radius: 10px;
             padding: 0.2rem 0.5rem;
             font-size: 0.7rem;
@@ -354,6 +354,7 @@
         }
 
         .user-avatar {
+            position: relative;
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -364,6 +365,25 @@
             font-weight: 600;
             font-size: 1rem;
             box-shadow: var(--shadow);
+        }
+
+        .avatar-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--light);
+            color: var(--dark);
+            border-radius: 10px;
+            padding: 0.2rem 0.4rem;
+            font-size: 0.6rem;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(229, 62, 62, 0.4);
+            border: 2px solid var(--dark);
         }
 
         /* Main content */
@@ -941,6 +961,9 @@
                             <button class="user-trigger">
                                 <div class="user-avatar">
                                     {{ user.username|first|upper }}
+                                    {% if cart_count and cart_count > 0 %}
+                                        <span class="avatar-badge">{{ cart_count }}</span>
+                                    {% endif %}
                                 </div>
                                 <i class="fas fa-chevron-down dropdown-arrow"></i>
                             </button>
@@ -966,14 +989,19 @@
                                     <i class="fas fa-clipboard-list"></i>
                                     Мои заказы
                                 </a>
+                                <a href="/wishlist/" class="dropdown-item">
+                                    <i class="fas fa-heart"></i>
+                                    Избранное
+                                    {% if wishlist_count and wishlist_count > 0 %}
+                                        <span class="cart-badge">{{ wishlist_count }}</span>
+                                    {% endif %}
+                                </a>
                                 <a href="/cart/" class="dropdown-item">
                                     <i class="fas fa-shopping-cart"></i>
                                     Корзина
-                                    {% with cart_items_count=user.cart.cartitem_set.count %}
-                                        {% if cart_items_count > 0 %}
-                                            <span class="cart-badge">{{ cart_items_count }}</span>
-                                        {% endif %}
-                                    {% endwith %}
+                                    {% if cart_count and cart_count > 0 %}
+                                        <span class="cart-badge">{{ cart_count }}</span>
+                                    {% endif %}
                                 </a>
                                 
                                 <div class="dropdown-divider"></div>

@@ -9,7 +9,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 import datetime
 import json
 import hashlib
-from django.db.models import Q
+from django.core.paginator import Paginator
+from django.db.models import Q, Min, Max
 from django.utils import timezone
 import secrets
 import requests
@@ -36,7 +37,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth import get_user_model
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm
 
-from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog
+from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm
 
 
@@ -105,28 +106,94 @@ def admin_dashboard(request):
     return render(request, 'main/admin_dashboard.html', context)
 
 def products(request):
+    # Параметры поиска
     search_query = request.GET.get('search', '')
     category_filter = request.GET.get('category', '')
+    brand_filter = request.GET.get('brand', '')
+    price_min = request.GET.get('price_min', '')
+    price_max = request.GET.get('price_max', '')
+    in_stock = request.GET.get('in_stock', '')
+    sort_by = request.GET.get('sort_by', 'name')
     
+    # Получаем товары
     products_list = Product.objects.filter(is_active=True)
     
+    # Применяем фильтры
     if search_query:
-        # Ищем по названию, артикулу и описанию
         products_list = products_list.filter(
             Q(name__icontains=search_query) |
             Q(article__icontains=search_query) |
-            Q(description__icontains=search_query)
+            Q(description__icontains=search_query) |
+            Q(brand__icontains=search_query) |
+            Q(material__icontains=search_query)
         )
     
     if category_filter:
         products_list = products_list.filter(category=category_filter)
     
-    categories = Product.objects.filter(is_active=True).values_list('category', flat=True).distinct()
+    if brand_filter:
+        products_list = products_list.filter(brand=brand_filter)
     
-    # Похожие товары (если есть поисковый запрос)
+    if price_min:
+        try:
+            products_list = products_list.filter(price__gte=float(price_min))
+        except ValueError:
+            pass
+    
+    if price_max:
+        try:
+            products_list = products_list.filter(price__lte=float(price_max))
+        except ValueError:
+            pass
+    
+    if in_stock == 'true':
+        products_list = products_list.filter(quantity__gt=0)
+    
+    # Применяем сортировку
+    sort_options = {
+        'name': 'name',
+        'price_asc': 'price',
+        'price_desc': '-price',
+        'popularity': '-popularity',
+        'rating': '-rating',
+        'newest': '-created_at',
+        'quantity': '-quantity'
+    }
+    products_list = products_list.order_by(sort_options.get(sort_by, 'name'))
+    
+    # Пагинация
+    paginator = Paginator(products_list, 12)  # 12 товаров на страницу
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    # Получаем доступные фильтры
+    categories = Product.objects.filter(is_active=True).values_list('category', flat=True).distinct()
+    brands = Product.objects.filter(is_active=True).values_list('brand', flat=True).distinct()
+    
+    # Получаем минимальную и максимальную цены
+    price_range = products_list.aggregate(
+        min_price=Min('price'),
+        max_price=Max('price')
+    )
+    
+    # Добавляем информацию об избранном
+    if request.user.is_authenticated:
+        try:
+            wishlist = Wishlist.objects.get(user=request.user)
+            wishlist_product_ids = wishlist.wishlistitem_set.values_list('product_id', flat=True)
+            
+            for product in page_obj:
+                product.in_wishlist = product.id in wishlist_product_ids
+        except Wishlist.DoesNotExist:
+            for product in page_obj:
+                product.in_wishlist = False
+    else:
+        for product in page_obj:
+            product.in_wishlist = False
+    
+    # Похожие товары
     similar_products = None
     if search_query:
-        # Ищем товары в той же категории, что и найденные
         found_categories = products_list.values_list('category', flat=True).distinct()
         if found_categories:
             similar_products = Product.objects.filter(
@@ -137,13 +204,67 @@ def products(request):
             )[:6]
     
     context = {
-        'products': products_list,
+        'products': page_obj,
+        'page_obj': page_obj,
         'similar_products': similar_products,
         'categories': categories,
+        'brands': brands,
         'search_query': search_query,
         'selected_category': category_filter,
+        'selected_brand': brand_filter,
+        'price_min': price_min,
+        'price_max': price_max,
+        'in_stock': in_stock,
+        'sort_by': sort_by,
+        'price_range': price_range,
+        'filter_params': request.GET.copy(),
     }
+    
+    # Если AJAX запрос, возвращаем JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from django.template.loader import render_to_string
+        
+        # Создаем контекст для рендеринга товаров
+        product_context = {
+            'products': page_obj,
+            'page_obj': page_obj,
+        }
+        
+        products_html = render_to_string('main/components/product_grid.html', product_context)
+        
+        return JsonResponse({
+            'success': True,
+            'products_html': products_html,
+            'has_next': page_obj.has_next(),
+            'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None,
+            'total_count': paginator.count,
+            'current_page': page_obj.number,
+            'total_pages': paginator.num_pages,
+        })
+    
     return render(request, 'main/products.html', context)
+
+def get_price_range(request):
+    """API для получения минимальной и максимальной цены"""
+    category = request.GET.get('category', '')
+    brand = request.GET.get('brand', '')
+    
+    products = Product.objects.filter(is_active=True)
+    
+    if category:
+        products = products.filter(category=category)
+    if brand:
+        products = products.filter(brand=brand)
+    
+    price_range = products.aggregate(
+        min_price=Min('price'),
+        max_price=Max('price')
+    )
+    
+    return JsonResponse({
+        'min_price': float(price_range['min_price'] or 0),
+        'max_price': float(price_range['max_price'] or 10000)
+    })
 
 def search_suggestions(request):
     """API для подсказок поиска"""
@@ -232,11 +353,6 @@ def delete_address(request, address_id):
 
 @login_required
 def add_to_cart(request, product_id):
-    print(f"DEBUG: add_to_cart called for product {product_id}")
-    print(f"DEBUG: Method: {request.method}")
-    print(f"DEBUG: AJAX header: {request.headers.get('X-Requested-With')}")
-    print(f"DEBUG: User: {request.user}")
-    
     if request.method == 'POST':
         try:
             product = Product.objects.get(id=product_id)
@@ -247,9 +363,7 @@ def add_to_cart(request, product_id):
                 cart_item.quantity += 1
                 cart_item.save()
             
-            cart_count = cart.cartitem_set.count()
-            
-            print(f"DEBUG: Success - cart_count: {cart_count}")
+            cart_count = cart.get_items_count()
             
             return JsonResponse({
                 'success': True,
@@ -257,20 +371,16 @@ def add_to_cart(request, product_id):
                 'message': 'Товар добавлен в корзину'
             })
         except Product.DoesNotExist:
-            print("DEBUG: Product not found")
             return JsonResponse({
                 'success': False,
                 'error': 'Товар не найден'
             })
         except Exception as e:
-            print(f"DEBUG: Exception: {e}")
             return JsonResponse({
                 'success': False,
                 'error': str(e)
             })
     
-    print("DEBUG: Not a POST request or not AJAX")
-    # Если это не AJAX запрос, возвращаем JSON с ошибкой
     return JsonResponse({'success': False, 'error': 'Неверный запрос'})
 
 @login_required
@@ -528,108 +638,286 @@ def payment_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     
     # Проверяем статус платежа
-    try:
-        payment = Payment.find_one(order.payment_id)
-        
-        if payment.status == 'succeeded':
-            if order.status != 'paid':
-                order.status = 'paid'
-                order.paid_at = timezone.now()
-                order.save()
-                
-                # Уменьшаем количество товаров
-                for item in order.orderitem_set.all():
-                    item.product.quantity -= item.quantity
-                    item.product.save()
-                
-                send_order_notification(order)
-                messages.success(request, 'Оплата прошла успешно! Заказ подтвержден.')
-        elif payment.status == 'canceled':
-            if order.status != 'cancelled':
-                order.status = 'cancelled'
-                order.save()
-                messages.error(request, 'Платеж был отменен.')
-        elif payment.status == 'pending':
-            messages.info(request, 'Платеж обрабатывается. Мы уведомим вас, когда он будет завершен.')
-        else:
-            messages.warning(request, f'Статус платежа: {payment.status}')
-            
-    except Exception as e:
-        messages.error(request, f'Ошибка при проверке платежа: {str(e)}')
+    payment_status = None
+    payment_info = None
     
-    return render(request, 'main/payment_success.html', {'order': order})
+    try:
+        if order.payment_id:
+            payment = Payment.find_one(order.payment_id)
+            payment_status = payment.status
+            payment_info = {
+                'id': payment.id,
+                'amount': payment.amount.value,
+                'currency': payment.amount.currency,
+                'created_at': payment.created_at,
+                'description': getattr(payment, 'description', '')
+            }
+            
+            print(f"🔍 Статус платежа для заказа #{order_id}: {payment_status}")
+            
+            if payment_status == 'succeeded':
+                if order.status != 'paid':
+                    order.status = 'paid'
+                    order.paid_at = timezone.now()
+                    order.save()
+                    
+                    # Уменьшаем количество товаров
+                    for item in order.orderitem_set.all():
+                        if item.product.quantity >= item.quantity:
+                            item.product.quantity -= item.quantity
+                            item.product.save()
+                    
+                    send_order_notification(order)
+                    messages.success(request, '✅ Оплата прошла успешно! Заказ подтвержден.')
+                    
+            elif payment_status == 'canceled':
+                if order.status != 'cancelled':
+                    order.status = 'cancelled'
+                    order.save()
+                    messages.error(request, '❌ Платеж был отменен.')
+                    
+            elif payment_status == 'pending':
+                messages.info(request, '⏳ Платеж обрабатывается. Мы уведомим вас, когда он будет завершен.')
+                
+            else:
+                messages.warning(request, f'ℹ️ Статус платежа: {payment_status}')
+                
+    except Exception as e:
+        print(f"❌ Ошибка при проверке платежа: {e}")
+        messages.error(request, '⚠️ Не удалось проверить статус платежа. Пожалуйста, свяжитесь с поддержкой.')
+    
+    context = {
+        'order': order,
+        'payment_status': payment_status,
+        'payment_info': payment_info
+    }
+    
+    # Если платеж отменен, перенаправляем на страницу неудачи
+    if payment_status == 'canceled':
+        return redirect('payment_failed', order_id=order.id)
+    
+    return render(request, 'main/payment_success.html', context)
+
+@login_required
+def retry_payment(request, order_id):
+    """Повторная попытка оплаты для отмененного заказа"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # Проверяем, можно ли повторить оплату
+    if order.status not in ['pending', 'cancelled']:
+        messages.error(request, 'Невозможно повторить оплату для этого заказа.')
+        return redirect('orders')
+    
+    try:
+        # Создаем новый платеж
+        payment = Payment.create({
+            "amount": {
+                "value": f"{order.total_price:.2f}",
+                "currency": "RUB"
+            },
+            "confirmation": {
+                "type": "redirect",
+                "return_url": f"{request.scheme}://{request.get_host()}/payment/success/{order.id}/"
+            },
+            "capture": True,
+            "description": f"Повторная оплата заказа #{order.id}",
+            "metadata": {
+                "order_id": order.id,
+                "user_id": request.user.id
+            }
+        }, str(uuid.uuid4()))
+        
+        # Обновляем ID платежа в заказе
+        order.payment_id = payment.id
+        order.status = 'pending'  # Сбрасываем статус
+        order.save()
+        
+        # Перенаправляем на страницу оплаты ЮКассы
+        return redirect(payment.confirmation.confirmation_url)
+        
+    except Exception as e:
+        messages.error(request, f'❌ Ошибка при создании платежа: {str(e)}')
+        return redirect('orders')
+
+@login_required
+def update_order_payment_method(request, order_id):
+    """Смена способа оплаты заказа"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    if request.method == 'POST':
+        new_payment_method = request.POST.get('payment_method')
+        
+        if new_payment_method in ['card', 'invoice']:
+            order.payment_method = new_payment_method
+            
+            if new_payment_method == 'invoice':
+                order.status = 'processing'
+                send_invoice_order_notification(order)
+                messages.success(request, 'Заказ переведен на оплату по счету. Мы вышлем счет на вашу почту.')
+            else:
+                order.status = 'pending'
+                messages.success(request, 'Способ оплаты изменен на банковскую карту.')
+            
+            order.save()
+            
+            # Логируем изменение
+            OrderStatusLog.objects.create(
+                order=order,
+                old_status=order.status,
+                new_status=order.status,
+                changed_by=request.user,
+                notes=f"Изменен способ оплаты на {order.get_payment_method_display()}"
+            )
+        else:
+            messages.error(request, 'Неверный способ оплаты.')
+    
+    return redirect('orders')
 
 @csrf_exempt
 def yookassa_webhook(request):
     """Webhook для уведомлений от ЮКассы"""
     if request.method == 'POST':
         try:
-            # Получаем данные от ЮКассы
             event_json = json.loads(request.body.decode('utf-8'))
-            
-            # Проверяем подпись (рекомендуется для безопасности)
-            # Для демо пропускаем, но в продакшене нужно реализовать
-            
-            # Обрабатываем разные события
             event_type = event_json.get('event')
             
+            print(f"🔔 Webhook получен: {event_type}")
+            
             if event_type == 'payment.succeeded':
-                payment_id = event_json['object']['id']
-                
-                # Ищем заказ по payment_id
-                try:
-                    order = Order.objects.get(payment_id=payment_id)
-                    
-                    # Обновляем статус заказа только если еще не оплачен
-                    if order.status != 'paid':
-                        order.status = 'paid'
-                        order.paid_at = timezone.now()
-                        order.save()
-                        
-                        # Уменьшаем количество товаров
-                        for item in order.orderitem_set.all():
-                            if item.product.quantity >= item.quantity:
-                                item.product.quantity -= item.quantity
-                                item.product.save()
-                            else:
-                                # Логируем проблему с количеством
-                                print(f"⚠️ Недостаточно товара {item.product.name} для заказа #{order.id}")
-                        
-                        # Отправляем уведомления
-                        send_order_notification(order)
-                        
-                        # Сохраняем в историю уведомлений
-                        NotificationLog.objects.create(
-                            order=order,
-                            notification_type='payment_success',
-                            message=f'Заказ #{order.id} оплачен через webhook',
-                            sent_to=order.customer_email
-                        )
-                        
-                        print(f"✅ Заказ #{order.id} оплачен через webhook")
-                    
-                except Order.DoesNotExist:
-                    print(f"❌ Заказ с payment_id {payment_id} не найден")
-                    return JsonResponse({'status': 'order not found'}, status=404)
-            
+                return handle_successful_payment(event_json)
             elif event_type == 'payment.canceled':
-                payment_id = event_json['object']['id']
-                try:
-                    order = Order.objects.get(payment_id=payment_id)
-                    if order.status != 'cancelled':
-                        order.status = 'cancelled'
-                        order.save()
-                        print(f"❌ Заказ #{order.id} отменен через webhook")
-                except Order.DoesNotExist:
-                    pass
-            
-            return JsonResponse({'status': 'ok'})
-            
+                return handle_canceled_payment(event_json)
+            elif event_type == 'payment.waiting_for_capture':
+                return handle_pending_payment(event_json)
+            elif event_type == 'refund.succeeded':
+                return handle_refund(event_json)
+            else:
+                print(f"⚠️ Неизвестный тип события: {event_type}")
+                return JsonResponse({'status': 'unknown_event'})
+                
         except Exception as e:
             print(f"❌ Ошибка в webhook: {e}")
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     
     return JsonResponse({'status': 'method not allowed'}, status=405)
+
+def handle_successful_payment(event_json):
+    """Обработка успешного платежа"""
+    payment_id = event_json['object']['id']
+    
+    try:
+        order = Order.objects.get(payment_id=payment_id)
+        
+        if order.status != 'paid':
+            order.status = 'paid'
+            order.paid_at = timezone.now()
+            order.save()
+            
+            # Уменьшаем количество товаров
+            for item in order.orderitem_set.all():
+                if item.product.quantity >= item.quantity:
+                    item.product.quantity -= item.quantity
+                    item.product.save()
+                else:
+                    print(f"⚠️ Недостаточно товара {item.product.name} для заказа #{order.id}")
+            
+            # Отправляем уведомления
+            send_order_notification(order)
+            
+            # Логируем
+            NotificationLog.objects.create(
+                order=order,
+                notification_type='payment_success',
+                message=f'Заказ #{order.id} оплачен через webhook',
+                sent_to=order.customer_email,
+                success=True
+            )
+            
+            print(f"✅ Заказ #{order.id} оплачен через webhook")
+        
+        return JsonResponse({'status': 'success'})
+        
+    except Order.DoesNotExist:
+        print(f"❌ Заказ с payment_id {payment_id} не найден")
+        return JsonResponse({'status': 'order_not_found'}, status=404)
+
+def handle_canceled_payment(event_json):
+    """Обработка отмененного платежа"""
+    payment_id = event_json['object']['id']
+    
+    try:
+        order = Order.objects.get(payment_id=payment_id)
+        
+        if order.status != 'cancelled':
+            order.status = 'cancelled'
+            order.cancelled_at = timezone.now()
+            order.save()
+            
+            # Логируем
+            NotificationLog.objects.create(
+                order=order,
+                notification_type='payment_cancelled',
+                message=f'Платеж для заказа #{order.id} отменен',
+                sent_to=order.customer_email,
+                success=True
+            )
+            
+            print(f"❌ Платеж для заказа #{order.id} отменен")
+        
+        return JsonResponse({'status': 'cancelled'})
+        
+    except Order.DoesNotExist:
+        print(f"❌ Заказ с payment_id {payment_id} не найден")
+        return JsonResponse({'status': 'order_not_found'}, status=404)
+
+def handle_pending_payment(event_json):
+    """Обработка платежа, ожидающего подтверждения"""
+    payment_id = event_json['object']['id']
+    
+    try:
+        order = Order.objects.get(payment_id=payment_id)
+        
+        # Можно добавить логику для платежей, требующих подтверждения
+        print(f"⏳ Платеж для заказа #{order.id} ожидает подтверждения")
+        
+        return JsonResponse({'status': 'pending'})
+        
+    except Order.DoesNotExist:
+        print(f"❌ Заказ с payment_id {payment_id} не найден")
+        return JsonResponse({'status': 'order_not_found'}, status=404)
+
+def handle_refund(event_json):
+    """Обработка возврата средств"""
+    payment_id = event_json['object']['payment_id']
+    
+    try:
+        order = Order.objects.get(payment_id=payment_id)
+        
+        if order.status != 'refunded':
+            order.status = 'refunded'
+            order.save()
+            
+            # Возвращаем товары на склад
+            for item in order.orderitem_set.all():
+                item.product.quantity += item.quantity
+                item.product.save()
+            
+            # Логируем
+            NotificationLog.objects.create(
+                order=order,
+                notification_type='refund_processed',
+                message=f'Возврат средств для заказа #{order.id}',
+                sent_to=order.customer_email,
+                success=True
+            )
+            
+            print(f"💰 Возврат средств для заказа #{order.id}")
+        
+        return JsonResponse({'status': 'refunded'})
+        
+    except Order.DoesNotExist:
+        print(f"❌ Заказ с payment_id {payment_id} не найден")
+        return JsonResponse({'status': 'order_not_found'}, status=404)
 
 @login_required
 @require_http_methods(["POST"])
@@ -1787,3 +2075,288 @@ def request_order_refund(request, order_id):
             messages.error(request, 'Невозможно оформить возврат для заказа с текущим статусом.')
     
     return redirect('orders')
+
+@login_required
+def payment_failed(request, order_id):
+    """Страница неудачной оплаты"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # Получаем информацию о платеже
+    payment_info = None
+    try:
+        if order.payment_id:
+            payment = Payment.find_one(order.payment_id)
+            payment_info = {
+                'status': payment.status,
+                'cancellation_reason': getattr(payment, 'cancellation_details', {}).get('reason', 'Неизвестно'),
+                'description': getattr(payment, 'description', '')
+            }
+    except Exception as e:
+        print(f"❌ Ошибка получения информации о платеже: {e}")
+    
+    context = {
+        'order': order,
+        'payment_info': payment_info
+    }
+    return render(request, 'main/payment_failed.html', context)
+
+# main/views.py (добавить в конец файла)
+
+def handler404(request, exception):
+    """Кастомная страница 404 ошибки"""
+    context = {
+        'error_code': '404',
+        'error_title': 'Страница не найдена',
+        'error_message': 'Запрашиваемая страница не существует или была перемещена',
+        'suggestions': [
+            'Проверьте правильность введенного URL-адреса',
+            'Вернитесь на главную страницу',
+            'Воспользуйтесь поиском по сайту',
+            'Свяжитесь с нашей поддержкой, если проблема повторяется'
+        ]
+    }
+    return render(request, 'main/error.html', context, status=404)
+
+def handler500(request):
+    """Кастомная страница 500 ошибки"""
+    context = {
+        'error_code': '500',
+        'error_title': 'Внутренняя ошибка сервера',
+        'error_message': 'Произошла внутренняя ошибка сервера. Мы уже работаем над ее устранением',
+        'suggestions': [
+            'Обновите страницу через несколько минут',
+            'Попробуйте очистить кэш браузера',
+            'Вернитесь на главную страницу',
+            'Сообщите о проблеме в службу поддержки'
+        ]
+    }
+    return render(request, 'main/error.html', context, status=500)
+
+def handler403(request, exception):
+    """Кастомная страница 403 ошибки"""
+    context = {
+        'error_code': '403',
+        'error_title': 'Доступ запрещен',
+        'error_message': 'У вас недостаточно прав для доступа к этой странице',
+        'suggestions': [
+            'Проверьте, авторизованы ли вы в системе',
+            'Обратитесь к администратору для получения доступа',
+            'Вернитесь на главную страницу',
+            'Войдите под другой учетной записью'
+        ]
+    }
+    return render(request, 'main/error.html', context, status=403)
+
+def handler400(request, exception):
+    """Кастомная страница 400 ошибки"""
+    context = {
+        'error_code': '400',
+        'error_title': 'Неверный запрос',
+        'error_message': 'Сервер не может обработать ваш запрос из-за неверного синтаксиса',
+        'suggestions': [
+            'Проверьте корректность введенных данных',
+            'Обновите страницу и попробуйте снова',
+            'Очистите cookies и кэш браузера',
+            'Свяжитесь с поддержкой, если проблема не решается'
+        ]
+    }
+    return render(request, 'main/error.html', context, status=400)
+
+@login_required
+def toggle_wishlist(request, product_id):
+    """Добавление/удаление товара в избранное"""
+    if request.method == 'POST':
+        try:
+            product = Product.objects.get(id=product_id, is_active=True)
+            wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+            
+            # Проверяем, есть ли уже товар в избранном
+            wishlist_item = WishlistItem.objects.filter(
+                wishlist=wishlist, 
+                product=product
+            ).first()
+            
+            if wishlist_item:
+                # Удаляем из избранного
+                wishlist_item.delete()
+                action = 'removed'
+                message = 'Товар удален из избранного'
+            else:
+                # Добавляем в избранное
+                WishlistItem.objects.create(wishlist=wishlist, product=product)
+                action = 'added'
+                message = 'Товар добавлен в избранное'
+            
+            # Получаем обновленное количество
+            wishlist_count = wishlist.get_items_count()
+            
+            return JsonResponse({
+                'success': True,
+                'action': action,
+                'message': message,
+                'wishlist_count': wishlist_count,
+                'product_id': product_id
+            })
+            
+        except Product.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Товар не найден'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+@login_required
+def wishlist_view(request):
+    """Страница избранных товаров"""
+    wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+    wishlist_items = WishlistItem.objects.filter(wishlist=wishlist).select_related('product')
+    
+    context = {
+        'wishlist': wishlist,
+        'wishlist_items': wishlist_items,
+    }
+    return render(request, 'main/wishlist.html', context)
+
+@login_required
+def wishlist_to_cart(request, product_id):
+    """Перенос товара из избранного в корзину"""
+    if request.method == 'POST':
+        try:
+            product = Product.objects.get(id=product_id, is_active=True)
+            wishlist = Wishlist.objects.get(user=request.user)
+            
+            # Удаляем из избранного
+            WishlistItem.objects.filter(wishlist=wishlist, product=product).delete()
+            
+            # Добавляем в корзину
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+            
+            if not created:
+                cart_item.quantity += 1
+                cart_item.save()
+            
+            # Получаем обновленные данные
+            cart_count = cart.cartitem_set.count()
+            wishlist_count = wishlist.get_items_count()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Товар перемещен в корзину',
+                'cart_count': cart_count,
+                'wishlist_count': wishlist_count,
+                'product_id': product_id
+            })
+            
+        except (Product.DoesNotExist, Wishlist.DoesNotExist):
+            return JsonResponse({
+                'success': False,
+                'error': 'Товар не найден'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+@login_required
+def remove_from_wishlist(request, product_id):
+    """Удаление товара из избранного"""
+    if request.method == 'POST':
+        try:
+            product = Product.objects.get(id=product_id)
+            wishlist = Wishlist.objects.get(user=request.user)
+            
+            # Удаляем из избранного
+            deleted_count = WishlistItem.objects.filter(
+                wishlist=wishlist, 
+                product=product
+            ).delete()[0]
+            
+            wishlist_count = wishlist.get_items_count()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Товар удален из избранного',
+                'wishlist_count': wishlist_count,
+                'product_id': product_id
+            })
+            
+        except (Product.DoesNotExist, Wishlist.DoesNotExist):
+            return JsonResponse({
+                'success': False,
+                'error': 'Товар не найден'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+@login_required
+def clear_wishlist(request):
+    """Очистка всего избранного"""
+    if request.method == 'POST':
+        try:
+            wishlist = Wishlist.objects.get(user=request.user)
+            deleted_count = WishlistItem.objects.filter(wishlist=wishlist).delete()[0]
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Избранное очищено ({deleted_count} товаров удалено)',
+                'wishlist_count': 0
+            })
+            
+        except Wishlist.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Избранное не найдено'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+# main/views.py
+def product_detail(request, product_id):
+    """Детальная страница товара"""
+    product = get_object_or_404(Product, id=product_id, is_active=True)
+    
+    # Получаем похожие товары
+    similar_products = Product.objects.filter(
+        category=product.category,
+        is_active=True
+    ).exclude(id=product.id)[:4]
+    
+    # Проверяем, есть ли товар в избранном у текущего пользователя
+    in_wishlist = False
+    if request.user.is_authenticated:
+        try:
+            wishlist = Wishlist.objects.get(user=request.user)
+            in_wishlist = WishlistItem.objects.filter(
+                wishlist=wishlist, 
+                product=product
+            ).exists()
+        except Wishlist.DoesNotExist:
+            pass
+    
+    context = {
+        'product': product,
+        'similar_products': similar_products,
+        'in_wishlist': in_wishlist,
+    }
+    
+    return render(request, 'main/product_detail.html', context)

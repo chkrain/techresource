@@ -1,0 +1,183 @@
+<!-- main/templates/main/components/product_grid.html -->
+<div class="products-grid {% if view == 'list' %}list-view{% endif %}" id="productsGrid">
+    {% for product in products %}
+    <div class="product-card" data-product-id="{{ product.id }}">
+        <!-- Бейдж наличия -->
+        <div class="product-badge">
+            {% if product.quantity > 0 %}
+                <span class="badge in-stock-badge">✓ В наличии</span>
+            {% else %}
+                <span class="badge out-of-stock-badge">✗ Нет в наличии</span>
+            {% endif %}
+        </div>
+        
+        <!-- Кнопка избранного -->
+        <div class="product-wishlist">
+            {% if user.is_authenticated %}
+                <button class="wishlist-btn {% if product.in_wishlist %}in-wishlist{% endif %}" 
+                        data-product-id="{{ product.id }}"
+                        title="{% if product.in_wishlist %}Удалить из избранного{% else %}Добавить в избранное{% endif %}">
+                    <span class="wishlist-icon">
+                        {% if product.in_wishlist %}❤️{% else %}🤍{% endif %}
+                    </span>
+                </button>
+            {% else %}
+                <a href="{% url 'login' %}?next={{ request.path }}" class="wishlist-btn" title="Войдите, чтобы добавить в избранное">
+                    <span class="wishlist-icon">🤍</span>
+                </a>
+            {% endif %}
+        </div>
+        
+        <!-- Изображение товара -->
+        <div class="product-image">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+                <div class="product-image-placeholder">
+                    <div class="placeholder-icon">📦</div>
+                    <small>Нет изображения</small>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Контент товара -->
+        <div class="product-content">
+            <h3 class="product-title">{{ product.name }}</h3>
+            
+            {% if product.article %}
+                <div class="product-article">Арт: {{ product.article }}</div>
+            {% endif %}
+            
+            {% if product.category %}
+                <div class="product-category">{{ product.category }}</div>
+            {% endif %}
+            
+            {% if product.brand %}
+                <div class="product-brand">Бренд: {{ product.brand }}</div>
+            {% endif %}
+            
+            <div class="product-meta">
+                <div class="price-section">
+                    <div class="price">{{ product.price }} ₽</div>
+                    <div class="stock-info">
+                        {% if product.quantity > 0 %}
+                            Остаток: {{ product.quantity }} шт.
+                        {% else %}
+                            Нет в наличии
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if product.rating %}
+                    <div class="rating-section">
+                        <span class="rating">★ {{ product.rating }}</span>
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if product.description %}
+                <div class="product-description">
+                    {{ product.description|truncatewords:20 }}
+                </div>
+            {% endif %}
+            
+            <div class="product-actions">
+                {% if product.quantity > 0 %}
+                    {% if user.is_authenticated %}
+                        <button class="add-to-cart-btn" data-product-id="{{ product.id }}">
+                            🛒 Добавить в корзину
+                        </button>
+                    {% else %}
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="login-to-buy-btn">
+                            🔐 Войти для покупки
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <button class="out-of-stock-btn" disabled>
+                        📦 Нет в наличии
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="no-products">
+        <div style="text-align: center; padding: 3rem; color: #6c757d;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
+            <h3 style="margin-bottom: 1rem; color: #2c3e50;">Товары не найдены</h3>
+            <p style="margin-bottom: 2rem;">Попробуйте изменить параметры поиска или фильтры</p>
+            <button type="button" class="clear-filters-btn" onclick="clearAllFilters()" style="background: #667eea; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">
+                Сбросить все фильтры
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Похожие товары -->
+{% if similar_products %}
+<div class="similar-products" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e9ecef;">
+    <h3 style="margin-bottom: 1.5rem; color: #2c3e50; text-align: center;">Похожие товары</h3>
+    <div class="products-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+        {% for product in similar_products %}
+        <div class="product-card" style="transform: scale(0.95);">
+            <div class="product-badge">
+                {% if product.quantity > 0 %}
+                    <span class="badge in-stock-badge" style="font-size: 0.7rem; padding: 0.3rem 0.6rem;">✓</span>
+                {% else %}
+                    <span class="badge out-of-stock-badge" style="font-size: 0.7rem; padding: 0.3rem 0.6rem;">✗</span>
+                {% endif %}
+            </div>
+            
+            <div class="product-image" style="height: 120px;">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                {% else %}
+                    <div class="product-image-placeholder">
+                        <div class="placeholder-icon" style="font-size: 1.5rem;">📦</div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="product-content" style="padding: 0.75rem;">
+                <h4 class="product-title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">{{ product.name|truncatewords:5 }}</h4>
+                <div class="price" style="font-size: 1rem;">{{ product.price }} ₽</div>
+                
+                <div class="product-actions" style="margin-top: 0.5rem;">
+                    {% if product.quantity > 0 %}
+                        {% if user.is_authenticated %}
+                            <button class="add-to-cart-btn" data-product-id="{{ product.id }}" style="padding: 0.5rem; font-size: 0.8rem;">
+                                🛒
+                            </button>
+                        {% else %}
+                            <a href="{% url 'login' %}?next={{ request.path }}" class="login-to-buy-btn" style="padding: 0.5rem; font-size: 0.8rem;">
+                                🔐
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <button class="out-of-stock-btn" disabled style="padding: 0.5rem; font-size: 0.8rem;">
+                            📦
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<style>
+.no-products {
+    grid-column: 1 / -1;
+    text-align: center;
+}
+
+.similar-products .product-card {
+    transition: all 0.3s ease;
+}
+
+.similar-products .product-card:hover {
+    transform: scale(1) !important;
+}
+</style>

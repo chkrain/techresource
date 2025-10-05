@@ -8,8 +8,9 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('services/', views.services, name='services'),
     path('products/', views.products, name='products'),
+    path('product/<int:product_id>/', views.product_detail, name='product_detail'),
     path('api/search-suggestions/', views.search_suggestions, name='search_suggestions'),
-
+    path('api/price-range/', views.get_price_range, name='get_price_range'),
     
     # Аутентификация
     path('register/', views.secure_register, name='register'),
@@ -47,11 +48,20 @@ urlpatterns = [
     path('order/<int:order_id>/request-refund/', views.request_order_refund, name='request_order_refund'),
     path('order/update-status/', views.update_order_status, name='update_order_status_post'),
 
-    
+    # Избранное
+    path('wishlist/', views.wishlist_view, name='wishlist'),
+    path('wishlist/toggle/<int:product_id>/', views.toggle_wishlist, name='toggle_wishlist'),
+    path('wishlist/to-cart/<int:product_id>/', views.wishlist_to_cart, name='wishlist_to_cart'),
+    path('wishlist/remove/<int:product_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
+    path('wishlist/clear/', views.clear_wishlist, name='clear_wishlist'),
+
     # Оплата через ЮКассу
     path('payment/create/<int:order_id>/', views.create_payment, name='create_payment'),
     path('payment/success/<int:order_id>/', views.payment_success, name='payment_success'),
     path('webhook/yookassa/', views.yookassa_webhook, name='yookassa_webhook'),
+    path('payment/failed/<int:order_id>/', views.payment_failed, name='payment_failed'),
+    path('payment/retry/<int:order_id>/', views.retry_payment, name='retry_payment'),
+    path('payment/update-method/<int:order_id>/', views.update_order_payment_method, name='update_order_payment_method'),
     
     # API
     path('api/update-quantity/<int:product_id>/', views.update_quantity_ajax, name='update_quantity_ajax'),

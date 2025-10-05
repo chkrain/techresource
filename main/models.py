@@ -62,6 +62,7 @@ class Address(models.Model):
         verbose_name = "Адрес"
         verbose_name_plural = "Адреса"
 
+# models.py - добавить в модель Product
 class Product(models.Model):
     name = models.CharField(max_length=200, verbose_name="Название")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
@@ -71,6 +72,15 @@ class Product(models.Model):
     article = models.CharField(max_length=50, verbose_name="Артикул", blank=True)
     image = models.ImageField(upload_to='products/', verbose_name="Изображение", blank=True, null=True)
     is_active = models.BooleanField(default=True, verbose_name="Активный")
+    
+    brand = models.CharField(max_length=100, verbose_name="Бренд", blank=True)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0, verbose_name="Рейтинг")
+    popularity = models.IntegerField(default=0, verbose_name="Популярность")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
+    weight = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, verbose_name="Вес")
+    dimensions = models.CharField(max_length=50, blank=True, verbose_name="Габариты")
+    material = models.CharField(max_length=100, blank=True, verbose_name="Материал")
+    warranty = models.IntegerField(default=12, verbose_name="Гарантия (мес)")
     
     def __str__(self):
         return self.name
@@ -331,3 +341,38 @@ class PasswordResetToken(models.Model):
     expires_at = models.DateTimeField()
     used = models.BooleanField(default=False)
     ip_address = models.GenericIPAddressField()
+
+class Wishlist(models.Model):
+    """Модель избранных товаров"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    
+    def __str__(self):
+        return f"Избранное {self.user.username}"
+    
+    def get_items_count(self):
+        return self.wishlistitem_set.count()
+    
+    class Meta:
+        verbose_name = "Избранное"
+        verbose_name_plural = "Избранные товары"
+
+class WishlistItem(models.Model):
+    """Элемент избранного"""
+    wishlist = models.ForeignKey(Wishlist, on_delete=models.CASCADE, verbose_name="Избранное")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="Товар")
+    added_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
+    
+    def __str__(self):
+        return f"{self.product.name} в избранном {self.wishlist.user.username}"
+    
+    class Meta:
+        verbose_name = "Элемент избранного"
+        verbose_name_plural = "Элементы избранного"
+        unique_together = ['wishlist', 'product']  # Один товар может быть только один раз
+
+# Сигнал для создания избранного при создании пользователя
+@receiver(post_save, sender=User)
+def create_user_wishlist(sender, instance, created, **kwargs):
+    if created:
+        Wishlist.objects.get_or_create(user=instance)

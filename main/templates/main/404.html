@@ -1,0 +1,293 @@
+<!-- main/templates/main/404.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Страница не найдена - Техресурс{% endblock %}
+
+{% block content %}
+<section class="not-found-hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="lost-illustration">
+                <div class="compass">🧭</div>
+                <div class="map">🗺️</div>
+                <div class="magnifying-glass">🔍</div>
+            </div>
+            <h1>Похоже, вы заблудились</h1>
+            <p class="hero-subtitle">Страница, которую вы ищете, не существует или была перемещена</p>
+        </div>
+    </div>
+</section>
+
+<section class="not-found-section">
+    <div class="container">
+        <div class="not-found-content">
+            <div class="quick-links">
+                <h3>Популярные разделы</h3>
+                <div class="links-grid">
+                    <a href="{% url 'products' %}" class="quick-link">
+                        <span class="link-icon">🛒</span>
+                        <span class="link-text">Каталог товаров</span>
+                    </a>
+                    <a href="{% url 'services' %}" class="quick-link">
+                        <span class="link-icon">🛠️</span>
+                        <span class="link-text">Наши услуги</span>
+                    </a>
+                    <a href="{% url 'about' %}" class="quick-link">
+                        <span class="link-icon">🏢</span>
+                        <span class="link-text">О компании</span>
+                    </a>
+                    <a href="/contacts/" class="quick-link">
+                        <span class="link-icon">📞</span>
+                        <span class="link-text">Контакты</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="search-suggestions">
+                <h4>Возможно, вы искали:</h4>
+                <div class="suggestions-tags">
+                    <a href="{% url 'products' %}?search=датчик" class="tag">Датчики</a>
+                    <a href="{% url 'products' %}?search=контроллер" class="tag">Контроллеры</a>
+                    <a href="{% url 'products' %}?search=кабель" class="tag">Кабельная продукция</a>
+                    <a href="{% url 'products' %}?search=модуль" class="tag">Модули</a>
+                    <a href="{% url 'services' %}" class="tag">Проектирование</a>
+                    <a href="{% url 'services' %}" class="tag">Монтаж</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.not-found-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 120px 0 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.lost-illustration {
+    position: relative;
+    height: 150px;
+    margin-bottom: 2rem;
+}
+
+.compass, .map, .magnifying-glass {
+    position: absolute;
+    font-size: 4rem;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+}
+
+.compass {
+    left: 20%;
+    animation-name: float-compass;
+}
+
+.map {
+    left: 50%;
+    transform: translateX(-50%);
+    animation-name: float-map;
+}
+
+.magnifying-glass {
+    right: 20%;
+    animation-name: float-glass;
+}
+
+.not-found-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.not-found-section {
+    padding: 4rem 0;
+    background: #f8f9fa;
+}
+
+.quick-links {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.quick-links h3 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.quick-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 1rem;
+    background: #f8fafc;
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.quick-link:hover {
+    background: white;
+    border-color: #667eea;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+    color: inherit;
+}
+
+.link-icon {
+    font-size: 2.5rem;
+}
+
+.link-text {
+    font-weight: 600;
+    color: #2c3e50;
+    text-align: center;
+}
+
+.search-suggestions {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.search-suggestions h4 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.suggestions-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.tag {
+    background: #667eea;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.tag:hover {
+    background: #5a6fd8;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+/* Анимации */
+@keyframes float-compass {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+@keyframes float-map {
+    0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
+    50% { transform: translateX(-50%) translateY(-15px) scale(1.05); }
+}
+
+@keyframes float-glass {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-20px) scale(1.1); }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .not-found-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .compass, .map, .magnifying-glass {
+        font-size: 3rem;
+    }
+    
+    .compass {
+        left: 10%;
+    }
+    
+    .magnifying-glass {
+        right: 10%;
+    }
+    
+    .links-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .links-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .suggestions-tags {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .tag {
+        width: 200px;
+        text-align: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Добавляем интерактивность для иллюстрации
+    const illustration = document.querySelector('.lost-illustration');
+    
+    illustration.addEventListener('mouseenter', function() {
+        this.style.transform = 'scale(1.05)';
+    });
+    
+    illustration.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1)';
+    });
+
+    // Анимация появления быстрых ссылок
+    const quickLinks = document.querySelectorAll('.quick-link');
+    quickLinks.forEach((link, index) => {
+        link.style.opacity = '0';
+        link.style.transform = 'translateY(30px)';
+        
+        setTimeout(() => {
+            link.style.transition = 'all 0.6s ease';
+            link.style.opacity = '1';
+            link.style.transform = 'translateY(0)';
+        }, index * 200 + 500);
+    });
+});
+</script>
+{% endblock %}

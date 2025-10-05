@@ -1,0 +1,506 @@
+<!-- main/templates/main/error.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Ошибка {{ error_code }} - Техресурс{% endblock %}
+
+{% block content %}
+<section class="error-hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="error-animation">
+                <div class="error-icon" data-error-code="{{ error_code }}">
+                    {% if error_code == '404' %}
+                    🔍
+                    {% elif error_code == '500' %}
+                    ⚙️
+                    {% elif error_code == '403' %}
+                    🚫
+                    {% elif error_code == '400' %}
+                    ❌
+                    {% else %}
+                    ⚠️
+                    {% endif %}
+                </div>
+                <div class="error-bubble">{{ error_code }}</div>
+            </div>
+            <h1>{{ error_title }}</h1>
+            <p class="hero-subtitle">{{ error_message }}</p>
+        </div>
+    </div>
+</section>
+
+<section class="error-section">
+    <div class="container">
+        <div class="error-content">
+            <div class="suggestions-card">
+                <h3>Что можно сделать?</h3>
+                <div class="suggestions-list">
+                    {% for suggestion in suggestions %}
+                    <div class="suggestion-item">
+                        <span class="suggestion-number">0{{ forloop.counter }}</span>
+                        <span class="suggestion-text">{{ suggestion }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="actions-grid">
+                <a href="{% url 'index' %}" class="action-card">
+                    <div class="action-icon">🏠</div>
+                    <h4>На главную</h4>
+                    <p>Вернуться на домашнюю страницу</p>
+                </a>
+                
+                <a href="{% url 'products' %}" class="action-card">
+                    <div class="action-icon">🛒</div>
+                    <h4>В каталог</h4>
+                    <p>Перейти к покупкам</p>
+                </a>
+                
+                <a href="javascript:history.back()" class="action-card">
+                    <div class="action-icon">↩️</div>
+                    <h4>Назад</h4>
+                    <p>Вернуться на предыдущую страницу</p>
+                </a>
+                
+                <a href="/contacts/" class="action-card">
+                    <div class="action-icon">📞</div>
+                    <h4>Поддержка</h4>
+                    <p>Связаться с нашей командой</p>
+                </a>
+            </div>
+
+            <div class="search-widget">
+                <h4>Поиск по сайту</h4>
+                <form action="{% url 'products' %}" method="get" class="search-form">
+                    <div class="search-input-wrapper">
+                        <input type="text" name="search" placeholder="Введите запрос для поиска..." class="search-input">
+                        <button type="submit" class="search-btn">
+                            <span class="search-icon">🔍</span>
+                            Найти
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            {% if error_code == '500' %}
+            <div class="technical-info">
+                <details>
+                    <summary>Техническая информация для разработчиков</summary>
+                    <div class="tech-content">
+                        <p><strong>Время ошибки:</strong> {% now "d.m.Y H:i:s" %}</p>
+                        <p><strong>URL:</strong> {{ request.path }}</p>
+                        <p><strong>Метод:</strong> {{ request.method }}</p>
+                        <p><strong>Пользователь:</strong> {{ request.user.username|default:"Не авторизован" }}</p>
+                    </div>
+                </details>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<style>
+section {
+    border-radius: 20px;
+}
+
+.error-hero {
+    color: white;
+    padding: 120px 0 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Градиенты для разных кодов ошибок */
+.error-hero.error-404 {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+}
+
+.error-hero.error-500 {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+}
+
+.error-hero.error-403 {
+    background: linear-gradient(135deg, #d69e2e 0%, #b7791f 100%);
+}
+
+.error-hero.error-400 {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5aa0 100%);
+}
+
+.error-animation {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.error-icon {
+    font-size: 8rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.error-bubble {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    background: #fff;
+    color: #2c3e50;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.error-hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.error-section {
+    padding: 4rem 0;
+    background: #f8f9fa;
+    min-height: 50vh;
+}
+
+.error-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.suggestions-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.suggestions-card h3 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.suggestions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border-left: 4px solid #0052cc;
+    transition: all 0.3s ease;
+}
+
+.suggestion-item:hover {
+    transform: translateX(10px);
+    background: #f0f9ff;
+}
+
+.suggestion-number {
+    background: #0052cc;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.suggestion-text {
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.action-card {
+    background: white;
+    padding: 2rem 1.5rem;
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    border-color: #0052cc;
+    color: inherit;
+}
+
+.action-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.action-card h4 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.action-card p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.search-widget {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.search-widget h4 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.search-form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.search-input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-input {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border: 2px solid #e9ecef;
+    border-radius: 50px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #0052cc;
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+.search-btn {
+    padding: 1rem 2rem;
+    background: #0052cc;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.search-btn:hover {
+    background: #0047b3;
+    transform: translateY(-2px);
+}
+
+.technical-info {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
+
+.technical-info summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #2c3e50;
+    padding: 0.5rem 0;
+}
+
+.technical-info details[open] summary {
+    margin-bottom: 1rem;
+}
+
+.tech-content {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.tech-content p {
+    margin-bottom: 0.5rem;
+}
+
+.tech-content strong {
+    color: #2c3e50;
+}
+
+/* Анимации */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .error-hero {
+        padding: 100px 0 60px;
+    }
+    
+    .error-icon {
+        font-size: 6rem;
+    }
+    
+    .error-hero h1 {
+        font-size: 2.2rem;
+    }
+    
+    .suggestions-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-input-wrapper {
+        flex-direction: column;
+    }
+    
+    .search-btn {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .error-hero h1 {
+        font-size: 1.8rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .suggestion-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Анимация появления элементов
+    const animateOnScroll = () => {
+        const elements = document.querySelectorAll('.suggestion-item, .action-card');
+        elements.forEach((element, index) => {
+            setTimeout(() => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(30px)';
+                element.style.transition = 'all 0.6s ease';
+                
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, 100);
+            }, index * 100);
+        });
+    };
+
+    // Запуск анимации
+    setTimeout(animateOnScroll, 500);
+
+    // Интерактивность для технической информации
+    const techDetails = document.querySelector('details');
+    if (techDetails) {
+        techDetails.addEventListener('toggle', function() {
+            if (this.open) {
+                this.style.background = '#f8f9fa';
+            } else {
+                this.style.background = 'white';
+            }
+        });
+    }
+
+    // Добавление случайных частиц на фон для 500 ошибки
+    if (document.querySelector('[data-error-code="500"]')) {
+        createErrorParticles();
+    }
+
+    function createErrorParticles() {
+        const hero = document.querySelector('.error-hero');
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: ${Math.random() * 6 + 2}px;
+                height: ${Math.random() * 6 + 2}px;
+                background: rgba(255,255,255,${Math.random() * 0.3 + 0.1});
+                border-radius: 50%;
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                animation: float ${Math.random() * 10 + 5}s linear infinite;
+            `;
+            hero.appendChild(particle);
+        }
+
+        // Добавляем стили для анимации частиц
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+});
+</script>
+{% endblock %}

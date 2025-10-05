@@ -1,0 +1,189 @@
+<!-- main/templates/main/product_detail.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}{{ product.name }} - Техресурс{% endblock %}
+
+{% block content %}
+<section class="product-detail-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>{{ product.name }}</h1>
+            <p class="hero-subtitle">Артикул: {{ product.article }}</p>
+        </div>
+    </div>
+</section>
+
+<section class="product-detail-section">
+    <div class="container">
+        <div class="product-detail-grid">
+            <div class="product-image">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                {% else %}
+                <div class="product-image-placeholder">
+                    <span class="placeholder-icon">⚙️</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="product-info">
+                <h2 class="product-title">{{ product.name }}</h2>
+                <p class="product-article">Артикул: {{ product.article }}</p>
+                <p class="product-category">Категория: {{ product.category }}</p>
+                
+                <div class="price-section">
+                    <span class="price">{{ product.price }} ₽</span>
+                    {% if product.quantity > 0 %}
+                        <span class="stock-info in-stock">В наличии: {{ product.quantity }} шт.</span>
+                    {% else %}
+                        <span class="stock-info out-of-stock">Нет в наличии</span>
+                    {% endif %}
+                </div>
+                
+                {% if product.description %}
+                <div class="product-description">
+                    <h3>Описание</h3>
+                    <p>{{ product.description }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="product-actions">
+                    {% if product.quantity > 0 %}
+                        <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{ product.id }}">
+                            <span class="btn-icon">🛒</span>
+                            Добавить в корзину
+                        </button>
+                    {% else %}
+                        <button class="btn btn-secondary" disabled>
+                            <span class="btn-icon">⏸️</span>
+                            Нет в наличии
+                        </button>
+                    {% endif %}
+                    
+                    <button type="button" class="btn btn-secondary toggle-wishlist-btn" data-product-id="{{ product.id }}">
+                        <span class="btn-icon">{{ in_wishlist|yesno:"❤️,🤍" }}</span>
+                        {{ in_wishlist|yesno:"В избранном,В избранное" }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        {% if similar_products %}
+        <div class="similar-products">
+            <h3>Похожие товары</h3>
+            <div class="similar-products-grid">
+                {% for similar_product in similar_products %}
+                <div class="similar-product">
+                    <a href="{% url 'product_detail' similar_product.id %}">
+                        {% if similar_product.image %}
+                        <img src="{{ similar_product.image.url }}" alt="{{ similar_product.name }}" loading="lazy">
+                        {% else %}
+                        <div class="product-image-placeholder">
+                            <span class="placeholder-icon">⚙️</span>
+                        </div>
+                        {% endif %}
+                        <h4>{{ similar_product.name }}</h4>
+                        <p class="price">{{ similar_product.price }} ₽</p>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+.product-detail-hero {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 80px 0 40px;
+    text-align: center;
+    margin-top: 2%;
+    border-radius: 20px;
+}
+
+.product-detail-section {
+    padding: 3rem 0;
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    margin-top: 4%;
+    border-radius: 20px;
+}
+
+.product-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.product-info {
+    padding: 1rem;
+}
+
+
+.product-title {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.price-section {
+    margin: 2rem 0;
+}
+
+.price {
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+}
+
+.product-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.similar-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.similar-product {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.similar-product img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .product-detail-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+// Добавьте JavaScript для работы с корзиной и избранным
+</script>
+{% endblock %}

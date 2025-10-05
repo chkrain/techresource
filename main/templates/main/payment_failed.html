@@ -1,0 +1,169 @@
+<!-- main/templates/main/payment_failed.html -->
+{% extends 'main/base.html' %}
+{% load tz %}
+
+{% block title %}Оплата не прошла - Техресурс{% endblock %}
+
+{% block content %}
+<section class="status-hero error">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Оплата не прошла</h1>
+            <p class="hero-subtitle">Возникла проблема с обработкой платежа</p>
+        </div>
+    </div>
+</section>
+
+<section class="status-section">
+    <div class="container">
+        <div class="status-card error">
+            <div class="status-header">
+                <div class="status-icon error">❌</div>
+                <div class="status-text">
+                    <h2>Платеж не завершен</h2>
+                    <p>Заказ #{{ order.id }} не был оплачен</p>
+                </div>
+            </div>
+
+            <div class="order-details">
+                <h3>Информация о заказе</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Номер заказа:</span>
+                        <strong class="detail-value">#{{ order.id }}</strong>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Сумма:</span>
+                        <strong class="detail-value">{{ order.total_price }} руб.</strong>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Статус:</span>
+                        <span class="status-badge error">{{ order.get_status_display }}</span>
+                    </div>
+                    {% if payment_info %}
+                    <div class="detail-item">
+                        <span class="detail-label">Причина отмены:</span>
+                        <span class="detail-value">{{ payment_info.cancellation_reason }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="error-notice">
+                    <div class="notice-icon">⚠️</div>
+                    <div class="notice-content">
+                        <strong>Возможные причины:</strong>
+                        <ul>
+                            <li>Недостаточно средств на карте</li>
+                            <li>Банк отклонил операцию</li>
+                            <li>Техническая ошибка при обработке</li>
+                            <li>Истек срок действия карты</li>
+                            <li>Превышен лимит по карте</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="retry-options">
+                <h4>Как продолжить?</h4>
+                <div class="options-grid">
+                    <div class="option-card">
+                        <div class="option-icon">🔄</div>
+                        <h5>Повторить оплату</h5>
+                        <p>Попробуйте оплатить заказ еще раз</p>
+                        <a href="{% url 'retry_payment' order.id %}" class="btn btn-primary btn-small">
+                            Попробовать снова
+                        </a>
+                    </div>
+                    <div class="option-card">
+                        <div class="option-icon">💳</div>
+                        <h5>Изменить способ оплаты</h5>
+                        <p>Выберите оплату по счету для юрлиц</p>
+                        <form method="post" action="{% url 'update_order_payment' order.id %}" style="margin: 0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_method" value="invoice">
+                            <button type="submit" class="btn btn-secondary btn-small">
+                                Перейти на счет
+                            </button>
+                        </form>
+                    </div>
+                    <div class="option-card">
+                        <div class="option-icon">📞</div>
+                        <h5>Связаться с поддержкой</h5>
+                        <p>Наши специалисты помогут решить проблему</p>
+                        <a href="tel:+79375246888" class="btn btn-outline btn-small">
+                            Позвонить
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-actions">
+                <a href="{% url 'orders' %}" class="btn btn-primary">
+                    📋 Мои заказы
+                </a>
+                <a href="{% url 'products' %}" class="btn btn-secondary">
+                    🛒 Вернуться к покупкам
+                </a>
+            </div>
+        </div>
+
+        <!-- Информация о поддержке -->
+        <div class="support-info">
+            <div class="support-card">
+                <div class="support-icon">💬</div>
+                <div class="support-content">
+                    <h4>Нужна помощь с оплатой?</h4>
+                    <p>Наша служба поддержки всегда готова помочь вам</p>
+                    <div class="support-contacts">
+                        <a href="tel:+79375246888" class="contact-link">
+                            📞 +7 (937) 524-68-88
+                        </a>
+                        <a href="mailto:support@techresurs.ru" class="contact-link">
+                            ✉️ support@techresurs.ru
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.status-hero.error {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+}
+
+.error-notice {
+    display: flex;
+    gap: 1rem;
+    background: #fff5f5;
+    border: 1px solid #fed7d7;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.notice-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    color: #e53e3e;
+}
+
+.notice-content strong {
+    display: block;
+    color: #742a2a;
+    margin-bottom: 0.5rem;
+}
+
+.notice-content ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: #742a2a;
+}
+
+.notice-content li {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}

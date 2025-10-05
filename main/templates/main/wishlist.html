@@ -1,0 +1,772 @@
+<!-- main/templates/main/wishlist.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Избранное - Техресурс{% endblock %}
+
+{% block content %}
+<!-- Hero секция -->
+<section class="wishlist-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Мое избранное</h1>
+            <p class="hero-subtitle">Товары, которые вам понравились</p>
+        </div>
+    </div>
+</section>
+
+<section class="wishlist-section">
+    <div class="container">
+        {% if wishlist_items %}
+        <div class="wishlist-header">
+            <div class="wishlist-info">
+                <h2>Избранные товары</h2>
+                <p class="wishlist-count">{{ wishlist_items|length }} товар(ов) в избранном</p>
+            </div>
+            <div class="wishlist-actions">
+                <button type="button" class="btn btn-secondary" id="clearWishlistBtn">
+                    <span class="btn-icon">🗑️</span>
+                    Очистить избранное
+                </button>
+                <a href="{% url 'products' %}" class="btn btn-primary">
+                    <span class="btn-icon">🛒</span>
+                    Продолжить покупки
+                </a>
+            </div>
+        </div>
+
+        <div class="wishlist-grid">
+            {% for item in wishlist_items %}
+            <div class="wishlist-item" data-product-id="{{ item.product.id }}">
+                <div class="item-image">
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy">
+                    {% else %}
+                    <div class="product-image-placeholder">
+                        <span class="placeholder-icon">⚙️</span>
+                    </div>
+                    {% endif %}
+                    
+                    <button class="remove-wishlist-btn" data-product-id="{{ item.product.id }}" title="Удалить из избранного">
+                        ❌
+                    </button>
+                </div>
+                
+                <div class="item-content">
+                    <h3 class="item-title">{{ item.product.name }}</h3>
+                    <p class="item-article">Артикул: {{ item.product.article }}</p>
+                    <p class="item-category">{{ item.product.category.name }}</p>
+                    
+                    {% if item.product.description %}
+                    <p class="item-description">{{ item.product.description|truncatewords:20 }}</p>
+                    {% endif %}
+                    
+                    <div class="item-meta">
+                        <div class="price-section">
+                            <span class="price">{{ item.product.price }} ₽</span>
+                            {% if item.product.quantity > 0 %}
+                                <span class="stock-info in-stock">В наличии: {{ item.product.quantity }} шт.</span>
+                            {% else %}
+                                <span class="stock-info out-of-stock">Нет в наличии</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="item-actions">
+                        {% if item.product.quantity > 0 %}
+                            <button type="button" class="btn btn-primary move-to-cart-btn" data-product-id="{{ item.product.id }}">
+                                <span class="btn-icon">🛒</span>
+                                В корзину
+                            </button>
+                        {% else %}
+                            <button class="btn btn-secondary" disabled>
+                                <span class="btn-icon">⏸️</span>
+                                Нет в наличии
+                            </button>
+                        {% endif %}
+                        <a href="{% url 'product_detail' item.product.id %}" class="btn btn-secondary">
+                            <span class="btn-icon">👀</span>
+                            Подробнее
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-wishlist">
+            <div class="empty-icon">💔</div>
+            <h2>В избранном пока пусто</h2>
+            <p>Добавляйте товары в избранное, чтобы не потерять их</p>
+            <div class="empty-actions">
+                <a href="{% url 'products' %}" class="btn btn-primary">
+                    <span class="btn-icon">🔍</span>
+                    Найти товары
+                </a>
+                <a href="{% url 'index' %}" class="btn btn-secondary">
+                    <span class="btn-icon">🏠</span>
+                    На главную
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Toast уведомления -->
+<div id="toast-container" class="toast-container"></div>
+
+<style>
+.wishlist-hero {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 80px 0 40px;
+    text-align: center;
+    margin-top: 2%;
+    border-radius: 20px;
+}
+
+.wishlist-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.wishlist-section {
+    padding: 3rem 0;
+    background: #f8f9fa;
+    min-height: 60vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Заголовок избранного */
+.wishlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.wishlist-info h2 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+}
+
+.wishlist-count {
+    color: #6c757d;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.wishlist-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Сетка избранного */
+.wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.wishlist-item {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.wishlist-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.item-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.wishlist-item:hover .item-image img {
+    transform: scale(1.05);
+}
+
+.remove-wishlist-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.wishlist-item:hover .remove-wishlist-btn {
+    opacity: 1;
+}
+
+.remove-wishlist-btn:hover {
+    background: #fff5f5;
+    color: #e53e3e;
+    transform: scale(1.1);
+}
+
+.product-image-placeholder {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+
+.placeholder-icon {
+    font-size: 3rem;
+}
+
+.item-content {
+    padding: 1.5rem;
+}
+
+.item-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.item-article {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.item-category {
+    color: #667eea;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.item-description {
+    color: #6c757d;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.item-meta {
+    margin-bottom: 1.5rem;
+}
+
+.price-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.price {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #2c3e50;
+}
+
+.stock-info {
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.stock-info.in-stock {
+    background: #e6ffed;
+    color: #38a169;
+}
+
+.stock-info.out-of-stock {
+    background: #fed7d7;
+    color: #e53e3e;
+}
+
+.item-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    flex: 1;
+    justify-content: center;
+    min-width: 120px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0052cc, #0066cc);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #2c3e50;
+    border: 2px solid #e9ecef;
+}
+
+.btn-secondary:hover {
+    background: white;
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
+}
+
+.btn:disabled {
+    background: #e2e8f0;
+    color: #a0aec0;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-icon {
+    font-size: 1.1rem;
+}
+
+/* Пустое состояние */
+.empty-wishlist {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.empty-wishlist h2 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+}
+
+.empty-wishlist p {
+    color: #6c757d;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.empty-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Toast уведомления */
+.toast-container {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border-left: 4px solid;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 300px;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.success {
+    border-left-color: #48bb78;
+    background: #f0fff4;
+    color: #22543d;
+}
+
+.toast.error {
+    border-left-color: #e53e3e;
+    background: #fff5f5;
+    color: #742a2a;
+}
+
+.toast-icon {
+    font-size: 1.2rem;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .wishlist-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .wishlist-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .wishlist-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .wishlist-actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+    
+    .wishlist-actions .btn {
+        flex: 1;
+        min-width: auto;
+    }
+    
+    .wishlist-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .item-actions {
+        flex-direction: column;
+    }
+    
+    .empty-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .empty-actions .btn {
+        width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .wishlist-header {
+        padding: 1.5rem;
+    }
+    
+    .item-content {
+        padding: 1rem;
+    }
+    
+    .toast-container {
+        right: 10px;
+        left: 10px;
+    }
+    
+    .toast {
+        min-width: auto;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Функция для показа toast уведомлений
+    function showToast(message, type = 'success') {
+        const toastContainer = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <span class="toast-icon">${type === 'success' ? '✅' : '❌'}</span>
+            <span class="toast-message">${message}</span>
+        `;
+        
+        toastContainer.appendChild(toast);
+        
+        setTimeout(() => toast.classList.add('show'), 100);
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Функция для обновления счетчиков в хедере
+    function updateHeaderCounters(wishlistCount, cartCount) {
+        // Обновляем счетчик избранного в хедере
+        const wishlistBadge = document.querySelector('.wishlist-count-badge');
+        const wishlistLink = document.querySelector('a[href*="/wishlist/"]');
+        
+        if (wishlistCount > 0) {
+            if (!wishlistBadge) {
+                const newBadge = document.createElement('span');
+                newBadge.className = 'cart-badge wishlist-count-badge';
+                wishlistLink.appendChild(newBadge);
+            }
+            document.querySelector('.wishlist-count-badge').textContent = wishlistCount;
+        } else if (wishlistBadge) {
+            wishlistBadge.remove();
+        }
+        
+        // Обновляем счетчик корзины
+        if (cartCount !== undefined) {
+            const cartBadge = document.querySelector('.avatar-badge');
+            if (cartCount > 0) {
+                if (!cartBadge) {
+                    const userAvatar = document.querySelector('.user-avatar');
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'avatar-badge';
+                    userAvatar.appendChild(newBadge);
+                }
+                document.querySelector('.avatar-badge').textContent = cartCount;
+            } else if (cartBadge) {
+                cartBadge.remove();
+            }
+        }
+    }
+
+    // Функция для получения CSRF токена
+    function getCSRFToken() {
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfInput) {
+            return csrfInput.value;
+        }
+        
+        const metaToken = document.querySelector('meta[name="csrf-token"]');
+        if (metaToken) {
+            return metaToken.getAttribute('content');
+        }
+        
+        const name = 'csrftoken';
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Удаление товара из избранного
+    document.querySelectorAll('.remove-wishlist-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const productId = this.getAttribute('data-product-id');
+            const wishlistItem = this.closest('.wishlist-item');
+            
+            try {
+                const response = await fetch(`/wishlist/remove/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    updateHeaderCounters(data.wishlist_count);
+                    
+                    // Анимация удаления
+                    wishlistItem.style.opacity = '0';
+                    wishlistItem.style.transform = 'translateX(-100px)';
+                    setTimeout(() => {
+                        wishlistItem.remove();
+                        
+                        // Если избранное пустое, показываем пустое состояние
+                        const remainingItems = document.querySelectorAll('.wishlist-item');
+                        if (remainingItems.length === 0) {
+                            location.reload(); // Перезагружаем для показа пустого состояния
+                        }
+                    }, 300);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast(error.message || 'Ошибка при удалении из избранного', 'error');
+            }
+        });
+    });
+
+    // Перенос товара в корзину
+    document.querySelectorAll('.move-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const productId = this.getAttribute('data-product-id');
+            const originalText = this.innerHTML;
+            
+            // Меняем состояние кнопки
+            this.innerHTML = '⏳ Добавляем...';
+            this.disabled = true;
+            
+            try {
+                const response = await fetch(`/wishlist/to-cart/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    updateHeaderCounters(data.wishlist_count, data.cart_count);
+                    
+                    // Восстанавливаем кнопку с анимацией успеха
+                    this.innerHTML = '✅ Добавлено!';
+                    
+                    // Удаляем элемент из DOM
+                    const wishlistItem = this.closest('.wishlist-item');
+                    setTimeout(() => {
+                        wishlistItem.style.opacity = '0';
+                        wishlistItem.style.transform = 'translateX(-100px)';
+                        setTimeout(() => {
+                            wishlistItem.remove();
+                            
+                            // Если избранное пустое, показываем пустое состояние
+                            const remainingItems = document.querySelectorAll('.wishlist-item');
+                            if (remainingItems.length === 0) {
+                                location.reload();
+                            }
+                        }, 300);
+                    }, 1000);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast(error.message || 'Ошибка при добавлении в корзину', 'error');
+                
+                // Восстанавливаем кнопку при ошибке
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }
+        });
+    });
+
+    // Очистка всего избранного
+    const clearWishlistBtn = document.getElementById('clearWishlistBtn');
+    if (clearWishlistBtn) {
+        clearWishlistBtn.addEventListener('click', async function() {
+            if (!confirm('Вы уверены, что хотите очистить всё избранное? Это действие нельзя отменить.')) {
+                return;
+            }
+            
+            const originalText = this.innerHTML;
+            this.innerHTML = '⏳ Очищаем...';
+            this.disabled = true;
+            
+            try {
+                const response = await fetch('/wishlist/clear/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    updateHeaderCounters(data.wishlist_count);
+                    
+                    // Анимация очистки
+                    const items = document.querySelectorAll('.wishlist-item');
+                    items.forEach((item, index) => {
+                        setTimeout(() => {
+                            item.style.opacity = '0';
+                            item.style.transform = 'translateX(-100px)';
+                        }, index * 100);
+                    });
+                    
+                    setTimeout(() => {
+                        location.reload();
+                    }, items.length * 100 + 300);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast(error.message || 'Ошибка при очистке избранного', 'error');
+                
+                // Восстанавливаем кнопку при ошибке
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
