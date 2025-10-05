@@ -7,7 +7,7 @@
 <section class="product-detail-hero">
     <div class="container">
         <div class="hero-content">
-            <h1>{{ product.name }}</h1>
+            <h1>Подробности о товаре {{ product.name }}</h1>
             <p class="hero-subtitle">Артикул: {{ product.article }}</p>
         </div>
     </div>
@@ -90,14 +90,382 @@
             </div>
         </div>
         {% endif %}
+        <!-- Блок отзывов -->
+        <section class="reviews-section">
+            <div class="container">
+                <div class="reviews-header">
+                    <h2>Отзывы о товаре</h2>
+                    <div class="rating-summary">
+                        <div class="average-rating">
+                            <span class="rating-stars-large">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= average_rating %}
+                                        ⭐
+                                    {% else %}
+                                        <span style="opacity: 0.3">⭐</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </span>
+                            <span class="rating-value">{{ average_rating|floatformat:1 }}</span>
+                            <span class="rating-count">({{ reviews.paginator.count }} отзывов)</span>
+                        </div>
+                        
+                        {% if can_review %}
+                        <a href="{% url 'add_review' product.id %}" class="btn btn-primary">
+                            📝 Написать отзыв
+                        </a>
+                        {% elif user_review %}
+                        <div class="user-review-actions">
+                            <span>Ваш отзыв:</span>
+                            <div class="review-actions">
+                                <a href="{% url 'edit_review' user_review.id %}" class="btn btn-small">
+                                    ✏️ Редактировать
+                                </a>
+                                <form method="post" action="{% url 'delete_review' user_review.id %}" 
+                                    class="delete-form" onsubmit="return confirm('Удалить отзыв?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-small btn-danger">🗑️ Удалить</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Список отзывов -->
+                <div class="reviews-list">
+                    {% if reviews %}
+                        {% for review in reviews %}
+                        <div class="review-item">
+                            <div class="review-header">
+                                <div class="reviewer-info">
+                                    <span class="reviewer-name">{{ review.user.username }}</span>
+                                    <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
+                                </div>
+                                <div class="review-rating">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %}
+                                            ⭐
+                                        {% else %}
+                                            <span style="opacity: 0.3">⭐</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="review-comment">
+                                {{ review.comment|linebreaks }}
+                            </div>
+                            
+                            {% if review.user == request.user %}
+                            <div class="review-actions">
+                                <a href="{% url 'edit_review' review.id %}" class="action-link">Редактировать</a>
+                                <form method="post" action="{% url 'delete_review' review.id %}" 
+                                    class="delete-form" onsubmit="return confirm('Удалить отзыв?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="action-link delete-link">Удалить</button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-reviews">
+                            <div class="no-reviews-icon">💬</div>
+                            <h3>Пока нет отзывов</h3>
+                            <p>Будьте первым, кто оставит отзыв об этом товаре!</p>
+                            {% if can_review %}
+                            <a href="{% url 'add_review' product.id %}" class="btn btn-primary">
+                                Написать первый отзыв
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Пагинация отзывов -->
+                {% if reviews.has_other_pages %}
+                <div class="reviews-pagination">
+                    {% if reviews.has_previous %}
+                        <a href="?page={{ reviews.previous_page_number }}#reviews" class="pagination-btn">← Назад</a>
+                    {% endif %}
+                    
+                    <span class="pagination-info">
+                        Страница {{ reviews.number }} из {{ reviews.paginator.num_pages }}
+                    </span>
+                    
+                    {% if reviews.has_next %}
+                        <a href="?page={{ reviews.next_page_number }}#reviews" class="pagination-btn">Далее →</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </section>
     </div>
 </section>
 
 <style>
+.reviews-section {
+    padding: 3rem 0;
+    background: #f8f9fa;
+    border-radius: 20px;
+    margin-top: 2%;
+}
+
+.reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.rating-summary {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.average-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.rating-stars-large {
+    font-size: 1.5rem;
+}
+
+.rating-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.rating-count {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.user-review-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+}
+
+.btn-danger {
+    background: #e53e3e;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c53030;
+}
+
+/* Список отзывов */
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.review-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.reviewer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.reviewer-name {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.review-date {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.review-rating {
+    font-size: 1.2rem;
+}
+
+.review-comment {
+    line-height: 1.6;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.review-actions {
+    display: flex;
+    gap: 1rem;
+    border-top: 1px solid #e9ecef;
+    padding-top: 1rem;
+}
+
+.action-link {
+    color: #0052cc;
+    text-decoration: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.action-link:hover {
+    text-decoration: underline;
+}
+
+.delete-link {
+    color: #e53e3e;
+}
+
+.delete-form {
+    display: inline;
+}
+
+/* Нет отзывов */
+.no-reviews {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.no-reviews-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.no-reviews h3 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.no-reviews p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+/* Пагинация */
+.reviews-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.pagination-btn {
+    padding: 0.75rem 1.5rem;
+    background: white;
+    color: #0052cc;
+    text-decoration: none;
+    border-radius: 10px;
+    border: 2px solid #0052cc;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.pagination-btn:hover {
+    background: #0052cc;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 82, 204, 0.3);
+}
+
+.pagination-info {
+    color: #6c757d;
+    font-weight: 600;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .reviews-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .rating-summary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .review-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .reviews-pagination {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .pagination-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .review-item {
+        padding: 1rem;
+    }
+    
+    .average-rating,
+    .user-review-actions {
+        padding: 0.5rem 1rem;
+    }
+    
+    .rating-stars-large {
+        font-size: 1.2rem;
+    }
+    
+    .rating-value {
+        font-size: 1.2rem;
+    }
+}
+
 .product-detail-hero {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
-    padding: 80px 0 40px;
+    padding: 40px 0 40px;
     text-align: center;
     margin-top: 2%;
     border-radius: 20px;
@@ -115,6 +483,11 @@
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     margin-bottom: 3rem;
+}
+
+.product-detail-grid .product-image {
+    background: linear-gradient(135deg, #2c3e50 0%, #455a70 100%);
+    border-radius: 20px;
 }
 
 .product-image img {

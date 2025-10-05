@@ -1,0 +1,485 @@
+<!-- main/templates/main/add_review.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Отзыв на {{ product.name }} - Техресурс{% endblock %}
+
+{% block content %}
+<section class="review-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Написать отзыв</h1>
+            <p class="hero-subtitle">Поделитесь вашим опытом использования товара</p>
+        </div>
+    </div>
+</section>
+
+<section class="review-section">
+    <div class="container">
+        <div class="review-layout">
+            <!-- Информация о товаре -->
+            <div class="product-info-sidebar">
+                <div class="product-card">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                    {% else %}
+                    <div class="product-image-placeholder">
+                        <span class="placeholder-icon">⚙️</span>
+                    </div>
+                    {% endif %}
+                    <div class="product-details">
+                        <h3>{{ product.name }}</h3>
+                        <p class="product-article">Артикул: {{ product.article }}</p>
+                        <p class="product-category">{{ product.category }}</p>
+                        <div class="product-price">{{ product.price }} ₽</div>
+                    </div>
+                </div>
+                
+                <div class="review-guidelines">
+                    <h4>Рекомендации по отзыву:</h4>
+                    <ul>
+                        <li>Опишите ваш реальный опыт использования</li>
+                        <li>Расскажите о преимуществах и недостатках</li>
+                        <li>Будьте объективны и вежливы</li>
+                        <li>Не используйте ненормативную лексику</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Форма отзыва -->
+            <div class="review-form-container">
+                <form method="post" class="review-form">
+                    {% csrf_token %}
+                    
+                    <!-- Рейтинг -->
+                    <div class="form-group">
+                        <label class="form-label">Ваша оценка *</label>
+                        <div class="rating-stars">
+                            {% for value, text in form.rating.field.choices %}
+                            <label class="star-label">
+                                <input type="radio" name="rating" value="{{ value }}" 
+                                       {% if form.rating.value == value %}checked{% endif %} required>
+                                <span class="star">⭐</span>
+                                <span class="star-text">{{ value }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        {% if form.rating.errors %}
+                        <div class="error-message">
+                            {{ form.rating.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Комментарий -->
+                    <div class="form-group">
+                        <label for="{{ form.comment.id_for_label }}" class="form-label">
+                            {{ form.comment.label }} *
+                        </label>
+                        {{ form.comment }}
+                        <div class="char-counter">
+                            <span id="charCount">0</span> / 1000 символов
+                        </div>
+                        {% if form.comment.errors %}
+                        <div class="error-message">
+                            {{ form.comment.errors }}
+                        </div>
+                        {% endif %}
+                        <div class="help-text">{{ form.comment.help_text }}</div>
+                    </div>
+                    
+                    <!-- Кнопки -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            📝 Опубликовать отзыв
+                        </button>
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-secondary">
+                            ← Назад к товару
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.review-hero {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 60px 0 30px;
+    text-align: center;
+    border-radius: 20px;
+    margin-top: 2%;
+}
+
+.review-section {
+    padding: 3rem 0;
+    background: #f8f9fa;
+    min-height: 70vh;
+    border-radius: 20px;
+    margin-top: 2%;
+}
+
+.review-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Карточка товара */
+.product-info-sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.product-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.product-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.product-image-placeholder {
+    height: 150px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.placeholder-icon {
+    font-size: 3rem;
+    opacity: 0.6;
+}
+
+.product-details h3 {
+    font-size: 1.2rem;
+    margin: 0 0 0.5rem 0;
+    color: #2c3e50;
+}
+
+.product-article, .product-category {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0.25rem 0;
+}
+
+.product-price {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #0052cc;
+    margin-top: 0.5rem;
+}
+
+/* Рекомендации */
+.review-guidelines {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.review-guidelines h4 {
+    color: #2c3e50;
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+}
+
+.review-guidelines ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: #6c757d;
+}
+
+.review-guidelines li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Форма */
+.review-form-container {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.review-form {
+    max-width: 600px;
+}
+
+.form-group {
+    margin-bottom: 2rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+}
+
+/* Звезды рейтинга */
+.rating-stars {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.star-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    min-width: 80px;
+}
+
+.star-label:hover {
+    border-color: #0052cc;
+    transform: translateY(-2px);
+}
+
+.star-label input[type="radio"] {
+    display: none;
+}
+
+.star-label input[type="radio"]:checked + .star {
+    transform: scale(1.2);
+    filter: brightness(1.2);
+}
+
+.star {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.star-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+/* Поле комментария */
+.review-form textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 120px;
+    transition: border-color 0.3s ease;
+}
+
+.review-form textarea:focus {
+    outline: none;
+    border-color: #0052cc;
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+.char-counter {
+    text-align: right;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.help-text {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.error-message {
+    color: #e53e3e;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #fff5f5;
+    border-radius: 5px;
+    border-left: 3px solid #e53e3e;
+}
+
+/* Кнопки */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: #0052cc;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0047b3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 82, 204, 0.3);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .review-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-info-sidebar {
+        position: static;
+    }
+    
+    .rating-stars {
+        justify-content: center;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .review-form-container {
+        padding: 1.5rem;
+    }
+    
+    .star-label {
+        min-width: 60px;
+        padding: 0.5rem;
+    }
+    
+    .star {
+        font-size: 1.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Счетчик символов
+    const commentTextarea = document.querySelector('textarea[name="comment"]');
+    const charCount = document.getElementById('charCount');
+    
+    if (commentTextarea && charCount) {
+        // Обновляем счетчик при загрузке
+        charCount.textContent = commentTextarea.value.length;
+        
+        // Обновляем счетчик при вводе
+        commentTextarea.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+            
+            // Меняем цвет при приближении к лимиту
+            if (this.value.length > 900) {
+                charCount.style.color = '#e53e3e';
+                charCount.style.fontWeight = 'bold';
+            } else if (this.value.length > 800) {
+                charCount.style.color = '#ed8936';
+            } else {
+                charCount.style.color = '#6c757d';
+            }
+        });
+    }
+    
+    // Анимация выбора рейтинга
+    const starLabels = document.querySelectorAll('.star-label');
+    starLabels.forEach(label => {
+        label.addEventListener('click', function() {
+            // Убираем выделение со всех звезд
+            starLabels.forEach(l => {
+                l.style.borderColor = '#e9ecef';
+                l.style.background = 'transparent';
+            });
+            
+            // Выделяем выбранную звезду и все предыдущие
+            const selectedValue = parseInt(this.querySelector('input').value);
+            starLabels.forEach(l => {
+                const value = parseInt(l.querySelector('input').value);
+                if (value <= selectedValue) {
+                    l.style.borderColor = '#0052cc';
+                    l.style.background = 'rgba(0, 82, 204, 0.05)';
+                }
+            });
+        });
+    });
+    
+    // Валидация формы
+    const form = document.querySelector('.review-form');
+    form.addEventListener('submit', function(e) {
+        const rating = document.querySelector('input[name="rating"]:checked');
+        const comment = document.querySelector('textarea[name="comment"]');
+        let isValid = true;
+        
+        // Проверка рейтинга
+        if (!rating) {
+            isValid = false;
+            showError('Пожалуйста, выберите оценку');
+        }
+        
+        // Проверка комментария
+        if (comment && comment.value.trim().length <= 1) {
+            isValid = false;
+            showError('Комментарий должен содержать минимум 1 символ');
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+    
+    function showError(message) {
+        // Можно добавить красивый toast или уведомление
+        alert(message);
+    }
+});
+</script>
+{% endblock %}

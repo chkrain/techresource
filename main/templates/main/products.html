@@ -818,6 +818,48 @@ select.filter-select option:checked {
     font-weight: 500;
 }
 
+.btn-details {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    width: 100%;
+    text-align: center;
+}
+
+.btn-details:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .product-actions {
+        flex-direction: column;
+    }
+    
+    .product-actions .btn-details {
+        min-width: 100%;
+        width: 100%;
+        padding: 0.875rem 1rem;
+    }
+}
+
 .product-category {
     color: #667eea;
     font-size: 0.85rem;
@@ -880,7 +922,6 @@ select.filter-select option:checked {
     margin-bottom: 1.5rem;
     font-size: 0.9rem;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     word-break: break-word;

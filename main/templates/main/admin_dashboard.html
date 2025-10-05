@@ -45,10 +45,96 @@
             <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
                 <div class="stat-icon">💵</div>
                 <div class="stat-info">
-                    <h3>Общая выручка</h3>
+                    <h3>Выручка</h3>
                     <p class="stat-number revenue">{{ total_revenue }} ₽</p>
                 </div>
             </div>
+
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="stat-icon">💬</div>
+                <div class="stat-info">
+                    <h3>Отзывы на модерации</h3>
+                    <p class="stat-number moderation">{{ pending_reviews_count }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- СЕКЦИЯ МОДЕРАЦИИ ОТЗЫВОВ -->
+        <div class="moderation-section" data-aos="fade-up">
+            <div class="section-header">
+                <h2>💬 Модерация отзывов</h2>
+                <div class="section-badge">{{ pending_reviews_count }} на проверке</div>
+            </div>
+            
+            {% if pending_reviews %}
+            <div class="reviews-grid">
+                {% for review in pending_reviews %}
+                <div class="review-card moderation-card">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <span class="reviewer-name">{{ review.user.username }}</span>
+                            <span class="review-date">{{ review.created_at|date:"d.m.Y H:i" }}</span>
+                        </div>
+                        <div class="review-rating">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                    ⭐
+                                {% else %}
+                                    <span style="opacity: 0.3">⭐</span>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="rating-value">({{ review.rating }}/5)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="product-info">
+                        <strong>Товар:</strong> 
+                        <a href="{% url 'product_detail' review.product.id %}" target="_blank">
+                            {{ review.product.name }}
+                        </a>
+                    </div>
+                    
+                    <div class="review-comment">
+                        <strong>Комментарий:</strong>
+                        <p>{{ review.comment|linebreaks }}</p>
+                    </div>
+                    
+                    <div class="moderation-actions">
+                        <form method="post" action="{% url 'moderate_review' review.id %}" class="moderation-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="approve">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <span class="btn-icon">✅</span>
+                                Одобрить
+                            </button>
+                        </form>
+                        
+                        <form method="post" action="{% url 'moderate_review' review.id %}" class="moderation-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="btn btn-danger btn-sm" 
+                                    onclick="return confirm('Отклонить этот отзыв?')">
+                                <span class="btn-icon">❌</span>
+                                Отклонить
+                            </button>
+                        </form>
+                        
+                        <a href="{% url 'product_detail' review.product.id %}" 
+                           class="btn btn-secondary btn-sm" target="_blank">
+                            <span class="btn-icon">👁️</span>
+                            К товару
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">🎉</div>
+                <h3>Нет отзывов для модерации</h3>
+                <p>Все отзывы проверены и обработаны</p>
+            </div>
+            {% endif %}
         </div>
 
         <!-- Фильтры -->
@@ -313,6 +399,201 @@ section, .admin-dashboard {
 .hero-subtitle {
     font-size: 1.1rem;
     opacity: 0.9;
+}
+
+.moderation-section {
+    margin: 4% 0;
+}
+
+section, .admin-dashboard {
+    border-radius: 20px;
+    margin-top: 4%;
+}
+
+.admin-hero {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 80px 0 40px;
+    text-align: center;
+}
+
+/* Добавляем цвет для статистики модерации */
+.stat-number.moderation { color: #ed8936; }
+
+/* Стили для секции модерации */
+.moderation-section {
+    margin-bottom: 3rem;
+}
+
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.review-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    border-color: #e9ecef;
+}
+
+.moderation-card {
+    border-left: 4px solid #ffa500;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.reviewer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.reviewer-name {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.review-date {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.review-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.rating-value {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.product-info {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #667eea;
+}
+
+.product-info a {
+    color: #0052cc;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.product-info a:hover {
+    text-decoration: underline;
+}
+
+.review-comment {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+.review-comment strong {
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.review-comment p {
+    margin: 0;
+    line-height: 1.5;
+    color: #495057;
+}
+
+.moderation-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.moderation-form {
+    display: inline;
+}
+
+.btn-sm {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.8rem;
+    border-radius: 8px;
+}
+
+.btn-success {
+    background: #48bb78;
+    color: white;
+    border: none;
+}
+
+.btn-success:hover {
+    background: #38a169;
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: #e53e3e;
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background: #c53030;
+    transform: translateY(-2px);
+}
+
+/* Адаптивность для модерации */
+@media (max-width: 768px) {
+    .reviews-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .review-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .moderation-actions {
+        flex-direction: column;
+    }
+    
+    .moderation-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .review-card {
+        padding: 1rem;
+    }
+    
+    .review-comment {
+        padding: 0.75rem;
+    }
 }
 
 /* Основной контейнер */

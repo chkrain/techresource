@@ -376,3 +376,73 @@ class WishlistItem(models.Model):
 def create_user_wishlist(sender, instance, created, **kwargs):
     if created:
         Wishlist.objects.get_or_create(user=instance)
+
+class ProductReview(models.Model):
+    RATING_CHOICES = [
+        (1, '1 - Очень плохо'),
+        (2, '2 - Плохо'),
+        (3, '3 - Удовлетворительно'),
+        (4, '4 - Хорошо'),
+        (5, '5 - Отлично'),
+    ]
+    
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="Товар")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES, verbose_name="Рейтинг")
+    comment = models.TextField(verbose_name="Комментарий", max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    is_approved = models.BooleanField(default=False, verbose_name="Одобрен")
+    is_moderated = models.BooleanField(default=False, verbose_name="Промодерирован")
+    
+    class Meta:
+        verbose_name = "Отзыв о товаре"
+        verbose_name_plural = "Отзывы о товарах"
+        ordering = ['-created_at']
+        unique_together = ['product', 'user']  # Один отзыв на товар от пользователя
+    
+    def __str__(self):
+        return f"Отзыв {self.user.username} на {self.product.name} ({self.rating}/5)"
+    
+    def save(self, *args, **kwargs):
+        if not self.is_moderated:
+            self.is_approved = False
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def can_user_review(cls, user, product):
+        """Проверяет, может ли пользователь оставить отзыв на товар"""
+        # Пользователь должен быть авторизован
+        if not user.is_authenticated:
+            return False
+        
+        if settings.DEBUG:
+            has_reviewed = cls.objects.filter(user=user, product=product).exists()
+            return not has_reviewed
+        
+        # Проверяем, покупал ли пользователь этот товар
+        has_purchased = OrderItem.objects.filter(
+            order__user=user,
+            order__status__in=['paid', 'processing', 'assembling', 'ready_for_shipping', 'shipped', 'delivered', 'completed'],
+            product=product
+        ).exists()
+        
+        # Проверяем, не оставлял ли уже отзыв
+        has_reviewed = cls.objects.filter(user=user, product=product).exists()
+        
+        return has_purchased and not has_reviewed
+    
+    @classmethod
+    def get_approved_reviews(cls, product):
+        """Возвращает одобренные отзывы для товара"""
+        return cls.objects.filter(product=product, is_approved=True)
+    
+    @classmethod
+    def get_average_rating(cls, product):
+        """Возвращает средний рейтинг товара"""
+        from django.db.models import Avg
+        result = cls.objects.filter(
+            product=product, 
+            is_approved=True
+        ).aggregate(average=Avg('rating'))
+        return result['average'] or 0

@@ -10,7 +10,7 @@ import re
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from .models import LoginAttempt
+from .models import LoginAttempt, ProductReview
 
 User = get_user_model()
 
@@ -206,3 +206,38 @@ class SecureSetPasswordForm(forms.Form):
             raise ValidationError('Пароли не совпадают.')
         
         return cleaned_data
+
+class ProductReviewForm(forms.ModelForm):
+    rating = forms.ChoiceField(
+        choices=ProductReview.RATING_CHOICES,
+        widget=forms.RadioSelect,
+        label='Оценка'
+    )
+    comment = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'rows': 4,
+            'placeholder': 'Расскажите о вашем опыте использования товара...',
+            'maxlength': '1000'
+        }),
+        label='Комментарий',
+        help_text='Максимум 1000 символов'
+    )
+    
+    class Meta:
+        model = ProductReview
+        fields = ['rating', 'comment']
+    
+    def clean_comment(self):
+        comment = self.cleaned_data.get('comment', '').strip()
+        if len(comment) < 10:
+            raise forms.ValidationError('Комментарий должен содержать минимум 10 символов')
+        return comment
+    
+    def save(self, commit=True):
+        review = super().save(commit=False)
+        review.is_moderated = False
+        review.is_approved = False
+        
+        if commit:
+            review.save()
+        return review

@@ -9,7 +9,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 import datetime
 import json
 import hashlib
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Min, Max
 from django.utils import timezone
 import secrets
@@ -37,8 +37,8 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth import get_user_model
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm
 
-from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist
-from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm
+from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview
+from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm
 
 
 # Импорт ЮКассы
@@ -64,7 +64,7 @@ def services(request):
 def privacy_policy(request):
     return render(request, 'main/privacy.html')
 
-@login_required
+@staff_member_required
 def admin_dashboard(request):
     if not request.user.is_staff:
         return redirect('index')
@@ -92,6 +92,13 @@ def admin_dashboard(request):
         total=Sum('total_price')
     )['total'] or 0
     
+    # Отзывы на модерации
+    pending_reviews = ProductReview.objects.filter(
+        is_moderated=False
+    ).select_related('user', 'product').order_by('-created_at')
+    
+    pending_reviews_count = pending_reviews.count()
+    
     context = {
         'orders': orders,
         'total_orders': total_orders,
@@ -101,9 +108,33 @@ def admin_dashboard(request):
         'status_choices': Order.STATUS_CHOICES,
         'selected_status': status_filter,
         'selected_date': date_filter,
+        'pending_reviews': pending_reviews,
+        'pending_reviews_count': pending_reviews_count,
     }
     
     return render(request, 'main/admin_dashboard.html', context)
+
+@staff_member_required
+def moderate_review(request, review_id):
+    """Модерация отзыва"""
+    review = get_object_or_404(ProductReview, id=review_id)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'approve':
+            review.is_approved = True
+            review.is_moderated = True
+            review.save()
+            messages.success(request, f'Отзыв от {review.user.username} одобрен')
+            
+        elif action == 'reject':
+            review.is_approved = False
+            review.is_moderated = True
+            review.save()
+            messages.success(request, f'Отзыв от {review.user.username} отклонен')
+    
+    return redirect('admin_dashboard')
 
 def products(request):
     # Параметры поиска
@@ -184,6 +215,8 @@ def products(request):
             
             for product in page_obj:
                 product.in_wishlist = product.id in wishlist_product_ids
+                product.average_rating = ProductReview.get_average_rating(product)
+                product.reviews_count = ProductReview.get_approved_reviews(product).count()
         except Wishlist.DoesNotExist:
             for product in page_obj:
                 product.in_wishlist = False
@@ -1195,17 +1228,17 @@ def send_cancellation_notification(order):
             return False
             
         message = f"""
-                ❌ <b>ЗАКАЗ ОТМЕНЕН #{order.id}</b>
+        ❌ <b>ЗАКАЗ ОТМЕНЕН #{order.id}</b>
+        
+        👤 <b>Клиент:</b> {order.customer_name}
+        📞 <b>Телефон:</b> {order.customer_phone}
+        📧 <b>Email:</b> {order.customer_email}
+        💰 <b>Сумма:</b> {order.total_price} руб.
+        🚚 <b>Адрес:</b> {order.delivery_address}
+        🕒 <b>Время отмены:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
 
-                👤 <b>Клиент:</b> {order.customer_name}
-                📞 <b>Телефон:</b> {order.customer_phone}
-                📧 <b>Email:</b> {order.customer_email}
-                💰 <b>Сумма:</b> {order.total_price} руб.
-                🚚 <b>Адрес:</b> {order.delivery_address}
-                🕒 <b>Время отмены:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
-
-                <b>Товары:</b>
-                """
+        <b>Товары:</b>
+        """
         
         for item in order.orderitem_set.all():
             message += f"• {item.product.name} x{item.quantity} - {item.get_total_price()} руб.\n"
@@ -2357,6 +2390,140 @@ def product_detail(request, product_id):
         'product': product,
         'similar_products': similar_products,
         'in_wishlist': in_wishlist,
+    }
+    
+    return render(request, 'main/product_detail.html', context)
+
+@login_required
+def add_review(request, product_id):
+    """Добавление отзыва к товару"""
+    product = get_object_or_404(Product, id=product_id, is_active=True)
+    
+    # Проверяем, может ли пользователь оставить отзыв
+    if not ProductReview.can_user_review(request.user, product):
+        messages.error(request, 'Вы не можете оставить отзыв на этот товар.')
+        return redirect('product_detail', product_id=product_id)
+    
+    if request.method == 'POST':
+        form = ProductReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            review.is_moderated = False
+            review.is_approved = False
+            
+            review.save()
+            messages.success(request, 'Спасибо за ваш отзыв!')
+            return redirect('product_detail', product_id=product_id)
+    else:
+        form = ProductReviewForm()
+    
+    context = {
+        'form': form,
+        'product': product,
+    }
+    return render(request, 'main/add_review.html', context)
+
+@login_required
+def edit_review(request, review_id):
+    """Редактирование отзыва"""
+    review = get_object_or_404(ProductReview, id=review_id, user=request.user)
+    
+    if request.method == 'POST':
+        form = ProductReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            # Сбрасываем модерацию при редактировании
+            review = form.save(commit=False)
+            review.is_moderated = False
+            review.is_approved = False
+            review.save()
+            
+            messages.success(request, 'Отзыв обновлен и отправлен на модерацию.')
+            return redirect('product_detail', product_id=review.product.id)
+    else:
+        form = ProductReviewForm(instance=review)
+    
+    context = {
+        'form': form,
+        'review': review,
+        'product': review.product,
+    }
+    return render(request, 'main/add_review.html', context)
+
+@login_required
+def delete_review(request, review_id):
+    """Удаление отзыва"""
+    review = get_object_or_404(ProductReview, id=review_id, user=request.user)
+    product_id = review.product.id
+    
+    if request.method == 'POST':
+        review.delete()
+        messages.success(request, 'Отзыв удален.')
+        return redirect('product_detail', product_id=product_id)
+    
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+# Обновим функцию product_detail для включения отзывов
+def product_detail(request, product_id):
+    """Детальная страница товара"""
+    product = get_object_or_404(Product, id=product_id, is_active=True)
+    
+    # Получаем похожие товары
+    similar_products = Product.objects.filter(
+        category=product.category,
+        is_active=True
+    ).exclude(id=product.id)[:4]
+    
+    # Проверяем, есть ли товар в избранном у текущего пользователя
+    in_wishlist = False
+    if request.user.is_authenticated:
+        try:
+            wishlist = Wishlist.objects.get(user=request.user)
+            in_wishlist = WishlistItem.objects.filter(
+                wishlist=wishlist, 
+                product=product
+            ).exists()
+        except Wishlist.DoesNotExist:
+            pass
+    
+    # Получаем отзывы с пагинацией
+    reviews_list = ProductReview.get_approved_reviews(product)
+    paginator = Paginator(reviews_list, 5)  # 5 отзывов на страницу
+    page = request.GET.get('page')
+    
+    try:
+        reviews = paginator.page(page)
+    except PageNotAnInteger:
+        reviews = paginator.page(1)
+    except EmptyPage:
+        reviews = paginator.page(paginator.num_pages)
+    
+    # Средний рейтинг
+    average_rating = ProductReview.get_average_rating(product)
+    
+    # Может ли пользователь оставить отзыв
+    can_review = False
+    user_review = None
+    if request.user.is_authenticated:
+        can_review = ProductReview.can_user_review(request.user, product)
+        user_review = ProductReview.objects.filter(
+            user=request.user, 
+            product=product
+        ).first()
+    
+    # Форма для отзыва (если нужно)
+    review_form = ProductReviewForm() if can_review else None
+    
+    context = {
+        'product': product,
+        'similar_products': similar_products,
+        'in_wishlist': in_wishlist,
+        'reviews': reviews,
+        'average_rating': average_rating,
+        'can_review': can_review,
+        'user_review': user_review,
+        'review_form': review_form,
     }
     
     return render(request, 'main/product_detail.html', context)

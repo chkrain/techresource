@@ -1,6 +1,6 @@
 # main/admin.py
 from django.contrib import admin
-from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, OrderStatusLog
+from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, OrderStatusLog, ProductReview
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -160,3 +160,34 @@ class AddressAdmin(admin.ModelAdmin):
     list_display = ['user', 'title', 'city', 'address', 'is_default']
     list_filter = ['city', 'is_default']
     search_fields = ['user__username', 'city', 'address']
+
+
+@admin.register(ProductReview)
+class ProductReviewAdmin(admin.ModelAdmin):
+    list_display = ['product', 'user', 'rating', 'is_approved', 'is_moderated', 'created_at']
+    list_filter = ['rating', 'is_approved', 'is_moderated', 'created_at']
+    search_fields = ['product__name', 'user__username', 'comment']
+    list_editable = ['is_approved', 'is_moderated']
+    readonly_fields = ['created_at', 'updated_at']
+    actions = ['approve_reviews', 'reject_reviews']
+    
+    fieldsets = (
+        ('Основная информация', {
+            'fields': ('product', 'user', 'rating', 'comment')
+        }),
+        ('Модерация', {
+            'fields': ('is_approved', 'is_moderated', 'created_at', 'updated_at')
+        }),
+    )
+    
+    def approve_reviews(self, request, queryset):
+        """Действие для одобрения отзывов"""
+        updated = queryset.update(is_approved=True, is_moderated=True)
+        self.message_user(request, f'{updated} отзывов одобрено.')
+    approve_reviews.short_description = "Одобрить выбранные отзывы"
+    
+    def reject_reviews(self, request, queryset):
+        """Действие для отклонения отзывов"""
+        updated = queryset.update(is_approved=False, is_moderated=True)
+        self.message_user(request, f'{updated} отзывов отклонено.')
+    reject_reviews.short_description = "Отклонить выбранные отзывы"

@@ -9,6 +9,9 @@ urlpatterns = [
     path('services/', views.services, name='services'),
     path('products/', views.products, name='products'),
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
+    path('product/<int:product_id>/review/add/', views.add_review, name='add_review'),
+    path('review/<int:review_id>/edit/', views.edit_review, name='edit_review'),
+    path('review/<int:review_id>/delete/', views.delete_review, name='delete_review'),
     path('api/search-suggestions/', views.search_suggestions, name='search_suggestions'),
     path('api/price-range/', views.get_price_range, name='get_price_range'),
     
@@ -36,6 +39,8 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('profile/address/delete/<int:address_id>/', views.delete_address, name='delete_address'),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('moderate-review/<int:review_id>/', views.moderate_review, name='moderate_review'),
+
     
     # Корзина и заказы
     path('cart/', views.cart_view, name='cart'),
