@@ -17,6 +17,7 @@ import requests
 from .models import NotificationLog
 import uuid
 from django.conf import settings
+
 from django.views.decorators.csrf import csrf_exempt
 import random
 from datetime import timedelta

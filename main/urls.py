@@ -26,8 +26,30 @@ urlpatterns = [
 
 
     # Восстановление пароля
-    path('password-reset/', views.secure_password_reset, name='password_reset'),
-    path('password-reset-confirm/<str:token>/', views.secure_password_reset_confirm, name='password_reset_confirm'),
+    path('password-reset/', 
+         auth_views.PasswordResetView.as_view(
+             template_name='main/password_reset_form.html',
+             email_template_name='main/password_reset_email.html',
+             subject_template_name='main/password_reset_subject.txt',
+             success_url='/password-reset/done/'
+         ), 
+         name='password_reset'),
+    path('password-reset/done/', 
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='main/password_reset_done.html'
+         ), 
+         name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/', 
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='main/password_reset_confirm.html',
+             success_url='/password-reset/complete/'
+         ), 
+         name='password_reset_confirm'),
+    path('password-reset/complete/', 
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='main/password_reset_complete.html'
+         ), 
+         name='password_reset_complete'),
 
     # Смена пароля
     path('change-password/', views.secure_change_password, name='change_password'),
@@ -40,7 +62,7 @@ urlpatterns = [
     path('profile/address/delete/<int:address_id>/', views.delete_address, name='delete_address'),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('moderate-review/<int:review_id>/', views.moderate_review, name='moderate_review'),
-
+    
     
     # Корзина и заказы
     path('cart/', views.cart_view, name='cart'),
