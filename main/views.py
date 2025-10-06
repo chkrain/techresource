@@ -2598,3 +2598,7 @@ def order_details(request, order_id):
         })
     
     return render(request, 'main/order_details.html', context)
+
+def contacts(request):
+    """Страница контактов"""
+    return render(request, 'main/contacts.html')

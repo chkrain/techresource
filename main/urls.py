@@ -76,6 +76,7 @@ urlpatterns = [
     path('order/update-status/', views.update_order_status, name='update_order_status_post'),
     path('order/<int:order_id>/reorder/', views.reorder_order, name='reorder_order'),
     path('order/<int:order_id>/details/', views.order_details, name='order_details'),
+    
 
     # Избранное
     path('wishlist/', views.wishlist_view, name='wishlist'),
@@ -92,6 +93,8 @@ urlpatterns = [
     path('payment/retry/<int:order_id>/', views.retry_payment, name='retry_payment'),
     path('payment/update-method/<int:order_id>/', views.update_order_payment_method, name='update_order_payment_method'),
     
+    path('contacts/', views.contacts, name='contacts'),
+
     # API
     path('api/update-quantity/<int:product_id>/', views.update_quantity_ajax, name='update_quantity_ajax'),
     

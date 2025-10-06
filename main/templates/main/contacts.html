@@ -1,0 +1,562 @@
+<!-- main/templates/main/contacts.html -->
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Контакты - Техресурс{% endblock %}
+
+{% block content %}
+<section class="contacts-hero">
+    <div class="container">
+        <h1 class="section-title" data-aos="fade-up">Контакты</h1>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="200">
+            Свяжитесь с нами любым удобным способом
+        </p>
+    </div>
+</section>
+
+<section class="contacts-section">
+    <div class="container">
+        <div class="contacts-grid">
+            <!-- Контактная информация -->
+            <div class="contact-info" data-aos="fade-right">
+                <div class="contact-card" data-tilt>
+                    <div class="card-icon">📞</div>
+                    <h3>Телефоны</h3>
+                    <div class="contact-items">
+                        <div class="contact-item">
+                            <span class="contact-label">Основной телефон:</span>
+                            <a href="tel:+79375246888" class="contact-value">+7 (937) 524-68-88</a>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-label">Техническая поддержка:</span>
+                            <a href="tel:+78001234567" class="contact-value">+7 (800) 123-45-67</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-card" data-tilt>
+                    <div class="card-icon">📧</div>
+                    <h3>Электронная почта</h3>
+                    <div class="contact-items">
+                        <div class="contact-item">
+                            <span class="contact-label">Общие вопросы:</span>
+                            <a href="mailto:info@techresurs.ru" class="contact-value">info@techresurs.ru</a>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-label">Техподдержка:</span>
+                            <a href="mailto:support@techresurs.ru" class="contact-value">support@techresurs.ru</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-card" data-tilt>
+                    <div class="card-icon">📍</div>
+                    <h3>Адрес офиса</h3>
+                    <div class="contact-items">
+                        <div class="contact-item">
+                            <span class="contact-label">Юридический адрес:</span>
+                            <span class="contact-value">г. Казань, ул. Техническая, 52 (офисный центр), офис 226</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-label">Время работы:</span>
+                            <span class="contact-value">Пн-Пт: 8:00-17:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карты -->
+            <div class="maps-container" data-aos="fade-left">
+                <!-- Офис -->
+                <div class="map-card">
+                    <div class="map-header">
+                        <h3>Офис на карте</h3>
+                    </div>
+                    <div class="map-wrapper">
+                        <iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3Ade13395872e0c259d5a70cccde1b6adc46cfc8388c03fe6f36c0a55eb86fc732&amp;source=constructor" 
+                                width="100%" 
+                                height="300" 
+                                frameborder="0"
+                                class="interactive-map">
+                        </iframe>
+                    </div>
+                    <div class="map-footer">
+                        <a href="https://yandex.ru/maps/?um=constructor%3Ade13395872e0c259d5a70cccde1b6adc46cfc8388c03fe6f36c0a55eb86fc732&source=constructorLink" 
+                           target="_blank" 
+                           class="btn btn-outline">
+                            📍 Открыть в Яндекс.Картах
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Цех -->
+                <div class="map-card">
+                    <div class="map-header">
+                        <h3>Цех на карте</h3>
+                    </div>
+                    <div class="map-wrapper">
+                        <iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3Af3e6a4d92a7b7df5ecc1e68a925343f8c64b7819a89e76ccc9dfea3cd806578e&amp;source=constructor" 
+                                width="100%" 
+                                height="300" 
+                                frameborder="0"
+                                class="interactive-map">
+                        </iframe>
+                    </div>
+                    <div class="map-footer">
+                        <a href="https://yandex.ru/maps/?um=constructor%3Af3e6a4d92a7b7df5ecc1e68a925343f8c64b7819a89e76ccc9dfea3cd806578e&source=constructorLink" 
+                           target="_blank" 
+                           class="btn btn-outline">
+                            📍 Открыть в Яндекс.Картах
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Социальные сети -->
+<section class="social-section">
+    <div class="container">
+        <div class="social-content">
+            <h2 class="section-title" data-aos="fade-up">Мы в социальных сетях</h2>
+            <h2 class="section-subtitle" data-aos="fade-up" data-aos-delay="200">
+                Подписывайтесь и будьте в курсе последних новостей
+            </h2>
+            <!-- Социальные карточки -->
+            <div class="social-cards" data-aos="fade-right">
+                <div class="social-card" data-social="telegram">
+                    <div class="social-icon">
+                        <div class="icon-wrapper">
+                            <span class="icon-emoji">📱</span>
+                        </div>
+                    </div>
+                    <a href="https://t.me/techresurs" target="_blank" class="tg-ws">
+                        <div class="social-info">
+                            <h4>Telegram</h4>
+                            <p>Новости и обновления в реальном времени</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="social-card" data-social="vk">
+                    <div class="social-icon">
+                        <div class="icon-wrapper">
+                            <span class="icon-emoji">👥</span>
+                        </div>
+                    </div>
+                    <a href="https://vk.com/techresurs" target="_blank" class="tg-ws">
+                    <div class="social-info">
+                        <h4>ВКонтакте</h4>
+                        <p>Сообщество и обсуждения</p>
+                    </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- QR-коды -->
+            <div class="qr-codes" data-aos="fade-left">
+                <div class="qr-section">    
+                    
+                    <div class="qr-grid">
+                        <div class="qr-item">
+                            <div class="qr-container">
+                                <div class="qr-code">
+                                    <div class="qr-image-container">
+                                        <img src="../../static/images/contact/WHATSAPP.PNG" alt="WhatsApp QR Code" class="qr-image">
+                                    </div>
+                                </div>
+                            </div>
+                            <p>WhatsApp</p>
+                        </div>
+
+                        <div class="qr-item">
+                            <div class="qr-container">
+                                <div class="qr-code">
+                                    <div class="qr-image-container">
+                                        <img src="../../static/images/contact/TELEGRAM.PNG" alt="Telegram QR Code" class="qr-image">
+                                    </div>
+                                </div>
+                            </div>
+                            <p>Telegram</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+section {
+    border-radius: 20px;
+    margin-top: 4%;
+}
+
+/* Базовые стили */
+.contacts-hero {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 40px 0 40px;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.tg-ws {
+    list-style: none;
+    text-decoration: none;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.contacts-hero .container {
+    color: white;
+}
+
+.contacts-section {
+    padding: 60px 0;
+    background: #f8f9fa;
+}
+
+.contacts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+/* Карточки контактов */
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.contact-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.contact-card h3 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 1.3rem;
+}
+
+.contact-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.contact-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.contact-value {
+    color: #2c3e50;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.contact-value[href]:hover {
+    color: #667eea;
+}
+
+.container {
+    color: black;
+}
+
+/* Контейнер для карт */
+.maps-container {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.map-card {
+    background: white;
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+.map-header h3 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 1.2rem;
+}
+
+.map-wrapper {
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+}
+
+.map-footer {
+    text-align: center;
+}
+
+/* Социальные сети - УПРОЩЕННЫЕ СТИЛИ */
+.social-section {
+    padding: 60px 0;
+    background: white;
+}
+
+.social-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 40px;
+}
+
+.social-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.social-card {
+    display: flex;
+    position: relative;
+    align-items: center;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.social-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.social-icon {
+    margin-right: 20px;
+    flex-shrink: 0;
+}
+
+.icon-wrapper {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    font-size: 1.5rem;
+}
+
+.social-card[data-social="telegram"] .icon-wrapper {
+    background: linear-gradient(135deg, #0088cc, #00b3ff);
+    color: white;
+}
+
+.social-card[data-social="vk"] .icon-wrapper {
+    background: linear-gradient(135deg, #4a76a8, #5b88bd);
+    color: white;
+}
+
+.social-info h4 {
+    color: #2c3e50;
+    font-size: 1.2rem;
+}
+
+.social-info p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .social-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+/* QR-коды */
+.qr-section h3 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 1.3rem;
+}
+
+.qr-subtitle {
+    color: #666;
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+}
+
+.qr-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.qr-item {
+    text-align: center;
+}
+
+.qr-container {
+    margin-bottom: 15px;
+}
+
+.qr-image-container {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    background: white;
+    padding: 10px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.qr-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.qr-placeholder {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.whatsapp-qr {
+    background: linear-gradient(135deg, #25d366, #128C7E);
+    color: white;
+}
+
+.qr-icon {
+    font-size: 3rem;
+}
+
+.qr-item p {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0;
+}
+
+/* Кнопки */
+.btn-outline {
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #667eea;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn-outline:hover {
+    background: #667eea;
+    color: white;
+}
+
+/* Адаптивность */
+@media (max-width: 968px) {
+    .contacts-grid,
+    .social-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .maps-container {
+        order: -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .contacts-hero {
+        padding: 40px 0 40px;
+    }
+    
+    .contacts-section,
+    .social-section {
+        padding: 40px 0;
+    }
+    
+    .contact-card,
+    .map-card,
+    .social-card {
+        padding: 20px;
+    }
+    
+    .qr-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .social-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .social-icon {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Простой эффект наклона для карточек
+    const tiltCards = document.querySelectorAll('[data-tilt]');
+    tiltCards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateY = (x - centerX) / 20;
+            const rotateX = (centerY - y) / 20;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %}
