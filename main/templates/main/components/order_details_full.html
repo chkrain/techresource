@@ -1,0 +1,165 @@
+<div class="order-details-expanded">
+    <div class="details-section">
+        <h4>📦 Подробная информация о заказе #{{ order.id }}</h4>
+        
+        <div class="details-grid">
+            <div class="detail-group">
+                <h5>📋 Информация о заказе</h5>
+                <div class="detail-item">
+                    <span class="detail-label">Дата создания:</span>
+                    <span class="detail-value">{{ order.created_at|date:"d.m.Y H:i" }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Статус:</span>
+                    <span class="detail-value">{{ order.get_status_display }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Способ оплаты:</span>
+                    <span class="detail-value">{{ order.get_payment_method_display }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Общая сумма:</span>
+                    <span class="detail-value">{{ order.total_price }} ₽</span>
+                </div>
+                {% if order.paid_at %}
+                <div class="detail-item">
+                    <span class="detail-label">Дата оплаты:</span>
+                    <span class="detail-value">{{ order.paid_at|date:"d.m.Y H:i" }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="detail-group">
+                <h5>👤 Данные клиента</h5>
+                <div class="detail-item">
+                    <span class="detail-label">Имя:</span>
+                    <span class="detail-value">{{ order.customer_name }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Телефон:</span>
+                    <span class="detail-value">{{ order.customer_phone }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">{{ order.customer_email }}</span>
+                </div>
+            </div>
+            
+            <div class="detail-group">
+                <h5>🚚 Информация о доставке</h5>
+                <div class="detail-item">
+                    <span class="detail-label">Адрес доставки:</span>
+                    <span class="detail-value">{{ order.delivery_address|linebreaksbr }}</span>
+                </div>
+                {% if order.tracking_number %}
+                <div class="detail-item">
+                    <span class="detail-label">Трек-номер:</span>
+                    <span class="detail-value">{{ order.tracking_number }}</span>
+                </div>
+                {% endif %}
+                {% if order.shipping_company %}
+                <div class="detail-item">
+                    <span class="detail-label">Служба доставки:</span>
+                    <span class="detail-value">{{ order.shipping_company }}</span>
+                </div>
+                {% endif %}
+                {% if order.estimated_delivery %}
+                <div class="detail-item">
+                    <span class="detail-label">Примерная дата доставки:</span>
+                    <span class="detail-value">{{ order.estimated_delivery|date:"d.m.Y" }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="detail-group">
+                <h5>📊 История статусов</h5>
+                <div class="status-history">
+                    {% for log in status_logs %}
+                    <div class="status-history-item">
+                        <span class="status-date">{{ log.changed_at|date:"d.m.Y H:i" }}</span>
+                        <span class="status-change">
+                            {{ log.get_old_status_display }} → {{ log.get_new_status_display }}
+                        </span>
+                        {% if log.changed_by %}
+                        <span class="status-changed-by">({{ log.changed_by.username }})</span>
+                        {% endif %}
+                        {% if log.notes %}
+                        <div class="status-notes">Примечание: {{ log.notes }}</div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="no-history">История изменений отсутствует</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="details-section">
+            <h5>🛍️ Состав заказа</h5>
+            <div class="order-items-detailed">
+                {% for item in order_items %}
+                <div class="order-item-detailed">
+                    <div class="item-image">
+                        {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="no-image" style="display: none;">📷</div>
+                        {% else %}
+                        <div class="no-image">📷</div>
+                        {% endif %}
+                    </div>
+                    <div class="item-info-detailed">
+                        <div class="item-name">{{ item.product.name }}</div>
+                        <div class="item-article">Артикул: {{ item.product.article }}</div>
+                        <div class="item-specs">
+                            {% if item.product.brand %}Бренд: {{ item.product.brand }}{% endif %}
+                            {% if item.product.material %} | Материал: {{ item.product.material }}{% endif %}
+                        </div>
+                        <div class="item-price">Цена: {{ item.price }} ₽</div>
+                    </div>
+                    <div class="item-quantity-detailed">
+                        ×{{ item.quantity }}
+                    </div>
+                    <div class="item-total-detailed">
+                        {{ item.get_total_price }} ₽
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="order-total-detailed">
+                    <div class="total-label">Итого:</div>
+                    <div class="total-amount">{{ order.total_price }} ₽</div>
+                </div>
+            </div>
+        </div>
+        
+        {% if order.status == 'shipped' and order.tracking_number %}
+        <div class="details-section">
+            <h5>🚚 Отслеживание посылки</h5>
+            <div class="tracking-actions">
+                <button class="action-btn track-external-btn" 
+                        data-tracking="{{ order.tracking_number }}"
+                        onclick="trackPackage('{{ order.tracking_number }}', '{{ order.shipping_company }}')">
+                    📍 Отследить на сайте службы доставки
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function trackPackage(trackingNumber, shippingCompany) {
+    // Базовые URL для отслеживания в популярных службах доставки
+    const trackingUrls = {
+        'Почта России': `https://www.pochta.ru/tracking#${trackingNumber}`,
+        'СДЭК': `https://www.cdek.ru/ru/tracking/?order_id=${trackingNumber}`,
+        'Boxberry': `https://boxberry.ru/tracking/${trackingNumber}`,
+        'DPD': `https://dpd.ru/tracking/${trackingNumber}`,
+        'default': `https://www.pochta.ru/tracking#${trackingNumber}`
+    };
+    
+    const url = trackingUrls[shippingCompany] || trackingUrls.default;
+    window.open(url, '_blank');
+}
+</script>

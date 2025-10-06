@@ -2528,3 +2528,73 @@ def product_detail(request, product_id):
     }
     
     return render(request, 'main/product_detail.html', context)
+
+@login_required
+def reorder_order(request, order_id):
+    """Повторение заказа - добавление всех товаров в корзину"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    try:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        added_count = 0
+        
+        # Добавляем все товары из заказа в корзину
+        for order_item in order.orderitem_set.all():
+            cart_item, created = CartItem.objects.get_or_create(
+                cart=cart,
+                product=order_item.product
+            )
+            
+            if created:
+                cart_item.quantity = order_item.quantity
+            else:
+                cart_item.quantity += order_item.quantity
+            
+            # Проверяем доступное количество
+            if cart_item.quantity > cart_item.product.quantity:
+                cart_item.quantity = cart_item.product.quantity
+            
+            cart_item.save()
+            added_count += 1
+        
+        cart_count = cart.get_items_count()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'{added_count} товаров добавлено в корзину',
+            'cart_count': cart_count,
+            'added_count': added_count
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Ошибка при повторении заказа: {str(e)}'
+        })
+
+@login_required
+def order_details(request, order_id):
+    """Детальная информация о заказе"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # Получаем полную историю статусов
+    status_logs = OrderStatusLog.objects.filter(order=order).order_by('-changed_at')
+    
+    # Получаем дополнительные данные
+    context = {
+        'order': order,
+        'status_logs': status_logs,
+        'order_items': order.orderitem_set.all(),
+    }
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from django.template.loader import render_to_string
+        
+        html = render_to_string('main/components/order_details_full.html', context)
+        
+        return JsonResponse({
+            'success': True,
+            'html': html
+        })
+    
+    return render(request, 'main/order_details.html', context)

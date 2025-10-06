@@ -23,10 +23,6 @@
                     <div class="stat-number">{{ orders|length }}</div>
                     <div class="stat-label">Всего заказов</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number">{{ completed_orders }}</div>
-                    <div class="stat-label">Завершено</div>
-                </div>
             </div>
         </div>
 
@@ -135,21 +131,27 @@
                     </button>
                     
                     {% if order.status == 'pending' or order.status == 'processing' or order.status == 'paid' %}
-                    <button class="action-btn cancel-btn" data-order-id="{{ order.id }}" data-order-number="#{{ order.id }}">
-                        ❌ Отменить заказ
-                    </button>
+                        {% if order.can_be_cancelled %}
+                            <button class="action-btn cancel-btn" data-order-id="{{ order.id }}" data-order-number="#{{ order.id }}">
+                                ❌ Отменить заказ
+                            </button>
+                        {% else %}
+                            <button class="action-btn cancel-btn disabled" disabled title="Отмена недоступна - заказ уже обрабатывается или прошло слишком мого времени">
+                                ❌ Отмена недоступна
+                            </button>
+                        {% endif %}
                     {% endif %}
                     
                     {% if order.status == 'paid' or order.status == 'completed' and order.status != 'refunded' %}
-                    <button class="action-btn refund-btn" data-order-id="{{ order.id }}">
-                        💰 Запросить возврат
-                    </button>
+                        <button class="action-btn refund-btn" data-order-id="{{ order.id }}">
+                            💰 Запросить возврат
+                        </button>
                     {% endif %}
                     
                     {% if order.status == 'shipped' and order.tracking_number %}
-                    <a href="#" class="action-btn track-btn" data-tracking="{{ order.tracking_number }}">
-                        🚚 Отследить посылку
-                    </a>
+                        <a href="#" class="action-btn track-btn" data-tracking="{{ order.tracking_number }}">
+                            🚚 Отследить посылку
+                        </a>
                     {% endif %}
                 </div>
             </div>
@@ -791,6 +793,46 @@ section {
     border: 2px solid #e9ecef;
 }
 
+.action-btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #f8f9fa !important;
+    color: #6c757d !important;
+    border-color: #dee2e6 !important;
+}
+
+.action-btn.disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    background: #f8f9fa !important;
+    color: #6c757d !important;
+}
+
+/* Анимации для кнопок */
+.reorder-btn {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border: none;
+}
+
+.details-btn {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    color: white;
+    border: none;
+}
+
+.reorder-btn:hover {
+    background: linear-gradient(135deg, #218838, #1e9e8a);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+}
+
+.details-btn:hover {
+    background: linear-gradient(135deg, #5a6268, #3d4348);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+}
+
 .step-icon {
     width: 50px;
     height: 50px;
@@ -1092,6 +1134,357 @@ section {
         gap: 0.75rem;
     }
 }
+
+/* Стили для расширенной информации о заказе */
+.order-details-expanded {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    border: 1px solid #e9ecef;
+}
+
+.order-details-expanded h4 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+.details-section {
+    margin-bottom: 2rem;
+}
+
+.details-section h5 {
+    color: #495057;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.detail-group {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: #6c757d;
+    font-weight: 500;
+    font-size: 0.9rem;
+    min-width: 160px;
+}
+
+.detail-value {
+    color: #2c3e50;
+    font-weight: 600;
+    text-align: right;
+    flex: 1;
+}
+
+/* История статусов */
+.status-history {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.status-history-item {
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.status-date {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.status-change {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.status-changed-by {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+.status-notes {
+    color: #e74c3c;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
+    border-top: 1px dashed #e9ecef;
+}
+
+.no-history {
+    color: #6c757d;
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px dashed #e9ecef;
+}
+
+/* Детализированные товары */
+.order-items-detailed {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.order-item-detailed {
+    display: grid;
+    grid-template-columns: 80px 1fr auto auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.order-item-detailed:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.item-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-image {
+    font-size: 2rem;
+    opacity: 0.3;
+}
+
+.item-info-detailed {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.item-name {
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.item-article {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.item-specs {
+    font-size: 0.8rem;
+    color: #495057;
+}
+
+.item-price {
+    font-size: 0.9rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+.item-quantity-detailed {
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.item-total-detailed {
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 1.2rem;
+    min-width: 100px;
+    text-align: right;
+}
+
+.order-total-detailed {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.total-label {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.total-amount {
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+/* Кнопка отслеживания */
+.tracking-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.track-external-btn {
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #e67e22, #d35400);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.track-external-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(230, 126, 34, 0.4);
+    color: white;
+}
+
+/* Адаптивность для деталей */
+@media (max-width: 1024px) {
+    .details-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .order-details-expanded {
+        padding: 1rem;
+    }
+    
+    .order-item-detailed {
+        grid-template-columns: 60px 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    
+    .item-image {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .no-image {
+        font-size: 1.5rem;
+    }
+    
+    .item-quantity-detailed,
+    .item-total-detailed {
+        grid-column: 1 / -1;
+        text-align: left;
+        margin-top: 0.5rem;
+        justify-self: start;
+    }
+    
+    .item-quantity-detailed {
+        background: none;
+        padding: 0;
+    }
+    
+    .detail-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .detail-label {
+        min-width: auto;
+    }
+    
+    .detail-value {
+        text-align: left;
+    }
+    
+    .status-history-item {
+        padding: 0.75rem;
+    }
+    
+    .order-total-detailed {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .details-grid {
+        gap: 0.75rem;
+    }
+    
+    .detail-group {
+        padding: 1rem;
+    }
+    
+    .order-item-detailed {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .item-image {
+        justify-self: center;
+    }
+    
+    .item-info-detailed {
+        text-align: center;
+    }
+}
 </style>
 
 <script>
@@ -1225,33 +1618,214 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Обработчики кнопок действий
     document.querySelectorAll('.reorder-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', async function() {
             const orderId = this.getAttribute('data-order-id');
+            const orderCard = this.closest('.order-card');
+            
+            // Анимация нажатия
             anime({
                 targets: this,
-                scale: [1, 0.9, 1],
-                duration: 300,
+                scale: [1, 0.95, 1],
+                duration: 200,
                 easing: 'easeInOutQuad'
             });
-            console.log(`Повтор заказа: ${orderId}`);
+            
+            try {
+                // Показываем индикатор загрузки
+                const originalText = this.innerHTML;
+                this.innerHTML = '⏳ Добавляем в корзину...';
+                this.disabled = true;
+                
+                // Отправляем запрос на повтор заказа
+                const response = await fetch(`/order/${orderId}/reorder/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken(),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Анимация успеха
+                    await anime({
+                        targets: this,
+                        background: ['#28a745', '#155724'],
+                        duration: 300,
+                        easing: 'easeInOutQuad'
+                    }).finished;
+                    
+                    this.innerHTML = '✅ Добавлено в корзину!';
+                    
+                    // Обновляем счетчик корзины в навигации
+                    updateCartCounter(result.cart_count);
+                    
+                    // Показываем уведомление
+                    showNotification(result.message, 'success');
+                    
+                    // Возвращаем исходный текст через 2 секунды
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                        anime({
+                            targets: this,
+                            background: ['#155724', '#28a745'],
+                            duration: 300
+                        });
+                    }, 2000);
+                    
+                } else {
+                    throw new Error(result.error || 'Ошибка при повторении заказа');
+                }
+                
+            } catch (error) {
+                console.error('Ошибка при повторении заказа:', error);
+                
+                // Анимация ошибки
+                anime({
+                    targets: this,
+                    background: ['#28a745', '#dc3545'],
+                    duration: 300
+                });
+                
+                this.innerHTML = '❌ Ошибка';
+                this.disabled = false;
+                
+                showNotification(error.message, 'error');
+                
+                // Возвращаем исходный текст через 2 секунды
+                setTimeout(() => {
+                    this.innerHTML = '📋 Повторить заказ';
+                    anime({
+                        targets: this,
+                        background: ['#dc3545', '#28a745'],
+                        duration: 300
+                    });
+                }, 2000);
+            }
         });
     });
+
+    // Функция загрузки деталей заказа
+    async function loadOrderDetails(orderId, orderCard, button) {
+        try {
+            // Показываем индикатор загрузки
+            const originalText = button.innerHTML;
+            button.innerHTML = '⏳ Загрузка...';
+            button.disabled = true;
+
+            const response = await fetch(`/order/${orderId}/details/`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Создаем секцию с деталями
+                const detailsSection = document.createElement('div');
+                detailsSection.className = 'order-details-full';
+                detailsSection.innerHTML = result.html;
+                
+                // Вставляем после основного контента
+                const orderContent = orderCard.querySelector('.order-content');
+                orderContent.parentNode.insertBefore(detailsSection, orderContent.nextSibling);
+                
+                // Анимация появления
+                await anime({
+                    targets: detailsSection,
+                    opacity: [0, 1],
+                    height: [0, detailsSection.scrollHeight + 'px'],
+                    duration: 500,
+                    easing: 'easeOutCubic'
+                }).finished;
+                
+                // Обновляем текст кнопки
+                button.innerHTML = '📄 Скрыть детали';
+                button.disabled = false;
+                
+            } else {
+                throw new Error(result.error || 'Ошибка загрузки деталей');
+            }
+            
+        } catch (error) {
+            console.error('Ошибка загрузки деталей заказа:', error);
+            
+            // Восстанавливаем кнопку
+            button.innerHTML = originalText;
+            button.disabled = false;
+            
+            showNotification('Не удалось загрузить детали заказа', 'error');
+        }
+    }
 
     document.querySelectorAll('.details-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const orderId = this.getAttribute('data-order-id');
             const orderCard = this.closest('.order-card');
             
+            // Анимация нажатия
             anime({
-                targets: orderCard,
-                translateX: [0, 10, -10, 0],
-                duration: 400,
+                targets: this,
+                scale: [1, 0.95, 1],
+                duration: 200,
                 easing: 'easeInOutQuad'
             });
             
-            console.log(`Детали заказа: ${orderId}`);
+            // Показываем/скрываем дополнительную информацию
+            const detailsSection = orderCard.querySelector('.order-details-full');
+            
+            if (!detailsSection) {
+                // Если секции нет, загружаем детали
+                loadOrderDetails(orderId, orderCard, this);
+            } else {
+                // Если секция есть, переключаем видимость
+                toggleDetailsSection(detailsSection, this);
+            }
         });
     });
+
+    async function loadOrderDetails(orderId, orderCard) {
+        try {
+            const response = await fetch(`/order/${orderId}/details/`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Создаем секцию с деталями
+                const detailsSection = document.createElement('div');
+                detailsSection.className = 'order-details-full';
+                detailsSection.innerHTML = result.html;
+                
+                // Вставляем после основного контента
+                const orderContent = orderCard.querySelector('.order-content');
+                orderContent.parentNode.insertBefore(detailsSection, orderContent.nextSibling);
+                
+                // Анимация появления
+                anime({
+                    targets: detailsSection,
+                    opacity: [0, 1],
+                    height: [0, detailsSection.scrollHeight + 'px'],
+                    duration: 500,
+                    easing: 'easeOutCubic'
+                });
+                
+            } else {
+                throw new Error(result.error || 'Ошибка загрузки деталей');
+            }
+            
+        } catch (error) {
+            console.error('Ошибка загрузки деталей заказа:', error);
+            showNotification('Не удалось загрузить детали заказа', 'error');
+        }
+    }
 
     // Обработчики кнопок отмены заказа
     document.querySelectorAll('.cancel-btn').forEach(btn => {
@@ -1321,6 +1895,52 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Функция переключения видимости секции деталей
+    function toggleDetailsSection(detailsSection, button) {
+        const isVisible = detailsSection.style.display !== 'none';
+        
+        if (isVisible) {
+            // Скрываем
+            anime({
+                targets: detailsSection,
+                opacity: [1, 0],
+                height: [detailsSection.scrollHeight + 'px', 0],
+                duration: 400,
+                easing: 'easeOutCubic',
+                complete: function() {
+                    detailsSection.style.display = 'none';
+                    button.innerHTML = '📄 Детали';
+                }
+            });
+        } else {
+            // Показываем
+            detailsSection.style.display = 'block';
+            anime({
+                targets: detailsSection,
+                opacity: [0, 1],
+                height: [0, detailsSection.scrollHeight + 'px'],
+                duration: 500,
+                easing: 'easeOutCubic'
+            });
+            button.innerHTML = '📄 Скрыть детали';
+        }
+    }
+
+    // Функция обновления счетчика корзины
+    function updateCartCounter(newCount) {
+        const cartCounter = document.querySelector('.cart-counter');
+        if (cartCounter) {
+            // Анимация обновления счетчика
+            anime({
+                targets: cartCounter,
+                scale: [1, 1.5, 1],
+                duration: 300,
+                easing: 'easeInOutQuad'
+            });
+            cartCounter.textContent = newCount;
+        }
+    }
 
     // Обработчики кнопок возврата
     document.querySelectorAll('.refund-btn').forEach(btn => {
