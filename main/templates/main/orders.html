@@ -142,12 +142,6 @@
                         {% endif %}
                     {% endif %}
                     
-                    {% if order.status == 'paid' or order.status == 'completed' and order.status != 'refunded' %}
-                        <button class="action-btn refund-btn" data-order-id="{{ order.id }}">
-                            💰 Запросить возврат
-                        </button>
-                    {% endif %}
-                    
                     {% if order.status == 'shipped' and order.tracking_number %}
                         <a href="#" class="action-btn track-btn" data-tracking="{{ order.tracking_number }}">
                             🚚 Отследить посылку

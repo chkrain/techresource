@@ -612,7 +612,7 @@ section, .admin-dashboard {
 /* Сетка статистики */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 1.5rem;
     margin-bottom: 3rem;
 }
@@ -620,6 +620,7 @@ section, .admin-dashboard {
 .stat-card {
     background: white;
     padding: 2rem;
+    width: 400px;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     display: flex;
@@ -1212,6 +1213,10 @@ section, .admin-dashboard {
 .status-update-form .form-textarea {
     min-height: 80px;
     resize: vertical;
+    padding-left: 20px;
+    padding-top: 12px;
+    border-radius: 20px;
+    font-size: large;
 }
 
 /* Стили для истории статусов */

@@ -1229,17 +1229,17 @@ def send_cancellation_notification(order):
             return False
             
         message = f"""
-        ❌ <b>ЗАКАЗ ОТМЕНЕН #{order.id}</b>
+❌ <b>ЗАКАЗ ОТМЕНЕН #{order.id}</b>
         
-        👤 <b>Клиент:</b> {order.customer_name}
-        📞 <b>Телефон:</b> {order.customer_phone}
-        📧 <b>Email:</b> {order.customer_email}
-        💰 <b>Сумма:</b> {order.total_price} руб.
-        🚚 <b>Адрес:</b> {order.delivery_address}
-        🕒 <b>Время отмены:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
+👤 <b>Клиент:</b> {order.customer_name}
+📞 <b>Телефон:</b> {order.customer_phone}
+📧 <b>Email:</b> {order.customer_email}
+💰 <b>Сумма:</b> {order.total_price} руб.
+🚚 <b>Адрес:</b> {order.delivery_address}
+🕒 <b>Время отмены:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
 
-        <b>Товары:</b>
-        """
+<b>Товары:</b>
+"""
         
         for item in order.orderitem_set.all():
             message += f"• {item.product.name} x{item.quantity} - {item.get_total_price()} руб.\n"
@@ -2003,15 +2003,15 @@ def send_order_status_notification(order, old_status, new_status):
         # Уведомление в Telegram для админов
         if settings.TELEGRAM_BOT_TOKEN and settings.TELEGRAM_CHAT_ID:
             message = f"""
-                    🔄 <b>ИЗМЕНЕНИЕ СТАТУСА ЗАКАЗА #{order.id}</b>
+🔄 <b>ИЗМЕНЕНИЕ СТАТУСА ЗАКАЗА #{order.id}</b>
 
-                    📊 <b>Статус:</b> {dict(Order.STATUS_CHOICES)[old_status]} → {dict(Order.STATUS_CHOICES)[new_status]}
-                    👤 <b>Клиент:</b> {order.customer_name}
-                    📞 <b>Телефон:</b> {order.customer_phone}
-                    💰 <b>Сумма:</b> {order.total_price} руб.
+📊 <b>Статус:</b> {dict(Order.STATUS_CHOICES)[old_status]} → {dict(Order.STATUS_CHOICES)[new_status]}
+👤 <b>Клиент:</b> {order.customer_name}
+📞 <b>Телефон:</b> {order.customer_phone}
+💰 <b>Сумма:</b> {order.total_price} руб.
 
-                    ⏰ <b>Время:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
-                    """
+⏰ <b>Время:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
+"""
             
             url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
             payload = {
