@@ -24,6 +24,13 @@ urlpatterns = [
 
     path('contact/submit/', views.contact_form_submit, name='contact_submit'),
 
+    # Страницы услуг
+    path('services/design/', views.service_design, name='service_design'),
+    path('services/electrical/', views.service_electrical, name='service_electrical'),
+    path('services/software/', views.service_software, name='service_software'),
+    path('services/equipment/', views.service_equipment, name='service_equipment'),
+    path('services/support/', views.service_support, name='service_support'),
+    path('services/maintenance/', views.service_maintenance, name='service_maintenance'),
 
     # Восстановление пароля
     path('password-reset/', 

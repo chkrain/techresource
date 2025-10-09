@@ -19,75 +19,87 @@
             
             <div class="services-grid">
                 <div class="service-item" data-aos="fade-up">
-                    <div class="service-icon">📐</div>
-                    <h3>Проектирование систем</h3>
-                    <p>Разработка комплексных проектных решений и технической документации для промышленных объектов</p>
-                    <ul class="service-features">
-                        <li>3D-моделирование</li>
-                        <li>Технические спецификации</li>
-                        <li>Сметная документация</li>
-                    </ul>
-                    <button class="service-btn">Подробнее</button>
+                    <div class="service-content">
+                        <div class="service-icon">📐</div>
+                        <h3>Проектирование систем</h3>
+                        <p>Разработка комплексных проектных решений и технической документации для промышленных объектов</p>
+                        <ul class="service-features">
+                            <li>3D-моделирование</li>
+                            <li>Технические спецификации</li>
+                            <li>Сметная документация</li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'service_design' %}" class="service-btn">Подробнее</a>
                 </div>
 
                 <div class="service-item" data-aos="fade-up" data-aos-delay="100">
-                    <div class="service-icon">⚡</div>
-                    <h3>Электромонтажные работы</h3>
-                    <p>Полный цикл электромонтажа промышленного оборудования и систем автоматизации</p>
-                    <ul class="service-features">
-                        <li>Прокладка кабельных линий</li>
-                        <li>Монтаж щитового оборудования</li>
-                        <li>Пусконаладочные работы</li>
-                    </ul>
-                    <button class="service-btn">Подробнее</button>
+                    <div class="service-content">
+                        <div class="service-icon">⚡</div>
+                        <h3>Электромонтажные работы</h3>
+                        <p>Полный цикл электромонтажа промышленного оборудования и систем автоматизации</p>
+                        <ul class="service-features">
+                            <li>Прокладка кабельных линий</li>
+                            <li>Монтаж щитового оборудования</li>
+                            <li>Пусконаладочные работы</li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'service_electrical' %}" class="service-btn">Подробнее</a>
                 </div>
 
                 <div class="service-item" data-aos="fade-up" data-aos-delay="200">
-                    <div class="service-icon">💻</div>
-                    <h3>Разработка ПО и SCADA</h3>
-                    <p>Создание программного обеспечения и систем диспетчеризации для автоматизации процессов</p>
-                    <ul class="service-features">
-                        <li>SCADA/HMI системы</li>
-                        <li>ПО для АСУ ТП</li>
-                        <li>Мобильные приложения</li>
-                    </ul>
-                    <button class="service-btn">Подробнее</button>
+                    <div class="service-content">
+                        <div class="service-icon">💻</div>
+                        <h3>Разработка ПО и SCADA</h3>
+                        <p>Создание программного обеспечения и систем диспетчеризации для автоматизации процессов</p>
+                        <ul class="service-features">
+                            <li>SCADA/HMI системы</li>
+                            <li>ПО для АСУ ТП</li>
+                            <li>Мобильные приложения</li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'service_software' %}" class="service-btn">Подробнее</a>
                 </div>
 
                 <div class="service-item" data-aos="fade-up">
-                    <div class="service-icon">🚚</div>
-                    <h3>Поставка оборудования</h3>
-                    <p>Комплексные поставки промышленного оборудования от ведущих мировых производителей</p>
-                    <ul class="service-features">
-                        <li>Сертифицированное оборудование</li>
-                        <li>Таможенное оформление</li>
-                        <li>Гарантийная поддержка</li>
-                    </ul>
-                    <button class="service-btn">Подробнее</button>
+                    <div class="service-content">
+                        <div class="service-icon">🚚</div>
+                        <h3>Поставка оборудования</h3>
+                        <p>Комплексные поставки промышленного оборудования от ведущих мировых производителей</p>
+                        <ul class="service-features">
+                            <li>Сертифицированное оборудование</li>
+                            <li>Таможенное оформление</li>
+                            <li>Гарантийная поддержка</li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'service_equipment' %}" class="service-btn">Подробнее</a>
                 </div>
 
                 <div class="service-item" data-aos="fade-up" data-aos-delay="100">
-                    <div class="service-icon">🛠️</div>
-                    <h3>Техническая поддержка</h3>
-                    <p>Круглосуточная техническая поддержка и оперативное реагирование на инциденты</p>
-                    <ul class="service-features">
-                        <li>24/7 техподдержка</li>
-                        <li>Выезд специалистов</li>
-                        <li>Дистанционная диагностика</li>
-                    </ul>
-                    <button class="service-btn">Подробнее</button>
+                    <div class="service-content">
+                        <div class="service-icon">🛠️</div>
+                        <h3>Техническая поддержка</h3>
+                        <p>Круглосуточная техническая поддержка и оперативное реагирование на инциденты</p>
+                        <ul class="service-features">
+                            <li>24/7 техподдержка</li>
+                            <li>Выезд специалистов</li>
+                            <li>Дистанционная диагностика</li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'service_support' %}" class="service-btn">Подробнее</a>
                 </div>
 
                 <div class="service-item" data-aos="fade-up" data-aos-delay="200">
-                    <div class="service-icon">🔧</div>
-                    <h3>Сервисное обслуживание</h3>
-                    <p>Плановое техническое обслуживание и ремонт промышленного оборудования</p>
-                    <ul class="service-features">
-                        <li>Профилактические работы</li>
-                        <li>Ремонт любой сложности</li>
-                        <li>Запасные части</li>
-                    </ul>
-                    <button class="service-btn">Подробнее</button>
+                    <div class="service-content">
+                        <div class="service-icon">🔧</div>
+                        <h3>Сервисное обслуживание</h3>
+                        <p>Плановое техническое обслуживание и ремонт промышленного оборудования</p>
+                        <ul class="service-features">
+                            <li>Профилактические работы</li>
+                            <li>Ремонт любой сложности</li>
+                            <li>Запасные части</li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'service_maintenance' %}" class="service-btn">Подробнее</a>
                 </div>
             </div>
         </div>
@@ -189,7 +201,6 @@ section, .services-hero {
     border-radius: 20px;
 }
 
-
 .hero-title {
     font-size: 3.5rem;
     font-weight: 700;
@@ -205,12 +216,6 @@ section, .services-hero {
     margin: 0 auto;
     opacity: 0;
     transform: translateY(30px);
-}
-
-
-@keyframes bounce {
-    0%, 100% { transform: rotate(45deg) translate(0, 0); }
-    50% { transform: rotate(45deg) translate(-10px, -10px); }
 }
 
 .services-container {
@@ -271,6 +276,14 @@ section, .services-hero {
     border: 1px solid #f1f3f4;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.service-content {
+    flex: 1;
+    margin-bottom: 1.5rem;
 }
 
 .service-item::before {
@@ -343,12 +356,20 @@ section, .services-hero {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 1rem;
+    margin-top: auto;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    max-width: 200px;
+    align-self: center;
 }
 
 .service-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    color: white;
+    text-decoration: none;
 }
 
 /* Дополнительные услуги */
@@ -382,7 +403,7 @@ section, .services-hero {
     color: #2c3e50;
 }
 
-.additional-service {
+.additional-service p {
     color: black;
 }
 
@@ -403,7 +424,7 @@ section, .services-hero {
 .step-number {
     font-size: 3rem;
     font-weight: 700;
-    color: #0052cc;;
+    color: #0052cc;
     margin-right: 2rem;
     min-width: 80px;
 }
@@ -412,6 +433,17 @@ section, .services-hero {
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
     color: white !important;
+}
+
+.step-content p {
+    color: white;
+    margin: 0;
+}
+
+/* Анимация появления */
+@keyframes bounce {
+    0%, 100% { transform: rotate(45deg) translate(0, 0); }
+    50% { transform: rotate(45deg) translate(-10px, -10px); }
 }
 
 /* Адаптивность */
@@ -446,6 +478,11 @@ section, .services-hero {
     .additional-services {
         grid-template-columns: 1fr;
     }
+    
+    .service-btn {
+        width: 100%;
+        max-width: none;
+    }
 }
 
 @media (max-width: 480px) {
@@ -463,6 +500,10 @@ section, .services-hero {
     
     .service-item {
         padding: 1.5rem;
+    }
+    
+    .service-icon {
+        font-size: 3rem;
     }
 }
 </style>
@@ -525,9 +566,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Интерактивность кнопок
     document.querySelectorAll('.service-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const serviceName = this.closest('.service-item').querySelector('h3').textContent;
-            
+        btn.addEventListener('click', function(e) {
             // Анимация нажатия
             anime({
                 targets: this,
@@ -535,9 +574,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 duration: 300,
                 easing: 'easeInOutQuad'
             });
-            
-            // Здесь можно добавить логику перехода к детальной странице услуги
-            console.log(`Переход к услуге: ${serviceName}`);
         });
     });
 

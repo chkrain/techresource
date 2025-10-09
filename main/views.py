@@ -2602,3 +2602,27 @@ def order_details(request, order_id):
 def contacts(request):
     """Страница контактов"""
     return render(request, 'main/contacts.html')
+
+def service_design(request):
+    """Страница услуги - Проектирование систем"""
+    return render(request, 'main/service_design.html')
+
+def service_electrical(request):
+    """Страница услуги - Электромонтажные работы"""
+    return render(request, 'main/service_electrical.html')
+
+def service_software(request):
+    """Страница услуги - Разработка ПО и SCADA"""
+    return render(request, 'main/service_software.html')
+
+def service_equipment(request):
+    """Страница услуги - Поставка оборудования"""
+    return render(request, 'main/service_equipment.html')
+
+def service_support(request):
+    """Страница услуги - Техническая поддержка"""
+    return render(request, 'main/service_support.html')
+
+def service_maintenance(request):
+    """Страница услуги - Сервисное обслуживание"""
+    return render(request, 'main/service_maintenance.html')

@@ -13,36 +13,101 @@
     </div>
 </section>
 
-<!-- О компании -->
-<section class="about-section">
+<!-- Партнеры -->
+<section class="partners-hero-section">
     <div class="container">
-        <div class="about-grid">
-            <div class="about-content about-us" data-aos="fade-right">
+        <div class="partners-hero-grid">
+            <div class="partners-content" data-aos="fade-right">
                 <h2>Техресурс - надежный партнер в мире инженерии</h2>
-                <p>Основанная в 2014 году, компания Техресурс зарекомендовала себя как ведущий поставщик инженерных решений и промышленного оборудования. Мы объединяем передовые технологии с многолетним опытом для достижения выдающихся результатов.</p>
+                <p>Мы гордимся сотрудничеством с ведущими мировыми производителями, что позволяет нам предлагать клиентам передовые решения и гарантировать высочайшее качество.</p>
                 
-                <div class="stats-grid">
-                    <div class="stat-item" data-aos="zoom-in" data-aos-delay="100">
-                        <div class="stat-number">10+</div>
-                        <div class="stat-label">Лет на рынке</div>
+                <div class="partners-stats">
+                    <div class="partner-stat" data-aos="zoom-in" data-aos-delay="100">
+                        <div class="partner-stat-number">15+</div>
+                        <div class="partner-stat-label">Мировых брендов</div>
                     </div>
-                    <div class="stat-item" data-aos="zoom-in" data-aos-delay="200">
-                        <div class="stat-number">150+</div>
-                        <div class="stat-label">Проектов</div>
+                    <div class="partner-stat" data-aos="zoom-in" data-aos-delay="200">
+                        <div class="partner-stat-number">10+</div>
+                        <div class="partner-stat-label">Лет партнерства</div>
                     </div>
-                    <div class="stat-item" data-aos="zoom-in" data-aos-delay="300">
-                        <div class="stat-number">50+</div>
-                        <div class="stat-label">Специалистов</div>
+                    <div class="partner-stat" data-aos="zoom-in" data-aos-delay="300">
+                        <div class="partner-stat-number">100%</div>
+                        <div class="partner-stat-label">Гарантия качества</div>
                     </div>
                 </div>
             </div>
             
-            <div class="about-image" data-aos="fade-left" data-aos-delay="200">
-                <div class="image-placeholder">
-                    <div class="placeholder-content">
-                        <span class="placeholder-icon">🏭</span>
-                        <p>Наше производство</p>
+            <div class="partners-scroll-wrapper" data-aos="fade-left" data-aos-delay="200">
+                <div class="partners-scroll-container">
+                    <div class="partners-scroll-track">
+                        <!-- Первый набор партнеров -->
+                        <div class="partner-item">
+                            <div class="partner-logo-card">
+                                <div class="partner-icon">🔧</div>
+                                <span class="partner-name">Siemens</span>
+                            </div>
+                        </div>
+                        <div class="partner-item">
+                            <div class="partner-logo-card">
+                                <div class="partner-icon">⚡</div>
+                                <span class="partner-name">ABB</span>
+                            </div>
+                        </div>
+                        <div class="partner-item">
+                            <div class="partner-logo-card">
+                                <div class="partner-icon">🏭</div>
+                                <span class="partner-name">Schneider Electric</span>
+                            </div>
+                        </div>
+                        <div class="partner-item">
+                            <div class="partner-logo-card">
+                                <div class="partner-icon">🔩</div>
+                                <span class="partner-name">Bosch Rexroth</span>
+                            </div>
+                        </div>
+                        <div class="partner-item">
+                            <div class="partner-logo-card">
+                                <div class="partner-icon">⚙️</div>
+                                <span class="partner-name">Festo</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Дубликат для бесшовной анимации -->
+                        <div class="partner-item">
+                            <div class="partner-logo-card">
+                                <div class="partner-icon">🔧</div>
+                                <span class="partner-name">Siemens</span>
+                            </div>
+                        </div>
+                        <div class="partner-item">
+                            <div class="partner-logo-card">
+                                <div class="partner-icon">⚡</div>
+                                <span class="partner-name">ABB</span>
+                            </div>
+                        </div>
+                        <div class="partner-item">
+                            <div class="partner-logo-card">
+                                <div class="partner-icon">🏭</div>
+                                <span class="partner-name">Schneider Electric</span>
+                            </div>
+                        </div>
+                        <div class="partner-item">
+                            <div class="partner-logo-card">
+                                <div class="partner-icon">🔩</div>
+                                <span class="partner-name">Bosch Rexroth</span>
+                            </div>
+                        </div>
+                        <div class="partner-item">
+                            <div class="partner-logo-card">
+                                <div class="partner-icon">⚙️</div>
+                                <span class="partner-name">Festo</span>
+                            </div>
+                        </div>
                     </div>
+                </div>
+                
+                <div class="partners-scroll-info">
+                    <p>🎯 <strong>Официальный партнер</strong> ведущих мировых производителей</p>
                 </div>
             </div>
         </div>
@@ -549,6 +614,223 @@ section {
         padding: 1.5rem;
     }
 }
+
+/* Секция партнеров */
+.partners-hero-section {
+    padding: 80px 0;
+    margin: 4% 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.partners-hero-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+}
+
+.partners-content h2 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+}
+
+.partners-content p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #4a5568;
+    margin-bottom: 2rem;
+}
+
+.partners-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.partner-stat {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.partner-stat:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 82, 204, 0.15);
+}
+
+.partner-stat-number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #0052cc;
+    margin-bottom: 0.5rem;
+}
+
+.partner-stat-label {
+    color: #4a5568;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Контейнер для скролла партнеров */
+.partners-scroll-wrapper {
+    position: relative;
+}
+
+.partners-scroll-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    overflow-x: hidden;
+    position: relative;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+}
+
+.partners-scroll-track {
+    display: flex;
+    animation: scroll-partners 40s linear infinite;
+    width: max-content;
+    gap: 0;
+}
+
+.partner-item {
+    flex: 0 0 auto;
+    width: 180px;
+    padding: 0 1rem;
+}
+
+.partner-logo-card {
+    background: #f8f9fa;
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.partner-logo-card:hover {
+    transform: translateY(-5px);
+    border-color: #0052cc;
+    background: white;
+    box-shadow: 0 10px 25px rgba(0, 82, 204, 0.15);
+}
+
+.partner-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.partner-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1.3;
+}
+
+.partners-scroll-info {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    border-radius: 12px;
+    color: white;
+}
+
+.partners-scroll-info p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+@keyframes scroll-partners {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Пауза при наведении */
+.partners-scroll-container:hover .partners-scroll-track {
+    animation-play-state: paused;
+}
+
+/* Адаптивность */
+@media (max-width: 968px) {
+    .partners-hero-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+    
+    .partners-content h2 {
+        font-size: 2rem;
+    }
+    
+    .partners-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+    
+    .partner-stat {
+        padding: 1rem;
+    }
+    
+    .partner-stat-number {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .partners-hero-section {
+        padding: 60px 0;
+    }
+    
+    .partners-stats {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .partner-item {
+        width: 150px;
+    }
+    
+    .partner-logo-card {
+        padding: 1rem 0.5rem;
+        height: 100px;
+    }
+    
+    .partner-icon {
+        font-size: 2rem;
+    }
+    
+    .partner-name {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .partners-content h2 {
+        font-size: 1.8rem;
+    }
+    
+    .partner-item {
+        width: 130px;
+    }
+}
 </style>
 
 <script>
@@ -577,6 +859,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 stat.textContent = Math.floor(current);
             }
         }, 16);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Анимация чисел статистики партнеров
+    const partnerStats = document.querySelectorAll('.partner-stat-number');
+    partnerStats.forEach(stat => {
+        const text = stat.textContent;
+        if (text.includes('+') || text.includes('%')) {
+            const target = parseInt(text);
+            if (!isNaN(target)) {
+                const duration = 1500;
+                const step = target / (duration / 16);
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += step;
+                    if (current >= target) {
+                        stat.textContent = text;
+                        clearInterval(timer);
+                    } else {
+                        stat.textContent = Math.floor(current) + (text.includes('%') ? '%' : '');
+                    }
+                }, 16);
+            }
+        }
     });
 });
 </script>
