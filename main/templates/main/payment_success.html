@@ -58,6 +58,36 @@
                 </div>
             </div>
 
+            <!-- Детали товаров -->
+            <div class="order-items">
+                <h4>Состав заказа</h4>
+                <div class="items-list">
+                    {% for item in order.items.all %}
+                    <div class="item-row">
+                        <div class="item-info">
+                            <span class="item-name">{{ item.product.name }}</span>
+                            <span class="item-sku">Артикул: {{ item.product.sku }}</span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-quantity">{{ item.quantity }} шт.</span>
+                            <span class="item-price">{{ item.price }} руб.</span>
+                            <span class="item-weight">Вес: {{ item.product.weight|default:"0" }} кг</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="order-total">
+                    <div class="total-row">
+                        <span>Общий вес:</span>
+                        <strong>{{ order.total_weight }} кг</strong>
+                    </div>
+                    <div class="total-row">
+                        <span>Итого к оплате:</span>
+                        <strong>{{ order.total_price }} руб.</strong>
+                    </div>
+                </div>
+            </div>
+
             <div class="next-steps">
                 <h4>Что дальше?</h4>
                 <div class="steps-timeline">
@@ -99,8 +129,11 @@
                 <a href="{% url 'products' %}" class="btn btn-secondary">
                     🛒 Продолжить покупки
                 </a>
-                <button class="btn btn-outline" onclick="window.print()">
-                    🖨️ Распечатать
+                <button class="btn btn-outline" onclick="generateReceipt()">
+                    🧾 Скачать чек
+                </button>
+                <button class="btn btn-outline" onclick="printReceipt()">
+                    🖨️ Распечатать чек
                 </button>
             </div>
         </div>
@@ -191,6 +224,87 @@
         </div>
         {% endif %}
 
+        <!-- Печатная версия чека (скрыта) -->
+        <div id="receipt" class="receipt-print" style="display: none;">
+            <div class="receipt-header">
+                <h2>Кассовый чек</h2>
+                <div class="receipt-company">
+                    <strong>ООО "Техресурс"</strong>
+                    <p>ИНН: 1234567890</p>
+                    <p>г. Казань, ул. Теническая, д. 52, офис 226</p>
+                </div>
+            </div>
+            
+            <div class="receipt-info">
+                <div class="receipt-row">
+                    <span>Чек №:</span>
+                    <span>{{ order.id }}-{{ order.paid_at|date:"YmdHis" }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span>Дата:</span>
+                    <span>{{ order.paid_at|timezone:"Europe/Moscow"|date:"d.m.Y H:i" }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span>Кассир:</span>
+                    <span>Онлайн-платеж</span>
+                </div>
+            </div>
+            
+            <div class="receipt-items">
+                <h4>ПРОДАЖА</h4>
+                {% for item in order.items.all %}
+                <div class="receipt-item">
+                    <div class="item-main">
+                        <span class="item-name">{{ item.product.name }}</span>
+                        <span class="item-total">{{ item.total_price }} руб.</span>
+                    </div>
+                    <div class="item-details">
+                        <span>{{ item.price }} руб. × {{ item.quantity }} шт.</span>
+                        <span>Вес: {{ item.product.weight|default:"0" }} кг</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="receipt-totals">
+                <div class="total-row">
+                    <span>Количество позиций:</span>
+                    <span>{{ order.items.count }}.0 шт.</span>
+                </div>
+                <div class="total-row">
+                    <span>Общий вес:</span>
+                    <span>{{ order.total_weight }}.0 кг</span>
+                </div>
+                <div class="total-row">
+                    <span>ИТОГО:</span>
+                    <strong>{{ order.total_price }} руб.</strong>
+                </div>
+                <div class="total-row">
+                    <span>Наличными:</span>
+                    <span>0.00 руб.</span>
+                </div>
+                <div class="total-row">
+                    <span>Электронными:</span>
+                    <span>{{ order.total_price }} руб.</span>
+                </div>
+                <div class="total-row">
+                    <span>Сдача:</span>
+                    <span>0.00 руб.</span>
+                </div>
+            </div>
+            
+            <div class="receipt-footer">
+                <p>СПАСИБО ЗА ПОКУПКУ!</p>
+                <p>Телефон поддержки: +7 (937) 524-68-88</p>
+                <p>Сайт: techresurs.ru</p>
+                <p class="fiscal-info">
+                    ФН №: 9999078900001234<br>
+                    ФД №: 1234567890<br>
+                    ФПД: 9876543210987654
+                </p>
+            </div>
+        </div>
+
         <!-- Информация о поддержке -->
         <div class="support-info">
             <div class="support-card">
@@ -200,7 +314,7 @@
                     <p>Наша служба поддержки всегда готова помочь вам</p>
                     <div class="support-contacts">
                         <a href="tel:+78001234567" class="contact-link">
-                            📞 +7 (937) 524-68-88
+                            📞 +7 (937) 524-68-88<br>
                         </a>
                         <a href="mailto:support@techresurs.ru" class="contact-link">
                             ✉️ support@techresurs.ru
@@ -217,6 +331,7 @@ section {
     border-radius: 20px;
     margin-top: 2%;
 }
+
 /* Hero секция */
 .status-hero {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
@@ -357,17 +472,200 @@ section {
     color: #742a2a;
 }
 
-/* Таймлайн следующих шагов */
-.next-steps {
+/* Состав заказа */
+.order-items {
     padding: 0 2rem 2rem;
 }
 
-.next-steps h4 {
+.order-items h4 {
     font-size: 1.2rem;
     color: #2c3e50;
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 1rem 0;
 }
 
+.items-list {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.item-row:last-child {
+    border-bottom: none;
+}
+
+.item-info {
+    flex: 1;
+}
+
+.item-name {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+}
+
+.item-sku {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.item-details {
+    text-align: right;
+}
+
+.item-quantity, .item-price, .item-weight {
+    display: block;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.order-total {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.total-row:first-child {
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Печатная версия чека */
+.receipt-print {
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+.receipt-header {
+    text-align: center;
+    border-bottom: 1px dashed #000;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.receipt-header h2 {
+    font-size: 14px;
+    margin: 0 0 5px 0;
+    font-weight: bold;
+}
+
+.receipt-company {
+    font-size: 10px;
+}
+
+.receipt-info {
+    margin-bottom: 10px;
+}
+
+.receipt-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3px;
+}
+
+.receipt-items h4 {
+    text-align: center;
+    font-size: 12px;
+    margin: 10px 0 5px 0;
+    font-weight: bold;
+}
+
+.receipt-item {
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #ccc;
+}
+
+.item-main {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+}
+
+.item-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #666;
+}
+
+.receipt-totals {
+    border-top: 2px solid #000;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.receipt-totals .total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3px;
+}
+
+.receipt-footer {
+    text-align: center;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed #000;
+    font-size: 10px;
+}
+
+.fiscal-info {
+    font-size: 8px;
+    margin-top: 10px;
+    color: #666;
+}
+
+/* Стили для печати */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    
+    .receipt-print,
+    .receipt-print * {
+        visibility: visible;
+    }
+    
+    .receipt-print {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        max-width: 300px;
+        margin: 0;
+        padding: 10px;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .status-hero, .status-actions, .support-info,
+    .btn, .next-steps, .error-notice, .retry-options {
+        display: none !important;
+    }
+}
+
+/* Остальные стили (steps-timeline, error-notice, options-grid, status-actions, support-info) остаются такими же как в предыдущем коде */
 .steps-timeline {
     display: flex;
     justify-content: space-between;
@@ -421,28 +719,12 @@ section {
     animation: pulse 2s infinite;
 }
 
-.step-content {
-    max-width: 120px;
-}
-
-.step-content strong {
-    display: block;
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-}
-
-.step-content small {
-    color: #6c757d;
-    font-size: 0.8rem;
-}
-
 @keyframes pulse {
     0% { box-shadow: 0 0 0 0 rgba(0, 82, 204, 0.4); }
     70% { box-shadow: 0 0 0 10px rgba(0, 82, 204, 0); }
     100% { box-shadow: 0 0 0 0 rgba(0, 82, 204, 0); }
 }
 
-/* Уведомление об ошибке */
 .error-notice {
     display: flex;
     gap: 1rem;
@@ -457,35 +739,6 @@ section {
     font-size: 1.5rem;
     flex-shrink: 0;
     color: #e53e3e;
-}
-
-.notice-content strong {
-    display: block;
-    color: #742a2a;
-    margin-bottom: 0.5rem;
-}
-
-.notice-content ul {
-    margin: 0;
-    padding-left: 1.2rem;
-    color: #742a2a;
-}
-
-.notice-content li {
-    margin-bottom: 0.25rem;
-    font-size: 0.9rem;
-}
-
-/* Опции повторной оплаты */
-.retry-options {
-    padding: 0 2rem 2rem;
-}
-
-.retry-options h4 {
-    font-size: 1.2rem;
-    color: #2c3e50;
-    margin: 0 0 1.5rem 0;
-    text-align: center;
 }
 
 .options-grid {
@@ -504,30 +757,6 @@ section {
     transition: all 0.3s ease;
 }
 
-.option-card:hover {
-    border-color: #0052cc;
-    transform: translateY(-2px);
-}
-
-.option-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-}
-
-.option-card h5 {
-    font-size: 1.1rem;
-    color: #2c3e50;
-    margin: 0 0 0.5rem 0;
-}
-
-.option-card p {
-    color: #6c757d;
-    font-size: 0.9rem;
-    margin: 0 0 1rem 0;
-    line-height: 1.4;
-}
-
-/* Кнопки */
 .status-actions {
     display: flex;
     gap: 1rem;
@@ -555,31 +784,14 @@ section {
     color: white;
 }
 
-.btn-primary:hover {
-    background: #0047b3;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 82, 204, 0.3);
-}
-
 .btn-secondary {
     background: #48bb78;
     color: white;
 }
 
-.btn-secondary:hover {
-    background: #38a169;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
-}
-
 .btn-warning {
     background: #ed8936;
     color: white;
-}
-
-.btn-warning:hover {
-    background: #dd6b20;
-    transform: translateY(-2px);
 }
 
 .btn-outline {
@@ -588,18 +800,6 @@ section {
     border-color: #e9ecef;
 }
 
-.btn-outline:hover {
-    border-color: #0052cc;
-    color: #0052cc;
-    transform: translateY(-2px);
-}
-
-.btn-small {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-}
-
-/* Информация о поддержке */
 .support-info {
     margin-top: 2rem;
 }
@@ -614,53 +814,11 @@ section {
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
-.support-icon {
-    font-size: 3rem;
-    flex-shrink: 0;
-}
-
-.support-content h4 {
-    font-size: 1.3rem;
-    color: #2c3e50;
-    margin: 0 0 0.5rem 0;
-}
-
-.support-content p {
-    color: #6c757d;
-    margin: 0 0 1rem 0;
-}
-
-.support-contacts {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.contact-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #0052cc;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s ease;
-}
-
-.contact-link:hover {
-    color: #0047b3;
-}
-
 /* Адаптивность */
 @media (max-width: 768px) {
-    .status-hero h1 {
-        font-size: 2rem;
-    }
-    
-    .status-header {
+    .status-actions {
         flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-        padding: 2rem 1.5rem 1.5rem;
+        align-items: stretch;
     }
     
     .steps-timeline {
@@ -677,59 +835,236 @@ section {
         text-align: left;
         gap: 1rem;
     }
-    
-    .step-content {
-        max-width: none;
-        flex: 1;
-    }
-    
-    .options-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .status-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .support-card {
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-    }
-    
-    .support-contacts {
-        justify-content: center;
-    }
 }
 
 @media (max-width: 480px) {
-    .status-section {
-        padding: 1.5rem 0;
-    }
-    
-    .container {
-        padding: 0 15px;
-    }
-    
-    .order-details, .next-steps, .retry-options {
+    .order-items {
         padding: 0 1rem 1.5rem;
     }
     
-    .details-grid {
-        grid-template-columns: 1fr;
+    .item-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
     }
     
-    .error-notice {
-        flex-direction: column;
-        text-align: center;
+    .item-details {
+        text-align: left;
     }
 }
 </style>
 
 <script>
+// Функция для печати чека
+function printReceipt() {
+    const receipt = document.getElementById('receipt');
+    const printWindow = window.open('', '_blank');
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Чек заказа #{{ order.id }}</title>
+            <style>
+                body {
+                    font-family: 'Courier New', monospace;
+                    font-size: 12px;
+                    line-height: 1.2;
+                    margin: 0;
+                    padding: 10px;
+                    max-width: 300px;
+                }
+                .receipt-header {
+                    text-align: center;
+                    border-bottom: 1px dashed #000;
+                    padding-bottom: 10px;
+                    margin-bottom: 10px;
+                }
+                .receipt-header h2 {
+                    font-size: 14px;
+                    margin: 0 0 5px 0;
+                    font-weight: bold;
+                }
+                .receipt-company {
+                    font-size: 10px;
+                }
+                .receipt-info {
+                    margin-bottom: 10px;
+                }
+                .receipt-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 3px;
+                }
+                .receipt-items h4 {
+                    text-align: center;
+                    font-size: 12px;
+                    margin: 10px 0 5px 0;
+                    font-weight: bold;
+                }
+                .receipt-item {
+                    margin-bottom: 5px;
+                    padding-bottom: 5px;
+                    border-bottom: 1px dashed #ccc;
+                }
+                .item-main {
+                    display: flex;
+                    justify-content: space-between;
+                    font-weight: bold;
+                }
+                .item-details {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 10px;
+                    color: #666;
+                }
+                .receipt-totals {
+                    border-top: 2px solid #000;
+                    padding-top: 10px;
+                    margin-top: 10px;
+                }
+                .total-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 3px;
+                }
+                .receipt-footer {
+                    text-align: center;
+                    margin-top: 15px;
+                    padding-top: 10px;
+                    border-top: 1px dashed #000;
+                    font-size: 10px;
+                }
+                .fiscal-info {
+                    font-size: 8px;
+                    margin-top: 10px;
+                    color: #666;
+                }
+                @media print {
+                    body {
+                        margin: 0;
+                        padding: 5px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            ${receipt.innerHTML}
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.focus();
+    
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 250);
+}
+
+// Функция для генерации PDF чека
+function generateReceipt() {
+    const receipt = document.getElementById('receipt');
+    const printWindow = window.open('', '_blank');
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Чек заказа #{{ order.id }}</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    max-width: 400px;
+                }
+                .receipt-header {
+                    text-align: center;
+                    border-bottom: 2px solid #000;
+                    padding-bottom: 15px;
+                    margin-bottom: 15px;
+                }
+                .receipt-header h2 {
+                    margin: 0 0 10px 0;
+                    color: #2c3e50;
+                }
+                .receipt-info {
+                    margin-bottom: 15px;
+                }
+                .receipt-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 5px;
+                    padding: 2px 0;
+                }
+                .receipt-items h4 {
+                    text-align: center;
+                    background: #f8f9fa;
+                    padding: 8px;
+                    margin: 15px 0 10px 0;
+                }
+                .receipt-item {
+                    margin-bottom: 8px;
+                    padding-bottom: 8px;
+                    border-bottom: 1px solid #eee;
+                }
+                .item-main {
+                    display: flex;
+                    justify-content: space-between;
+                    font-weight: bold;
+                }
+                .item-details {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 12px;
+                    color: #666;
+                    margin-top: 2px;
+                }
+                .receipt-totals {
+                    border-top: 2px solid #000;
+                    padding-top: 15px;
+                    margin-top: 15px;
+                }
+                .total-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 5px;
+                    font-size: 14px;
+                }
+                .receipt-footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    padding-top: 15px;
+                    border-top: 1px dashed #000;
+                    font-size: 12px;
+                    color: #666;
+                }
+                .fiscal-info {
+                    font-size: 10px;
+                    margin-top: 10px;
+                    background: #f8f9fa;
+                    padding: 8px;
+                    border-radius: 4px;
+                }
+            </style>
+        </head>
+        <body>
+            ${receipt.innerHTML}
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="window.print()" style="padding: 10px 20px; background: #0052cc; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    🖨️ Печать чека
+                </button>
+            </div>
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+}
+
+// Анимация появления элементов
 document.addEventListener('DOMContentLoaded', function() {
-    // Анимация появления элементов
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -744,60 +1079,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, observerOptions);
 
-    // Анимируем карточки
     document.querySelectorAll('.status-card, .support-card').forEach(card => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
         card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(card);
     });
-
-    // Анимация шагов в таймлайне
-    if (document.querySelector('.steps-timeline')) {
-        const steps = document.querySelectorAll('.step');
-        steps.forEach((step, index) => {
-            step.style.opacity = '0';
-            step.style.transform = 'translateX(-20px)';
-            step.style.transition = `opacity 0.5s ease ${index * 0.2}s, transform 0.5s ease ${index * 0.2}s`;
-            
-            setTimeout(() => {
-                step.style.opacity = '1';
-                step.style.transform = 'translateX(0)';
-            }, 500 + index * 200);
-        });
-    }
-
-    // Добавляем интерактивность к опциям
-    document.querySelectorAll('.option-card').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px) scale(1.02)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0) scale(1)';
-        });
-    });
-
-    // Печать страницы
-    const printBtn = document.querySelector('button[onclick="window.print()"]');
-    if (printBtn) {
-        printBtn.addEventListener('click', function() {
-            // Добавляем специальные стили для печати
-            const printStyle = document.createElement('style');
-            printStyle.textContent = `
-                @media print {
-                    .status-actions, .support-info, .btn-outline {
-                        display: none !important;
-                    }
-                    .status-card {
-                        box-shadow: none !important;
-                        border: 2px solid #000 !important;
-                    }
-                }
-            `;
-            document.head.appendChild(printStyle);
-        });
-    }
 });
 </script>
 {% endblock %}

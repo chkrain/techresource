@@ -1,6 +1,7 @@
 # main/admin.py
 from django.contrib import admin
-from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, OrderStatusLog, ProductReview
+from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, OrderStatusLog, ProductReview, ProductImage
+from django.utils.safestring import mark_safe  
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -29,12 +30,25 @@ class NotificationLogInline(admin.TabularInline):
     def has_add_permission(self, request, obj=None):
         return False
 
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+    fields = ['image', 'order', 'is_main']
+    readonly_fields = ['preview']
+    
+    def preview(self, obj):
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" style="max-height: 100px;" />')
+        return "Нет изображения"
+    preview.short_description = "Предпросмотр"
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['name', 'article', 'price', 'quantity', 'category', 'is_active']
     list_filter = ['category', 'is_active']
     search_fields = ['name', 'article', 'description']
     list_editable = ['price', 'quantity', 'is_active']
+    inlines = [ProductImageInline] 
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):

@@ -2469,6 +2469,8 @@ def delete_review(request, review_id):
 def product_detail(request, product_id):
     """Детальная страница товара"""
     product = get_object_or_404(Product, id=product_id, is_active=True)
+
+    product_images = product.get_images()
     
     # Получаем похожие товары
     similar_products = Product.objects.filter(
@@ -2519,6 +2521,7 @@ def product_detail(request, product_id):
     context = {
         'product': product,
         'similar_products': similar_products,
+        'product_images': product_images,
         'in_wishlist': in_wishlist,
         'reviews': reviews,
         'average_rating': average_rating,

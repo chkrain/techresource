@@ -85,10 +85,43 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
+    def get_main_image(self):
+        """Возвращает основное изображение товара"""
+        main_image = self.images.filter(is_main=True).first()
+        if main_image:
+            return main_image
+        first_image = self.images.first()
+        if first_image:
+            return first_image
+        return None
+    
+    def get_images_count(self):
+        """Возвращает количество изображений товара"""
+        return self.images.count()
+    
+    def get_images(self):
+        """Возвращает все изображения товара в правильном порядке"""
+        return self.images.all().order_by('order', 'created_at')
+    
     class Meta:
         verbose_name = "Товар"
         verbose_name_plural = "Товары"
         ordering = ['name']
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='products/', verbose_name="Изображение")
+    order = models.IntegerField(default=0, verbose_name="Порядок")
+    is_main = models.BooleanField(default=False, verbose_name="Основное изображение")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Изображение товара"
+        verbose_name_plural = "Изображения товаров"
+        ordering = ['order', 'created_at']
+
+    def __str__(self):
+        return f"Изображение {self.id} для {self.product.name}"
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")

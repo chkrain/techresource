@@ -141,39 +141,86 @@
     <!-- Процесс работы -->
     <section class="process-section">
         <div class="container">
-            <h2 class="section-title how-we">Как мы работаем</h2>
+            <h2 class="section-title hows-we">Как мы работаем</h2>
+            <p class="section-subtitle">Четкий поэтапный подход к реализации ваших проектов</p>
             
-            <div class="process-steps">
-                <div class="process-step" data-aos="fade-right">
-                    <div class="step-number">01</div>
+            <div class="process-timeline">
+                <div class="process-line" data-aos="fade-up" data-aos-duration="2000"></div>
+                
+                <div class="process-step" data-aos="fade-up">
+                    <div class="step-visual">
+                        <div class="step-circle">
+                            <div class="step-number">01</div>
+                        </div>
+                    </div>
                     <div class="step-content">
-                        <h3>Консультация</h3>
-                        <p>Анализ требований и подготовка технического задания</p>
+                        <h3>Консультация и анализ</h3>
+                        <p>Глубокий анализ ваших требований, техническое обследование и подготовка детального технического задания</p>
+                        <ul class="step-details">
+                            <li>Встреча с техническими специалистами</li>
+                            <li>Анализ существующей инфраструктуры</li>
+                            <li>Формирование ТЗ и сметы</li>
+                        </ul>
                     </div>
                 </div>
                 
-                <div class="process-step" data-aos="fade-right" data-aos-delay="100">
-                    <div class="step-number">02</div>
+                <div class="process-step" data-aos="fade-up" data-aos-delay="100">
+                    <div class="step-visual">
+                        <div class="step-circle">
+                            <div class="step-number">02</div>
+                        </div>
+                    </div>
                     <div class="step-content">
                         <h3>Проектирование</h3>
-                        <p>Разработка проектной документации и 3D-моделей</p>
+                        <p>Разработка комплексной проектной документации, 3D-моделирование и создание цифровых двойников</p>
+                        <ul class="step-details">
+                            <li>Разработка технической документации</li>
+                            <li>3D-визуализация и BIM-моделирование</li>
+                            <li>Согласование с заказчиком</li>
+                        </ul>
                     </div>
                 </div>
                 
-                <div class="process-step" data-aos="fade-right" data-aos-delay="200">
-                    <div class="step-number">03</div>
+                <div class="process-step" data-aos="fade-up" data-aos-delay="200">
+                    <div class="step-visual">
+                        <div class="step-circle">
+                            <div class="step-number">03</div>
+                        </div>
+                    </div>
                     <div class="step-content">
                         <h3>Реализация</h3>
-                        <p>Поставка оборудования, монтаж и пусконаладка</p>
+                        <p>Поставка оборудования, монтажные работы, программирование и комплексная пусконаладка систем</p>
+                        <ul class="step-details">
+                            <li>Поставка и монтаж оборудования</li>
+                            <li>Программирование и настройка</li>
+                            <li>Пусконаладочные работы</li>
+                        </ul>
                     </div>
                 </div>
                 
-                <div class="process-step" data-aos="fade-right" data-aos-delay="300">
-                    <div class="step-number">04</div>
-                    <div class="step-content">
-                        <h3>Поддержка</h3>
-                        <p>Гарантийное и постгарантийное обслуживание</p>
+                <div class="process-step" data-aos="fade-up" data-aos-delay="300">
+                    <div class="step-visual">
+                        <div class="step-circle">
+                            <div class="step-number">04</div>
+                        </div>
                     </div>
+                    <div class="step-content">
+                        <h3>Поддержка и развитие</h3>
+                        <p>Круглосуточная техническая поддержка, мониторинг и плановое развитие системы</p>
+                        <ul class="step-details">
+                            <li>Гарантийное обслуживание</li>
+                            <li>Техническая поддержка 24/7</li>
+                            <li>Плановые обновления и модернизация</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="process-cta" data-aos="zoom-in">
+                <div class="cta-content">
+                    <h3>Готовы начать проект?</h3>
+                    <p>Оставьте заявку и получите бесплатную консультацию нашего специалиста</p>
+                    <a href="{% url 'contacts' %}" class="cta-btn">Обсудить проект</a>
                 </div>
             </div>
         </div>
@@ -186,6 +233,278 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
 <style>
+/* Процесс работы - улучшенная версия */
+.process-section {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+    margin-top: 4%;
+}
+
+.process-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.03"><polygon fill="white" points="0,1000 1000,0 1000,1000"/></svg>');
+    background-size: cover;
+}
+
+.process-timeline {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 0;
+}
+
+.process-line {
+    position: absolute;
+    left: 100px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #0052cc 0%, transparent 100%);
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: top center;
+    transition: all 0.8s ease;
+    border-radius: 2px;
+}
+
+.process-step.active .step-circle {
+    opacity: 1;
+    transform: scale(1);
+    animation: gentlePulse 3s ease-in-out infinite;
+}
+
+@keyframes gentlePulse {
+    0%, 100% {
+        box-shadow: 0 10px 30px rgba(0, 82, 204, 0.3);
+    }
+    50% {
+        box-shadow: 0 15px 40px rgba(0, 82, 204, 0.5);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 82, 204, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 82, 204, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 82, 204, 0);
+    }
+}
+
+.process-step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 80px;
+    position: relative;
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all 0.6s ease;
+}
+
+.process-step.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.step-visual {
+    position: relative;
+    z-index: 2;
+    margin-right: 50px;
+    flex-shrink: 0;
+}
+
+.step-circle {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #0052cc, #0066cc);
+    border-radius: 50%;
+    display: flex;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 82, 204, 0.3);
+    transition: all 0.4s ease;
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+.process-step:hover .step-circle {
+    transform: scale(1.1);
+    box-shadow: 0 15px 40px rgba(0, 82, 204, 0.4);
+}
+
+.step-number {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: white;
+    opacity: 0.8;
+    align-items: center;
+}
+
+.step-content {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.process-step:hover .step-content {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(10px);
+}
+
+.step-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.step-content p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.step-details {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.step-details li {
+    padding: 0.5rem 0;
+    color: rgba(255, 255, 255, 0.7);
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.step-details li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #48bb78;
+    font-weight: bold;
+}
+
+.process-cta {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 50px;
+    text-align: center;
+    margin-top: 60px;
+}
+
+.cta-content h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.cta-content p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cta-btn {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .process-timeline {
+        padding: 40px 0;
+    }
+    
+    .process-line {
+        left: 60px;
+    }
+    
+    .process-step {
+        flex-direction: column;
+        margin-bottom: 60px;
+    }
+    
+    .step-visual {
+        margin-right: 0;
+        margin-bottom: 30px;
+        align-self: flex-start;
+    }
+    
+    .step-circle {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .step-content {
+        padding: 20px;
+    }
+    
+    .process-cta {
+        padding: 30px 20px;
+    }
+    
+    .cta-content h3 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .process-section {
+        padding: 60px 0;
+    }
+    
+    .step-circle {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .step-number {
+        font-size: 0.8rem;
+    }
+    
+    .step-content h3 {
+        font-size: 1.3rem;
+    }
+}
+
 /* Базовые стили */
 .services-hero {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
@@ -246,6 +565,10 @@ section, .services-hero {
 .how-we {
     color: white;
     margin-top: 4% !important;
+}
+
+.hows-we {
+    color: white;
 }
 
 .section-subtitle {
@@ -424,8 +747,7 @@ section, .services-hero {
 .step-number {
     font-size: 3rem;
     font-weight: 700;
-    color: #0052cc;
-    margin-right: 2rem;
+    color: white;
     min-width: 80px;
 }
 
@@ -469,12 +791,7 @@ section, .services-hero {
         flex-direction: column;
         text-align: center;
     }
-    
-    .step-number {
-        margin-right: 0;
-        margin-bottom: 1rem;
-    }
-    
+
     .additional-services {
         grid-template-columns: 1fr;
     }
@@ -544,30 +861,109 @@ document.addEventListener('DOMContentLoaded', function() {
         easing: 'easeInOutQuad'
     });
 
-    // Анимация шагов процесса
-    const processSteps = document.querySelectorAll('.process-step');
-    processSteps.forEach((step, index) => {
+    // Улучшенная анимация линии процесса
+    function animateProcessLine() {
+        const processLine = document.querySelector('.process-line');
+        const processSteps = document.querySelectorAll('.process-step');
+        
+        if (!processLine) return;
+        
+        // Сначала скрываем линию
+        processLine.style.opacity = '0';
+        processLine.style.transform = 'scaleY(0)';
+        processLine.style.transformOrigin = 'top center';
+        
+        // Плавное появление линии
         anime({
-            targets: step,
-            translateX: [-50, 0],
-            opacity: [0, 1],
-            duration: 800,
-            delay: index * 200,
+            targets: processLine,
+            opacity: [0, 0.3],
+            scaleY: [0, 1],
+            duration: 1500,
+            delay: 800,
             easing: 'easeOutCubic'
         });
-    });
+        
+        // Анимация заполнения линии при прокрутке
+        let hasAnimated = false;
+        
+        const lineObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !hasAnimated) {
+                    hasAnimated = true;
+                    
+                    // Постепенное заполнение линии
+                    anime({
+                        targets: processLine,
+                        background: [
+                            'linear-gradient(180deg, #0052cc 0%, transparent 100%)',
+                            'linear-gradient(180deg, #0052cc 0%, #0052cc 100%)'
+                        ],
+                        duration: 2000,
+                        easing: 'easeInOutQuad',
+                        delay: 300
+                    });
+                }
+            });
+        }, {
+            threshold: 0.3
+        });
+        
+        lineObserver.observe(processLine);
+        
+        // Анимация шагов с подсветкой линии
+        processSteps.forEach((step, index) => {
+            const stepObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Добавляем класс активного шага
+                        step.classList.add('active');
+                        
+                        // Плавное изменение цвета линии до текущего шага
+                        const progress = ((index + 1) / processSteps.length) * 100;
+                        
+                        anime({
+                            targets: processLine,
+                            background: `linear-gradient(180deg, #0052cc 0%, #0052cc ${progress}%, rgba(0, 82, 204, 0.3) ${progress}%, rgba(0, 82, 204, 0.3) 100%)`,
+                            duration: 1000,
+                            easing: 'easeOutCubic'
+                        });
+                        
+                        // Анимация кружков шагов
+                        anime({
+                            targets: step.querySelector('.step-circle'),
+                            scale: [0.8, 1],
+                            opacity: [0, 1],
+                            duration: 600,
+                            easing: 'easeOutElastic(1, .6)'
+                        });
+                    } else {
+                        step.classList.remove('active');
+                    }
+                });
+            }, {
+                threshold: 0.6,
+                rootMargin: '-50px 0px -100px 0px'
+            });
+            
+            stepObserver.observe(step);
+        });
+    }
+
+    // Запускаем анимацию линии после небольшой задержки
+    setTimeout(animateProcessLine, 1000);
 
     // Параллакс эффект для героя
     window.addEventListener('scroll', function() {
         const scrolled = window.pageYOffset;
         const hero = document.querySelector('.services-hero');
-        hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+        if (hero) {
+            hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+        }
     });
 
     // Интерактивность кнопок
     document.querySelectorAll('.service-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
-            // Анимация нажатия
             anime({
                 targets: this,
                 scale: [1, 0.95, 1],
@@ -578,11 +974,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Анимация иконок при скролле
-    const observerOptions = {
-        threshold: 0.5,
-        rootMargin: '0px 0px -100px 0px'
-    };
-
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -595,7 +986,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-    }, observerOptions);
+    }, {
+        threshold: 0.5,
+        rootMargin: '0px 0px -100px 0px'
+    });
 
     document.querySelectorAll('.service-item').forEach(item => {
         observer.observe(item);

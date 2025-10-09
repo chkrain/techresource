@@ -11,6 +11,13 @@
             {% endif %}
         </div>
         
+        <!-- Бейдж количества изображений -->
+        {% if product.get_images_count > 1 %}
+        <div class="image-count-badge">
+            <span class="badge image-badge">🖼️ {{ product.get_images_count }}</span>
+        </div>
+        {% endif %}
+        
         <!-- Кнопка избранного -->
         <div class="product-wishlist">
             {% if user.is_authenticated %}
@@ -30,14 +37,16 @@
         
         <!-- Изображение товара -->
         <div class="product-image">
-            {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% with main_image=product.get_main_image %}
+            {% if main_image %}
+                <img src="{{ main_image.image.url }}" alt="{{ product.name }}" loading="lazy">
             {% else %}
                 <div class="product-image-placeholder">
-                    <div class="placeholder-icon">📦</div>
-                    <small>Нет изображения</small>
+                    <span class="placeholder-icon">⚙️</span>
+                    <p>Нет изображения</p>
                 </div>
             {% endif %}
+            {% endwith %}
         </div>
         
         <!-- Контент товара -->
@@ -117,70 +126,19 @@
     {% endfor %}
 </div>
 
-<!-- Похожие товары -->
-{% if similar_products %}
-<div class="similar-products" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e9ecef;">
-    <h3 style="margin-bottom: 1.5rem; color: #2c3e50; text-align: center;">Похожие товары</h3>
-    <div class="products-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
-        {% for product in similar_products %}
-        <div class="product-card" style="transform: scale(0.95);">
-            <div class="product-badge">
-                {% if product.quantity > 0 %}
-                    <span class="badge in-stock-badge" style="font-size: 0.7rem; padding: 0.3rem 0.6rem;">✓</span>
-                {% else %}
-                    <span class="badge out-of-stock-badge" style="font-size: 0.7rem; padding: 0.3rem 0.6rem;">✗</span>
-                {% endif %}
-            </div>
-            
-            <div class="product-image" style="height: 120px;">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-                {% else %}
-                    <div class="product-image-placeholder">
-                        <div class="placeholder-icon" style="font-size: 1.5rem;">📦</div>
-                    </div>
-                {% endif %}
-            </div>
-            
-            <div class="product-content" style="padding: 0.75rem;">
-                <h4 class="product-title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">{{ product.name|truncatewords:5 }}</h4>
-                <div class="price" style="font-size: 1rem;">{{ product.price }} ₽</div>
-                
-                <div class="product-actions" style="margin-top: 0.5rem;">
-                    {% if product.quantity > 0 %}
-                        {% if user.is_authenticated %}
-                            <button class="add-to-cart-btn" data-product-id="{{ product.id }}" style="padding: 0.5rem; font-size: 0.8rem;">
-                                🛒
-                            </button>
-                        {% else %}
-                            <a href="{% url 'login' %}?next={{ request.path }}" class="login-to-buy-btn" style="padding: 0.5rem; font-size: 0.8rem;">
-                                🔐
-                            </a>
-                        {% endif %}
-                    {% else %}
-                        <button class="out-of-stock-btn" disabled style="padding: 0.5rem; font-size: 0.8rem;">
-                            📦
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
 <style>
-.no-products {
-    grid-column: 1 / -1;
-    text-align: center;
+.image-count-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 5;
 }
 
-.similar-products .product-card {
-    transition: all 0.3s ease;
-}
-
-.similar-products .product-card:hover {
-    transform: scale(1) !important;
+.image-badge {
+    background: rgba(102, 126, 234, 0.9);
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+    backdrop-filter: blur(10px);
 }
 </style>
