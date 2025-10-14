@@ -1,61 +1,413 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block title %}Проектирование систем - Техресурс{% endblock %}
 
-{% block content %}
-<div class="service-detail-hero">
-    <div class="hero-content">
-        <h1 class="hero-title">Проектирование систем</h1>
-        <p class="hero-subtitle">Разработка комплексных проектных решений для промышленных объектов</p>
-    </div>
-</div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/services.css' %}">
+{% endblock %}
 
-<div class="service-detail-container">
+{% block content %}
+
+<!-- Hero Section -->
+<section class="service-hero">
     <div class="container">
-        <div class="service-content">
-            <div class="service-info">
-                <h2>Страница в разработке</h2>
-                <p>Раздел находится в стадии наполнения. Скоро здесь появится подробная информация о услуге проектирования систем.</p>
-                <a href="/services/" class="back-btn">← Назад к услугам</a>
+        <div class="hero-content">
+            <div class="hero-text-content">
+                <div class="hero-breadcrumb">
+                    <a href="/">Главная</a>
+                    <span class="breadcrumb-divider">/</span>
+                    <a href="/services/">Услуги</a>
+                    <span class="breadcrumb-divider">/</span>
+                    <span>Проектирование систем</span>
+                </div>
+                
+                <h1 class="hero-title">Проектирование систем</h1>
+                <p class="hero-subtitle">Комплексные проектные решения для промышленных объектов любой сложности. От концепции до реализации с гарантией качества и соблюдением сроков.</p>
+                
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <span>Срок от 24 часов</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🏆</div>
+                        <span>150+ проектов</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">💰</div>
+                        <span>Экономия до 15%</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🛡️</div>
+                        <span>Гарантия 12 месяцев</span>
+                    </div>
+                </div>
+                
+                <div class="hero-actions">
+                    <a href="#contact" class="btn btn-primary">
+                        <span>Обсудить проект</span>
+                    </a>
+                    <a href="/services/" class="btn btn-secondary">
+                        <span>Все услуги</span>
+                    </a>
+                </div>
             </div>
+            
+            <div class="hero-visual">
+                <div class="visual-container">
+                    <div class="visual-decoration"></div>
+                    <div class="visual-decoration"></div>
+                    <div class="visual-placeholder">
+                        <div class="visual-icon">📐</div>
+                        <div class="visual-text">3D Визуализация проекта</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section" aria-live="polite" aria-atomic="true">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" data-count="24">0</div>
+                <div class="stat-label">часов минимальный срок</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="150">0</div>
+                <div class="stat-label">реализованных проектов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="15">0</div>
+                <div class="stat-label">% экономия бюджета</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="50">0</div>
+                <div class="stat-label">квалифицированных специалистов</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Description Section -->
+<section class="description-section">
+    <div class="container">
+        <div class="description-grid">
+            <div class="description-content">
+                <h2>Профессиональное проектирование промышленных систем</h2>
+                <p>Мы разрабатываем комплексные проектные решения для предприятий различных отраслей промышленности. Наша команда специалистов обладает многолетним опытом в создании эффективных и надежных систем.</p>
+                
+                <div class="features-list">
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Полный цикл проектирования от ТЗ до реализации</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Использование современных BIM-технологий</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Соблюдение сроков и бюджета проекта</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Техническая поддержка на всех этапах</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="description-image">
+                <div class="image-placeholder">
+                    <div class="placeholder-content">
+                        <div class="placeholder-icon">🏗️</div>
+                        <p>3D визуализация проекта</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Process Section -->
+<section class="process-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Этапы проектирования</h2>
+            <p>Четкий и прозрачный процесс работы над вашим проектом</p>
+        </div>
+        
+        <div class="process-steps">
+            <div class="process-step">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>Техническое задание</h3>
+                    <p>Детальный анализ требований и формирование технического задания</p>
+                    <ul>
+                        <li>Встреча с заказчиком</li>
+                        <li>Анализ существующих систем</li>
+                        <li>Формирование ТЗ</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>Эскизное проектирование</h3>
+                    <p>Разработка концепции и основных технических решений</p>
+                    <ul>
+                        <li>Разработка концепции</li>
+                        <li>Выбор оборудования</li>
+                        <li>Предварительные расчеты</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h3>Рабочее проектирование</h3>
+                    <p>Создание детальной проектной документации</p>
+                    <ul>
+                        <li>3D-моделирование</li>
+                        <li>Чертежи и схемы</li>
+                        <li>Спецификации</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">04</div>
+                <div class="step-content">
+                    <h3>Согласование и сдача</h3>
+                    <p>Защита проекта и передача документации заказчику</p>
+                    <ul>
+                        <li>Внутренняя экспертиза</li>
+                        <li>Согласование с заказчиком</li>
+                        <li>Передача документации</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Technologies Section -->
+<section class="tech-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Используемые технологии</h2>
+            <p>Современное программное обеспечение для точного проектирования</p>
+        </div>
+        
+        <div class="tech-grid">
+            <div class="tech-card">
+                <div class="tech-icon">🏗️</div>
+                <h4>Autodesk Revit</h4>
+                <p>BIM-моделирование для комплексного проектирования</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">📐</div>
+                <h4>AutoCAD</h4>
+                <p>Точное 2D и 3D проектирование</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">⚡</div>
+                <h4>ETAP</h4>
+                <p>Расчеты электроэнергетических систем</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🌬️</div>
+                <h4>Mag iC</h4>
+                <p>Проектирование систем вентиляции</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🔧</div>
+                <h4>SolidWorks</h4>
+                <p>Проектирование механических систем</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">📊</div>
+                <h4>Navisworks</h4>
+                <p>Координация и анализ проектов</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cases Section -->
+<section class="cases-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Примеры реализованных проектов</h2>
+            <p>Успешные кейсы из нашей практики</p>
+        </div>
+        
+        <div class="cases-grid">
+            <div class="case-card">
+                <div class="case-image">
+                    <div class="image-placeholder">🏭</div>
+                </div>
+                <div class="case-content">
+                    <h4>Автоматизация производственной линии</h4>
+                    <p>Проектирование системы автоматизации для пищевого производства</p>
+                    <div class="case-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Срок:</span>
+                            <span class="detail-value">45 дней</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Бюджет:</span>
+                            <span class="detail-value">2.5 млн ₽</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Экономия:</span>
+                            <span class="detail-value">12%</span>
+                        </div>
+                    </div>
+                    <button class="case-more-btn" data-case="1">Подробнее о проекте</button>
+                </div>
+            </div>
+            
+            <div class="case-card">
+                <div class="case-image">
+                    <div class="image-placeholder">⚡</div>
+                </div>
+                <div class="case-content">
+                    <h4>Электроснабжение завода</h4>
+                    <p>Проект реконструкции системы электроснабжения промышленного предприятия</p>
+                    <div class="case-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Срок:</span>
+                            <span class="detail-value">60 дней</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Бюджет:</span>
+                            <span class="detail-value">4.8 млн ₽</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Экономия:</span>
+                            <span class="detail-value">15%</span>
+                        </div>
+                    </div>
+                    <button class="case-more-btn" data-case="2">Подробнее о проекте</button>
+                </div>
+            </div>
+            
+            <div class="case-card">
+                <div class="case-image">
+                    <div class="image-placeholder">🌡️</div>
+                </div>
+                <div class="case-content">
+                    <h4>Система микроклимата</h4>
+                    <p>Проектирование климатических систем для фармацевтического производства</p>
+                    <div class="case-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Срок:</span>
+                            <span class="detail-value">30 дней</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Бюджет:</span>
+                            <span class="detail-value">1.9 млн ₽</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Экономия:</span>
+                            <span class="detail-value">18%</span>
+                        </div>
+                    </div>
+                    <button class="case-more-btn" data-case="3">Подробнее о проекте</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Case Details Modal -->
+<div class="modal-overlay" id="caseModal" aria-modal="true" role="dialog" aria-labelledby="modalTitle" style="display: none;">
+    <div class="modal-content">
+        <button class="modal-close" aria-label="Закрыть окно">&times;</button>
+        <div class="modal-body" id="modalBody">
+            <!-- Content will be loaded here -->
         </div>
     </div>
 </div>
 
-<style>
-.service-detail-hero {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-    color: white;
-    padding: 120px 0 80px;
-    text-align: center;
-    margin-top: 4%;
-    border-radius: 20px;
-}
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Частые вопросы</h2>
+            <p>Ответы на популярные вопросы о проектировании</p>
+        </div>
+        
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Какие сроки разработки проекта?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Сроки зависят от сложности проекта и составляют от 24 часов для простых решений до 3 месяцев для комплексных объектов. Точные сроки определяются после анализа технического задания.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Предоставляете ли вы гарантии на проектирование?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, мы предоставляем гарантию 12 месяцев на все проектные работы. В течение гарантийного периода вносим бесплатные корректировки и оказываем консультационную поддержку.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Работаете ли вы с BIM-моделированием?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, мы активно используем технологию информационного моделирования зданий (BIM) для комплексного проектирования. Это позволяет избежать коллизий и оптимизировать проект.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Можно ли внести изменения в проект после его сдачи?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, в течение гарантийного периода мы вносим изменения бесплатно. После окончания гарантийного периода изменения вносятся по отдельному соглашению.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.service-detail-container {
-    padding: 80px 0;
-}
+<!-- CTA Section -->
+<section class="cta-section" id="contact">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Готовы начать проект?</h2>
+            <p>Оставьте заявку и получите бесплатную консультацию нашего инженера-проектировщика</p>
+            <div class="cta-actions">
+                <a href="{% url 'contacts' %}" class="btn btn-primary">Обсудить проект</a>
+                <a href="/services/" class="btn btn-secondary">Все услуги</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
 
-.service-content {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.back-btn {
-    display: inline-block;
-    background: #0052cc;
-    color: white;
-    padding: 12px 30px;
-    border-radius: 25px;
-    text-decoration: none;
-    margin-top: 2rem;
-    transition: all 0.3s ease;
-}
-
-.back-btn:hover {
-    background: #0066cc;
-    transform: translateY(-2px);
-}
-</style>
+{% block extra_js %}
+<script src="{% static 'js/services.js' %}"></script>
 {% endblock %}

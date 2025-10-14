@@ -147,6 +147,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "main/static",  
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -162,15 +166,40 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Настройки email (для уведомлений)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST = 'smtp.mail.ru'   
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
+# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails' 
+EMAIL_USE_TLS = True
+EMAIL_PORT = 465
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_HOST_USER = 'ainurcherepanov@mail.ru'  
+EMAIL_HOST_PASSWORD = 'irynyfatajycux42'  
+DEFAULT_FROM_EMAIL = 'ainurcherepanov@mail.ru'
+SERVER_EMAIL = 'ainurcherepanov@mail.ru'
 # EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 # EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 # DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', '')
 # SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.core.mail': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 
 # Настройки Telegram бота (опционально)
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')

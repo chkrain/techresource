@@ -20,7 +20,10 @@
     
     <!-- AOS Animation -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
+
+    <!-- Дополнительные CSS для конкретных страниц -->
+    {% block extra_css %}{% endblock %}
+
     <style>
         :root {
             --primary: #0052cc;
@@ -1239,8 +1242,7 @@
         });
     </script>
 
-    {% block extra_scripts %}
-    <!-- Дополнительные скрипты для конкретных страниц -->
-    {% endblock %}
+    <!-- Дополнительные JS для конкретных страниц -->
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -2629,3 +2629,17 @@ def service_support(request):
 def service_maintenance(request):
     """Страница услуги - Сервисное обслуживание"""
     return render(request, 'main/service_maintenance.html')
+
+def test_email_sending(request):
+    """Тестовая функция для проверки отправки email"""
+    try:
+        send_mail(
+            'Тест отправки email с локальной машины',
+            'Поздравляю! Ваш Django успешно отправляет письма! 🎉',
+            settings.DEFAULT_FROM_EMAIL,
+            ['your_test_email@mail.ru'],  # ваш email для теста
+            fail_silently=False,
+        )
+        return JsonResponse({'success': True, 'message': 'Email отправлен успешно!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

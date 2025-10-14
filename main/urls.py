@@ -92,6 +92,8 @@ urlpatterns = [
     path('wishlist/remove/<int:product_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
     path('wishlist/clear/', views.clear_wishlist, name='clear_wishlist'),
 
+    path('test-email/', views.test_email_sending, name='test_email'),
+
     # Оплата через ЮКассу
     path('payment/create/<int:order_id>/', views.create_payment, name='create_payment'),
     path('payment/success/<int:order_id>/', views.payment_success, name='payment_success'),
