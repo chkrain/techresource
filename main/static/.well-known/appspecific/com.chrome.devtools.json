@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "configurations": {
+    "default": {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Django App"
+    }
+  }
+}

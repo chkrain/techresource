@@ -26,10 +26,15 @@ body {
     color: var(--dark-color);
 }
 
+section {
+    border-radius: 20px;
+    margin-top: 4%; 
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0;
 }
 
 .service-hero {
@@ -658,7 +663,6 @@ body {
 
 .case-image {
     height: 200px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -675,7 +679,7 @@ body {
 }
 
 .case-content {
-    padding: 25px;
+    padding: 75px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
@@ -859,8 +863,12 @@ body {
     padding: 80px 0;
 }
 
+.faq-section .container {
+    padding: 2rem 0;
+}
+
 .faq-list {
-    max-width: 800px;
+    width: 100%;
     margin: 0 auto;
 }
 
@@ -892,7 +900,6 @@ body {
 }
 
 .faq-question:focus {
-    outline: 2px solid var(--primary-color);
     outline-offset: -2px;
 }
 
@@ -916,12 +923,13 @@ body {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
+    background: white;
 }
 
 .faq-answer p {
     padding: 0 20px 20px;
     margin: 0;
-    color: var(--secondary-color);
+    color: black;
     line-height: 1.6;
 }
 

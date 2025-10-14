@@ -1,6 +1,8 @@
 # main/urls.py
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.http import HttpResponseNotFound
+from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
@@ -109,4 +111,6 @@ urlpatterns = [
     
     # Политика конфиденциальности
     path('privacy/', views.privacy_policy, name='privacy'),
+
+    re_path(r'^\.well-known/.*$', lambda request: HttpResponseNotFound()),
 ]
