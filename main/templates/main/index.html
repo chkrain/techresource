@@ -143,68 +143,84 @@
             <div class="swiper-wrapper">
                 <!-- Заменил цикл на статические данные -->
                 <div class="swiper-slide">
-                    <div class="service-card" data-color="blue">
-                        <div class="service-icon">📐</div>
-                        <h3>Проектирование</h3>
-                        <p>Разработка технической документации и проектных решений</p>
-                        <div class="service-overlay">Подробнее →</div>
-                    </div>
+                    <a href="{% url 'service_design' %}" class="service-link">
+                        <div class="service-card" data-color="blue">
+                            <div class="service-icon">📐</div>
+                            <h3>Проектирование</h3>
+                            <p>Разработка технической документации и проектных решений</p>
+                            <div class="service-overlay">Подробнее →</div>
+                        </div>
+                    </a>
                 </div>
                 <div class="swiper-slide">
-                    <div class="service-card" data-color="green">
-                        <div class="service-icon">⚡</div>
-                        <h3>Монтаж</h3>
-                        <p>Электромонтаж оборудования и пусконаладочные работы</p>
-                        <div class="service-overlay">Подробнее →</div>
-                    </div>
+                    <a href="{% url 'service_electrical' %}" class="service-link">
+                        <div class="service-card" data-color="green">
+                            <div class="service-icon">⚡</div>
+                            <h3>Монтаж</h3>
+                            <p>Электромонтаж оборудования и пусконаладочные работы</p>
+                            <div class="service-overlay">Подробнее →</div>
+                        </div>
+                    </a>
                 </div>
                 <div class="swiper-slide">
-                    <div class="service-card" data-color="purple">
-                        <div class="service-icon">💻</div>
-                        <h3>Разработка ПО</h3>
-                        <p>Создание СКАДА систем и программного обеспечения</p>
-                        <div class="service-overlay">Подробнее →</div>
-                    </div>
+                    <a href="{% url 'service_software' %}" class="service-link">
+                        <div class="service-card" data-color="purple">
+                            <div class="service-icon">💻</div>
+                            <h3>Разработка ПО</h3>
+                            <p>Создание СКАДА систем и программного обеспечения</p>
+                            <div class="service-overlay">Подробнее →</div>
+                        </div>
+                    </a>
                 </div>
                 <div class="swiper-slide">
-                    <div class="service-card" data-color="orange">
-                        <div class="service-icon">🚚</div>
-                        <h3>Поставка оборудования</h3>
-                        <p>Качественное оборудование от проверенных производителей</p>
-                        <div class="service-overlay">Подробнее →</div>
-                    </div>
+                    <a href="{% url 'service_equipment' %}" class="service-link">
+                        <div class="service-card" data-color="orange">
+                            <div class="service-icon">🚚</div>
+                            <h3>Поставка оборудования</h3>
+                            <p>Качественное оборудование от проверенных производителей</p>
+                            <div class="service-overlay">Подробнее →</div>
+                        </div>
+                    </a>
                 </div>
                 <div class="swiper-slide">
-                    <div class="service-card" data-color="red">
-                        <div class="service-icon">🛠️</div>
-                        <h3>Техническая поддержка</h3>
-                        <p>Круглосуточная поддержка и консультации</p>
-                        <div class="service-overlay">Подробнее →</div>
-                    </div>
+                    <a href="{% url 'service_support' %}" class="service-link">
+                        <div class="service-card" data-color="red">
+                            <div class="service-icon">🛠️</div>
+                            <h3>Техническая поддержка</h3>
+                            <p>Круглосуточная поддержка и консультации</p>
+                            <div class="service-overlay">Подробнее →</div>
+                        </div>
+                    </a>
                 </div>
                 <div class="swiper-slide">
-                    <div class="service-card" data-color="teal">
-                        <div class="service-icon">🔧</div>
-                        <h3>Сервисное обслуживание</h3>
-                        <p>Плановое техническое обслуживание и ремонт</p>
-                        <div class="service-overlay">Подробнее →</div>
-                    </div>
+                    <a href="{% url 'service_maintenance' %}" class="service-link">
+                        <div class="service-card" data-color="teal">
+                            <div class="service-icon">🔧</div>
+                            <h3>Сервисное обслуживание</h3>
+                            <p>Плановое техническое обслуживание и ремонт</p>
+                            <div class="service-overlay">Подробнее →</div>
+                        </div>
+                    </a>
                 </div>
                 <div class="swiper-slide">
-                    <div class="service-card" data-color="indigo">
-                        <div class="service-icon">📊</div>
-                        <h3>Аудит и консалтинг</h3>
-                        <p>Технический аудит и консультации по оптимизации</p>
-                        <div class="service-overlay">Подробнее →</div>
-                    </div>
+                    <a href="{% url 'services' %}" class="service-link">
+                        <div class="service-card" data-color="indigo">
+                            <div class="service-icon">📊</div>
+                            <h3>Аудит и консалтинг</h3>
+                            <p>Технический аудит и консультации по оптимизации</p>
+                            <div class="service-overlay">Подробнее →</div>
+                        </div>
+                    </a>
                 </div>
                 <div class="swiper-slide">
-                    <div class="service-card" data-color="pink">
-                        <div class="service-icon">🎯</div>
-                        <h3>Интеграция систем</h3>
-                        <p>Комплексная интеграция различных инженерных систем</p>
-                        <div class="service-overlay">Подробнее →</div>
-                    </div>
+                    <a href="{% url 'services' %}" class="service-link">
+                        <div class="service-card" data-color="pink">
+                            <div class="service-icon">🎯</div>
+                            <h3>Интеграция систем</h3>
+                            <p>Комплексная интеграция различных инженерных систем</p>
+                            <div class="service-overlay">Подробнее →</div>
+                        </div>
+                    </a>
                 </div>
             </div>
             
@@ -330,6 +346,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
 <style>
+.service-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
 .hero-section {
     background: #2c3e50;
     color: white;
@@ -753,6 +777,7 @@ section {
 /* Товары */
 .products-section {
     background: #f8f9fa;
+    color: black;
 }
 
 .products-preview {
@@ -1405,10 +1430,268 @@ section {
     z-index: 100000;
     font-size: 12px;
 }
+
+/* Стили для уведомлений корзины */
+.cart-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10000;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    max-width: 300px;
+}
+
+.cart-notification.error {
+    background: #dc3545;
+}
+
+.cart-notification.show {
+    transform: translateX(0);
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.notification-icon {
+    font-size: 1.2rem;
+}
+
+.notification-message {
+    font-weight: 500;
+}
+
+/* Стили для кнопки при загрузке */
+.product-btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.product-btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Адаптивность уведомлений */
+@media (max-width: 768px) {
+    .cart-notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Функция для получения CSRF токена
+    function getCSRFToken() {
+        const name = 'csrftoken';
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Функция для обновления счетчика корзины
+    function updateCartCounter(quantity) {
+        // Ищем все возможные элементы счетчика корзины
+        const cartCounters = [
+            ...document.querySelectorAll('.cart-counter'),
+            ...document.querySelectorAll('.cart-count'),
+            ...document.querySelectorAll('[data-cart-count]'),
+            ...document.querySelectorAll('.badge')
+        ].filter(el => el.textContent.match(/\d+/)); // Только элементы с цифрами
+        
+        cartCounters.forEach(counter => {
+            const oldValue = parseInt(counter.textContent) || 0;
+            const newValue = quantity !== undefined ? quantity : oldValue + 1;
+            
+            counter.textContent = newValue;
+            
+            // Показываем/скрываем счетчик
+            if (newValue > 0) {
+                counter.style.display = 'inline-block';
+            } else {
+                counter.style.display = 'none';
+            }
+            
+            // Анимация обновления
+            if (window.anime) {
+                anime({
+                    targets: counter,
+                    scale: [1, 1.3, 1],
+                    duration: 300,
+                    easing: 'easeInOutQuad'
+                });
+            }
+        });
+        
+        // Если счетчиков нет, создаем дебаг информацию
+        if (cartCounters.length === 0) {
+            console.log('Счетчики корзины не найдены. Количество:', quantity);
+        }
+    }
+
+    // Функция для показа уведомлений корзины
+    function showCartNotification(message, type = 'success') {
+        const existingNotification = document.querySelector('.cart-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        // Создаем новое уведомление
+        const notification = document.createElement('div');
+        notification.className = `cart-notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-icon">${type === 'error' ? '❌' : '✅'}</span>
+                <span class="notification-message">${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Анимация появления
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+        
+        // Автоматическое скрытие через 3 секунды
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    // Обработка добавления в корзину
+    document.querySelectorAll('.product-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const productId = this.getAttribute('data-product-id');
+            
+            if (!productId) {
+                console.error('Product ID not found');
+                showCartNotification('Ошибка: ID товара не найден', 'error');
+                return;
+            }
+            
+            const originalText = this.textContent;
+            const originalBackground = this.style.background;
+            
+            try {
+                // Визуальная обратная связь
+                this.textContent = 'Добавляем...';
+                this.classList.add('loading');
+                this.disabled = true;
+                
+                // Отправка запроса на сервер
+                const response = await fetch('/cart/add/' + productId + '/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken(),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Успешное добавление
+                    this.textContent = '✓ Добавлено';
+                    this.style.background = '#28a745';
+                    
+                    // Обновляем счетчик корзины
+                    updateCartCounter(data.cart_count || data.total_quantity || 1);
+                    
+                    // Анимация
+                    if (window.anime) {
+                        anime({
+                            targets: this,
+                            scale: [1, 1.1, 1],
+                            duration: 300,
+                            easing: 'easeInOutQuad'
+                        });
+                    }
+                    
+                    // Показываем всплывающее уведомление
+                    showCartNotification('Товар добавлен в корзину');
+                    
+                    // Возвращаем исходный текст через 2 секунды
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.background = '';
+                        this.classList.remove('loading');
+                        this.disabled = false;
+                    }, 2000);
+                    
+                } else {
+                    throw new Error(data.error || 'Ошибка добавления в корзину');
+                }
+                
+            } catch (error) {
+                console.error('Ошибка добавления в корзину:', error);
+                this.textContent = 'Ошибка';
+                this.style.background = '#dc3545';
+                this.classList.remove('loading');
+                
+                showCartNotification(
+                    error.message || 'Ошибка при добавлении в корзину', 
+                    'error'
+                );
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.style.background = originalBackground;
+                    this.disabled = false;
+                }, 3000);
+            }
+        });
+    });
+
+    // Параллакс эффект для hero секции
     const heroSection = document.querySelector('.hero-section');
     const benefitsSection = document.querySelector('.benefits-section');
     
@@ -1422,18 +1705,24 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             heroSection.classList.remove('hidden');
         }
+        
+        // Параллакс эффект
+        const scrolled = window.pageYOffset;
+        if (heroSection) {
+            heroSection.style.transform = `translateY(${scrolled * 0.5}px)`;
+        }
     }
     
     window.addEventListener('scroll', handleScroll);
-});
 
-document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация AOS
     AOS.init({
         duration: 800,
         once: true,
         offset: 100
     });
 
+    // Анимация чисел в статистике
     function animateNumbers() {
         const counters = document.querySelectorAll('.stat-number');
         counters.forEach(counter => {
@@ -1468,6 +1757,7 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(statsSection);
     }
 
+    // Создание частиц в hero секции
     function createParticles() {
         const container = document.getElementById('hero-particles');
         if (!container) return;
@@ -1499,6 +1789,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     createParticles();
 
+    // Инициализация Swiper
     const swiper = new Swiper('.swiper', {
         loop: true,
         slidesPerView: 1,
@@ -1558,6 +1849,7 @@ document.addEventListener('DOMContentLoaded', function() {
         progress.style.width = progressWidth + '%';
     }
 
+    // Анимация карточек услуг
     document.querySelectorAll('.service-card').forEach(card => {
         card.addEventListener('click', function() {
             const serviceName = this.querySelector('h3').textContent;
@@ -1571,34 +1863,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    window.addEventListener('scroll', function() {
-        const scrolled = window.pageYOffset;
-        const hero = document.querySelector('.hero-section');
-        if (hero) {
-            hero.style.transform = `translateY(${scrolled * 0.5}px)`;
-        }
-    });
-
-    document.querySelectorAll('.product-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const productId = this.getAttribute('data-product-id');
-            
-            anime({
-                targets: this,
-                scale: [1, 0.8, 1],
-                backgroundColor: ['#667eea', '#48bb78', '#667eea'],
-                duration: 600,
-                easing: 'easeInOutQuad'
-            });
-            
-            console.log(`Добавлен товар ID: ${productId}`);
-        });
-    });
-});
-
-// Обработка Cookie
-document.addEventListener('DOMContentLoaded', function() {
+    // Обработка Cookie уведомления
     const cookieNotification = document.getElementById('cookie-notification');
     const acceptCookiesBtn = document.getElementById('accept-cookies');
     const settingsCookiesBtn = document.getElementById('settings-cookies');
@@ -1683,9 +1948,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (settings.functional) {
             initializeFunctionalCookies();
         }
-        
-        // Можно добавить инициализацию конкретных сервисов:
-        // Google Analytics, Yandex.Metrika и т.д.
     }
     
     // Заглушки для инициализации разных типов cookies
@@ -1717,26 +1979,27 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('input[name="functional"]').checked = settings.functional;
     }
     
-    // Обработчики событий
-    acceptCookiesBtn.addEventListener('click', acceptAllCookies);
+    // Обработчики событий для Cookie
+    if (acceptCookiesBtn) {
+        acceptCookiesBtn.addEventListener('click', acceptAllCookies);
+    }
     
-    settingsCookiesBtn.addEventListener('click', function() {
-        loadSettingsToForm();
-        cookieSettings.classList.add('show');
-    });
+    if (settingsCookiesBtn) {
+        settingsCookiesBtn.addEventListener('click', function() {
+            loadSettingsToForm();
+            cookieSettings.classList.add('show');
+        });
+    }
     
-    closeSettingsBtn.addEventListener('click', function() {
-        cookieSettings.classList.remove('show');
-    });
-    
-    saveSettingsBtn.addEventListener('click', saveCookieSettings);
-    
-    // Закрытие по клику вне области (опционально)
-    document.addEventListener('click', function(e) {
-        if (!cookieNotification.contains(e.target) && cookieSettings.classList.contains('show')) {
+    if (closeSettingsBtn) {
+        closeSettingsBtn.addEventListener('click', function() {
             cookieSettings.classList.remove('show');
-        }
-    });
+        });
+    }
+    
+    if (saveSettingsBtn) {
+        saveSettingsBtn.addEventListener('click', saveCookieSettings);
+    }
     
     // Проверяем и показываем уведомление при загрузке
     showCookieNotification();
@@ -1746,66 +2009,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const settings = getCookieSettings();
         initializeCookies(settings);
     }
-    
-    // Добавляем кнопку управления cookies в футер (опционально)
-    function addCookieManagementButton() {
-        const footer = document.querySelector('footer');
-        if (footer && !document.getElementById('cookie-management-btn')) {
-            const manageBtn = document.createElement('button');
-            manageBtn.id = 'cookie-management-btn';
-            manageBtn.innerHTML = 'Управление cookies';
-            manageBtn.style.cssText = `
-                background: transparent;
-                border: 1px solid #667eea;
-                color: #667eea;
-                padding: 8px 16px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-size: 0.8rem;
-                margin: 10px;
-                transition: all 0.3s ease;
-            `;
-            manageBtn.onmouseover = function() {
-                this.style.background = '#667eea';
-                this.style.color = 'white';
-            };
-            manageBtn.onmouseout = function() {
-                this.style.background = 'transparent';
-                this.style.color = '#667eea';
-            };
-            manageBtn.onclick = function() {
-                localStorage.removeItem(COOKIES_ACCEPTED);
-                localStorage.removeItem(COOKIE_SETTINGS);
-                location.reload();
-            };
-            footer.appendChild(manageBtn);
-        }
-    }
-    
-    // кнопкa управления
-    // addCookieManagementButton();
-});
-</script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Элементы модального окна
+    // Модальное окно обратной связи
     const contactModal = document.getElementById('contactModal');
     const closeModal = document.querySelector('.close-modal');
     const contactForm = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
-    const btnText = submitBtn.querySelector('.btn-text');
-    const btnLoading = submitBtn.querySelector('.btn-loading');
+    const btnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
+    const btnLoading = submitBtn ? submitBtn.querySelector('.btn-loading') : null;
     
-    // Находим кнопку "Написать нам" в CTA секции - ИСПРАВЛЕННЫЙ ПОИСК
+    // Находим кнопку "Написать нам" в CTA секции
     const writeUsBtn = document.querySelector('.cta-buttons .btn-secondary');
     
     // Открытие модального окна
     if (writeUsBtn) {
         writeUsBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            contactModal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
+            if (contactModal) {
+                contactModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
         });
     } else {
         console.log('Кнопка "Написать нам" не найдена');
@@ -1815,18 +2038,24 @@ document.addEventListener('DOMContentLoaded', function() {
             if (btn.textContent.includes('Написать нам')) {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    contactModal.style.display = 'block';
-                    document.body.style.overflow = 'hidden';
+                    if (contactModal) {
+                        contactModal.style.display = 'block';
+                        document.body.style.overflow = 'hidden';
+                    }
                 });
             }
         });
     }
     
     // Закрытие модального окна
-    closeModal.addEventListener('click', function() {
-        contactModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    });
+    if (closeModal) {
+        closeModal.addEventListener('click', function() {
+            if (contactModal) {
+                contactModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
     
     // Закрытие при клике вне окна
     window.addEventListener('click', function(e) {
@@ -1836,7 +2065,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Валидация формы
+    // Валидация формы обратной связи
     function validateForm() {
         let isValid = true;
         const name = document.getElementById('contactName').value.trim();
@@ -1887,72 +2116,64 @@ document.addEventListener('DOMContentLoaded', function() {
         return re.test(email);
     }
     
-    // Обработка отправки формы
-    contactForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        if (!validateForm()) return;
-        
-        // Показываем индикатор загрузки
-        btnText.style.display = 'none';
-        btnLoading.style.display = 'inline-block';
-        submitBtn.disabled = true;
-        
-        try {
-            const formData = {
-                name: document.getElementById('contactName').value.trim(),
-                email: document.getElementById('contactEmail').value.trim(),
-                phone: document.getElementById('contactPhone').value.trim(),
-                message: document.getElementById('contactMessage').value.trim()
-            };
+    // Обработка отправки формы обратной связи
+    if (contactForm) {
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            const response = await fetch('/contact/submit/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRFToken()
-                },
-                body: JSON.stringify(formData)
-            });
+            if (!validateForm()) return;
             
-            const data = await response.json();
-            
-            if (data.success) {
-                showMessage('success', data.message);
-                contactForm.reset();
-                setTimeout(() => {
-                    contactModal.style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                }, 2000);
-            } else {
-                showMessage('error', data.error);
+            // Показываем индикатор загрузки
+            if (btnText && btnLoading) {
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'inline-block';
+                submitBtn.disabled = true;
             }
             
-        } catch (error) {
-            console.error('Ошибка:', error);
-            showMessage('error', 'Произошла ошибка при отправке. Попробуйте еще раз.');
-        } finally {
-            // Скрываем индикатор загрузки
-            btnText.style.display = 'inline-block';
-            btnLoading.style.display = 'none';
-            submitBtn.disabled = false;
-        }
-    });
-    
-    function getCSRFToken() {
-        const name = 'csrftoken';
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+            try {
+                const formData = {
+                    name: document.getElementById('contactName').value.trim(),
+                    email: document.getElementById('contactEmail').value.trim(),
+                    phone: document.getElementById('contactPhone').value.trim(),
+                    message: document.getElementById('contactMessage').value.trim()
+                };
+                
+                const response = await fetch('/contact/submit/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('success', data.message);
+                    contactForm.reset();
+                    setTimeout(() => {
+                        if (contactModal) {
+                            contactModal.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                        }
+                    }, 2000);
+                } else {
+                    showMessage('error', data.error);
+                }
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showMessage('error', 'Произошла ошибка при отправке. Попробуйте еще раз.');
+            } finally {
+                // Скрываем индикатор загрузки
+                if (btnText && btnLoading) {
+                    btnText.style.display = 'inline-block';
+                    btnLoading.style.display = 'none';
+                    submitBtn.disabled = false;
                 }
             }
-        }
-        return cookieValue;
+        });
     }
     
     function showMessage(type, text) {
@@ -1965,7 +2186,9 @@ document.addEventListener('DOMContentLoaded', function() {
         messageDiv.textContent = text;
         messageDiv.style.display = 'block';
         
-        contactForm.insertBefore(messageDiv, contactForm.firstChild);
+        if (contactForm) {
+            contactForm.insertBefore(messageDiv, contactForm.firstChild);
+        }
         
         // Автоматически скрываем успешное сообщение
         if (type === 'success') {
@@ -1977,14 +2200,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Закрытие по Escape
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && contactModal.style.display === 'block') {
+        if (e.key === 'Escape' && contactModal && contactModal.style.display === 'block') {
             contactModal.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
     });
 
-    // Добавляем обработчик для отладки
-    console.log('Модальное окно инициализировано');
+    // Отладочная информация
+    console.log('Страница инициализирована');
+    console.log('Найдено кнопок корзины:', document.querySelectorAll('.product-btn').length);
 });
 </script>
 
