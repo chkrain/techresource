@@ -142,28 +142,35 @@
                         {% csrf_token %}
                         
                         <div class="form-section">
-                            <h4>Адрес доставки</h4>
+                            <h4>📦 Адрес доставки</h4>
                             <div class="form-group">
-                                <select name="address_id" class="form-select" required>
-                                    <option value="">Выберите адрес доставки</option>
-                                    {% for address in addresses %}
-                                    <option value="{{ address.id }}" {% if address.is_default %}selected{% endif %}>
-                                        {{ address.title }} - {{ address.city }}, {{ address.address }}
-                                        {% if address.is_default %}(по умолчанию){% endif %}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <small class="form-help">
-                                    <a href="{% url 'profile' %}" class="manage-addresses">Управление адресами</a>
-                                </small>
+                                {% if addresses %}
+                                    <select name="address_id" id="address-select" class="form-select" required>
+                                        <option value="">-- Выберите адрес доставки --</option>
+                                        {% for address in addresses %}
+                                        <option value="{{ address.id }}" {% if address.is_default %}selected{% endif %}>
+                                            {{ address.title }} - {{ address.city }}, {{ address.address }}
+                                            {% if address.is_default %}(по умолчанию){% endif %}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="form-help">
+                                        <a href="{% url 'profile' %}" class="manage-addresses">✏️ Управление адресами</a>
+                                    </small>
+                                {% else %}
+                                    <div class="no-addresses">
+                                        <p>❌ У вас нет сохраненных адресов</p>
+                                        <a href="{% url 'profile' %}" class="btn btn-small">➕ Добавить адрес</a>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         
                         <div class="form-section">
-                            <h4>Способ оплаты</h4>
+                            <h4>💳 Способ оплаты</h4>
                             <div class="payment-methods">
                                 <label class="payment-option">
-                                    <input type="radio" name="payment_method" value="card" checked>
+                                    <input type="radio" name="payment_method" value="card" checked required>
                                     <span class="payment-content">
                                         <span class="payment-icon">💳</span>
                                         <span class="payment-text">
@@ -174,12 +181,39 @@
                                 </label>
                                 
                                 <label class="payment-option">
-                                    <input type="radio" name="payment_method" value="invoice">
+                                    <input type="radio" name="payment_method" value="invoice" required>
                                     <span class="payment-content">
                                         <span class="payment-icon">📄</span>
                                         <span class="payment-text">
                                             <strong>Оплата по счету</strong>
                                             <small>Для юридических лиц</small>
+                                        </span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>🏦 Платежная система</h4>
+                            <div class="payment-systems">
+                                <label class="payment-system-option">
+                                    <input type="radio" name="payment_system" value="yookassa" checked required>
+                                    <span class="system-content">
+                                        <span class="system-icon">🏦</span>
+                                        <span class="system-text">
+                                            <strong>ЮКасса</strong>
+                                            <small>Visa, Mastercard, МИР, ЮMoney, Qiwi</small>
+                                        </span>
+                                    </span>
+                                </label>
+                                
+                                <label class="payment-system-option">
+                                    <input type="radio" name="payment_system" value="cardlink" required>
+                                    <span class="system-content">
+                                        <span class="system-icon">💳</span>
+                                        <span class="system-text">
+                                            <strong>Cardlink</strong>
+                                            <small>Visa, Mastercard, Apple Pay, Google Pay</small>
                                         </span>
                                     </span>
                                 </label>
@@ -220,6 +254,180 @@
 </section>
 
 <style>
+/* Стили для выбора платежной системы */
+.payment-systems {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.payment-system-option {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.payment-system-option:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.payment-system-option input[type="radio"] {
+    margin-right: 1rem;
+    transform: scale(1.2);
+}
+
+.payment-system-option input[type="radio"]:checked + .system-content {
+    color: #0052cc;
+}
+
+.system-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    transition: all 0.3s ease;
+}
+
+.system-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 8px;
+    color: white;
+}
+
+.payment-system-option:nth-child(2) .system-icon {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+}
+
+.system-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.system-text strong {
+    color: #2c3e50;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.system-text small {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+/* Выбранная опция */
+.payment-system-option.selected {
+    border-color: #0052cc;
+    background: linear-gradient(135deg, #f8f9ff, #eef2ff);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+/* Анимация переключения */
+@keyframes systemSelect {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.payment-system-option input[type="radio"]:checked ~ .system-content {
+    animation: systemSelect 0.3s ease;
+}
+
+/* Информация о платежных системах */
+.payment-systems-info {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    border-left: 4px solid #0052cc;
+    color: black;
+}
+
+.payment-system-details {
+    display: none;
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    border-left: 4px solid #48bb78;
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+.payment-system-details.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Иконки платежных систем в деталях */
+.payment-methods-icons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.payment-method-icon {
+    background: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #495057;
+    border: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .payment-systems {
+        gap: 0.5rem;
+    }
+    
+    .payment-system-option {
+        padding: 0.75rem;
+    }
+    
+    .system-content {
+        gap: 0.5rem;
+    }
+    
+    .system-icon {
+        font-size: 1.2rem;
+        width: 35px;
+        height: 35px;
+    }
+    
+    .system-text strong {
+        font-size: 0.9rem;
+    }
+    
+    .system-text small {
+        font-size: 0.75rem;
+    }
+}
+
 .quantity-controls {
     display: flex;
     align-items: center;
@@ -986,7 +1194,313 @@ section {
         justify-content: center;
     }
 }
+
+/* Стили для валидации формы */
+.form-select:invalid,
+.form-select:required:invalid {
+    border-color: #e53e3e;
+    background: #fff5f5;
+}
+
+.form-select:valid {
+    border-color: #48bb78;
+    background: #f0fff4;
+}
+
+/* Стили для отсутствия адресов */
+.no-addresses {
+    background: #fff5f5;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #fed7d7;
+    text-align: center;
+}
+
+.no-addresses p {
+    color: #c53030;
+    margin-bottom: 1rem;
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    background: #0052cc;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    display: inline-block;
+}
+
+.btn-small:hover {
+    background: #0047b3;
+    color: white;
+}
+
+/* Индикатор обязательных полей */
+.form-section h4::after {
+    content: " *";
+    color: #e53e3e;
+}
+
+/* Анимация ошибки */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.form-select:invalid:focus {
+    animation: shake 0.3s ease;
+}
+
+/* Подсветка выбранных опций */
+.payment-option input[type="radio"]:checked + .payment-content {
+    color: #0052cc;
+    font-weight: 600;
+}
+
+.payment-system-option input[type="radio"]:checked + .system-content {
+    color: #0052cc;
+}
+
+/* Анимации для уведомлений */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+}
+
+/* Стили для ошибок полей */
+.field-error {
+    border-color: #e53e3e !important;
+    background: #fff5f5 !important;
+    animation: shake 0.5s ease;
+}
+
+.section-error {
+    border: 1px solid #e53e3e;
+    border-radius: 8px;
+    padding: 0.5rem;
+}
 </style>
+
+<script>
+    // Валидация формы заказа
+document.addEventListener('DOMContentLoaded', function() {
+    const orderForm = document.querySelector('.order-form');
+    const addressSelect = document.getElementById('address-select');
+    const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+    const paymentSystems = document.querySelectorAll('input[name="payment_system"]');
+    
+    if (orderForm) {
+        orderForm.addEventListener('submit', function(e) {
+            let hasErrors = false;
+            
+            // Проверка адреса
+            if (addressSelect && (!addressSelect.value || addressSelect.value === '')) {
+                showFieldError(addressSelect, 'Пожалуйста, выберите адрес доставки');
+                hasErrors = true;
+            } else {
+                clearFieldError(addressSelect);
+            }
+            
+            // Проверка способа оплаты
+            const selectedPaymentMethod = Array.from(paymentMethods).some(radio => radio.checked);
+            if (!selectedPaymentMethod) {
+                showSectionError(document.querySelector('.payment-methods'), 'Пожалуйста, выберите способ оплаты');
+                hasErrors = true;
+            } else {
+                clearSectionError(document.querySelector('.payment-methods'));
+            }
+            
+            // Проверка платежной системы
+            const selectedPaymentSystem = Array.from(paymentSystems).some(radio => radio.checked);
+            if (!selectedPaymentSystem) {
+                showSectionError(document.querySelector('.payment-systems'), 'Пожалуйста, выберите платежную систему');
+                hasErrors = true;
+            } else {
+                clearSectionError(document.querySelector('.payment-systems'));
+            }
+            
+            if (hasErrors) {
+                e.preventDefault();
+                showNotification('Пожалуйста, заполните все обязательные поля', 'error');
+                
+                // Прокрутка к первой ошибке
+                const firstError = document.querySelector('.field-error, .section-error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+    }
+    
+    // Функции для работы с ошибками
+    function showFieldError(field, message) {
+        clearFieldError(field);
+        field.classList.add('field-error');
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        errorDiv.style.cssText = `
+            color: #e53e3e;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            background: #fed7d7;
+            border-radius: 4px;
+            border-left: 3px solid #e53e3e;
+        `;
+        
+        field.parentNode.appendChild(errorDiv);
+    }
+    
+    function clearFieldError(field) {
+        field.classList.remove('field-error');
+        const existingError = field.parentNode.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+    }
+    
+    function showSectionError(section, message) {
+        clearSectionError(section);
+        section.classList.add('section-error');
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'section-error-message';
+        errorDiv.textContent = message;
+        errorDiv.style.cssText = `
+            color: #e53e3e;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #fed7d7;
+            border-radius: 6px;
+            border: 1px solid #e53e3e;
+            text-align: center;
+        `;
+        
+        section.appendChild(errorDiv);
+    }
+    
+    function clearSectionError(section) {
+        section.classList.remove('section-error');
+        const existingError = section.querySelector('.section-error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+    }
+    
+    // Валидация при изменении значений
+    if (addressSelect) {
+        addressSelect.addEventListener('change', function() {
+            if (this.value) {
+                clearFieldError(this);
+            }
+        });
+    }
+    
+    paymentMethods.forEach(radio => {
+        radio.addEventListener('change', function() {
+            clearSectionError(document.querySelector('.payment-methods'));
+        });
+    });
+    
+    paymentSystems.forEach(radio => {
+        radio.addEventListener('change', function() {
+            clearSectionError(document.querySelector('.payment-systems'));
+        });
+    });
+    
+    // Функция показа уведомлений
+    function showNotification(message, type = 'info') {
+        // Удаляем предыдущее уведомление
+        const existingNotification = document.querySelector('.form-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        const notification = document.createElement('div');
+        notification.className = `form-notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-icon">${type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close">&times;</button>
+            </div>
+        `;
+        
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'error' ? '#e53e3e' : type === 'success' ? '#48bb78' : '#0052cc'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            z-index: 10000;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Автоматическое скрытие
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
+        
+        // Закрытие по клику
+        notification.querySelector('.notification-close').addEventListener('click', () => {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        });
+    }
+});
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -1253,4 +1767,79 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<script>
+    // Обработчики для выбора платежной системы
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчики выбора платежной системы
+    const paymentSystemRadios = document.querySelectorAll('input[name="payment_system"]');
+    const paymentSystemOptions = document.querySelectorAll('.payment-system-option');
+    
+    paymentSystemRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Убираем класс selected со всех опций
+            paymentSystemOptions.forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Добавляем класс selected к выбранной опции
+            if (this.checked) {
+                this.closest('.payment-system-option').classList.add('selected');
+            }
+            
+            // Обновляем текст кнопки оформления заказа
+            updateCheckoutButtonText(this.value);
+        });
+    });
+    
+    // Инициализация выбранной опции
+    const selectedRadio = document.querySelector('input[name="payment_system"]:checked');
+    if (selectedRadio) {
+        selectedRadio.closest('.payment-system-option').classList.add('selected');
+        updateCheckoutButtonText(selectedRadio.value);
+    }
+    
+    // Функция обновления текста кнопки
+    function updateCheckoutButtonText(paymentSystem) {
+        const checkoutBtn = document.querySelector('.checkout-btn');
+        if (!checkoutBtn) return;
+        
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        
+        if (paymentMethod === 'invoice') {
+            checkoutBtn.textContent = '📄 Сформировать счет';
+        } else {
+            if (paymentSystem === 'cardlink') {
+                checkoutBtn.textContent = '💳 Оплатить через Cardlink';
+            } else {
+                checkoutBtn.textContent = '🏦 Оплатить через ЮКассу';
+            }
+        }
+    }
+    
+    // Обработчик изменения способа оплаты
+    document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const paymentSystem = document.querySelector('input[name="payment_system"]:checked').value;
+            updateCheckoutButtonText(paymentSystem);
+        });
+    });
+    
+    // Подсказки при наведении на платежные системы
+    paymentSystemOptions.forEach(option => {
+        option.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)';
+        });
+        
+        option.addEventListener('mouseleave', function() {
+            if (!this.classList.contains('selected')) {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            }
+        });
+    });
+});
+</script>
+
 {% endblock %}

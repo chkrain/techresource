@@ -1611,7 +1611,6 @@ function updateActiveFilters(params) {
     
     activeFiltersContainer.innerHTML = activeFiltersHTML;
     
-    // Добавляем обработчики для новых кнопок удаления фильтров
     document.querySelectorAll('.active-filter button').forEach(btn => {
         btn.addEventListener('click', function() {
             const filterName = this.getAttribute('data-filter');
@@ -1662,24 +1661,20 @@ async function loadProducts(page = 1, additionalParams = {}) {
     }
     
     try {
-        // Собираем параметры
         const form = document.getElementById('filtersForm');
         const formData = new FormData(form);
         const params = new URLSearchParams();
         
-        // Добавляем параметры из формы
         for (let [key, value] of formData.entries()) {
             if (value) params.append(key, value);
         }
         
-        // Добавляем дополнительные параметры
         Object.keys(additionalParams).forEach(key => {
             if (additionalParams[key]) {
                 params.append(key, additionalParams[key]);
             }
         });
         
-        // Добавляем страницу
         params.append('page', page);
         
         const response = await fetch(`?${params.toString()}`, {
@@ -1693,18 +1688,15 @@ async function loadProducts(page = 1, additionalParams = {}) {
         const data = await response.json();
         
         if (data.success) {
-            // Обновляем контейнер с товарами
             if (productsContainer) {
                 productsContainer.innerHTML = data.products_html;
             }
             
-            // Обновляем счетчик результатов
             const resultsCount = document.getElementById('resultsCount');
             if (resultsCount) {
                 resultsCount.textContent = data.total_count;
             }
             
-            // Обновляем пагинацию
             if (paginationContainer && data.has_next) {
                 paginationContainer.innerHTML = `
                     ${page > 1 ? `<a href="#" class="pagination-btn" data-page="${page - 1}">← Назад</a>` : '<span></span>'}
@@ -1723,7 +1715,6 @@ async function loadProducts(page = 1, additionalParams = {}) {
                 `;
             }
             
-            // Инициализируем обработчики для новых товаров
             initializeProductHandlers();
             
         } else {
@@ -1744,13 +1735,11 @@ async function loadProducts(page = 1, additionalParams = {}) {
     }
 }
 
-// Функция для загрузки конкретной страницы
 function loadPage(page, event) {
     if (event) event.preventDefault();
     loadProducts(page);
 }
 
-// Функция для сброса всех фильтров
 function clearAllFilters() {
     const form = document.getElementById('filtersForm');
     const inputs = form.querySelectorAll('input, select');
@@ -1770,14 +1759,11 @@ function clearAllFilters() {
         searchInput.value = '';
     }
     
-    // Обновляем URL
     updateURL({});
     
-    // Загружаем товары
     loadProducts(1, {});
 }
 
-// Функция для удаления конкретного фильтра
 function removeFilter(filterName) {
     const form = document.getElementById('filtersForm');
     
@@ -1802,21 +1788,17 @@ function removeFilter(filterName) {
     updateFilters();
 }
 
-// Функция для инициализации обработчиков товаров
 function initializeProductHandlers() {
-    // Обработчики для добавления в корзину
     document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
         btn.addEventListener('click', handleAddToCart);
     });
     
-    // Обработчики для избранного
     document.querySelectorAll('.wishlist-btn').forEach(btn => {
         if (btn.tagName === 'BUTTON') {
             btn.addEventListener('click', handleWishlistToggle);
         }
     });
     
-    // Обработчики для переключения вида
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const view = this.getAttribute('data-view');
@@ -1834,7 +1816,6 @@ function initializeProductHandlers() {
         });
     });
     
-    // Обработчики для кнопок пагинации
     document.querySelectorAll('.pagination-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -1845,7 +1826,6 @@ function initializeProductHandlers() {
         });
     });
     
-    // Обработчики для удаления фильтров
     document.querySelectorAll('.active-filter button').forEach(btn => {
         btn.addEventListener('click', function() {
             const filterName = this.getAttribute('data-filter');
@@ -1854,13 +1834,11 @@ function initializeProductHandlers() {
     });
 }
 
-// Обработчик добавления в корзину
 async function handleAddToCart(e) {
     e.preventDefault();
     const productId = this.getAttribute('data-product-id');
     const originalText = this.innerHTML;
     
-    // Меняем состояние кнопки
     this.innerHTML = '⏳ Добавляем...';
     this.disabled = true;
     this.classList.add('loading');
@@ -1890,7 +1868,6 @@ async function handleAddToCart(e) {
             showToast(data.message || 'Товар добавлен в корзину!', 'success');
             updateCartCounter(data.cart_count);
             
-            // Восстанавливаем кнопку с анимацией успеха
             this.innerHTML = '✅ Добавлено!';
             setTimeout(() => {
                 this.innerHTML = originalText;
@@ -1904,14 +1881,12 @@ async function handleAddToCart(e) {
         console.error('Error:', error);
         showToast(error.message || 'Ошибка при добавлении в корзину', 'error');
         
-        // Восстанавливаем кнопку при ошибке
         this.innerHTML = originalText;
         this.disabled = false;
         this.classList.remove('loading');
     }
 }
 
-// Обработчик избранного
 async function handleWishlistToggle(e) {
     e.preventDefault();
     const productId = this.getAttribute('data-product-id');
@@ -1940,10 +1915,8 @@ async function handleWishlistToggle(e) {
         if (data.success) {
             showToast(data.message, 'success');
             
-            // Обновляем счетчик в хедере
             updateWishlistCounter(data.wishlist_count);
             
-            // Обновляем состояние кнопки
             if (data.action === 'added') {
                 this.classList.add('in-wishlist');
                 if (icon) icon.textContent = '❤️';
@@ -1954,7 +1927,6 @@ async function handleWishlistToggle(e) {
                 this.setAttribute('title', 'Добавить в избранное');
             }
             
-            // Анимация
             if (icon) {
                 icon.style.transform = 'scale(1.3)';
                 setTimeout(() => {
@@ -1971,7 +1943,6 @@ async function handleWishlistToggle(e) {
     }
 }
 
-// Функция для показа toast уведомлений
 function showToast(message, type = 'success') {
     const toastContainer = document.getElementById('toast-container');
     if (!toastContainer) return;
@@ -1997,19 +1968,14 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// Функция для обновления счетчика избранного
 function updateWishlistCounter(count) {
-    // Здесь можно добавить логику обновления счетчика в хедере
     console.log('Wishlist count updated:', count);
 }
 
-// Функция для обновления счетчика корзины
 function updateCartCounter(count) {
-    // Здесь можно добавить логику обновления счетчика в хедере
     console.log('Cart count updated:', count);
 }
 
-// Функция для получения CSRF токена
 function getCSRFToken() {
     const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
     if (csrfInput) {
@@ -2036,17 +2002,14 @@ function getCSRFToken() {
     return cookieValue;
 }
 
-// Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
     initializeProductHandlers();
     
-    // Обработчик для поиска
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', debouncedSearch);
     }
     
-    // Обработчики для фильтров
     const filterSelects = document.querySelectorAll('.filter-select');
     filterSelects.forEach(select => {
         select.addEventListener('change', updateFilters);
@@ -2067,7 +2030,6 @@ document.addEventListener('DOMContentLoaded', function() {
         clearFiltersBtn.addEventListener('click', clearAllFilters);
     }
     
-    // Обработчик для бесконечной прокрутки
     let observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting && !isLoading) {
@@ -2088,7 +2050,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Функция для обновления диапазона цен при изменении категории/бренда
 async function updatePriceRange() {
     const category = document.querySelector('select[name="category"]')?.value || '';
     const brand = document.querySelector('select[name="brand"]')?.value || '';
@@ -2106,7 +2067,6 @@ async function updatePriceRange() {
     }
 }
 
-// Обработчики для обновления диапазона цен
 document.addEventListener('DOMContentLoaded', function() {
     const categorySelect = document.querySelector('select[name="category"]');
     const brandSelect = document.querySelector('select[name="brand"]');

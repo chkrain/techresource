@@ -8,19 +8,20 @@ from django.utils.html import strip_tags
 from django.contrib.admin.views.decorators import staff_member_required
 import datetime
 import json
+from .services.cardlink_service import CardlinkService
 import hashlib
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Min, Max
 from django.utils import timezone
 import secrets
+import hmac
 import requests
 from .models import NotificationLog
 import uuid
 from django.conf import settings
-
 from django.views.decorators.csrf import csrf_exempt
 import random
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -426,12 +427,30 @@ def cart_view(request):
     if request.method == 'POST':
         address_id = request.POST.get('address_id')
         payment_method = request.POST.get('payment_method')
+        payment_system = request.POST.get('payment_system', 'yookassa')
         
-        if not address_id or not payment_method:
-            messages.error(request, 'Выберите адрес доставки и способ оплаты')
+        # Детальная проверка полей
+        errors = []
+        
+        if not address_id or address_id == '':
+            errors.append('Выберите адрес доставки')
+        
+        if not payment_method:
+            errors.append('Выберите способ оплаты')
+        
+        if not payment_system:
+            errors.append('Выберите платежную систему')
+        
+        if errors:
+            for error in errors:
+                messages.error(request, error)
             return redirect('cart')
         
-        address = get_object_or_404(Address, id=address_id, user=request.user)
+        try:
+            address = Address.objects.get(id=address_id, user=request.user)
+        except Address.DoesNotExist:
+            messages.error(request, 'Выбранный адрес не найден')
+            return redirect('cart')
         
         # Проверяем наличие товаров
         for cart_item in cart_items:
@@ -444,6 +463,7 @@ def cart_view(request):
             user=request.user,
             total_price=cart.get_total_price(),
             payment_method=payment_method,
+            payment_system=payment_system,
             customer_name=address.full_name,
             customer_phone=address.phone,
             customer_email=request.user.email,
@@ -462,16 +482,17 @@ def cart_view(request):
         # Очищаем корзину
         cart_items.delete()
         
+        # Перенаправляем в зависимости от способа оплаты и платежной системы
         if payment_method == 'card':
-            return redirect('create_payment', order_id=order.id)
+            if payment_system == 'cardlink':
+                return redirect('create_cardlink_payment', order_id=order.id)
+            else:
+                return redirect('create_payment', order_id=order.id)
         else:
-            # Для оплаты по счету сразу отмечаем как оплачен (т.к. оплата происходит позже)
+            # Для оплаты по счету
             order.status = 'processing'
             order.save()
-            
-            # Отправляем уведомление о новом заказе по счету
             send_invoice_order_notification(order)
-            
             messages.success(request, f'Заказ #{order.id} создан! Мы вышлем счет на вашу почту {request.user.email}.')
             return redirect('orders')
     
@@ -481,7 +502,6 @@ def cart_view(request):
         'addresses': addresses,
     }
     return render(request, 'main/cart.html', context)
-
 
 def send_invoice_order_notification(order):
     """Отправка уведомления о заказе по счету"""
@@ -2643,3 +2663,355 @@ def test_email_sending(request):
         return JsonResponse({'success': True, 'message': 'Email отправлен успешно!'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+    
+@login_required
+def create_cardlink_payment(request, order_id):
+    """Создание платежа через Cardlink API"""
+    order = get_object_or_404(Order, id=order_id, user=request.user, status='pending')
+    
+    print(f"🔧 DEBUG: Начало создания платежа Cardlink для заказа #{order.id}")
+    print(f"🔧 DEBUG: Пользователь: {request.user.username}")
+    print(f"🔧 DEBUG: Сумма заказа: {order.total_price}")
+    
+    try:
+        cardlink_service = CardlinkService()
+        
+        # Отладочная информация о настройках
+        print(f"🔧 DEBUG: Cardlink настройки:")
+        print(f"🔧 DEBUG: - Merchant ID: {cardlink_service.merchant_id}")
+        print(f"🔧 DEBUG: - API URL: {cardlink_service.api_url}")
+        print(f"🔧 DEBUG: - Test mode: {cardlink_service.is_test_mode}")
+        print(f"🔧 DEBUG: - Has token: {bool(cardlink_service.token)}")
+        
+        result = cardlink_service.create_bill(order, request)
+        
+        print(f"🔧 DEBUG: Результат создания счета: {result}")
+        
+        if result['success']:
+            # Сохраняем информацию о платеже
+            order.payment_system = 'cardlink'
+            order.payment_id = result.get('bill_id')
+            order.save()
+            
+            print(f"✅ Создан платеж Cardlink для заказа #{order.id}")
+            print(f"🔗 URL для оплаты: {result['payment_url']}")
+            
+            # ПРОВЕРКА: Куда именно перенаправляем
+            print(f"🔧 DEBUG: Перенаправление на: {result['payment_url']}")
+            
+            # Перенаправляем на страницу оплаты Cardlink
+            return redirect(result['payment_url'])
+        else:
+            error_msg = f'Ошибка при создании платежа: {result["error"]}'
+            print(f"❌ {error_msg}")
+            messages.error(request, error_msg)
+            return redirect('orders')
+        
+    except Exception as e:
+        error_msg = f'Ошибка при создании платежа в Cardlink: {str(e)}'
+        print(f"❌ Исключение: {error_msg}")
+        import traceback
+        print(f"🔧 DEBUG: Traceback: {traceback.format_exc()}")
+        
+        messages.error(request, error_msg)
+        return redirect('orders')
+    
+@login_required
+def cardlink_mock_process(request, order_id):
+    """Обработка mock-платежа Cardlink - страница выбора результата"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # Если это GET запрос - показываем страницу выбора
+    if request.method == 'GET':
+        context = {
+            'order': order,
+            'payment_url': f"http://127.0.0.1:8000/payment/cardlink/mock/{order.id}/"
+        }
+        return render(request, 'main/cardlink_mock.html', context)
+    
+    # Если POST запрос - обрабатываем действие
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'success':
+            # Имитируем успешный платеж
+            order.status = 'paid'
+            order.paid_at = timezone.now()
+            order.cardlink_transaction_id = f"mock_{uuid.uuid4().hex[:16]}"
+            order.save()
+            
+            # Уменьшаем количество товаров
+            for item in order.orderitem_set.all():
+                if item.product.quantity >= item.quantity:
+                    item.product.quantity -= item.quantity
+                    item.product.save()
+            
+            send_order_notification(order)
+            messages.success(request, '✅ Оплата прошла успешно! Заказ подтвержден.')
+            return redirect('payment_success', order_id=order.id)
+            
+        elif action == 'fail':
+            # Имитируем неудачный платеж
+            order.status = 'cancelled'
+            order.cancelled_at = timezone.now()
+            order.save()
+            messages.error(request, '❌ Платеж не прошел. Попробуйте еще раз или выберите другой способ оплаты.')
+            return redirect('payment_failed', order_id=order.id)
+    
+    # Если что-то пошло не так
+    return redirect('orders')
+
+@csrf_exempt
+def cardlink_webhook_refund(request):
+    """Webhook для возвратов Cardlink"""
+    if request.method == 'POST':
+        try:
+            data = request.POST.dict()
+            print(f"🔔 Cardlink refund webhook: {data}")
+            
+            # Обработка возврата средств
+            order_id = data.get('InvId')
+            
+            try:
+                order = Order.objects.get(id=order_id)
+                
+                if order.status != 'refunded':
+                    order.status = 'refunded'
+                    order.save()
+                    
+                    # Возвращаем товары на склад
+                    for item in order.orderitem_set.all():
+                        item.product.quantity += item.quantity
+                        item.product.save()
+                    
+                    # Логируем
+                    NotificationLog.objects.create(
+                        order=order,
+                        notification_type='refund_processed',
+                        message=f'Возврат средств для заказа #{order.id} (Cardlink)',
+                        sent_to=order.customer_email,
+                        success=True
+                    )
+                
+                return JsonResponse({'status': 'refunded'})
+                
+            except Order.DoesNotExist:
+                return JsonResponse({'status': 'order_not_found'}, status=404)
+                
+        except Exception as e:
+            print(f"❌ Ошибка в Cardlink refund webhook: {e}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'method_not_allowed'}, status=405)
+
+@csrf_exempt
+def cardlink_webhook_chargeback(request):
+    """Webhook для чарджбэков Cardlink"""
+    if request.method == 'POST':
+        try:
+            data = request.POST.dict()
+            print(f"🔔 Cardlink chargeback webhook: {data}")
+            
+            # Обработка чарджбэка
+            order_id = data.get('InvId')
+            
+            try:
+                order = Order.objects.get(id=order_id)
+                
+                # Помечаем заказ как оспоренный
+                order.status = 'disputed'
+                order.save()
+                
+                # Логируем
+                NotificationLog.objects.create(
+                    order=order,
+                    notification_type='chargeback',
+                    message=f'Чарджбэк для заказа #{order.id} (Cardlink)',
+                    sent_to=order.customer_email,
+                    success=True
+                )
+                
+                # Отправляем уведомление администратору
+                send_chargeback_notification(order)
+                
+                return JsonResponse({'status': 'chargeback_received'})
+                
+            except Order.DoesNotExist:
+                return JsonResponse({'status': 'order_not_found'}, status=404)
+                
+        except Exception as e:
+            print(f"❌ Ошибка в Cardlink chargeback webhook: {e}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'method_not_allowed'}, status=405)
+
+def send_chargeback_notification(order):
+    """Уведомление о чарджбэке"""
+    try:
+        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
+            return False
+            
+        message = f"""
+⚠️ <b>ЧАРДЖБЭК ПО ЗАКАЗУ #{order.id}</b>
+
+👤 <b>Клиент:</b> {order.customer_name}
+📞 <b>Телефон:</b> {order.customer_phone}
+💰 <b>Сумма:</b> {order.total_price} руб.
+🕒 <b>Дата заказа:</b> {order.created_at.strftime('%d.%m.%Y %H:%M')}
+
+<b>Требуется срочная проверка!</b>
+"""
+        
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            'chat_id': settings.TELEGRAM_CHAT_ID,
+            'text': message,
+            'parse_mode': 'HTML'
+        }
+        
+        response = requests.post(url, json=payload, timeout=10)
+        return response.status_code == 200
+        
+    except Exception as e:
+        print(f"❌ Ошибка отправки уведомления о чарджбэке: {e}")
+        return False
+
+@csrf_exempt
+def cardlink_webhook(request):
+    """Webhook для уведомлений от Cardlink (успешная оплата)"""
+    if request.method == 'POST':
+        try:
+            # Получаем данные из POST запроса
+            data = request.POST.dict()
+            
+            print(f"🔔 Cardlink webhook получен: {data}")
+            
+            cardlink_service = CardlinkService()
+            
+            # Проверяем подпись
+            if not cardlink_service.verify_callback_signature(data):
+                print("❌ Неверная подпись в webhook")
+                return JsonResponse({'status': 'invalid_signature'}, status=400)
+            
+            # Извлекаем данные
+            order_id = data.get('InvId')
+            amount = data.get('OutSum')
+            
+            try:
+                order = Order.objects.get(id=order_id)
+                
+                if order.status != 'paid':
+                    order.status = 'paid'
+                    order.paid_at = timezone.now()
+                    order.save()
+                    
+                    # Уменьшаем количество товаров
+                    for item in order.orderitem_set.all():
+                        if item.product.quantity >= item.quantity:
+                            item.product.quantity -= item.quantity
+                            item.product.save()
+                    
+                    send_order_notification(order)
+                    
+                    # Логируем
+                    NotificationLog.objects.create(
+                        order=order,
+                        notification_type='payment_success',
+                        message=f'Заказ #{order.id} оплачен через Cardlink webhook',
+                        sent_to=order.customer_email,
+                        success=True
+                    )
+                    
+                    print(f"✅ Заказ #{order.id} оплачен через Cardlink webhook")
+                
+                return JsonResponse({'status': 'success'})
+                
+            except Order.DoesNotExist:
+                print(f"❌ Заказ #{order_id} не найден")
+                return JsonResponse({'status': 'order_not_found'}, status=404)
+                
+        except Exception as e:
+            print(f"❌ Ошибка в Cardlink webhook: {e}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'method_not_allowed'}, status=405)
+
+@csrf_exempt
+def cardlink_webhook_fail(request):
+    """Webhook для неудачных платежей Cardlink"""
+    if request.method == 'POST':
+        try:
+            data = request.POST.dict()
+            print(f"🔔 Cardlink fail webhook: {data}")
+            
+            cardlink_service = CardlinkService()
+            
+            if not cardlink_service.verify_callback_signature(data):
+                return JsonResponse({'status': 'invalid_signature'}, status=400)
+            
+            order_id = data.get('InvId')
+            
+            try:
+                order = Order.objects.get(id=order_id)
+                
+                if order.status != 'cancelled':
+                    order.status = 'cancelled'
+                    order.cancelled_at = timezone.now()
+                    order.save()
+                    
+                    # Логируем
+                    NotificationLog.objects.create(
+                        order=order,
+                        notification_type='payment_failed',
+                        message=f'Платеж для заказа #{order.id} не удался (Cardlink)',
+                        sent_to=order.customer_email,
+                        success=True
+                    )
+                
+                return JsonResponse({'status': 'cancelled'})
+                
+            except Order.DoesNotExist:
+                return JsonResponse({'status': 'order_not_found'}, status=404)
+                
+        except Exception as e:
+            print(f"❌ Ошибка в Cardlink fail webhook: {e}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'method_not_allowed'}, status=405)
+
+@login_required
+def cardlink_payment_success(request, order_id):
+    """Страница успешной оплаты через Cardlink"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # Проверяем статус заказа
+    if order.status == 'paid':
+        messages.success(request, '✅ Оплата прошла успешно! Заказ подтвержден.')
+    else:
+        # Если статус еще не обновился, проверяем через API
+        if order.payment_id and order.status == 'pending':
+            cardlink_service = CardlinkService()
+            bill_status = cardlink_service.get_bill_status(order.payment_id)
+            
+            if bill_status and bill_status.get('status') == 'paid':
+                order.status = 'paid'
+                order.paid_at = timezone.now()
+                order.save()
+                
+                # Уменьшаем количество товаров
+                for item in order.orderitem_set.all():
+                    if item.product.quantity >= item.quantity:
+                        item.product.quantity -= item.quantity
+                        item.product.save()
+                
+                send_order_notification(order)
+                messages.success(request, '✅ Оплата прошла успешно! Заказ подтвержден.')
+            else:
+                messages.info(request, '⏳ Платеж обрабатывается. Мы уведомим вас, когда он будет завершен.')
+    
+    context = {
+        'order': order,
+        'payment_system': 'cardlink',
+    }
+    
+    return render(request, 'main/payment_success.html', context)

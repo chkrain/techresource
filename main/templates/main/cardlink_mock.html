@@ -1,0 +1,298 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Тестовая оплата - Cardlink{% endblock %}
+
+{% block content %}
+<section class="payment-section">
+    <div class="container">
+        <div class="payment-header">
+            <h1>🧪 Тестовая оплата Cardlink</h1>
+            <p>Заказ #{{ order.id }} - <strong>{{ order.total_price }} ₽</strong></p>
+        </div>
+        
+        <div class="mock-payment-container">
+            <div class="mock-payment-card">
+                <div class="mock-header">
+                    <div class="mock-icon">💳</div>
+                    <h2>Тестовый платежный шлюз</h2>
+                    <p>Имитация оплаты через Cardlink</p>
+                </div>
+                
+                <div class="order-details">
+                    <h3>Детали заказа:</h3>
+                    <div class="detail-item">
+                        <span>Номер заказа:</span>
+                        <strong>#{{ order.id }}</strong>
+                    </div>
+                    <div class="detail-item">
+                        <span>Сумма:</span>
+                        <strong>{{ order.total_price }} ₽</strong>
+                    </div>
+                    <div class="detail-item">
+                        <span>Клиент:</span>
+                        <span>{{ order.customer_name }}</span>
+                    </div>
+                </div>
+
+                <div class="test-cards-info">
+                    <h4>📋 Тестовые сценарии:</h4>
+                    <div class="test-scenarios">
+                        <div class="scenario success">
+                            <strong>Успешная оплата</strong>
+                            <p>Имитирует успешное проведение платежа</p>
+                        </div>
+                        <div class="scenario failed">
+                            <strong>Неудачная оплата</strong>
+                            <p>Имитирует отказ платежной системы</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-actions">
+                    <form method="post" action="{% url 'cardlink_mock_process' order.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="success">
+                        <button type="submit" class="btn btn-success btn-large">
+                            <span class="btn-icon">✅</span>
+                            Успешная оплата
+                        </button>
+                    </form>
+                    
+                    <form method="post" action="{% url 'cardlink_mock_process' order.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="fail">
+                        <button type="submit" class="btn btn-danger btn-large">
+                            <span class="btn-icon">❌</span>
+                            Неудачная оплата
+                        </button>
+                    </form>
+                </div>
+
+                <div class="dev-info">
+                    <h4>🔧 Информация для разработки:</h4>
+                    <ul>
+                        <li>В реальном режиме здесь будет перенаправление на платежный шлюз Cardlink</li>
+                        <li>Для продакшена укажите реальные credentials в настройках</li>
+                        <li>Webhook уведомления также имитируются</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.payment-section {
+    padding: 2rem 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 80vh;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+    color: black;
+}
+
+.payment-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.payment-header h1 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 2.2rem;
+}
+
+.mock-payment-container {
+    display: flex;
+    justify-content: center;
+}
+
+.mock-payment-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 600px;
+}
+
+.mock-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.mock-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.mock-header h2 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.mock-header p {
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+.order-details {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.order-details h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.test-cards-info {
+    margin-bottom: 2rem;
+}
+
+.test-cards-info h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.test-scenarios {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.scenario {
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 2px solid;
+}
+
+.scenario.success {
+    border-color: #48bb78;
+    background: #f0fff4;
+}
+
+.scenario.failed {
+    border-color: #e53e3e;
+    background: #fff5f5;
+}
+
+.scenario strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.scenario p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.payment-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    flex: 1;
+    min-width: 200px;
+    padding: 1.25rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #38a169, #2f855a);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #e53e3e, #c53030);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #c53030, #9b2c2c);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(229, 62, 62, 0.3);
+}
+
+.dev-info {
+    background: #e3f2fd;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #2196f3;
+}
+
+.dev-info h4 {
+    color: #1976d2;
+    margin-bottom: 1rem;
+}
+
+.dev-info ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #2c3e50;
+}
+
+.dev-info li {
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .mock-payment-card {
+        padding: 1.5rem;
+    }
+    
+    .test-scenarios {
+        grid-template-columns: 1fr;
+    }
+    
+    .payment-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        min-width: auto;
+    }
+}
+</style>
+{% endblock %}

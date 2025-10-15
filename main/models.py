@@ -177,6 +177,12 @@ class Order(models.Model):
     PAYMENT_METHODS = [
         ('card', 'Банковская карта'),
         ('invoice', 'По счету'),
+        ('cardlink', 'Cardlink'),  
+    ]
+
+    PAYMENT_SYSTEMS = [
+        ('yookassa', 'ЮКасса'),
+        ('cardlink', 'Cardlink'),
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
@@ -184,7 +190,10 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Общая сумма")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Статус")
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default='card', verbose_name="Способ оплаты")
+    payment_system = models.CharField(max_length=20, choices=PAYMENT_SYSTEMS, default='yookassa', verbose_name="Платежная система")
     payment_id = models.CharField(max_length=100, blank=True, verbose_name="ID платежа")
+    cardlink_transaction_id = models.CharField(max_length=100, blank=True, verbose_name="ID транзакции Cardlink")
+
     
     # Данные доставки
     customer_name = models.CharField(max_length=100, verbose_name="Имя клиента")

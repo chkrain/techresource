@@ -241,3 +241,14 @@ class ProductReviewForm(forms.ModelForm):
         if commit:
             review.save()
         return review
+    
+class PaymentMethodForm(forms.Form):
+    payment_system = forms.ChoiceField(
+        choices=[
+            ('yookassa', 'ЮКасса (Visa, Mastercard, МИР)'),
+            ('cardlink', 'Cardlink (Visa, Mastercard)'),
+        ],
+        widget=forms.RadioSelect,
+        label='Выберите платежную систему',
+        initial='yookassa'
+    )

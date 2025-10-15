@@ -1,0 +1,46 @@
+<!-- main/templates/main/cardlink_payment.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Оплата через Cardlink{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Перенаправление на оплату</h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-credit-card fa-4x text-primary mb-3"></i>
+                        <h3>Оплата заказа #{{ order.id }}</h3>
+                        <p class="lead">Сумма: <strong>{{ order.total_price }} ₽</strong></p>
+                    </div>
+                    
+                    <p>Вы будете перенаправлены на защищенную страницу оплаты Cardlink...</p>
+                    
+                    <div class="spinner-border text-primary mt-3" role="status">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                    
+                    <form id="cardlinkForm" method="post" action="{{ payment_url }}">
+                        {% for key, value in payment_data.items %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endfor %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Автоматическая отправка формы через 2 секунды
+    setTimeout(function() {
+        document.getElementById('cardlinkForm').submit();
+    }, 2000);
+});
+</script>
+{% endblock %}

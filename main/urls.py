@@ -85,7 +85,16 @@ urlpatterns = [
     path('order/update-status/', views.update_order_status, name='update_order_status_post'),
     path('order/<int:order_id>/reorder/', views.reorder_order, name='reorder_order'),
     path('order/<int:order_id>/details/', views.order_details, name='order_details'),
-    
+    path('payment/cardlink/create/<int:order_id>/', views.create_cardlink_payment, name='create_cardlink_payment'),
+    path('payment/cardlink/success/<int:order_id>/', views.cardlink_payment_success, name='cardlink_payment_success'),
+    path('webhook/cardlink/', views.cardlink_webhook, name='cardlink_webhook'),
+    path('webhook/cardlink/fail/', views.cardlink_webhook_fail, name='cardlink_webhook_fail'),
+    path('webhook/cardlink/refund/', views.cardlink_webhook_refund, name='cardlink_webhook_refund'),
+    path('webhook/cardlink/success/', views.cardlink_webhook, name='cardlink_webhook_success'),
+    path('webhook/cardlink/chargeback/', views.cardlink_webhook_chargeback, name='cardlink_webhook_chargeback'),
+    path('webhook/cardlink/fail/', views.cardlink_webhook, name='cardlink_webhook_fail'),
+    path('payment/cardlink/mock/<int:order_id>/', views.cardlink_mock_process, name='cardlink_mock_process'),
+    path('order/<int:order_id>/update-payment/', views.update_order_payment_method, name='update_order_payment'),
 
     # Избранное
     path('wishlist/', views.wishlist_view, name='wishlist'),
