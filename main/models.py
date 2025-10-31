@@ -488,3 +488,60 @@ class ProductReview(models.Model):
             is_approved=True
         ).aggregate(average=Avg('rating'))
         return result['average'] or 0
+
+class SupportTicket(models.Model):
+    STATUS_CHOICES = [
+        ('new', 'Новая'),
+        ('in_progress', 'В обработке'),
+        ('resolved', 'Решена'),
+        ('closed', 'Закрыта'),
+    ]
+    
+    PRIORITY_CHOICES = [
+        ('low', 'Низкий'),
+        ('medium', 'Средний'),
+        ('high', 'Высокий'),
+        ('critical', 'Критический'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    subject = models.CharField(max_length=200, verbose_name='Тема')
+    description = models.TextField(verbose_name='Описание проблемы')
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium', verbose_name='Приоритет')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new', verbose_name='Статус')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name='IP-адрес')
+    user_agent = models.TextField(blank=True, verbose_name='User Agent')
+    screen_resolution = models.CharField(max_length=20, blank=True, null=True)
+    timezone = models.CharField(max_length=50, blank=True, null=True)
+    cookies_enabled = models.BooleanField(default=False)
+    javascript_enabled = models.BooleanField(default=True)
+    
+    class Meta:
+        verbose_name = 'Заявка в поддержку'
+        verbose_name_plural = 'Заявки в поддержку'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Заявка #{self.id} - {self.subject}"
+
+class SupportAttachment(models.Model):
+    ticket = models.ForeignKey(SupportTicket, on_delete=models.CASCADE, related_name='attachments')
+    file = models.FileField(upload_to='support_attachments/%Y/%m/%d/', verbose_name='Файл')
+    file_name = models.CharField(max_length=255, verbose_name='Имя файла')
+    file_size = models.IntegerField(verbose_name='Размер файла')
+    uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата загрузки')
+    
+    class Meta:
+        verbose_name = 'Вложение заявки'
+        verbose_name_plural = 'Вложения заявок'
+
+    def __str__(self):
+        return self.file_name
+
+    def save(self, *args, **kwargs):
+        # Автоматически устанавливаем имя файла при сохранении
+        if not self.file_name and self.file:
+            self.file_name = self.file.name
+        super().save(*args, **kwargs)

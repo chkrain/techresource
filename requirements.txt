@@ -17,3 +17,4 @@ sqlparse==0.5.3
 urllib3==2.5.0
 wrapt==1.17.3
 yookassa==2.4.0
+python-magic==0.4.27

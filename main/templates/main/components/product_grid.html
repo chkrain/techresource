@@ -11,13 +11,6 @@
             {% endif %}
         </div>
         
-        <!-- Бейдж количества изображений -->
-        {% if product.get_images_count > 1 %}
-        <div class="image-count-badge">
-            <span class="badge image-badge">🖼️ {{ product.get_images_count }}</span>
-        </div>
-        {% endif %}
-        
         <!-- Кнопка избранного -->
         <div class="product-wishlist">
             {% if user.is_authenticated %}
@@ -127,18 +120,15 @@
 </div>
 
 <style>
-.image-count-badge {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    z-index: 5;
-}
-
 .image-badge {
     background: rgba(102, 126, 234, 0.9);
     color: white;
     font-size: 0.7rem;
     padding: 0.3rem 0.6rem;
     backdrop-filter: blur(10px);
+}
+
+.product-image {
+    border-radius: 20px;
 }
 </style>

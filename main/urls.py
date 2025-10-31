@@ -73,7 +73,8 @@ urlpatterns = [
     path('profile/address/delete/<int:address_id>/', views.delete_address, name='delete_address'),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('moderate-review/<int:review_id>/', views.moderate_review, name='moderate_review'),
-    
+
+    path('support/', views.support_view, name='support'),
     
     # Корзина и заказы
     path('cart/', views.cart_view, name='cart'),

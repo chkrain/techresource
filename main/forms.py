@@ -11,8 +11,9 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from .models import LoginAttempt, ProductReview
-
+import os
 User = get_user_model()
+from .models import SupportTicket
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -252,3 +253,14 @@ class PaymentMethodForm(forms.Form):
         label='Выберите платежную систему',
         initial='yookassa'
     )
+
+class SupportTicketForm(forms.ModelForm):
+    attachments = forms.FileField(
+        required=False,
+        widget=forms.ClearableFileInput(),
+        label='Прикрепить файл'
+    )
+    
+    class Meta:
+        model = SupportTicket
+        fields = ['subject', 'description', 'priority']

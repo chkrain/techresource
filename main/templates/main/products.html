@@ -645,9 +645,8 @@ select.filter-select option:checked {
 .products-grid.list-view .product-content {
     flex: 1;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr auto;
+    grid-template-columns: 2fr 3fr 1fr 1.5fr;
     align-items: center;
-    gap: 1.5rem;
     padding: 0;
     min-width: 0;
 }
@@ -694,6 +693,10 @@ select.filter-select option:checked {
     top: 1rem;
     right: 1rem;
     z-index: 5;
+}
+
+.products-grid.list-view .product-badge {
+    display: none;
 }
 
 .badge {
@@ -877,10 +880,8 @@ select.filter-select option:checked {
 }
 
 .product-meta {
-    margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
 }
 
 .price-section {
@@ -1505,6 +1506,8 @@ body {
         justify-content: center;
     }
 }
+
+
 </style>
 
 <script>

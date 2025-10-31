@@ -1,0 +1,977 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Техническая поддержка - Техресурс{% endblock %}
+
+{% block extra_css %}
+<style>
+.support-section {
+    padding: 4rem 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+}
+
+.support-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.support-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.support-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #0052cc, #0066cc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.support-subtitle {
+    font-size: 1.2rem;
+    color: #6c757d;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.support-content {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 3rem;
+    align-items: start;
+}
+
+.support-form-container {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.support-info {
+    background: linear-gradient(135deg, #0052cc, #0066cc);
+    color: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.form-control-textarea {
+    resize: vertical;
+    min-height: 150px;
+    font-family: inherit;
+}
+
+.file-drop-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    cursor: pointer;
+    position: relative;
+}
+
+.file-drop-area:hover {
+    border-color: #0052cc;
+    background: #e3f2fd;
+}
+
+.file-drop-area.dragover {
+    border-color: #0052cc;
+    background: #e3f2fd;
+    transform: scale(1.02);
+}
+
+.file-input {
+    display: none;
+}
+
+.file-drop-content {
+    color: #6c757d;
+}
+
+.file-drop-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+.file-drop-text {
+    margin-bottom: 1rem;
+}
+
+.file-drop-text strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.file-list {
+    margin-top: 1rem;
+    text-align: left;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    border: 1px solid #e9ecef;
+    animation: slideIn 0.3s ease;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.file-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0052cc;
+}
+
+.file-name {
+    font-weight: 500;
+    color: #2c3e50;
+    word-break: break-word;
+}
+
+.file-size {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.file-remove {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+    margin-left: 1rem;
+}
+
+.file-remove:hover {
+    background: #f8d7da;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #0052cc, #0066cc);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 82, 204, 0.3);
+}
+
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-loading .spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+.info-section {
+    margin-bottom: 2rem;
+}
+
+.info-section:last-child {
+    margin-bottom: 0;
+}
+
+.info-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+}
+
+.info-list li {
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.info-list li::before {
+    content: '✓';
+    color: #48bb78;
+    font-weight: bold;
+}
+
+.contact-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.contact-method {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    transition: background 0.3s ease;
+}
+
+.contact-method:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.contact-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+}
+
+.contact-details {
+    flex: 1;
+}
+
+.contact-type {
+    font-weight: 600;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.contact-value {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0052cc, #0066cc);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.upload-limits {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.upload-limits.warning {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.single-file-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    color:black;
+}
+
+.single-file-warning i {
+    color: #856404;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.support-form-container,
+.support-info {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.support-form-container {
+    animation-delay: 0.1s;
+}
+
+.support-info {
+    animation-delay: 0.2s;
+}
+
+/* Адаптивность */
+@media (max-width: 968px) {
+    .support-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .support-title {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .support-section {
+        padding: 2rem 0;
+    }
+    
+    .support-form-container,
+    .support-info {
+        padding: 1.5rem;
+    }
+    
+    .support-title {
+        font-size: 2rem;
+    }
+    
+    .file-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .file-remove {
+        align-self: flex-end;
+        margin-left: 0;
+    }
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #c3e6cb;
+    animation: slideIn 0.3s ease;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #f5c6cb;
+    animation: slideIn 0.3s ease;
+}
+
+.attachment-preview {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    border: 2px solid #e9ecef;
+}
+
+.file-type-badge {
+    background: #0052cc;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+}
+
+/* Стилизация полей формы */
+.form-control {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    font-family: inherit;
+    color: #2c3e50;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #0052cc;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+/* Специфичные стили для textarea */
+.form-control-textarea {
+    resize: vertical;
+    min-height: 150px;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+/* Стилизация select (выпадающего списка) */
+.select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.select-wrapper::after {
+    content: "▼";
+    font-size: 12px;
+    color: #6c757d;
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.form-control-select {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    font-family: inherit;
+    color: #2c3e50;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 3rem;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+}
+
+.form-control-select:focus {
+    outline: none;
+    border-color: #0052cc;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+/* Убираем стандартную стрелку в IE */
+.form-control-select::-ms-expand {
+    display: none;
+}
+
+/* Стили для option */
+.form-control-select option {
+    padding: 12px;
+    background: white;
+    color: #2c3e50;
+    border: none;
+}
+
+.form-control-select option:checked {
+    background: #0052cc;
+    color: white;
+}
+
+.form-control-select option:hover {
+    background: #0052cc;
+    color: white;
+}
+
+/* Плейсхолдеры */
+.form-control::placeholder {
+    color: #adb5bd;
+    opacity: 1;
+}
+
+/* Иконки в лейблах */
+.form-label i {
+    width: 20px;
+    text-align: center;
+    color: #0052cc;
+    margin-right: 0.5rem;
+}
+
+/* Состояния ошибок */
+.form-control.error {
+    border-color: #dc3545;
+    background: #f8f9fa;
+}
+
+.form-control.error:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+/* Анимация появления полей */
+.form-group {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.form-group:nth-child(1) { animation-delay: 0.1s; }
+.form-group:nth-child(2) { animation-delay: 0.2s; }
+.form-group:nth-child(3) { animation-delay: 0.3s; }
+.form-group:nth-child(4) { animation-delay: 0.4s; }
+
+/* Кастомный скроллбар для textarea */
+.form-control-textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.form-control-textarea::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.form-control-textarea::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.form-control-textarea::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="support-section">
+    <div class="container support-container">
+        <div class="support-header" data-aos="fade-up">
+            <h1 class="support-title">Техническая поддержка</h1>
+            <p class="support-subtitle">
+                Мы здесь, чтобы помочь! Опишите вашу проблему подробно, и наша команда специалистов оперативно её решит.
+            </p>
+        </div>
+
+        <div class="support-content">
+            <!-- Форма обратной связи -->
+            <div class="support-form-container" data-aos="fade-right">
+                <form id="supportForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="single-file-warning">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Внимание:</strong> Можно загрузить только один файл. Максимальный размер: 25MB
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_subject" class="form-label">
+                            <i class="fas fa-heading"></i> Тема обращения *
+                        </label>
+                        <input type="text" name="subject" id="id_subject" class="form-control" 
+                            placeholder="Кратко опишите суть проблемы..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_priority" class="form-label">
+                            <i class="fas fa-exclamation-circle"></i> Приоритет
+                        </label>
+                        <div class="select-wrapper">
+                            <select name="priority" id="id_priority" class="form-control form-control-select">
+                                <option value="low">Низкий</option>
+                                <option value="medium" selected>Средний</option>
+                                <option value="high">Высокий</option>
+                                <option value="critical">Критический</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_description" class="form-label">
+                            <i class="fas fa-file-alt"></i> Подробное описание *
+                        </label>
+                        <textarea name="description" id="id_description" class="form-control form-control-textarea" 
+                                placeholder="Опишите проблему максимально подробно: что произошло, какие действия привели к проблеме, ожидаемый результат..." 
+                                required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-paperclip"></i> Прикрепленный файл
+                        </label>
+                        
+                        <div class="file-drop-area" id="fileDropArea">
+                            <div class="file-drop-content">
+                                <div class="file-drop-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <div class="file-drop-text">
+                                    <strong>Перетащите файл сюда</strong>
+                                    <p>или нажмите для выбора (только 1 файл)</p>
+                                </div>
+                                <input type="file" name="attachments" id="id_attachments" 
+                                       class="file-input" 
+                                       accept=".jpg,.jpeg,.png,.gif,.bmp,.pdf,.doc,.docx,.txt,.mp4,.avi,.mov,.webm,.zip,.rar">
+                                <button type="button" class="btn btn-outline" onclick="document.getElementById('id_attachments').click()">
+                                    Выбрать файл
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="file-list" id="fileList"></div>
+                        <div class="upload-limits">
+                            ⚡ <strong>Только 1 файл</strong>, максимум 25MB
+                            <br>📁 Поддерживаемые форматы: изображения, PDF, документы, видео, архивы
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="uploadProgress"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <span class="btn-text">
+                            <i class="fas fa-paper-plane"></i> Отправить обращение
+                        </span>
+                        <span class="btn-loading" style="display: none;">
+                            <span class="spinner"></span> Отправка...
+                        </span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Информационная панель -->
+            <div class="support-info" data-aos="fade-left">
+                <div class="info-section">
+                    <h3 class="info-title">
+                        <i class="fas fa-info-circle"></i> Как мы поможем?
+                    </h3>
+                    <ul class="info-list">
+                        <li>Технические консультации</li>
+                        <li>Решение проблем с оборудованием</li>
+                        <li>Помощь с программным обеспечением</li>
+                        <li>Консультации по проектированию</li>
+                        <li>Экстренная техническая поддержка</li>
+                    </ul>
+                </div>
+
+                <div class="info-section">
+                    <h3 class="info-title">
+                        <i class="fas fa-clock"></i> Приоритеты
+                    </h3>
+                    <ul class="info-list">
+                        <li>Низкий и средний: произошло что-то незначительное, к примеру, кнопка на сайте при изменении размера экрана съехала.</li>
+                        <li>Высокий: произошло что-то серьезное, к примеру, не пришли деньги за товар после возврата.</li>
+                        <li>Критический: произошло что-то критическое, безотлагательное, к примеру, найдена серьёзная уязвимость.</li>
+                    </ul>
+                </div>
+
+                <div class="info-section">
+                    <h3 class="info-title">
+                        <i class="fas fa-phone-alt"></i> Другие способы связи
+                    </h3>
+                    <div class="contact-methods">
+                        <div class="contact-method">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-details">
+                                <div class="contact-type">Телефон</div>
+                                <div class="contact-value">+7 (937) 524-68-88</div>
+                            </div>
+                        </div>
+                        <div class="contact-method">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-details">
+                                <div class="contact-type">Email</div>
+                                <div class="contact-value">support@techresurs.ru</div>
+                            </div>
+                        </div>
+                        <div class="contact-method">
+                            <div class="contact-icon">
+                                <i class="fab fa-telegram"></i>
+                            </div>
+                            <div class="contact-details">
+                                <div class="contact-type">Telegram</div>
+                                <div class="contact-value">@techresourceru</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileDropArea = document.getElementById('fileDropArea');
+    const fileInput = document.getElementById('id_attachments');
+    const fileList = document.getElementById('fileList');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const supportForm = document.getElementById('supportForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+
+    let currentFile = null;
+    const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+
+    // Функция для форматирования размера файла
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Функция для получения иконки файла
+    function getFileIcon(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const iconMap = {
+            'jpg': 'fas fa-file-image',
+            'jpeg': 'fas fa-file-image',
+            'png': 'fas fa-file-image',
+            'gif': 'fas fa-file-image',
+            'bmp': 'fas fa-file-image',
+            'pdf': 'fas fa-file-pdf',
+            'doc': 'fas fa-file-word',
+            'docx': 'fas fa-file-word',
+            'txt': 'fas fa-file-alt',
+            'mp4': 'fas fa-file-video',
+            'avi': 'fas fa-file-video',
+            'mov': 'fas fa-file-video',
+            'webm': 'fas fa-file-video',
+            'zip': 'fas fa-file-archive',
+            'rar': 'fas fa-file-archive'
+        };
+        return iconMap[ext] || 'fas fa-file';
+    }
+
+    // Функция для получения типа файла
+    function getFileType(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const typeMap = {
+            'jpg': 'Изображение',
+            'jpeg': 'Изображение',
+            'png': 'Изображение',
+            'gif': 'Изображение',
+            'bmp': 'Изображение',
+            'pdf': 'PDF',
+            'doc': 'Документ',
+            'docx': 'Документ',
+            'txt': 'Текст',
+            'mp4': 'Видео',
+            'avi': 'Видео',
+            'mov': 'Видео',
+            'webm': 'Видео',
+            'zip': 'Архив',
+            'rar': 'Архив'
+        };
+        return typeMap[ext] || 'Файл';
+    }
+
+    // Обновление прогресс-бара
+    function updateProgressBar(fileSize) {
+        const progress = (fileSize / MAX_FILE_SIZE) * 100;
+        uploadProgress.style.width = Math.min(progress, 100) + '%';
+        
+        if (progress > 80) {
+            uploadProgress.style.background = '#dc3545';
+        } else if (progress > 60) {
+            uploadProgress.style.background = '#ffc107';
+        } else {
+            uploadProgress.style.background = 'linear-gradient(90deg, #0052cc, #0066cc)';
+        }
+    }
+
+    // Добавление файла в список
+    function addFileToList(file) {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.innerHTML = `
+            <div class="file-info">
+                <div class="file-icon">
+                    <i class="${getFileIcon(file.name)}"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">
+                        ${formatFileSize(file.size)}
+                        <span class="file-type-badge">${getFileType(file.name)}</span>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="file-remove" onclick="removeFile()">
+                <i class="fas fa-times"></i> Удалить
+            </button>
+        `;
+        fileList.innerHTML = '';
+        fileList.appendChild(fileItem);
+    }
+
+    // Удаление файла из списка
+    window.removeFile = function() {
+        currentFile = null;
+        fileInput.value = '';
+        fileList.innerHTML = '';
+        uploadProgress.style.width = '0%';
+    };
+
+    // Обработка перетаскивания файлов
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        fileDropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        fileDropArea.addEventListener(eventName, () => {
+            fileDropArea.classList.add('dragover');
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        fileDropArea.addEventListener(eventName, () => {
+            fileDropArea.classList.remove('dragover');
+        }, false);
+    });
+
+    fileDropArea.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+
+    // Обработка выбранных файлов
+    function handleFiles(files) {
+        if (files.length === 0) return;
+
+        const file = files[0];
+
+        // Проверка размера файла
+        if (file.size > MAX_FILE_SIZE) {
+            alert(`Файл "${file.name}" слишком большой. Максимальный размер 25MB.`);
+            return;
+        }
+
+        currentFile = file;
+        addFileToList(file);
+        updateProgressBar(file.size);
+    }
+
+    // Обработка отправки формы
+    supportForm.addEventListener('submit', function(e) {
+        // Валидация формы
+        const subject = document.getElementById('id_subject').value.trim();
+        const description = document.getElementById('id_description').value.trim();
+
+        if (!subject) {
+            e.preventDefault();
+            alert('Пожалуйста, укажите тему обращения.');
+            return;
+        }
+
+        if (!description) {
+            e.preventDefault();
+            alert('Пожалуйста, опишите вашу проблему.');
+            return;
+        }
+
+        // Показываем индикатор загрузки
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline-block';
+        submitBtn.disabled = true;
+    });
+
+    // Анимации при загрузке
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+    }
+
+    console.log('Страница поддержки инициализирована');
+});
+</script>
+{% endblock %}

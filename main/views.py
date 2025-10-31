@@ -37,6 +37,12 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth import get_user_model
+import os
+import magic
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from .models import SupportTicket, SupportAttachment
+from .forms import SupportTicketForm
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm
 
 from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview
@@ -2565,7 +2571,6 @@ def reorder_order(request, order_id):
         cart, created = Cart.objects.get_or_create(user=request.user)
         added_count = 0
         
-        # Добавляем все товары из заказа в корзину
         for order_item in order.orderitem_set.all():
             cart_item, created = CartItem.objects.get_or_create(
                 cart=cart,
@@ -2680,7 +2685,6 @@ def create_cardlink_payment(request, order_id):
     try:
         cardlink_service = CardlinkService()
         
-        # Отладочная информация о настройках
         print(f"🔧 DEBUG: Cardlink настройки:")
         print(f"🔧 DEBUG: - Merchant ID: {cardlink_service.merchant_id}")
         print(f"🔧 DEBUG: - API URL: {cardlink_service.api_url}")
@@ -2692,7 +2696,6 @@ def create_cardlink_payment(request, order_id):
         print(f"🔧 DEBUG: Результат создания счета: {result}")
         
         if result['success']:
-            # Сохраняем информацию о платеже
             order.payment_system = 'cardlink'
             order.payment_id = result.get('bill_id')
             order.save()
@@ -2700,10 +2703,8 @@ def create_cardlink_payment(request, order_id):
             print(f"✅ Создан платеж Cardlink для заказа #{order.id}")
             print(f"🔗 URL для оплаты: {result['payment_url']}")
             
-            # ПРОВЕРКА: Куда именно перенаправляем
             print(f"🔧 DEBUG: Перенаправление на: {result['payment_url']}")
             
-            # Перенаправляем на страницу оплаты Cardlink
             return redirect(result['payment_url'])
         else:
             error_msg = f'Ошибка при создании платежа: {result["error"]}'
@@ -2725,7 +2726,6 @@ def cardlink_mock_process(request, order_id):
     """Обработка mock-платежа Cardlink - страница выбора результата"""
     order = get_object_or_404(Order, id=order_id, user=request.user)
     
-    # Если это GET запрос - показываем страницу выбора
     if request.method == 'GET':
         context = {
             'order': order,
@@ -2733,18 +2733,15 @@ def cardlink_mock_process(request, order_id):
         }
         return render(request, 'main/cardlink_mock.html', context)
     
-    # Если POST запрос - обрабатываем действие
     if request.method == 'POST':
         action = request.POST.get('action')
         
         if action == 'success':
-            # Имитируем успешный платеж
             order.status = 'paid'
             order.paid_at = timezone.now()
             order.cardlink_transaction_id = f"mock_{uuid.uuid4().hex[:16]}"
             order.save()
             
-            # Уменьшаем количество товаров
             for item in order.orderitem_set.all():
                 if item.product.quantity >= item.quantity:
                     item.product.quantity -= item.quantity
@@ -2755,7 +2752,6 @@ def cardlink_mock_process(request, order_id):
             return redirect('payment_success', order_id=order.id)
             
         elif action == 'fail':
-            # Имитируем неудачный платеж
             order.status = 'cancelled'
             order.cancelled_at = timezone.now()
             order.save()
@@ -2773,7 +2769,6 @@ def cardlink_webhook_refund(request):
             data = request.POST.dict()
             print(f"🔔 Cardlink refund webhook: {data}")
             
-            # Обработка возврата средств
             order_id = data.get('InvId')
             
             try:
@@ -2783,12 +2778,10 @@ def cardlink_webhook_refund(request):
                     order.status = 'refunded'
                     order.save()
                     
-                    # Возвращаем товары на склад
                     for item in order.orderitem_set.all():
                         item.product.quantity += item.quantity
                         item.product.save()
                     
-                    # Логируем
                     NotificationLog.objects.create(
                         order=order,
                         notification_type='refund_processed',
@@ -2822,11 +2815,9 @@ def cardlink_webhook_chargeback(request):
             try:
                 order = Order.objects.get(id=order_id)
                 
-                # Помечаем заказ как оспоренный
                 order.status = 'disputed'
                 order.save()
                 
-                # Логируем
                 NotificationLog.objects.create(
                     order=order,
                     notification_type='chargeback',
@@ -3019,3 +3010,414 @@ def cardlink_payment_success(request, order_id):
     }
     
     return render(request, 'main/payment_success.html', context)
+
+def support_view(request):
+    if request.method == 'POST':
+        form = SupportTicketForm(request.POST, request.FILES)
+        
+        if form.is_valid():
+            try:
+                # Создаем заявку
+                ticket = form.save(commit=False)
+                
+                # Добавляем информацию о пользователе
+                if request.user.is_authenticated:
+                    ticket.user = request.user
+                
+                # Добавляем техническую информацию
+                ticket.ip_address = get_client_ip(request)
+                ticket.user_agent = request.META.get('HTTP_USER_AGENT', '')
+                
+                ticket.save()
+                
+                # Обрабатываем файл
+                attachment_file = request.FILES.get('attachments')
+                if attachment_file:
+                    try:
+                        # Создаем запись вложения в базе данных
+                        support_attachment = SupportAttachment(
+                            ticket=ticket,
+                            file=attachment_file,
+                            file_name=attachment_file.name,  # Используем .name вместо .file_name
+                            file_size=attachment_file.size
+                        )
+                        support_attachment.save()
+                        
+                    except Exception as e:
+                        print(f"❌ Ошибка сохранения вложения {attachment_file.name}: {e}")
+                
+                # Отправляем уведомление в Telegram
+                # Получаем все вложения для этой заявки
+                ticket_attachments = SupportAttachment.objects.filter(ticket=ticket)
+                send_support_notification(ticket, list(ticket_attachments))
+                
+                messages.success(request, '✅ Ваше обращение успешно отправлено! Мы свяжемся с вами в ближайшее время.')
+                return redirect('support')
+                
+            except Exception as e:
+                print(f"❌ Ошибка создания заявки: {e}")
+                messages.error(request, '❌ Произошла ошибка при отправке обращения. Пожалуйста, попробуйте еще раз.')
+        else:
+            messages.error(request, '❌ Пожалуйста, исправьте ошибки в форме.')
+    else:
+        form = SupportTicketForm()
+    
+    context = {
+        'form': form,
+        'active_tab': 'support'
+    }
+    return render(request, 'main/support.html', context)
+
+def send_simple_attachment(attachment, chat_id=None):
+    """Упрощенная отправка вложения"""
+    try:
+        if chat_id is None:
+            chat_id = settings.TELEGRAM_CHAT_ID_CONTACTS
+            
+        file_path = attachment.file.path
+        
+        # Всегда отправляем как документ
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
+        
+        with open(file_path, 'rb') as file:
+            files = {'document': file}
+            data = {
+                'chat_id': chat_id,
+                'caption': f'Файл: {attachment.file_name}'
+            }
+            
+            response = requests.post(url, data=data, files=files, timeout=30)
+            
+            if response.status_code == 200:
+                print(f"✅ Вложение {attachment.file_name} отправлено")
+                return True
+            else:
+                print(f"❌ Ошибка отправки документа: {response.text}")
+                return False
+                
+    except Exception as e:
+        print(f"❌ Ошибка отправки файла {attachment.file_name}: {e}")
+        return False
+    
+def send_simple_attachment(attachment):
+    """Упрощенная отправка вложения"""
+    try:
+        file_path = attachment.file.path
+        
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
+        
+        with open(file_path, 'rb') as file:
+            files = {'document': file}
+            data = {
+                'chat_id': settings.TELEGRAM_CHAT_ID_CONTACTS,
+                'caption': f'Файл: {attachment.file_name}'
+            }
+            
+            response = requests.post(url, data=data, files=files, timeout=30)
+            
+            if response.status_code == 200:
+                print(f"✅ Вложение {attachment.file_name} отправлено")
+                return True
+            else:
+                print(f"❌ Ошибка отправки документа: {response.text}")
+                return False
+                
+    except Exception as e:
+        print(f"❌ Ошибка отправки файла {attachment.file_name}: {e}")
+        return False
+
+def check_bot_settings():
+    """Проверка настроек бота"""
+    try:
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/getMe"
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            bot_info = response.json()
+            print(f"✅ Бот настроен: {bot_info['result']['username']}")
+            return True
+        else:
+            print(f"❌ Ошибка доступа к боту: {response.text}")
+            return False
+    except Exception as e:
+        print(f"❌ Ошибка проверки бота: {e}")
+        return False
+    
+def send_support_notification(ticket, attachments):
+    """Отправка уведомления о новой заявке в поддержку в Telegram с полной технической информацией"""
+    try:
+        if ticket.priority == 'critical':
+            chat_id = settings.TELEGRAM_CHAT_ID_CRITICAL
+            priority_icon = "🚨🚨🚨"
+            priority_text = "КРИТИЧЕСКИЙ ПРИОРИТЕТ"
+        else:
+            chat_id = settings.TELEGRAM_CHAT_ID_CONTACTS
+            priority_icon = "🆘"
+            priority_text = "НОВОЕ ОБРАЩЕНИЕ"
+        
+        if not settings.TELEGRAM_BOT_TOKEN or not chat_id:
+            print(f"⚠️ TELEGRAM_BOT_TOKEN или chat_id не настроены")
+            return False
+        
+        user_info = "Гость"
+        user_email = "Не указан"
+        user_id = "Не авторизован"
+        
+        if ticket.user:
+            user_info = f"{ticket.user.username}"
+            user_id = f"{ticket.user.id}"
+            user_email = ticket.user.email if ticket.user.email else "Не указан"
+
+        user_agent = ticket.user_agent or "Не указан"
+        browser_info = parse_user_agent(user_agent)
+        
+        additional_info = get_additional_client_info(ticket)
+
+        message = f"""
+{priority_icon} {priority_text} #{ticket.id}
+
+📋 Тема: {ticket.subject}
+🚨 Приоритет: {ticket.get_priority_display()}
+👤 Пользователь: {user_info}
+🆔 User ID: {user_id}
+📧 Email: {user_email}
+
+📝 Описание:
+{ticket.description}
+"""
+        
+        # Отправка основного сообщения
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            'chat_id': chat_id,
+            'text': message
+        }
+        
+        response = requests.post(url, json=payload, timeout=10)
+        
+        if response.status_code != 200:
+            print(f"❌ Ошибка отправки сообщения: {response.text}")
+            return send_fallback_notification(ticket, attachments)
+            
+        # Отправка вложений если есть
+        for attachment in attachments:
+            try:
+                send_attachment_with_quality(attachment, chat_id)
+            except Exception as e:
+                print(f"❌ Ошибка отправки вложения: {e}")
+        
+        # Логируем отправку
+        NotificationLog.objects.create(
+            notification_type='support_ticket',
+            message=f'Заявка поддержки #{ticket.id} отправлена в Telegram ({ "CRITICAL" if ticket.priority == "critical" else "NORMAL" })',
+            sent_to=f"Telegram: {chat_id}",
+            success=True
+        )
+        
+        print(f"✅ Уведомление о заявке #{ticket.id} отправлено в Telegram ({ 'КРИТИЧЕСКИЙ' if ticket.priority == 'critical' else 'ОБЫЧНЫЙ' })")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Ошибка отправки уведомления поддержки: {e}")
+        return send_fallback_notification(ticket, attachments)
+
+def parse_user_agent(user_agent):
+    """Парсинг User-Agent для получения информации о браузере и ОС"""
+    try:
+        # Простой парсинг User-Agent
+        ua = user_agent.lower()
+        browser_info = {}
+        
+        # Определяем браузер
+        if 'chrome' in ua:
+            browser_info['browser'] = 'Chrome'
+        elif 'firefox' in ua:
+            browser_info['browser'] = 'Firefox'
+        elif 'safari' in ua:
+            browser_info['browser'] = 'Safari'
+        elif 'edge' in ua:
+            browser_info['browser'] = 'Edge'
+        elif 'opera' in ua:
+            browser_info['browser'] = 'Opera'
+        else:
+            browser_info['browser'] = 'Неизвестный браузер'
+        
+        # Определяем ОС
+        if 'windows' in ua:
+            browser_info['os'] = 'Windows'
+        elif 'mac' in ua:
+            browser_info['os'] = 'macOS'
+        elif 'linux' in ua:
+            browser_info['os'] = 'Linux'
+        elif 'android' in ua:
+            browser_info['os'] = 'Android'
+        elif 'iphone' in ua or 'ipad' in ua:
+            browser_info['os'] = 'iOS'
+        else:
+            browser_info['os'] = 'Неизвестная ОС'
+        
+        # Определяем устройство
+        if 'mobile' in ua:
+            browser_info['device'] = 'Мобильное'
+        elif 'tablet' in ua:
+            browser_info['device'] = 'Планшет'
+        else:
+            browser_info['device'] = 'Десктоп'
+            
+        return browser_info
+        
+    except Exception as e:
+        print(f"❌ Ошибка парсинга User-Agent: {e}")
+        return {
+            'browser': 'Ошибка парсинга',
+            'os': 'Ошибка парсинга', 
+            'device': 'Ошибка парсинга'
+        }
+
+def get_additional_client_info(ticket):
+    """Получение дополнительной информации о клиенте"""
+    try:
+        
+        info = {
+            'request_method': 'POST',  
+            'host': 'techresource.ru',  # Заменить на реальный домен
+            'path': '/support/',
+            'referer': 'Прямой заход',
+            'cookies_enabled': 'Да (предположительно)',
+            'javascript_enabled': 'Да (предположительно)',
+            'screen_resolution': 'Неизвестно',
+            'timezone': 'Неизвестно'
+        }
+        
+        return info
+        
+    except Exception as e:
+        print(f"❌ Ошибка получения доп. информации: {e}")
+        return {}
+
+def send_attachment_with_quality(attachment, chat_id):
+    """Отправка вложения с сохранением качества фото"""
+    try:
+        file_path = attachment.file.path
+        file_name = attachment.file_name.lower()
+        
+        # Определяем тип файла
+        if any(ext in file_name for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+            # Для изображений отправляем как документ для сохранения качества
+            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
+            
+            with open(file_path, 'rb') as file:
+                files = {'document': file}
+                data = {
+                    'chat_id': chat_id,
+                    'caption': f'Зацените {attachment.file_name}'
+                }
+                
+                response = requests.post(url, data=data, files=files, timeout=30)
+        else:
+            # Для остальных файлов используем стандартный подход
+            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
+            
+            with open(file_path, 'rb') as file:
+                files = {'document': file}
+                data = {
+                    'chat_id': chat_id,
+                    'caption': f'📎 {attachment.file_name}'
+                }
+                
+                response = requests.post(url, data=data, files=files, timeout=30)
+        
+        if response.status_code == 200:
+            print(f"✅ Вложение {attachment.file_name} отправлено с сохранением качества")
+            return True
+        else:
+            print(f"❌ Ошибка отправки вложения: {response.text}")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Ошибка отправки файла {attachment.file_name}: {e}")
+        return False
+
+def send_fallback_notification(ticket, attachments):
+    """Резервный метод отправки уведомления"""
+    try:
+        # Определяем chat_id в зависимости от приоритета
+        if ticket.priority == 'critical':
+            chat_id = settings.TELEGRAM_CHAT_ID_CRITICAL
+            prefix = "🚨🚨🚨 КРИТИЧЕСКАЯ ЗАЯВКА: "
+        else:
+            chat_id = settings.TELEGRAM_CHAT_ID_CONTACTS
+            prefix = "🆘 Новая заявка поддержки: "
+        
+        # Простейшее уведомление без вложений
+        message = f"{prefix}#{ticket.id}\nТема: {ticket.subject}\nПриоритет: {ticket.get_priority_display()}"
+        
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            'chat_id': chat_id,
+            'text': message
+        }
+        
+        response = requests.post(url, json=payload, timeout=10)
+        
+        if response.status_code == 200:
+            print(f"✅ Резервное уведомление отправлено для заявки #{ticket.id}")
+            return True
+        else:
+            print(f"❌ Ошибка резервной отправки: {response.text}")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Критическая ошибка отправки: {e}")
+        return False
+    
+def send_attachment_to_telegram(attachment):
+    """Отправка вложения в Telegram"""
+    try:
+        file_path = attachment.file.path
+        
+        # Определяем тип файла для отправки
+        file_extension = attachment.file_name.lower().split('.')[-1] if attachment.file_name else 'bin'
+        
+        if file_extension in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
+            # Отправка как фото
+            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendPhoto"
+            files = {'photo': open(file_path, 'rb')}
+            data = {
+                'chat_id': settings.TELEGRAM_CHAT_ID_CONTACTS,
+                'caption': f'📎 {attachment.file_name}'
+            }
+        elif file_extension in ['mp4', 'avi', 'mov', 'webm']:
+            # Отправка как видео
+            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendVideo"
+            files = {'video': open(file_path, 'rb')}
+            data = {
+                'chat_id': settings.TELEGRAM_CHAT_ID_CONTACTS,
+                'caption': f'🎥 {attachment.file_name}'
+            }
+        else:
+            # Отправка как документ по умолчанию
+            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
+            files = {'document': open(file_path, 'rb')}
+            data = {
+                'chat_id': settings.TELEGRAM_CHAT_ID_CONTACTS,
+                'caption': f'📄 {attachment.file_name}'
+            }
+        
+        response = requests.post(url, data=data, files=files, timeout=30)
+        
+        # Закрываем файл
+        file_key = list(files.keys())[0]
+        files[file_key].close()
+        
+        if response.status_code != 200:
+            print(f"❌ Ошибка отправки вложения: {response.text}")
+            return False
+            
+        print(f"✅ Вложение {attachment.file_name} отправлено в Telegram")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Ошибка отправки вложения: {e}")
+        return False
+    
