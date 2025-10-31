@@ -1,60 +1,368 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block title %}Сервисное обслуживание - Техресурс{% endblock %}
 
-{% block content %}
-<div class="service-detail-hero">
-    <div class="hero-content">
-        <h1 class="hero-title">Сервисное обслуживание</h1>
-        <p class="hero-subtitle">Плановое ТО и ремонт промышленного оборудования</p>
-    </div>
-</div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/services.css' %}">
+{% endblock %}
 
-<div class="service-detail-container">
+{% block content %}
+
+<!-- Hero Section -->
+<section class="service-hero">
     <div class="container">
-        <div class="service-content">
-            <div class="service-info">
-                <h1>Сервисное обслуживание???</h1>
-                <a href="/services/" class="back-btn">← Назад к услугам</a>
+        <div class="hero-content">
+            <div class="hero-text-content">
+                <div class="hero-breadcrumb">
+                    <a href="/">Главная</a>
+                    <span class="breadcrumb-divider">/</span>
+                    <a href="/services/">Услуги</a>
+                    <span class="breadcrumb-divider">/</span>
+                    <span>Сервисное обслуживание</span>
+                </div>
+                
+                <h1 class="hero-title">Сервисное обслуживание</h1>
+                <p class="hero-subtitle">Комплексное техническое обслуживание и ремонт промышленного оборудования. Гарантия надежной работы ваших систем 24/7.</p>
+                
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <span>Выезд за 2 часа</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🏆</div>
+                        <span>500+ единиц оборудования</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">💰</div>
+                        <span>Экономия до 40%</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🛡️</div>
+                        <span>Гарантия 24 месяца</span>
+                    </div>
+                </div>
+                
+                <div class="hero-actions">
+                    <a href="#contact" class="btn btn-primary">
+                        <span>Заказать обслуживание</span>
+                    </a>
+                    <a href="/services/" class="btn btn-secondary">
+                        <span>Все услуги</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="visual-container">
+                    <div class="visual-decoration"></div>
+                    <div class="visual-decoration"></div>
+                    <div class="visual-placeholder">
+                        <div class="visual-icon">🔧</div>
+                        <div class="visual-text">Профилактика и ремонт</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<style>
-.service-detail-hero {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-    color: white;
-    padding: 120px 0 80px;
-    text-align: center;
-    margin-top: 4%;
-    border-radius: 20px;
-}
+<!-- Stats Section -->
+<section class="stats-section" aria-live="polite" aria-atomic="true">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" data-count="2">0</div>
+                <div class="stat-label">часа среднее время выезда</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="500">0</div>
+                <div class="stat-label">единиц обслуживаемого оборудования</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="40">0</div>
+                <div class="stat-label">% экономия на ремонтах</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="30">0</div>
+                <div class="stat-label">сертифицированных инженеров</div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.service-detail-container {
-    padding: 80px 0;
-}
+<!-- Description Section -->
+<section class="description-section">
+    <div class="container">
+        <div class="description-grid">
+            <div class="description-content">
+                <h2>Профессиональное сервисное обслуживание</h2>
+                <p>Обеспечиваем бесперебойную работу промышленного оборудования через регулярное техническое обслуживание, оперативный ремонт и профилактические работы. Наша команда сертифицированных специалистов готова решить любые технические задачи.</p>
+                
+                <div class="features-list">
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Плановое техническое обслуживание</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Экстренный и аварийный ремонт</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Диагностика и мониторинг оборудования</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Поставка оригинальных запчастей</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="description-image">
+                <div class="image-placeholder">
+                    <div class="placeholder-content">
+                        <div class="placeholder-icon">⚙️</div>
+                        <p>Техническое обслуживание</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.service-content {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-}
+<!-- Services Section -->
+<section class="services-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Виды обслуживания</h2>
+            <p>Комплексный подход к техническому обслуживанию оборудования</p>
+        </div>
+        
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">📅</div>
+                <h3>Плановое ТО</h3>
+                <p>Регулярное профилактическое обслуживание по графику</p>
+                <ul>
+                    <li>Визуальный осмотр</li>
+                    <li>Диагностика систем</li>
+                    <li>Профилактические работы</li>
+                    <li>Регулировка механизмов</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">🚨</div>
+                <h3>Аварийный ремонт</h3>
+                <p>Экстренное восстановление оборудования 24/7</p>
+                <ul>
+                    <li>Выезд в течение 2 часов</li>
+                    <li>Срочная диагностика</li>
+                    <li>Оперативный ремонт</li>
+                    <li>Гарантия на работы</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">🔍</div>
+                <h3>Технический аудит</h3>
+                <p>Комплексная оценка состояния оборудования</p>
+                <ul>
+                    <li>Дефектация оборудования</li>
+                    <li>Анализ износа</li>
+                    <li>Рекомендации по модернизации</li>
+                    <li>Отчет с фотоматериалами</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
 
-.back-btn {
-    display: inline-block;
-    background: #0052cc;
-    color: white;
-    padding: 12px 30px;
-    border-radius: 25px;
-    text-decoration: none;
-    margin-top: 2rem;
-    transition: all 0.3s ease;
-}
+<!-- Process Section -->
+<section class="process-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Процесс обслуживания</h2>
+            <p>Четкая организация работ от заявки до завершения</p>
+        </div>
+        
+        <div class="process-steps">
+            <div class="process-step">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>Заявка и диагностика</h3>
+                    <p>Прием заявки и первичная диагностика оборудования</p>
+                    <ul>
+                        <li>Прием заявки 24/7</li>
+                        <li>Первичная консультация</li>
+                        <li>Выезд специалиста</li>
+                        <li>Комплексная диагностика</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>Согласование работ</h3>
+                    <p>Формирование плана работ и согласование с клиентом</p>
+                    <ul>
+                        <li>Составление сметы</li>
+                        <li>Согласование сроков</li>
+                        <li>Подписание договора</li>
+                        <li>Резервирование запчастей</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h3>Выполнение работ</h3>
+                    <p>Качественное выполнение сервисных работ</p>
+                    <ul>
+                        <li>Профессиональный ремонт</li>
+                        <li>Использование оригинальных запчастей</li>
+                        <li>Соблюдение технологий</li>
+                        <li>Контроль качества</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">04</div>
+                <div class="step-content">
+                    <h3>Сдача и гарантия</h3>
+                    <p>Тестирование оборудования и предоставление гарантии</p>
+                    <ul>
+                        <li>Тестовый запуск</li>
+                        <li>Обучение персонала</li>
+                        <li>Подписание актов</li>
+                        <li>Гарантийные обязательства</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.back-btn:hover {
-    background: #0066cc;
-    transform: translateY(-2px);
-}
-</style>
+<!-- Equipment Section -->
+<section class="tech-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Оборудование которое мы обслуживаем</h2>
+            <p>Широкий спектр промышленного оборудования различных производителей</p>
+        </div>
+        
+        <div class="tech-grid">
+            <div class="tech-card">
+                <div class="tech-icon">🏭</div>
+                <h4>Системы автоматизации</h4>
+                <p>PLC, HMI, SCADA системы и контроллеры</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">⚡</div>
+                <h4>Электрооборудование</h4>
+                <p>Щитовое оборудование, преобразователи, приводы</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🔧</div>
+                <h4>Производственные линии</h4>
+                <p>Конвейеры, роботизированные системы, станки</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🌡️</div>
+                <h4>Климатические системы</h4>
+                <p>Вентиляция, кондиционирование, отопление</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">💧</div>
+                <h4>Насосное оборудование</h4>
+                <p>Насосные станции, системы водоподготовки</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">📊</div>
+                <h4>КИПиА</h4>
+                <p>Приборы контроля и измерения</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Частые вопросы</h2>
+            <p>Ответы на популярные вопросы по сервисному обслуживанию</p>
+        </div>
+        
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Какие гарантии вы предоставляете на работы?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Мы предоставляем гарантию до 24 месяцев на все выполненные работы и установленные запчасти. Гарантийный срок зависит от типа оборудования и характера работ.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Как быстро выезжает специалист по аварийной заявке?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>По аварийным заявкам специалист выезжает в течение 2 часов после получения заявки. В ночное время и выходные дни действует удлиненный срок - до 4 часов.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Работаете ли вы с оборудованием конкретных производителей?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, наши специалисты сертифицированы ведущими производителями промышленного оборудования: Siemens, ABB, Schneider Electric, Allen-Bradley и другими.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Можно ли заключить договор на абонентское обслуживание?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, мы предлагаем гибкие условия абонентского обслуживания с фиксированной ежемесячной стоимостью, что позволяет экономить до 40% на обслуживании оборудования.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section" id="contact">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Нужен надежный сервис?</h2>
+            <p>Оставьте заявку и получите бесплатную консультацию нашего сервисного инженера</p>
+            <div class="cta-actions">
+                <a href="{% url 'contacts' %}" class="btn btn-primary">Заказать обслуживание</a>
+                <a href="/services/" class="btn btn-secondary">Все услуги</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/services.js' %}"></script>
 {% endblock %}

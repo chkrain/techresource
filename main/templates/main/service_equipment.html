@@ -1,60 +1,368 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block title %}Поставка оборудования - Техресурс{% endblock %}
 
-{% block content %}
-<div class="service-detail-hero">
-    <div class="hero-content">
-        <h1 class="hero-title">Поставка оборудования</h1>
-        <p class="hero-subtitle">Комплексные поставки промышленного оборудования</p>
-    </div>
-</div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/services.css' %}">
+{% endblock %}
 
-<div class="service-detail-container">
+{% block content %}
+
+<!-- Hero Section -->
+<section class="service-hero">
     <div class="container">
-        <div class="service-content">
-            <div class="service-info">
-                <h1>Грубо говоря поставка оборудования</h1>
-                <a href="/services/" class="back-btn">← Назад к услугам</a>
+        <div class="hero-content">
+            <div class="hero-text-content">
+                <div class="hero-breadcrumb">
+                    <a href="/">Главная</a>
+                    <span class="breadcrumb-divider">/</span>
+                    <a href="/services/">Услуги</a>
+                    <span class="breadcrumb-divider">/</span>
+                    <span>Поставка оборудования</span>
+                </div>
+                
+                <h1 class="hero-title">Поставка оборудования</h1>
+                <p class="hero-subtitle">Комплексные поставки промышленного оборудования от ведущих мировых производителей. Гарантия качества и оптимальные сроки.</p>
+                
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <span>Срок от 7 дней</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🏆</div>
+                        <span>50+ производителей</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">💰</div>
+                        <span>Экономия до 25%</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🛡️</div>
+                        <span>Гарантия 36 месяцев</span>
+                    </div>
+                </div>
+                
+                <div class="hero-actions">
+                    <a href="#contact" class="btn btn-primary">
+                        <span>Запросить оборудование</span>
+                    </a>
+                    <a href="/services/" class="btn btn-secondary">
+                        <span>Все услуги</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="visual-container">
+                    <div class="visual-decoration"></div>
+                    <div class="visual-decoration"></div>
+                    <div class="visual-placeholder">
+                        <div class="visual-icon">🚚</div>
+                        <div class="visual-text">Поставки под ключ</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<style>
-.service-detail-hero {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-    color: white;
-    padding: 120px 0 80px;
-    text-align: center;
-    margin-top: 4%;
-    border-radius: 20px;
-}
+<!-- Stats Section -->
+<section class="stats-section" aria-live="polite" aria-atomic="true">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" data-count="7">0</div>
+                <div class="stat-label">дней минимальный срок поставки</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="50">0</div>
+                <div class="stat-label">мировых производителей</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="25">0</div>
+                <div class="stat-label">% экономия бюджета</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="1000">0</div>
+                <div class="stat-label">поставленных единиц оборудования</div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.service-detail-container {
-    padding: 80px 0;
-}
+<!-- Description Section -->
+<section class="description-section">
+    <div class="container">
+        <div class="description-grid">
+            <div class="description-content">
+                <h2>Комплексные поставки промышленного оборудования</h2>
+                <p>Обеспечиваем полный цикл поставок - от подбора оборудования под ваши задачи до таможенного оформления и гарантийного обслуживания. Работаем с ведущими мировыми производителями.</p>
+                
+                <div class="features-list">
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Прямые контракты с производителями</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Таможенное оформление под ключ</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Технический подбор оборудования</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Гарантия и постгарантийное обслуживание</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="description-image">
+                <div class="image-placeholder">
+                    <div class="placeholder-content">
+                        <div class="placeholder-icon">📦</div>
+                        <p>Логистика и поставки</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.service-content {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-}
+<!-- Equipment Types Section -->
+<section class="services-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Виды поставляемого оборудования</h2>
+            <p>Широкий спектр промышленного оборудования различных категорий</p>
+        </div>
+        
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">🏭</div>
+                <h3>Системы автоматизации</h3>
+                <p>Полный комплекс оборудования для автоматизации производства</p>
+                <ul>
+                    <li>PLC контроллеры</li>
+                    <li>HMI панели</li>
+                    <li>SCADA системы</li>
+                    <li>Приводная техника</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">⚡</div>
+                <h3>Электрооборудование</h3>
+                <p>Силовое и распределительное электрооборудование</p>
+                <ul>
+                    <li>Щитовое оборудование</li>
+                    <li>Преобразователи частоты</li>
+                    <li>Устройства плавного пуска</li>
+                    <li>Силовые распределители</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">🔧</div>
+                <h3>Производственное оборудование</h3>
+                <p>Оборудование для различных отраслей промышленности</p>
+                <ul>
+                    <li>Промышленные роботы</li>
+                    <li>Станки и обрабатывающие центры</li>
+                    <li>Конвейерные системы</li>
+                    <li>Упаковочное оборудование</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
 
-.back-btn {
-    display: inline-block;
-    background: #0052cc;
-    color: white;
-    padding: 12px 30px;
-    border-radius: 25px;
-    text-decoration: none;
-    margin-top: 2rem;
-    transition: all 0.3s ease;
-}
+<!-- Process Section -->
+<section class="process-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Процесс поставки</h2>
+            <p>Четкая организация процесса от заявки до ввода в эксплуатацию</p>
+        </div>
+        
+        <div class="process-steps">
+            <div class="process-step">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>Технический подбор</h3>
+                    <p>Анализ требований и подбор оптимального оборудования</p>
+                    <ul>
+                        <li>Сбор технических требований</li>
+                        <li>Анализ аналогов на рынке</li>
+                        <li>Подбор оптимального решения</li>
+                        <li>Согласование с клиентом</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>Коммерческое предложение</h3>
+                    <p>Формирование коммерческого предложения и согласование условий</p>
+                    <ul>
+                        <li>Расчет стоимости</li>
+                        <li>Формирование КП</li>
+                        <li>Согласование сроков</li>
+                        <li>Заключение договора</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h3>Заказ и логистика</h3>
+                    <p>Оформление заказа и организация доставки оборудования</p>
+                    <ul>
+                        <li>Оформление заказа у производителя</li>
+                        <li>Таможенное оформление</li>
+                        <li>Организация доставки</li>
+                        <li>Контроль на всех этапах</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">04</div>
+                <div class="step-content">
+                    <h3>Поставка и ввод в эксплуатацию</h3>
+                    <p>Поставка оборудования и сопровождение ввода в эксплуатацию</p>
+                    <ul>
+                        <li>Доставка на объект</li>
+                        <li>Приемо-сдаточные испытания</li>
+                        <li>Пуско-наладочные работы</li>
+                        <li>Обучение персонала</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.back-btn:hover {
-    background: #0066cc;
-    transform: translateY(-2px);
-}
-</style>
+<!-- Manufacturers Section -->
+<section class="tech-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Производители оборудования</h2>
+            <p>Работаем с ведущими мировыми производителями промышленного оборудования</p>
+        </div>
+        
+        <div class="tech-grid">
+            <div class="tech-card">
+                <div class="tech-icon">🔷</div>
+                <h4>Siemens</h4>
+                <p>Системы автоматизации и приводная техника</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🔶</div>
+                <h4>ABB</h4>
+                <p>Электрооборудование и робототехника</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🟢</div>
+                <h4>Schneider Electric</h4>
+                <p>Силовое и распределительное оборудование</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🔵</div>
+                <h4>Rockwell Automation</h4>
+                <p>Контроллеры и системы управления</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🟡</div>
+                <h4>Mitsubishi Electric</h4>
+                <p>Промышленная автоматизация и приводы</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🔴</div>
+                <h4>Fanuc</h4>
+                <p>Промышленные роботы и станки ЧПУ</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Частые вопросы</h2>
+            <p>Ответы на популярные вопросы по поставкам оборудования</p>
+        </div>
+        
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Какие гарантии вы предоставляете на поставляемое оборудование?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Мы предоставляем полную гарантию производителя (обычно 12-36 месяцев) и собственную гарантийную поддержку. Все оборудование сопровождается полным пакетом документов и сертификатами.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Какой минимальный срок поставки оборудования?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Минимальный срок поставки стандартного оборудования со склада - 7 рабочих дней. Для нестандартного оборудования или индивидуальных заказов сроки обсуждаются индивидуально и составляют от 4 до 12 недель.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Оказываете ли вы помощь в таможенном оформлении?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, мы предоставляем услуги таможенного оформления под ключ. Наши специалисты подготовят все необходимые документы, пройдут таможенные процедуры и обеспечат легальный ввоз оборудования.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Можете ли вы помочь с подбором аналогов для экономии бюджета?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, наши инженеры помогут подобрать оборудование-аналог от других производителей, которое будет соответствовать вашим техническим требованиям, но при этом позволит сэкономить до 25% бюджета.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section" id="contact">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Нужно оборудование?</h2>
+            <p>Оставьте заявку и получите бесплатную консультацию нашего специалиста по подбору оборудования</p>
+            <div class="cta-actions">
+                <a href="{% url 'contacts' %}" class="btn btn-primary">Запросить оборудование</a>
+                <a href="/services/" class="btn btn-secondary">Все услуги</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/services.js' %}"></script>
 {% endblock %}

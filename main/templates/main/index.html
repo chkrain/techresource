@@ -2190,7 +2190,6 @@ document.addEventListener('DOMContentLoaded', function() {
             contactForm.insertBefore(messageDiv, contactForm.firstChild);
         }
         
-        // Автоматически скрываем успешное сообщение
         if (type === 'success') {
             setTimeout(() => {
                 messageDiv.remove();
@@ -2198,7 +2197,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Закрытие по Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && contactModal && contactModal.style.display === 'block') {
             contactModal.style.display = 'none';
@@ -2206,9 +2204,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Отладочная информация
     console.log('Страница инициализирована');
-    console.log('Найдено кнопок корзины:', document.querySelectorAll('.product-btn').length);
 });
 </script>
 

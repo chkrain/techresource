@@ -33,6 +33,8 @@ urlpatterns = [
     path('services/equipment/', views.service_equipment, name='service_equipment'),
     path('services/support/', views.service_support, name='service_support'),
     path('services/maintenance/', views.service_maintenance, name='service_maintenance'),
+    path('services/software/instructions/altyshevo/', views.altyshevo_instruction, name='altyshevo_instruction'),
+    
 
     # Восстановление пароля
     path('password-reset/', 

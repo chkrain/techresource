@@ -1,60 +1,356 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block title %}Электромонтажные работы - Техресурс{% endblock %}
 
-{% block content %}
-<div class="service-detail-hero">
-    <div class="hero-content">
-        <h1 class="hero-title">Электромонтажные работы</h1>
-        <p class="hero-subtitle">Полный цикл электромонтажа промышленного оборудования</p>
-    </div>
-</div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/services.css' %}">
+{% endblock %}
 
-<div class="service-detail-container">
+{% block content %}
+
+<!-- Hero Section -->
+<section class="service-hero">
     <div class="container">
-        <div class="service-content">
-            <div class="service-info">
-                <h1>Тут так называемый электромонтаж</h1>
-                <a href="/services/" class="back-btn">← Назад к услугам</a>
+        <div class="hero-content">
+            <div class="hero-text-content">
+                <div class="hero-breadcrumb">
+                    <a href="/">Главная</a>
+                    <span class="breadcrumb-divider">/</span>
+                    <a href="/services/">Услуги</a>
+                    <span class="breadcrumb-divider">/</span>
+                    <span>Электромонтажные работы</span>
+                </div>
+                
+                <h1 class="hero-title">Электромонтажные работы</h1>
+                <p class="hero-subtitle">Полный цикл электромонтажа промышленного оборудования и систем автоматизации. Качество и безопасность по международным стандартам.</p>
+                
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <span>СРО допуск</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🏆</div>
+                        <span>200+ объектов</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">💰</div>
+                        <span>Экономия до 20%</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🛡️</div>
+                        <span>Гарантия 36 месяцев</span>
+                    </div>
+                </div>
+                
+                <div class="hero-actions">
+                    <a href="#contact" class="btn btn-primary">
+                        <span>Заказать монтаж</span>
+                    </a>
+                    <a href="/services/" class="btn btn-secondary">
+                        <span>Все услуги</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="visual-container">
+                    <div class="visual-decoration"></div>
+                    <div class="visual-decoration"></div>
+                    <div class="visual-placeholder">
+                        <div class="visual-icon">🔌</div>
+                        <div class="visual-text">Промышленный электромонтаж</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<style>
-.service-detail-hero {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-    color: white;
-    padding: 120px 0 80px;
-    text-align: center;
-    margin-top: 4%;
-    border-radius: 20px;
-}
+<!-- Stats Section -->
+<section class="stats-section" aria-live="polite" aria-atomic="true">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" data-count="200">0</div>
+                <div class="stat-label">реализованных объектов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="36">0</div>
+                <div class="stat-label">месяца гарантии на работы</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="50">0</div>
+                <div class="stat-label">квалифицированных монтажников</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="15">0</div>
+                <div class="stat-label">лет опыта работы</div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.service-detail-container {
-    padding: 80px 0;
-}
+<!-- Description Section -->
+<section class="description-section">
+    <div class="container">
+        <div class="description-grid">
+            <div class="description-content">
+                <h2>Профессиональный электромонтаж</h2>
+                <p>Выполняем полный комплекс электромонтажных работ для промышленных предприятий. От прокладки кабельных линий до монтажа сложного щитового оборудования и систем автоматизации.</p>
+                
+                <div class="features-list">
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Монтаж силового электрооборудования</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Прокладка кабельных трасс и линий</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Сборка и монтаж щитового оборудования</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Пусконаладочные работы и испытания</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="description-image">
+                <div class="image-placeholder">
+                    <div class="placeholder-content">
+                        <div class="placeholder-icon">⚡</div>
+                        <p>Электромонтажные работы</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.service-content {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-}
+<!-- Services Section -->
+<section class="services-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Виды электромонтажных работ</h2>
+            <p>Комплексный подход к электромонтажу промышленных объектов</p>
+        </div>
+        
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">🔌</div>
+                <h3>Кабельные линии</h3>
+                <p>Прокладка и монтаж силовых и контрольных кабелей</p>
+                <ul>
+                    <li>Проектирование трасс</li>
+                    <li>Монтаж кабеленесущих систем</li>
+                    <li>Прокладка кабелей</li>
+                    <li>Маркировка и испытания</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">🏗️</div>
+                <h3>Щитовое оборудование</h3>
+                <p>Сборка и монтаж распределительных устройств</p>
+                <ul>
+                    <li>Сборка щитов и шкафов</li>
+                    <li>Монтаж автоматики</li>
+                    <li>Коммутация оборудования</li>
+                    <li>Маркировка цепей</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">⚙️</div>
+                <h3>Силовое оборудование</h3>
+                <p>Монтаж трансформаторов, двигателей и приводов</p>
+                <ul>
+                    <li>Установка трансформаторов</li>
+                    <li>Монтаж электродвигателей</li>
+                    <li>Подключение приводов</li>
+                    <li>Заземление и молниезащита</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
 
-.back-btn {
-    display: inline-block;
-    background: #0052cc;
-    color: white;
-    padding: 12px 30px;
-    border-radius: 25px;
-    text-decoration: none;
-    margin-top: 2rem;
-    transition: all 0.3s ease;
-}
+<!-- Standards Section -->
+<section class="tech-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Стандарты и нормативы</h2>
+            <p>Работаем в соответствии с международными стандартами качества</p>
+        </div>
+        
+        <div class="tech-grid">
+            <div class="tech-card">
+                <div class="tech-icon">📋</div>
+                <h4>ПУЭ 7-е издание</h4>
+                <p>Правила устройства электроустановок</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🌐</div>
+                <h4>МЭК 60364</h4>
+                <p>Международный стандарт электромонтажа</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🔧</div>
+                <h4>ГОСТ Р 50571</h4>
+                <p>Электроустановки низковольтные</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">⚡</div>
+                <h4>ПТЭЭП</h4>
+                <p>Правила технической эксплуатации</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-.back-btn:hover {
-    background: #0066cc;
-    transform: translateY(-2px);
-}
-</style>
+<!-- Process Section -->
+<section class="process-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Процесс выполнения работ</h2>
+            <p>Четкая организация электромонтажных работ на объекте</p>
+        </div>
+        
+        <div class="process-steps">
+            <div class="process-step">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>Подготовительные работы</h3>
+                    <p>Подготовка объекта и планирование работ</p>
+                    <ul>
+                        <li>Обследование объекта</li>
+                        <li>Разработка ППР</li>
+                        <li>Подготовка материалов</li>
+                        <li>Организация рабочих мест</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>Основной монтаж</h3>
+                    <p>Выполнение основных электромонтажных работ</p>
+                    <ul>
+                        <li>Монтаж кабельных трасс</li>
+                        <li>Прокладка кабелей</li>
+                        <li>Установка оборудования</li>
+                        <li>Коммутация цепей</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h3>Пусконаладочные работы</h3>
+                    <p>Настройка и проверка работы систем</p>
+                    <ul>
+                        <li>Проверка монтажа</li>
+                        <li>Измерение параметров</li>
+                        <li>Настройка защит</li>
+                        <li>Тестовый запуск</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">04</div>
+                <div class="step-content">
+                    <h3>Сдача и документирование</h3>
+                    <p>Оформление исполнительной документации</p>
+                    <ul>
+                        <li>Испытания и измерения</li>
+                        <li>Оформление актов</li>
+                        <li>Обучение персонала</li>
+                        <li>Передача документации</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Частые вопросы</h2>
+            <p>Ответы на популярные вопросы по электромонтажным работам</p>
+        </div>
+        
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Какие гарантии вы предоставляете на электромонтажные работы?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Мы предоставляем гарантию 36 месяцев на все выполненные электромонтажные работы. Гарантия распространяется на качество монтажа, коммутаций и установки оборудования.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Имеете ли вы допуск СРО на электромонтажные работы?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, наша компания имеет все необходимые допуски СРО и лицензии на выполнение электромонтажных работ. Все работы выполняются в соответствии с действующими нормативами и стандартами.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Какой срок выполнения типового электромонтажного проекта?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Сроки зависят от объема работ: от 2 недель для монтажа отдельного оборудования до 6 месяцев для комплексного оснащения промышленного объекта. Точные сроки определяются после обследования объекта.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Предоставляете ли вы исполнительную документацию?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, мы предоставляем полный комплект исполнительной документации: акты скрытых работ, протоколы испытаний, исполнительные схемы, паспорта оборудования и другие необходимые документы.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section" id="contact">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Нужен качественный электромонтаж?</h2>
+            <p>Оставьте заявку и получите бесплатную консультацию нашего инженера-электрика</p>
+            <div class="cta-actions">
+                <a href="{% url 'contacts' %}" class="btn btn-primary">Заказать монтаж</a>
+                <a href="/services/" class="btn btn-secondary">Все услуги</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/services.js' %}"></script>
 {% endblock %}

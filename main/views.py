@@ -66,6 +66,10 @@ def services(request):
 def privacy_policy(request):
     return render(request, 'main/privacy.html')
 
+def altyshevo_instruction(request):
+    """Отображение инструкции Алтышево"""
+    return render(request, 'main/instructions/altyshevo_instruction.html')
+
 @staff_member_required
 def admin_dashboard(request):
     if not request.user.is_staff:

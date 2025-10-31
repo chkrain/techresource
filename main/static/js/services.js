@@ -1,15 +1,11 @@
-// services.js - улучшенная версия
 document.addEventListener('DOMContentLoaded', function() {
-    // Проверка поддержки Intersection Observer
     if (!('IntersectionObserver' in window)) {
-        // Фолбэк для старых браузеров
         document.querySelectorAll('.stat-number').forEach(counter => {
             counter.textContent = counter.getAttribute('data-count');
         });
         return;
     }
 
-    // Анимация счетчиков с улучшенной логикой
     const statNumbers = document.querySelectorAll('.stat-number');
     let countersAnimated = false;
     
@@ -23,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             
-            // easing function для более плавной анимации
             const easeOutQuart = 1 - Math.pow(1 - progress, 4);
             const currentValue = Math.floor(startValue + (target - startValue) * easeOutQuart);
             
@@ -32,14 +27,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (progress < 1) {
                 requestAnimationFrame(updateCounter);
             } else {
-                element.textContent = target; // Гарантируем точное значение
+                element.textContent = target;
             }
         }
         
         requestAnimationFrame(updateCounter);
     }
     
-    // Оптимизированный Intersection Observer
     const statsObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting && !countersAnimated) {
@@ -58,13 +52,11 @@ document.addEventListener('DOMContentLoaded', function() {
         statsObserver.observe(statsSection);
     }
 
-    // Модальное окно - улучшенная версия
     const caseButtons = document.querySelectorAll('.case-more-btn');
     const modal = document.getElementById('caseModal');
     const modalBody = document.getElementById('modalBody');
     const modalClose = document.querySelector('.modal-close');
     
-    // Данные для модальных окон
     const caseData = {
         1: {
             title: 'Автоматизация производственной линии',
@@ -104,7 +96,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
-    // Управление фокусом для доступности
     let focusedElementBeforeModal;
     
     function openModal(caseId) {
@@ -131,18 +122,14 @@ document.addEventListener('DOMContentLoaded', function() {
         modalContent += `</div>`;
         modalBody.innerHTML = modalContent;
         
-        // Показываем модальное окно
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
         modal.setAttribute('aria-hidden', 'false');
         
-        // Фокусируемся на модальном окне
         modal.focus();
         
-        // Добавляем обработчики для клавиатуры
         document.addEventListener('keydown', handleModalKeydown);
         
-        // Предотвращаем скролл body
         document.body.style.paddingRight = window.innerWidth - document.documentElement.clientWidth + 'px';
         document.body.style.overflow = 'hidden';
     }
@@ -153,12 +140,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.paddingRight = '';
         modal.setAttribute('aria-hidden', 'true');
         
-        // Возвращаем фокус
         if (focusedElementBeforeModal) {
             focusedElementBeforeModal.focus();
         }
         
-        // Убираем обработчики
         document.removeEventListener('keydown', handleModalKeydown);
     }
     
@@ -167,7 +152,6 @@ document.addEventListener('DOMContentLoaded', function() {
             closeModal();
         }
         
-        // Ловим фокус внутри модального окна
         if (e.key === 'Tab' && modal.style.display === 'flex') {
             const focusableElements = modal.querySelectorAll(
                 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -185,14 +169,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Обработчики для модального окна
     caseButtons.forEach(button => {
         button.addEventListener('click', function() {
             const caseId = this.getAttribute('data-case');
             openModal(caseId);
         });
         
-        // Добавляем поддержку клавиатуры для кнопок
         button.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -202,21 +184,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    modalClose.addEventListener('click', closeModal);
-    modalClose.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            closeModal();
-        }
-    });
+    if (modalClose) {
+        modalClose.addEventListener('click', closeModal);
+        modalClose.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                closeModal();
+            }
+        });
+    }
     
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
-    
-    // FAQ аккордеон с улучшенной доступностью
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
+
     const faqItems = document.querySelectorAll('.faq-item');
     
     faqItems.forEach(item => {
@@ -224,7 +209,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const answer = item.querySelector('.faq-answer');
         const toggle = item.querySelector('.faq-toggle');
         
-        // Устанавливаем начальные ARIA-атрибуты
+        if (!question || !answer) return;
+        
         question.setAttribute('aria-expanded', 'false');
         question.setAttribute('role', 'button');
         question.setAttribute('tabindex', '0');
@@ -234,30 +220,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const isActive = item.classList.contains('active');
             
             if (!isActive) {
-                // Закрываем все открытые элементы
                 faqItems.forEach(faqItem => {
-                    faqItem.classList.remove('active');
                     const faqAnswer = faqItem.querySelector('.faq-answer');
                     const faqToggle = faqItem.querySelector('.faq-toggle');
                     const faqQuestion = faqItem.querySelector('.faq-question');
                     
-                    faqAnswer.style.maxHeight = null;
-                    faqToggle.textContent = '+';
-                    faqQuestion.setAttribute('aria-expanded', 'false');
-                    faqAnswer.setAttribute('aria-hidden', 'true');
+                    if (faqAnswer && faqQuestion) {
+                        faqItem.classList.remove('active');
+                        faqAnswer.style.maxHeight = null;
+                        if (faqToggle) faqToggle.textContent = '+';
+                        faqQuestion.setAttribute('aria-expanded', 'false');
+                        faqAnswer.setAttribute('aria-hidden', 'true');
+                    }
                 });
                 
-                // Открываем текущий
                 item.classList.add('active');
                 answer.style.maxHeight = answer.scrollHeight + 'px';
-                toggle.textContent = '−';
+                if (toggle) toggle.textContent = '−';
                 question.setAttribute('aria-expanded', 'true');
                 answer.setAttribute('aria-hidden', 'false');
             } else {
-                // Закрываем текущий
                 item.classList.remove('active');
                 answer.style.maxHeight = null;
-                toggle.textContent = '+';
+                if (toggle) toggle.textContent = '+';
                 question.setAttribute('aria-expanded', 'false');
                 answer.setAttribute('aria-hidden', 'true');
             }
@@ -272,7 +257,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Улучшенная плавная прокрутка
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             const targetId = this.getAttribute('href');
@@ -288,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
                 const startPosition = window.pageYOffset;
-                const distance = targetPosition - startPosition - 100; // Отступ 100px
+                const distance = targetPosition - startPosition - 100;
                 const duration = 1000;
                 let startTime = null;
                 
@@ -316,14 +300,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Добавляем обработку ошибок
     window.addEventListener('error', function(e) {
         console.error('Error in services.js:', e.error);
     });
     
-    // Предотвращаем загрузку ненужных ресурсов если пользователь предпочитает reduced motion
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        // Отключаем сложные анимации
         document.documentElement.style.setProperty('--transition', 'none');
     }
 });

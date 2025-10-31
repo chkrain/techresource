@@ -1,60 +1,337 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block title %}Разработка ПО и SCADA - Техресурс{% endblock %}
 
-{% block content %}
-<div class="service-detail-hero">
-    <div class="hero-content">
-        <h1 class="hero-title">Разработка ПО и SCADA</h1>
-        <p class="hero-subtitle">Создание программного обеспечения для автоматизации процессов</p>
-    </div>
-</div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/services.css' %}">
+{% endblock %}
 
-<div class="service-detail-container">
+{% block content %}
+
+<!-- Hero Section -->
+<section class="service-hero">
     <div class="container">
-        <div class="service-content">
-            <div class="service-info">
-                <h1>Так сказать разработка ПО</h1>
-                <a href="/services/" class="back-btn">← Назад к услугам</a>
+        <div class="hero-content">
+            <div class="hero-text-content">
+                <div class="hero-breadcrumb">
+                    <a href="/">Главная</a>
+                    <span class="breadcrumb-divider">/</span>
+                    <a href="/services/">Услуги</a>
+                    <span class="breadcrumb-divider">/</span>
+                    <span>Разработка ПО и SCADA</span>
+                </div>
+                
+                <h1 class="hero-title">Разработка ПО и SCADA</h1>
+                <p class="hero-subtitle">Создание современных программных решений для автоматизации промышленных процессов. От концепции до внедрения под ключ.</p>
+                
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <span>Срок от 2 недель</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🏆</div>
+                        <span>100+ проектов</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">💰</div>
+                        <span>Экономия до 30%</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🛡️</div>
+                        <span>Гарантия 18 месяцев</span>
+                    </div>
+                </div>
+                
+                <div class="hero-actions">
+                    <a href="#contact" class="btn btn-primary">
+                        <span>Обсудить проект</span>
+                    </a>
+                    <a href="/services/" class="btn btn-secondary">
+                        <span>Все услуги</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="visual-container">
+                    <div class="visual-decoration"></div>
+                    <div class="visual-decoration"></div>
+                    <div class="visual-placeholder">
+                        <div class="visual-icon">💻</div>
+                        <div class="visual-text">SCADA системы</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<style>
-.service-detail-hero {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-    color: white;
-    padding: 120px 0 80px;
-    text-align: center;
-    margin-top: 4%;
-    border-radius: 20px;
-}
+<!-- Stats Section -->
+<section class="stats-section" aria-live="polite" aria-atomic="true">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" data-count="100">0</div>
+                <div class="stat-label">реализованных проектов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="2">0</div>
+                <div class="stat-label">недели минимальный срок</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="30">0</div>
+                <div class="stat-label">% экономия бюджета</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="25">0</div>
+                <div class="stat-label">разработчиков в команде</div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.service-detail-container {
-    padding: 80px 0;
-}
+<!-- Description Section -->
+<section class="description-section">
+    <div class="container">
+        <div class="description-grid">
+            <div class="description-content">
+                <h2>Профессиональная разработка промышленного ПО</h2>
+                <p>Создаем современные программные решения для автоматизации производства, системы диспетчеризации и управления технологическими процессами. Используем передовые технологии и методологии разработки.</p>
+                
+                <div class="features-list">
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>SCADA/HMI системы под ключ</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>ПО для АСУ ТП и MES систем</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Мобильные приложения для мониторинга</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Интеграция с существующими системами</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="description-image">
+                <div class="image-placeholder">
+                    <div class="placeholder-content">
+                        <div class="placeholder-icon">📊</div>
+                        <p>Визуализация данных</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.service-content {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-}
+<!-- Services Section -->
+<section class="services-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Направления разработки</h2>
+            <p>Комплексные решения для автоматизации промышленных процессов</p>
+        </div>
+        
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">🏭</div>
+                <h3>SCADA системы</h3>
+                <p>Разработка систем диспетчеризации и сбора данных</p>
+                <ul>
+                    <li>Мониторинг в реальном времени</li>
+                    <li>Визуализация технологических процессов</li>
+                    <li>Архивирование и анализ данных</li>
+                    <li>Генерация отчетов</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">📱</div>
+                <h3>HMI интерфейсы</h3>
+                <p>Создание интуитивных человеко-машинных интерфейсов</p>
+                <ul>
+                    <li>Панели оператора</li>
+                    <li>Мобильные приложения</li>
+                    <li>Web-интерфейсы</li>
+                    <li>Адаптивный дизайн</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">⚙️</div>
+                <h3>ПО для АСУ ТП</h3>
+                <p>Разработка программного обеспечения для систем управления</p>
+                <ul>
+                    <li>Программирование контроллеров</li>
+                    <li>Алгоритмы управления</li>
+                    <li>Базы данных и отчетность</li>
+                    <li>Интеграционные решения</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
 
-.back-btn {
-    display: inline-block;
-    background: #0052cc;
-    color: white;
-    padding: 12px 30px;
-    border-radius: 25px;
-    text-decoration: none;
-    margin-top: 2rem;
-    transition: all 0.3s ease;
-}
+<section class="tech-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Инструкции по работе со СКАДА системами</h2>
+            <p>Подробные руководства по эксплуатации и управлению промышленным оборудованием</p>
+        </div>
+        
+        <div class="tech-grid">
+            <a href="{% url 'altyshevo_instruction' %}" class="tech-card">
+                <div class="tech-icon">🔵</div>
+                <h4>Алтышево</h4>
+                <p>Инструкция по управлению линиями фасовки и переработки трепела</p>
+            </a>
+        </div>
+    </div>
+</section>
 
-.back-btn:hover {
-    background: #0066cc;
-    transform: translateY(-2px);
-}
-</style>
+<!-- Process Section -->
+<section class="process-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Процесс разработки</h2>
+            <p>Четкая методология от анализа требований до внедрения</p>
+        </div>
+        
+        <div class="process-steps">
+            <div class="process-step">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>Анализ и проектирование</h3>
+                    <p>Изучение требований и проектирование архитектуры системы</p>
+                    <ul>
+                        <li>Сбор и анализ требований</li>
+                        <li>Проектирование архитектуры</li>
+                        <li>Создание технического задания</li>
+                        <li>Согласование с заказчиком</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>Разработка и тестирование</h3>
+                    <p>Создание программного обеспечения и комплексное тестирование</p>
+                    <ul>
+                        <li>Разработка функционала</li>
+                        <li>Модульное тестирование</li>
+                        <li>Интеграционное тестирование</li>
+                        <li>Исправление ошибок</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h3>Внедрение и обучение</h3>
+                    <p>Установка системы на объекте и обучение персонала</p>
+                    <ul>
+                        <li>Установка и настройка</li>
+                        <li>Интеграция с оборудованием</li>
+                        <li>Обучение операторов</li>
+                        <li>Тестовый запуск</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">04</div>
+                <div class="step-content">
+                    <h3>Поддержка и развитие</h3>
+                    <p>Техническая поддержка и дальнейшее развитие системы</p>
+                    <ul>
+                        <li>Гарантийная поддержка</li>
+                        <li>Обновления и доработки</li>
+                        <li>Мониторинг работы</li>
+                        <li>Консультации</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Частые вопросы</h2>
+            <p>Ответы на популярные вопросы по разработке ПО</p>
+        </div>
+        
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Какие сроки разработки типового SCADA проекта?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Сроки разработки зависят от сложности проекта: от 2 недель для простых систем мониторинга до 6 месяцев для комплексных АСУ ТП. Точные сроки определяются после анализа технического задания.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Предоставляете ли вы доступ к исходному коду?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, мы предоставляем полный доступ к исходному коду разработанного ПО. Это позволяет нашим клиентам быть независимыми и при необходимости дорабатывать систему самостоятельно или с другими подрядчиками.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Оказываете ли вы поддержку после внедрения?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, мы предоставляем гарантийную поддержку 18 месяцев и постгарантийное обслуживание. Также предлагаем услуги по развитию и модернизации системы по мере изменения потребностей производства.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Можно ли интегрировать новую систему с существующим оборудованием?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, мы имеем большой опыт интеграции с оборудованием различных производителей. Поддерживаем протоколы OPC UA, Modbus, Profibus, Ethernet/IP и другие промышленные стандарты связи.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section" id="contact">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Готовы автоматизировать процессы?</h2>
+            <p>Оставьте заявку и получите бесплатную консультацию нашего разработчика</p>
+            <div class="cta-actions">
+                <a href="{% url 'contacts' %}" class="btn btn-primary">Обсудить проект</a>
+                <a href="/services/" class="btn btn-secondary">Все услуги</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/services.js' %}"></script>
 {% endblock %}

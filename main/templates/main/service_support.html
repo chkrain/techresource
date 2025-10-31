@@ -1,60 +1,372 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block title %}Техническая поддержка - Техресурс{% endblock %}
 
-{% block content %}
-<div class="service-detail-hero">
-    <div class="hero-content">
-        <h1 class="hero-title">Техническая поддержка</h1>
-        <p class="hero-subtitle">Круглосуточная поддержка и оперативное реагирование</p>
-    </div>
-</div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/services.css' %}">
+{% endblock %}
 
-<div class="service-detail-container">
+{% block content %}
+
+<!-- Hero Section -->
+<section class="service-hero">
     <div class="container">
-        <div class="service-content">
-            <div class="service-info">
-                <h1>Неее)</h1>
-                <a href="/services/" class="back-btn">← Назад к услугам</a>
+        <div class="hero-content">
+            <div class="hero-text-content">
+                <div class="hero-breadcrumb">
+                    <a href="/">Главная</a>
+                    <span class="breadcrumb-divider">/</span>
+                    <a href="/services/">Услуги</a>
+                    <span class="breadcrumb-divider">/</span>
+                    <span>Техническая поддержка</span>
+                </div>
+                
+                <h1 class="hero-title">Техническая поддержка</h1>
+                <p class="hero-subtitle">Круглосуточная поддержка промышленных систем и оперативное решение технических вопросов. Ваше оборудование в надежных руках.</p>
+                
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">⏰</div>
+                        <span>Круглосуточно 24/7</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🏆</div>
+                        <span>15 минут реакция</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">💰</div>
+                        <span>Экономия до 35%</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🛡️</div>
+                        <span>Гарантия SLA</span>
+                    </div>
+                </div>
+                
+                <div class="hero-actions">
+                    <a href="#contact" class="btn btn-primary">
+                        <span>Получить поддержку</span>
+                    </a>
+                    <a href="/services/" class="btn btn-secondary">
+                        <span>Все услуги</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="visual-container">
+                    <div class="visual-decoration"></div>
+                    <div class="visual-decoration"></div>
+                    <div class="visual-placeholder">
+                        <div class="visual-icon">📞</div>
+                        <div class="visual-text">Поддержка 24/7</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<style>
-.service-detail-hero {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-    color: white;
-    padding: 120px 0 80px;
-    text-align: center;
-    margin-top: 4%;
-    border-radius: 20px;
-}
+<!-- Stats Section -->
+<section class="stats-section" aria-live="polite" aria-atomic="true">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" data-count="24">0</div>
+                <div class="stat-label">часа в сутки 7 дней в неделю</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="15">0</div>
+                <div class="stat-label">минут среднее время реакции</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="98">0</div>
+                <div class="stat-label">% решаемость на первом звонке</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-count="200">0</div>
+                <div class="stat-label">объектов под постоянной поддержкой</div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.service-detail-container {
-    padding: 80px 0;
-}
+<!-- Description Section -->
+<section class="description-section">
+    <div class="container">
+        <div class="description-grid">
+            <div class="description-content">
+                <h2>Профессиональная техническая поддержка</h2>
+                <p>Обеспечиваем бесперебойную работу ваших промышленных систем через многоуровневую техническую поддержку. Наша команда экспертов готова оперативно решать любые технические вопросы.</p>
+                
+                <div class="features-list">
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Круглосуточная диспетчерская служба</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Многоуровневая система эскалации</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Удаленная диагностика и настройка</span>
+                    </div>
+                    <div class="feature-point">
+                        <div class="point-icon">✓</div>
+                        <span>Гарантированное время реакции</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="description-image">
+                <div class="image-placeholder">
+                    <div class="placeholder-content">
+                        <div class="placeholder-icon">👨‍💻</div>
+                        <p>Удаленная поддержка</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.service-content {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-}
+<!-- Support Levels Section -->
+<section class="services-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Уровни поддержки</h2>
+            <p>Многоуровневая система оказания технической помощи</p>
+        </div>
+        
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">1️⃣</div>
+                <h3>Первая линия</h3>
+                <p>Базовая техническая поддержка и консультации</p>
+                <ul>
+                    <li>Консультации по телефону</li>
+                    <li>Базовая диагностика</li>
+                    <li>Решение типовых проблем</li>
+                    <li>Регистрация инцидентов</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">2️⃣</div>
+                <h3>Вторая линия</h3>
+                <p>Углубленная техническая поддержка</p>
+                <ul>
+                    <li>Удаленная диагностика</li>
+                    <li>Настройка оборудования</li>
+                    <li>Анализ логов и ошибок</li>
+                    <li>Обновление ПО</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">3️⃣</div>
+                <h3>Третья линия</h3>
+                <p>Экспертная поддержка и разработка</p>
+                <ul>
+                    <li>Решение сложных инцидентов</li>
+                    <li>Доработка программного обеспечения</li>
+                    <li>Выезд специалистов</li>
+                    <li>Архитектурные консультации</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
 
-.back-btn {
-    display: inline-block;
-    background: #0052cc;
-    color: white;
-    padding: 12px 30px;
-    border-radius: 25px;
-    text-decoration: none;
-    margin-top: 2rem;
-    transition: all 0.3s ease;
-}
+<!-- Process Section -->
+<section class="process-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Процесс оказания поддержки</h2>
+            <p>Четкий регламент обработки обращений и решения проблем</p>
+        </div>
+        
+        <div class="process-steps">
+            <div class="process-step">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>Регистрация обращения</h3>
+                    <p>Прием и регистрация обращения в системе учета</p>
+                    <ul>
+                        <li>Прием заявки по телефону/email</li>
+                        <li>Регистрация в системе ITSM</li>
+                        <li>Присвоение приоритета</li>
+                        <li>Назначение ответственного</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>Первичная диагностика</h3>
+                    <p>Быстрая оценка ситуации и определение уровня проблемы</p>
+                    <ul>
+                        <li>Сбор информации о проблеме</li>
+                        <li>Анализ симптомов</li>
+                        <li>Определение уровня поддержки</li>
+                        <li>Эскалация при необходимости</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h3>Решение проблемы</h3>
+                    <p>Профессиональное решение технической проблемы</p>
+                    <ul>
+                        <li>Применение решений из базы знаний</li>
+                        <li>Удаленная или очная помощь</li>
+                        <li>Координация с другими специалистами</li>
+                        <li>Документирование решения</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">04</div>
+                <div class="step-content">
+                    <h3>Завершение и отчетность</h3>
+                    <p>Закрытие обращения и предоставление отчетности</p>
+                    <ul>
+                        <li>Подтверждение решения клиентом</li>
+                        <li>Закрытие обращения в системе</li>
+                        <li>Формирование отчета</li>
+                        <li>Анализ для предотвращения повторения</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-.back-btn:hover {
-    background: #0066cc;
-    transform: translateY(-2px);
-}
-</style>
+<!-- SLA Section -->
+<section class="tech-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Сервисные соглашения (SLA)</h2>
+            <p>Гарантированные уровни обслуживания для вашего бизнеса</p>
+        </div>
+        
+        <div class="tech-grid">
+            <div class="tech-card">
+                <div class="tech-icon">🥉</div>
+                <h4>Базовый</h4>
+                <p>Реакция: 4 часа в рабочее время</p>
+                <div class="sla-details">
+                    <span>Поддержка 8/5</span>
+                    <span>Телефон, email</span>
+                </div>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🥈</div>
+                <h4>Стандартный</h4>
+                <p>Реакция: 2 часа в рабочее время</p>
+                <div class="sla-details">
+                    <span>Поддержка 12/7</span>
+                    <span>+ Удаленный доступ</span>
+                </div>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">🥇</div>
+                <h4>Премиум</h4>
+                <p>Реакция: 30 минут 24/7</p>
+                <div class="sla-details">
+                    <span>Поддержка 24/7</span>
+                    <span>+ Выделенный инженер</span>
+                </div>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">👑</div>
+                <h4>Корпоративный</h4>
+                <p>Реакция: 15 минут 24/7</p>
+                <div class="sla-details">
+                    <span>Индивидуальные условия</span>
+                    <span>+ Проактивный мониторинг</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Частые вопросы</h2>
+            <p>Ответы на популярные вопросы по технической поддержке</p>
+        </div>
+        
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Какие каналы связи доступны для обращения в поддержку?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Мы предоставляем многоканальную поддержку: телефон горячей линии, email, онлайн-чат на сайте, мессенджеры (Telegram, WhatsApp), а также систему удаленного доступа для оперативного решения проблем.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Что такое гарантированное время реакции?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Это максимальное время, в течение которого наш специалист свяжется с вами после получения обращения. В зависимости от выбранного SLA время реакции составляет от 15 минут до 4 часов.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Предоставляете ли вы отчетность по обращениям?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, мы предоставляем ежемесячные отчеты с детализацией всех обращений, временем реакции, статистикой решаемости и рекомендациями по улучшению работы систем.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" aria-expanded="false" role="button" tabindex="0">
+                    <h4>Можно ли изменить уровень SLA в процессе сотрудничества?</h4>
+                    <span class="faq-toggle" aria-hidden="true">+</span>
+                </div>
+                <div class="faq-answer" aria-hidden="true">
+                    <p>Да, уровень обслуживания можно изменить в любое время. Мы предлагаем гибкие условия и можем адаптировать SLA под изменяющиеся потребности вашего бизнеса.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section" id="contact">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Нужна надежная поддержка?</h2>
+            <p>Оставьте заявку и получите бесплатную консультацию по выбору оптимального уровня поддержки</p>
+            <div class="cta-actions">
+                <a href="{% url 'contacts' %}" class="btn btn-primary">Получить поддержку</a>
+                <a href="/services/" class="btn btn-secondary">Все услуги</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/services.js' %}"></script>
 {% endblock %}
