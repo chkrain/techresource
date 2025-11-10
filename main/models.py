@@ -4,13 +4,13 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import date
-from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 import secrets
 import hashlib
 import time
 from datetime import timedelta
 from django.conf import settings
+import json
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE) 
@@ -27,6 +27,13 @@ class UserProfile(models.Model):
     reset_token = models.CharField(max_length=100, blank=True, null=True, verbose_name='Токен сброса')
     reset_token_expires = models.DateTimeField(blank=True, null=True, verbose_name='Токен действует до')
     
+    # Новые поля для безопасности
+    password_changed_at = models.DateTimeField(default=timezone.now, verbose_name='Дата смены пароля')
+    email_verified = models.BooleanField(default=False, verbose_name='Email подтвержден')
+    verification_token = models.CharField(max_length=100, blank=True, null=True)
+    verification_token_created = models.DateTimeField(blank=True, null=True)
+    last_security_notification = models.DateTimeField(blank=True, null=True)
+    
     def __str__(self):
         return f"Профиль {self.user.username}"
     
@@ -40,6 +47,194 @@ class UserProfile(models.Model):
         verbose_name = "Профиль пользователя"
         verbose_name_plural = "Профили пользователей"
 
+class Admin2FA(models.Model):
+    """2FA для администраторов"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    is_enabled = models.BooleanField(default=False, verbose_name='2FA включена')
+    secret_key = models.CharField(max_length=32, verbose_name='Секретный ключ')
+    backup_codes = models.JSONField(default=list, verbose_name='Резервные коды')
+    last_used = models.DateTimeField(null=True, blank=True, verbose_name='Последнее использование')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    
+    def __str__(self):
+        return f"2FA для {self.user.username}"
+    
+    def generate_backup_codes(self):
+        """Генерация резервных кодов"""
+        import secrets
+        self.backup_codes = [secrets.token_hex(4).upper() for _ in range(8)]
+        self.save()
+    
+    def verify_backup_code(self, code):
+        """Проверка резервного кода"""
+        code = code.upper().strip()
+        if code in self.backup_codes:
+            self.backup_codes.remove(code)
+            self.save()
+            return True
+        return False
+    
+    class Meta:
+        verbose_name = "2FA администратора"
+        verbose_name_plural = "2FA администраторов"
+
+class SecurityLog(models.Model):
+    """Расширенный лог безопасности"""
+    ACTION_CHOICES = [
+        ('login', 'Вход в систему'),
+        ('login_failed', 'Неудачная попытка входа'),
+        ('logout', 'Выход из системы'),
+        ('password_change', 'Смена пароля'),
+        ('password_reset_request', 'Запрос сброса пароля'),
+        ('password_reset_success', 'Успешный сброс пароля'),
+        ('profile_update', 'Обновление профиля'),
+        ('register', 'Регистрация'),
+        ('register_failed', 'Неудачная регистрация'),
+        ('email_verification', 'Подтверждение email'),
+        ('payment_attempt', 'Попытка оплаты'),
+        ('payment_success', 'Успешная оплата'),
+        ('payment_failed', 'Неудачная оплата'),
+        ('admin_access', 'Доступ к админке'),
+        ('suspicious_activity', 'Подозрительная активность'),
+        ('fraud_attempt', 'Попытка мошенничества'),
+        ('webhook_received', 'Получен webhook'),
+        ('api_access', 'Доступ к API'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Пользователь")
+    action = models.CharField(max_length=50, choices=ACTION_CHOICES, verbose_name="Действие")
+    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")
+    user_agent = models.TextField(verbose_name="User Agent", blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Время")
+    success = models.BooleanField(default=True, verbose_name="Успешно")
+    details = models.JSONField(default=dict, verbose_name="Детали")
+    risk_level = models.CharField(
+        max_length=10, 
+        choices=[('low', 'Низкий'), ('medium', 'Средний'), ('high', 'Высокий')],
+        default='low',
+        verbose_name="Уровень риска"
+    )
+    
+    def __str__(self):
+        return f"{self.get_action_display()} - {self.user.username if self.user else 'Аноним'} - {self.timestamp}"
+    
+    class Meta:
+        verbose_name = "Лог безопасности"
+        verbose_name_plural = "Логи безопасности"
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['user', 'timestamp']),
+            models.Index(fields=['ip_address', 'timestamp']),
+            models.Index(fields=['action', 'timestamp']),
+        ]
+
+class PaymentAuditLog(models.Model):
+    """Аудит платежных операций"""
+    ACTION_CHOICES = [
+        ('payment_created', 'Платеж создан'),
+        ('payment_succeeded', 'Платеж успешен'),
+        ('payment_failed', 'Платеж не удался'),
+        ('refund_created', 'Возврат создан'),
+        ('refund_succeeded', 'Возврат успешен'),
+        ('webhook_received', 'Webhook получен'),
+        ('webhook_processed', 'Webhook обработан'),
+        ('amount_mismatch', 'Несоответствие суммы'),
+        ('duplicate_payment', 'Дублирующий платеж'),
+    ]
+    
+    order = models.ForeignKey('Order', on_delete=models.CASCADE, verbose_name="Заказ")
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES, verbose_name="Действие")
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Пользователь")
+    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")
+    user_agent = models.TextField(blank=True, verbose_name="User Agent")
+    details = models.JSONField(default=dict, verbose_name="Детали")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    
+    def __str__(self):
+        return f"Аудит платежа #{self.order.id} - {self.get_action_display()}"
+    
+    class Meta:
+        verbose_name = "Аудит платежа"
+        verbose_name_plural = "Аудит платежей"
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['order', 'created_at']),
+            models.Index(fields=['user', 'created_at']),
+        ]
+
+class RateLimitLog(models.Model):
+    """Лог ограничения частоты запросов"""
+    key = models.CharField(max_length=255, verbose_name="Ключ ограничения")
+    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Пользователь")
+    action = models.CharField(max_length=100, verbose_name="Действие")
+    attempts = models.IntegerField(default=1, verbose_name="Попытки")
+    window_start = models.DateTimeField(verbose_name="Начало окна")
+    window_end = models.DateTimeField(verbose_name="Конец окна")
+    blocked_until = models.DateTimeField(null=True, blank=True, verbose_name="Заблокировано до")
+    
+    def __str__(self):
+        return f"RateLimit: {self.key} - {self.ip_address}"
+    
+    class Meta:
+        verbose_name = "Лог ограничения запросов"
+        verbose_name_plural = "Логи ограничения запросов"
+        indexes = [
+            models.Index(fields=['key', 'window_start']),
+            models.Index(fields=['ip_address', 'window_start']),
+        ]
+
+class FraudDetectionLog(models.Model):
+    """Лог обнаружения мошенничества"""
+    SEVERITY_CHOICES = [
+        ('low', 'Низкая'),
+        ('medium', 'Средняя'),
+        ('high', 'Высокая'),
+        ('critical', 'Критическая'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Пользователь")
+    order = models.ForeignKey('Order', on_delete=models.CASCADE, null=True, blank=True, verbose_name="Заказ")
+    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")
+    severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES, verbose_name="Серьезность")
+    description = models.TextField(verbose_name="Описание")
+    reasons = models.JSONField(default=list, verbose_name="Причины")
+    detected_at = models.DateTimeField(auto_now_add=True, verbose_name="Обнаружено")
+    resolved = models.BooleanField(default=False, verbose_name="Решено")
+    resolved_at = models.DateTimeField(null=True, blank=True, verbose_name="Решено в")
+    resolved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
+                                  related_name='resolved_fraud_cases', verbose_name="Решено кем")
+    
+    def __str__(self):
+        return f"Мошенничество: {self.get_severity_display()} - {self.ip_address}"
+    
+    class Meta:
+        verbose_name = "Лог мошенничества"
+        verbose_name_plural = "Логи мошенничества"
+        ordering = ['-detected_at']
+
+class CSPViolationReport(models.Model):
+    """Отчет о нарушениях Content Security Policy"""
+    document_uri = models.URLField(verbose_name="URI документа")
+    violated_directive = models.CharField(max_length=100, verbose_name="Нарушенная директива")
+    effective_directive = models.CharField(max_length=100, verbose_name="Эффективная директива")
+    original_policy = models.TextField(verbose_name="Оригинальная политика")
+    blocked_uri = models.URLField(blank=True, null=True, verbose_name="Заблокированный URI")
+    source_file = models.CharField(max_length=255, blank=True, verbose_name="Исходный файл")
+    line_number = models.IntegerField(null=True, blank=True, verbose_name="Номер строки")
+    column_number = models.IntegerField(null=True, blank=True, verbose_name="Номер колонки")
+    user_agent = models.TextField(verbose_name="User Agent")
+    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    
+    def __str__(self):
+        return f"CSP Violation: {self.violated_directive} - {self.document_uri}"
+    
+    class Meta:
+        verbose_name = "Отчет CSP"
+        verbose_name_plural = "Отчеты CSP"
+        ordering = ['-created_at']
+
 class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     title = models.CharField(max_length=100, verbose_name="Название адреса", default="Основной")
@@ -49,6 +244,10 @@ class Address(models.Model):
     city = models.CharField(max_length=100, verbose_name="Город")
     postal_code = models.CharField(max_length=20, verbose_name="Почтовый индекс")
     is_default = models.BooleanField(default=False, verbose_name="Адрес по умолчанию")
+    
+    # Новые поля для безопасности - ИСПРАВЛЕННЫЕ
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
     
     def __str__(self):
         return f"{self.title} - {self.city}"
@@ -62,7 +261,6 @@ class Address(models.Model):
         verbose_name = "Адрес"
         verbose_name_plural = "Адреса"
 
-# models.py - добавить в модель Product
 class Product(models.Model):
     name = models.CharField(max_length=200, verbose_name="Название")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
@@ -81,6 +279,10 @@ class Product(models.Model):
     dimensions = models.CharField(max_length=50, blank=True, verbose_name="Габариты")
     material = models.CharField(max_length=100, blank=True, verbose_name="Материал")
     warranty = models.IntegerField(default=12, verbose_name="Гарантия (мес)")
+    
+    # Новые поля для безопасности
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    last_restock = models.DateTimeField(null=True, blank=True, verbose_name="Последнее пополнение")
     
     def __str__(self):
         return self.name
@@ -107,6 +309,10 @@ class Product(models.Model):
         verbose_name = "Товар"
         verbose_name_plural = "Товары"
         ordering = ['name']
+        indexes = [
+            models.Index(fields=['is_active', 'category']),
+            models.Index(fields=['price', 'is_active']),
+        ]
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
@@ -126,6 +332,7 @@ class ProductImage(models.Model):
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
     
     def __str__(self):
         return f"Корзина {self.user.username}"
@@ -149,6 +356,7 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, verbose_name="Корзина")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="Товар")
     quantity = models.PositiveIntegerField(default=1, verbose_name="Количество")
+    added_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
     
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"
@@ -159,6 +367,7 @@ class CartItem(models.Model):
     class Meta:
         verbose_name = "Элемент корзины"
         verbose_name_plural = "Элементы корзины"
+        unique_together = ['cart', 'product']
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -172,6 +381,7 @@ class Order(models.Model):
         ('completed', 'Завершен'),
         ('cancelled', 'Отменен'),
         ('refunded', 'Возврат'),
+        ('disputed', 'Оспаривается'),
     ]
     
     PAYMENT_METHODS = [
@@ -194,7 +404,6 @@ class Order(models.Model):
     payment_id = models.CharField(max_length=100, blank=True, verbose_name="ID платежа")
     cardlink_transaction_id = models.CharField(max_length=100, blank=True, verbose_name="ID транзакции Cardlink")
 
-    
     # Данные доставки
     customer_name = models.CharField(max_length=100, verbose_name="Имя клиента")
     customer_phone = models.CharField(max_length=20, verbose_name="Телефон")
@@ -202,7 +411,7 @@ class Order(models.Model):
     delivery_address = models.TextField(verbose_name="Адрес доставки")
     
     # Новые поля для отслеживания
-    status_changed_at = models.DateTimeField(auto_now=True, verbose_name="Время изменения статуса")  # Изменено на auto_now
+    status_changed_at = models.DateTimeField(auto_now=True, verbose_name="Время изменения статуса")
     tracking_number = models.CharField(max_length=100, blank=True, verbose_name="Трек-номер")
     shipping_company = models.CharField(max_length=100, blank=True, verbose_name="Служба доставки")
     estimated_delivery = models.DateField(null=True, blank=True, verbose_name="Примерная дата доставки")
@@ -211,12 +420,16 @@ class Order(models.Model):
     paid_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата оплаты")
     cancelled_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата отмены")
     
+    # Новые поля для безопасности
+    fraud_score = models.DecimalField(max_digits=5, decimal_places=2, default=0, verbose_name="Оценка мошенничества")
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name="IP-адрес создания")
+    user_agent = models.TextField(blank=True, verbose_name="User Agent")
+    
     def __str__(self):
         return f"Заказ #{self.id} - {self.customer_name}"
     
     def can_be_cancelled(self):
         """Можно отменить заказ в течение 10 минут после оплаты"""
-        from django.utils import timezone
         if self.status == 'paid' and self.paid_at:
             return (timezone.now() - self.paid_at).total_seconds() < 3600  # час
         return False
@@ -273,6 +486,11 @@ class Order(models.Model):
     class Meta:
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
+        indexes = [
+            models.Index(fields=['user', 'created_at']),
+            models.Index(fields=['status', 'created_at']),
+            models.Index(fields=['payment_method', 'created_at']),
+        ]
 
 class OrderStatusLog(models.Model):
     """Лог изменений статуса заказа"""
@@ -282,6 +500,7 @@ class OrderStatusLog(models.Model):
     changed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Изменил")
     changed_at = models.DateTimeField(auto_now_add=True, verbose_name="Время изменения")
     notes = models.TextField(blank=True, verbose_name="Примечания")
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name="IP-адрес")
     
     def __str__(self):
         return f"Лог #{self.id} для заказа #{self.order.id}"
@@ -309,17 +528,6 @@ class OrderItem(models.Model):
         verbose_name = "Элемент заказа"
         verbose_name_plural = "Элементы заказа"
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.get_or_create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    profile, created = UserProfile.objects.get_or_create(user=instance)
-    if not created:
-        profile.save()
-
 class NotificationLog(models.Model):
     NOTIFICATION_TYPES = [
         ('order_created', 'Создан заказ'),
@@ -328,7 +536,9 @@ class NotificationLog(models.Model):
         ('telegram_sent', 'Отправлено в Telegram'),
         ('email_sent', 'Отправлено по email'),
         ('webhook_received', 'Получен webhook'),
-        ('contact_form', 'Форма обратной связи'), 
+        ('contact_form', 'Форма обратной связи'),
+        ('security_alert', 'Предупреждение безопасности'),
+        ('fraud_alert', 'Предупреждение мошенничества'),
     ]
     
     order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name="Заказ", null=True, blank=True)
@@ -368,13 +578,11 @@ class LoginAttempt(models.Model):
         ).count()
         return failed_attempts >= 5
     
-class SecurityLog(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    action = models.CharField(max_length=100)
-    ip_address = models.GenericIPAddressField()
-    user_agent = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-    success = models.BooleanField(default=True)
+    class Meta:
+        indexes = [
+            models.Index(fields=['ip_address', 'timestamp']),
+            models.Index(fields=['username', 'timestamp']),
+        ]
 
 class PasswordResetToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -383,11 +591,17 @@ class PasswordResetToken(models.Model):
     expires_at = models.DateTimeField()
     used = models.BooleanField(default=False)
     ip_address = models.GenericIPAddressField()
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['token', 'expires_at']),
+        ]
 
 class Wishlist(models.Model):
     """Модель избранных товаров"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
     
     def __str__(self):
         return f"Избранное {self.user.username}"
@@ -411,13 +625,7 @@ class WishlistItem(models.Model):
     class Meta:
         verbose_name = "Элемент избранного"
         verbose_name_plural = "Элементы избранного"
-        unique_together = ['wishlist', 'product']  # Один товар может быть только один раз
-
-# Сигнал для создания избранного при создании пользователя
-@receiver(post_save, sender=User)
-def create_user_wishlist(sender, instance, created, **kwargs):
-    if created:
-        Wishlist.objects.get_or_create(user=instance)
+        unique_together = ['wishlist', 'product']
 
 class ProductReview(models.Model):
     RATING_CHOICES = [
@@ -437,11 +645,15 @@ class ProductReview(models.Model):
     is_approved = models.BooleanField(default=False, verbose_name="Одобрен")
     is_moderated = models.BooleanField(default=False, verbose_name="Промодерирован")
     
+    # Новые поля для безопасности
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name="IP-адрес")
+    user_agent = models.TextField(blank=True, verbose_name="User Agent")
+    
     class Meta:
         verbose_name = "Отзыв о товаре"
         verbose_name_plural = "Отзывы о товарах"
         ordering = ['-created_at']
-        unique_together = ['product', 'user']  # Один отзыв на товар от пользователя
+        unique_together = ['product', 'user']
     
     def __str__(self):
         return f"Отзыв {self.user.username} на {self.product.name} ({self.rating}/5)"
@@ -454,7 +666,6 @@ class ProductReview(models.Model):
     @classmethod
     def can_user_review(cls, user, product):
         """Проверяет, может ли пользователь оставить отзыв на товар"""
-        # Пользователь должен быть авторизован
         if not user.is_authenticated:
             return False
         
@@ -462,26 +673,22 @@ class ProductReview(models.Model):
             has_reviewed = cls.objects.filter(user=user, product=product).exists()
             return not has_reviewed
         
-        # Проверяем, покупал ли пользователь этот товар
         has_purchased = OrderItem.objects.filter(
             order__user=user,
             order__status__in=['paid', 'processing', 'assembling', 'ready_for_shipping', 'shipped', 'delivered', 'completed'],
             product=product
         ).exists()
         
-        # Проверяем, не оставлял ли уже отзыв
         has_reviewed = cls.objects.filter(user=user, product=product).exists()
         
         return has_purchased and not has_reviewed
     
     @classmethod
     def get_approved_reviews(cls, product):
-        """Возвращает одобренные отзывы для товара"""
         return cls.objects.filter(product=product, is_approved=True)
     
     @classmethod
     def get_average_rating(cls, product):
-        """Возвращает средний рейтинг товара"""
         from django.db.models import Avg
         result = cls.objects.filter(
             product=product, 
@@ -541,7 +748,29 @@ class SupportAttachment(models.Model):
         return self.file_name
 
     def save(self, *args, **kwargs):
-        # Автоматически устанавливаем имя файла при сохранении
         if not self.file_name and self.file:
             self.file_name = self.file.name
         super().save(*args, **kwargs)
+
+# Сигналы
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.get_or_create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    profile, created = UserProfile.objects.get_or_create(user=instance)
+    if not created:
+        profile.save()
+
+@receiver(post_save, sender=User)
+def create_user_wishlist(sender, instance, created, **kwargs):
+    if created:
+        Wishlist.objects.get_or_create(user=instance)
+
+@receiver(post_save, sender=User)
+def create_admin_2fa(sender, instance, created, **kwargs):
+    """Создание записи 2FA для администраторов"""
+    if created and instance.is_staff:
+        Admin2FA.objects.get_or_create(user=instance)

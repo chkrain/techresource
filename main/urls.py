@@ -3,6 +3,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponseNotFound
 from django.urls import path, re_path
+from django.contrib import admin
 from . import views
 
 urlpatterns = [
@@ -22,7 +23,7 @@ urlpatterns = [
     path('login/', views.secure_login, name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='index'), name='logout'),
 
-    path('debug/codes/', views.debug_codes, name='debug_codes'), #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    path('debug/codes/', views.debug_codes, name='debug_codes'),
 
     path('contact/submit/', views.contact_form_submit, name='contact_submit'),
 
@@ -35,7 +36,6 @@ urlpatterns = [
     path('services/maintenance/', views.service_maintenance, name='service_maintenance'),
     path('services/software/instructions/altyshevo/', views.altyshevo_instruction, name='altyshevo_instruction'),
     
-
     # Восстановление пароля
     path('password-reset/', 
          auth_views.PasswordResetView.as_view(
@@ -123,6 +123,12 @@ urlpatterns = [
     
     # Политика конфиденциальности
     path('privacy/', views.privacy_policy, name='privacy'),
+
+    # Админка Django
+    path('admin/', admin.site.urls),
+
+    path('admin/2fa/verify/', views.admin_2fa_verify, name='admin_2fa_verify'),
+    path('admin/2fa/setup/', views.admin_2fa_setup, name='admin_2fa_setup'),
 
     re_path(r'^\.well-known/.*$', lambda request: HttpResponseNotFound()),
 ]

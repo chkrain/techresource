@@ -1,0 +1,84 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Настройка 2FA - Админка{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">⚙️ Настройка двухфакторной аутентификации</h4>
+                </div>
+                <div class="card-body">
+                    
+                    {% if not admin_2fa.is_enabled %}
+                    <div class="alert alert-info">
+                        <h5>Включение 2FA</h5>
+                        <p>Для включения двухфакторной аутентификации:</p>
+                        <ol>
+                            <li>Отсканируйте QR-код в приложении аутентификации (Google Authenticator, Authy и т.д.)</li>
+                            <li>Введите код из приложения для подтверждения</li>
+                            <li>Сохраните резервные коды</li>
+                        </ol>
+                    </div>
+                    
+                    {% if qr_code_url %}
+                    <div class="text-center mb-4">
+                        <h6>QR-код для настройки:</h6>
+                        <img src="data:image/png;base64,{{ qr_code_url }}" 
+                             alt="QR Code" class="img-thumbnail" style="max-width: 200px;">
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="enable">
+                        <button type="submit" class="btn btn-success">
+                            Включить 2FA
+                        </button>
+                    </form>
+                    {% endif %}
+                    
+                    {% else %}
+                    <div class="alert alert-success">
+                        <h5>✅ 2FA активирована</h5>
+                        <p>Двухфакторная аутентификация включена для вашего аккаунта.</p>
+                    </div>
+                    
+                    <!-- Резервные коды -->
+                    {% if backup_codes %}
+                    <div class="alert alert-warning">
+                        <h6>📋 Резервные коды (сохраните их!):</h6>
+                        <div class="row">
+                            {% for code in backup_codes %}
+                            <div class="col-md-3 mb-2">
+                                <code>{{ code }}</code>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <small>Каждый код можно использовать только один раз.</small>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="disable">
+                        <button type="submit" class="btn btn-danger" 
+                                onclick="return confirm('Вы уверены, что хотите отключить 2FA?')">
+                            Отключить 2FA
+                        </button>
+                    </form>
+                    {% endif %}
+                    
+                    <div class="mt-3">
+                        <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+                            ← Назад в админку
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

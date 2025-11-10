@@ -52,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'main.middleware.AdminSecurityMiddleware',
+    'main.middleware.Admin2FAMiddleware',
 ]
 
 ROOT_URLCONF = 'techresource.urls'
@@ -134,13 +136,14 @@ CSRF_COOKIE_SECURE = False
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
+
+ADMIN_ALLOWED_IPS = ['127.0.0.1', '192.168.1.0/24'] 
+ADMIN_SESSION_TIMEOUT = 7200 
+TWO_FACTOR_FOR_ADMINS = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -188,17 +191,44 @@ SERVER_EMAIL = 'ainurcherepanov@mail.ru'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'security': {
+            'format': 'SECURITY: {asctime} {levelname} {user} {ip} {action} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
+        'security_file': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs/security.log',
+            'maxBytes': 1024 * 1024 * 100,  # 100 MB
+            'backupCount': 5,
+            'formatter': 'security',
+        },
+        'admin_actions_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs/admin_actions.log',
+            'maxBytes': 1024 * 1024 * 50,  # 50 MB
+            'backupCount': 3,
+            'formatter': 'verbose',
         },
     },
     'loggers': {
-        'django.core.mail': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
+        'django.security': {
+            'handlers': ['security_file'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'django.admin': {
+            'handlers': ['admin_actions_file'],
+            'level': 'INFO',
+            'propagate': False,
         },
     },
 }

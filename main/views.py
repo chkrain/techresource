@@ -12,12 +12,18 @@ from .services.cardlink_service import CardlinkService
 import hashlib
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Min, Max
-from django.utils import timezone
 import secrets
 import hmac
 import requests
 from .models import NotificationLog
 import uuid
+import pyotp
+import qrcode
+import base64
+from io import BytesIO
+from django.contrib.auth.decorators import user_passes_test
+from django.core.cache import cache
+from hashlib import sha256
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 import random
@@ -642,7 +648,19 @@ def update_cart_item(request, item_id):
     
     return redirect('cart')
 
+def rate_limit_payment(view_func):
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            if RateLimiter.check_payment_rate_limit(request, request.user):
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Слишком много запросов. Попробуйте позже.'
+                }, status=429)
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
 @login_required
+@rate_limit_payment
 def create_payment(request, order_id):
     """Создание платежа в ЮКассе"""
     order = get_object_or_404(Order, id=order_id, user=request.user, status='pending')
@@ -717,8 +735,6 @@ def payment_success(request, order_id):
                 'description': getattr(payment, 'description', '')
             }
             
-            print(f"🔍 Статус платежа для заказа #{order_id}: {payment_status}")
-            
             if payment_status == 'succeeded':
                 if order.status != 'paid':
                     order.status = 'paid'
@@ -747,7 +763,6 @@ def payment_success(request, order_id):
                 messages.warning(request, f'ℹ️ Статус платежа: {payment_status}')
                 
     except Exception as e:
-        print(f"❌ Ошибка при проверке платежа: {e}")
         messages.error(request, '⚠️ Не удалось проверить статус платежа. Пожалуйста, свяжитесь с поддержкой.')
     
     context = {
@@ -840,13 +855,37 @@ def update_order_payment_method(request, order_id):
 @csrf_exempt
 def yookassa_webhook(request):
     """Webhook для уведомлений от ЮКассы"""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'method_not_allowed'}, status=405)
     if request.method == 'POST':
         try:
             event_json = json.loads(request.body.decode('utf-8'))
+            payment_id = event_json.get('object', {}).get('id')
             event_type = event_json.get('event')
+
+            if PaymentSecurityService.is_webhook_duplicate(payment_id, event_type):
+                print(f"⚠️ Дублирующий webhook: {payment_id} {event_type}")
+                return JsonResponse({'status': 'duplicate'})
             
-            print(f"🔔 Webhook получен: {event_type}")
+            try:
+                order = Order.objects.get(payment_id=payment_id)
+            except Order.DoesNotExist:
+                print(f"❌ Заказ с payment_id {payment_id} не найден")
+                return JsonResponse({'status': 'order_not_found'}, status=404)
             
+            # Проверка суммы платежа
+            if not PaymentSecurityService.verify_payment_amount(order, event_json.get('object', {})):
+                print(f"❌ Несоответствие суммы для заказа #{order.id}")
+                SecurityLog.objects.create(
+                    user=order.user if order.user else None,
+                    action='payment_amount_mismatch',
+                    ip_address=get_client_ip(request),
+                    user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                    success=False,
+                    details=f"Expected: {order.total_price}, Got: {event_json.get('object', {}).get('amount', {}).get('value')}"
+                )
+                return JsonResponse({'status': 'amount_mismatch'}, status=400)
+
             if event_type == 'payment.succeeded':
                 return handle_successful_payment(event_json)
             elif event_type == 'payment.canceled':
@@ -861,6 +900,13 @@ def yookassa_webhook(request):
                 
         except Exception as e:
             print(f"❌ Ошибка в webhook: {e}")
+            SecurityLog.objects.create(
+                action='webhook_error',
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                success=False,
+                details=str(e)
+            )
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     
     return JsonResponse({'status': 'method not allowed'}, status=405)
@@ -2678,45 +2724,22 @@ def create_cardlink_payment(request, order_id):
     """Создание платежа через Cardlink API"""
     order = get_object_or_404(Order, id=order_id, user=request.user, status='pending')
     
-    print(f"🔧 DEBUG: Начало создания платежа Cardlink для заказа #{order.id}")
-    print(f"🔧 DEBUG: Пользователь: {request.user.username}")
-    print(f"🔧 DEBUG: Сумма заказа: {order.total_price}")
-    
     try:
         cardlink_service = CardlinkService()
-        
-        print(f"🔧 DEBUG: Cardlink настройки:")
-        print(f"🔧 DEBUG: - Merchant ID: {cardlink_service.merchant_id}")
-        print(f"🔧 DEBUG: - API URL: {cardlink_service.api_url}")
-        print(f"🔧 DEBUG: - Test mode: {cardlink_service.is_test_mode}")
-        print(f"🔧 DEBUG: - Has token: {bool(cardlink_service.token)}")
-        
         result = cardlink_service.create_bill(order, request)
-        
-        print(f"🔧 DEBUG: Результат создания счета: {result}")
-        
         if result['success']:
             order.payment_system = 'cardlink'
             order.payment_id = result.get('bill_id')
             order.save()
-            
-            print(f"✅ Создан платеж Cardlink для заказа #{order.id}")
-            print(f"🔗 URL для оплаты: {result['payment_url']}")
-            
-            print(f"🔧 DEBUG: Перенаправление на: {result['payment_url']}")
-            
             return redirect(result['payment_url'])
         else:
             error_msg = f'Ошибка при создании платежа: {result["error"]}'
-            print(f"❌ {error_msg}")
             messages.error(request, error_msg)
             return redirect('orders')
         
     except Exception as e:
         error_msg = f'Ошибка при создании платежа в Cardlink: {str(e)}'
-        print(f"❌ Исключение: {error_msg}")
         import traceback
-        print(f"🔧 DEBUG: Traceback: {traceback.format_exc()}")
         
         messages.error(request, error_msg)
         return redirect('orders')
@@ -3421,3 +3444,185 @@ def send_attachment_to_telegram(attachment):
         print(f"❌ Ошибка отправки вложения: {e}")
         return False
     
+class PaymentSecurityService:
+    @staticmethod
+    def verify_payment_amount(order, payment_data):
+        """Проверка суммы платежа"""
+        expected_amount = float(order.total_price)
+        actual_amount = float(payment_data.get('amount', {}).get('value', 0))
+        
+        return abs(expected_amount - actual_amount) < 0.01
+
+    @staticmethod
+    def is_webhook_duplicate(payment_id, event_type):
+        """Проверка на дублирование webhook"""
+        cache_key = f"webhook_{payment_id}_{event_type}"
+        if cache.get(cache_key):
+            return True
+        cache.set(cache_key, True, 86400)
+        return False
+
+    @staticmethod
+    def create_webhook_signature(payload, secret):
+        """Создание подписи для webhook"""
+        return hmac.new(
+            secret.encode(),
+            json.dumps(payload, sort_keys=True).encode(),
+            sha256
+        ).hexdigest()
+    
+class RateLimiter:
+    @staticmethod
+    def is_rate_limited(key, limit, window):
+        """Проверка лимита запросов"""
+        cache_key = f"rate_limit_{key}"
+        current = cache.get(cache_key, 0)
+        
+        if current >= limit:
+            return True
+        
+        cache.set(cache_key, current + 1, window)
+        return False
+
+    @staticmethod
+    def check_payment_rate_limit(request, user):
+        """Проверка лимита для платежных операций"""
+        user_key = f"payment_user_{user.id}"
+        if RateLimiter.is_rate_limited(user_key, 10, 3600):
+            return True
+        
+        ip_key = f"payment_ip_{get_client_ip(request)}"
+        if RateLimiter.is_rate_limited(ip_key, 50, 3600):
+            return True
+        
+        return False
+
+def staff_required(function=None):
+    """Декоратор для проверки staff статуса"""
+    actual_decorator = user_passes_test(
+        lambda u: u.is_active and u.is_staff,
+        login_url='/admin/login/'
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
+
+@staff_required
+def admin_2fa_setup(request):
+    """Настройка 2FA для администратора"""
+    try:
+        admin_2fa, created = Admin2FA.objects.get_or_create(user=request.user)
+        
+        if request.method == 'POST':
+            action = request.POST.get('action')
+            
+            if action == 'enable':
+                if not admin_2fa.secret_key:
+                    admin_2fa.secret_key = pyotp.random_base32()
+                
+                admin_2fa.generate_backup_codes()
+                admin_2fa.save()
+                
+                messages.success(request, '2FA настроена. Сохраните резервные коды!')
+                
+            elif action == 'disable':
+                admin_2fa.is_enabled = False
+                admin_2fa.secret_key = ''
+                admin_2fa.backup_codes = []
+                admin_2fa.save()
+                
+                messages.success(request, '2FA отключена.')
+            
+            elif action == 'verify':
+                code = request.POST.get('code', '').strip()
+                
+                if admin_2fa.verify_backup_code(code):
+                    messages.success(request, 'Резервный код принят.')
+                else:
+                    totp = pyotp.TOTP(admin_2fa.secret_key)
+                    if totp.verify(code):
+                        admin_2fa.is_enabled = True
+                        admin_2fa.last_used = timezone.now()
+                        admin_2fa.save()
+                        
+                        request.session['admin_2fa_verified'] = True
+                        messages.success(request, '2FA успешно активирована!')
+                        return redirect('admin:index')
+                    else:
+                        messages.error(request, 'Неверный код. Попробуйте снова.')
+        
+        qr_code_url = None
+        if admin_2fa.secret_key:
+            totp = pyotp.TOTP(admin_2fa.secret_key)
+            provisioning_url = totp.provisioning_uri(
+                name=request.user.email or request.user.username,
+                issuer_name="Техресурс Админка"
+            )
+            
+            qr = qrcode.QRCode(version=1, box_size=10, border=5)
+            qr.add_data(provisioning_url)
+            qr.make(fit=True)
+            
+            img = qr.make_image(fill_color="black", back_color="white")
+            buffer = BytesIO()
+            img.save(buffer, format='PNG')
+            qr_code_url = base64.b64encode(buffer.getvalue()).decode()
+        
+        context = {
+            'admin_2fa': admin_2fa,
+            'qr_code_url': qr_code_url,
+            'backup_codes': admin_2fa.backup_codes,
+        }
+        
+        return render(request, 'main/admin_2fa_setup.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'Ошибка настройки 2FA: {str(e)}')
+        return redirect('admin:index')
+
+@staff_required
+def admin_2fa_verify(request):
+    """Верификация 2FA для доступа в админку"""
+    if request.session.get('admin_2fa_verified'):
+        return redirect('admin:index')
+    
+    try:
+        admin_2fa = Admin2FA.objects.get(user=request.user)
+        
+        if not admin_2fa.is_enabled:
+            request.session['admin_2fa_verified'] = True
+            return redirect('admin:index')
+        
+        if request.method == 'POST':
+            code = request.POST.get('code', '').strip()
+            use_backup = request.POST.get('use_backup', False)
+            
+            if use_backup:
+                if admin_2fa.verify_backup_code(code):
+                    request.session['admin_2fa_verified'] = True
+                    admin_2fa.last_used = timezone.now()
+                    admin_2fa.save()
+                    messages.success(request, 'Вход выполнен с использованием резервного кода.')
+                    return redirect('admin:index')
+                else:
+                    messages.error(request, 'Неверный резервный код.')
+            else:
+                totp = pyotp.TOTP(admin_2fa.secret_key)
+                if totp.verify(code):
+                    request.session['admin_2fa_verified'] = True
+                    admin_2fa.last_used = timezone.now()
+                    admin_2fa.save()
+                    messages.success(request, '2FA проверка пройдена!')
+                    return redirect('admin:index')
+                else:
+                    messages.error(request, 'Неверный код. Попробуйте снова.')
+        
+        return render(request, 'main/admin_2fa_verify.html')
+        
+    except Admin2FA.DoesNotExist:
+        Admin2FA.objects.create(user=request.user)
+        request.session['admin_2fa_verified'] = True
+        return redirect('admin:index')
+    except Exception as e:
+        messages.error(request, f'Ошибка верификации: {str(e)}')
+        return render(request, 'main/admin_2fa_verify.html')

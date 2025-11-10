@@ -1,0 +1,46 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}2FA Проверка - Админка{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">🔐 Двухфакторная аутентификация</h4>
+                </div>
+                <div class="card-body">
+                    <p>Введите код из приложения аутентификации:</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="code" class="form-label">Код подтверждения</label>
+                            <input type="text" class="form-control" id="code" name="code" 
+                                   placeholder="000000" maxlength="6" required autofocus>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 mb-2">
+                            Подтвердить
+                        </button>
+                        
+                        <button type="submit" name="use_backup" value="true" 
+                                class="btn btn-outline-secondary w-100">
+                            Использовать резервный код
+                        </button>
+                    </form>
+                    
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            Не получается войти? 
+                            <a href="{% url 'admin_2fa_setup' %}">Настройте 2FA заново</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
