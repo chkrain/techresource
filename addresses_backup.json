@@ -1,0 +1,114 @@
+[
+{
+  "model": "main.address",
+  "pk": 3,
+  "fields": {
+    "user": 2,
+    "title": "Основной",
+    "full_name": "Черепанов Айнур Альбертович",
+    "phone": "89274168449",
+    "address": "Очень далеко",
+    "city": "Казань",
+    "postal_code": "11323245",
+    "is_default": false,
+    "created_at": "2025-11-10T07:56:06.392Z",
+    "updated_at": "2025-11-10T07:56:06.404Z"
+  }
+},
+{
+  "model": "main.address",
+  "pk": 4,
+  "fields": {
+    "user": 1,
+    "title": "Основной",
+    "full_name": "Черепанов Айнур Альбертович",
+    "phone": "89274168449",
+    "address": "Техническая 52",
+    "city": "Казань",
+    "postal_code": "11",
+    "is_default": true,
+    "created_at": "2025-11-10T07:56:06.392Z",
+    "updated_at": "2025-11-10T07:56:06.404Z"
+  }
+},
+{
+  "model": "main.address",
+  "pk": 5,
+  "fields": {
+    "user": 3,
+    "title": "Основной",
+    "full_name": "Черепанов Айнур Альбертович",
+    "phone": "89274168449",
+    "address": "Очень далеко",
+    "city": "Казань",
+    "postal_code": "11323245",
+    "is_default": true,
+    "created_at": "2025-11-10T07:56:06.392Z",
+    "updated_at": "2025-11-10T07:56:06.404Z"
+  }
+},
+{
+  "model": "main.address",
+  "pk": 6,
+  "fields": {
+    "user": 2,
+    "title": "Основной",
+    "full_name": "Черепанов Айнур Альбертович",
+    "phone": "89274168449",
+    "address": "Очень далеко",
+    "city": "Казань",
+    "postal_code": "11323245",
+    "is_default": true,
+    "created_at": "2025-11-10T07:56:06.392Z",
+    "updated_at": "2025-11-10T07:56:06.404Z"
+  }
+},
+{
+  "model": "main.address",
+  "pk": 8,
+  "fields": {
+    "user": 4,
+    "title": "Основной",
+    "full_name": "Черепанов Айнур Альбертович",
+    "phone": "89274168449",
+    "address": "Техническая 52",
+    "city": "Казань",
+    "postal_code": "11",
+    "is_default": false,
+    "created_at": "2025-11-10T07:56:06.392Z",
+    "updated_at": "2025-11-10T07:56:06.404Z"
+  }
+},
+{
+  "model": "main.address",
+  "pk": 10,
+  "fields": {
+    "user": 8,
+    "title": "Основной",
+    "full_name": "а б в",
+    "phone": "89063246591",
+    "address": "сретенский бульвар д4 ст3 кв55",
+    "city": "москва",
+    "postal_code": "00000",
+    "is_default": false,
+    "created_at": "2025-11-10T07:56:06.392Z",
+    "updated_at": "2025-11-10T07:56:06.404Z"
+  }
+},
+{
+  "model": "main.address",
+  "pk": 11,
+  "fields": {
+    "user": 11,
+    "title": "Основной",
+    "full_name": "Черепанов Айнур Альбертович",
+    "phone": "89274168449",
+    "address": "Очень далеко",
+    "city": "Казань",
+    "postal_code": "11323245",
+    "is_default": true,
+    "created_at": "2025-11-10T07:56:06.392Z",
+    "updated_at": "2025-11-10T07:56:06.404Z"
+  }
+}
+]

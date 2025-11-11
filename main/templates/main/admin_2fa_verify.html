@@ -6,36 +6,58 @@
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">🔐 Двухфакторная аутентификация</h4>
+        <div class="col-md-6 col-lg-5">
+            <div class="text-center mb-4">
+                <div class="auth-icon">
+                    <i class="fas fa-lock"></i>
                 </div>
-                <div class="card-body">
-                    <p>Введите код из приложения аутентификации:</p>
+                <h2 class="auth-title">Двухфакторная аутентификация</h2>
+                <p class="auth-subtitle">Введите код из приложения аутентификации</p>
+            </div>
+            
+            <div class="card auth-card">
+                <div class="card-body auth-body">
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                            <div>{{ message }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
                     
-                    <form method="post">
+                    <form method="post" class="auth-form">
                         {% csrf_token %}
-                        <div class="mb-3">
+                        <div class="form-group">
                             <label for="code" class="form-label">Код подтверждения</label>
-                            <input type="text" class="form-control" id="code" name="code" 
-                                   placeholder="000000" maxlength="6" required autofocus>
+                            <input type="text" class="form-control verification-input" 
+                                   id="code" name="code" placeholder="000000" 
+                                   maxlength="6" required autofocus
+                                   pattern="[0-9]{6}" title="Введите 6 цифр">
+                            <div class="form-text">
+                                6-значный код из приложения аутентификации
+                            </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary w-100 mb-2">
-                            Подтвердить
-                        </button>
-                        
-                        <button type="submit" name="use_backup" value="true" 
-                                class="btn btn-outline-secondary w-100">
-                            Использовать резервный код
-                        </button>
+                        <div class="auth-buttons">
+                            <button type="submit" class="btn btn-primary btn-verify">
+                                <i class="fas fa-check me-2"></i>Подтвердить
+                            </button>
+                            
+                            <button type="submit" name="use_backup" value="true" 
+                                    class="btn btn-secondary btn-backup">
+                                <i class="fas fa-key me-2"></i>Использовать резервный код
+                            </button>
+                        </div>
                     </form>
                     
-                    <div class="mt-3">
-                        <small class="text-muted">
+                    <div class="auth-footer">
+                        <small>
                             Не получается войти? 
-                            <a href="{% url 'admin_2fa_setup' %}">Настройте 2FA заново</a>
+                            <a href="{% url 'admin_2fa_setup' %}" class="auth-link">Настройте 2FA заново</a>
                         </small>
                     </div>
                 </div>
@@ -43,4 +65,186 @@
         </div>
     </div>
 </div>
+
+<style>
+.auth-icon {
+    font-size: 4rem;
+    color: #667eea;
+    margin-bottom: 1rem;
+}
+
+.auth-title {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+    color: #718096;
+    font-size: 1.1rem;
+}
+
+.auth-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.auth-body {
+    padding: 2.5rem;
+}
+
+.auth-form .form-group {
+    margin-bottom: 2rem;
+}
+
+.form-label {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.auth-title {
+    color: white !important;
+}
+
+.verification-input {
+    padding: 1rem 1.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    text-align: center;
+    letter-spacing: 0.3em;
+    transition: all 0.3s ease;
+    background: #f7fafc;
+}
+
+.verification-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: white;
+    transform: translateY(-2px);
+}
+
+.form-text {
+    color: #718096;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.btn-verify {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-verify:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-backup {
+    background: transparent;
+    border: 2px solid #e2e8f0;
+    color: #718096;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-backup:hover {
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.auth-footer {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.auth-footer small {
+    color: #718096;
+}
+
+.auth-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-link:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+.alert {
+    border: none;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+    color: #22543d;
+    border-left: 4px solid #48bb78;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #fed7d7, #feb2b2);
+    color: #742a2a;
+    border-left: 4px solid #f56565;
+}
+
+@media (max-width: 768px) {
+    .auth-body {
+        padding: 2rem;
+    }
+    
+    .auth-buttons {
+        gap: 0.75rem;
+    }
+    
+    .btn-verify,
+    .btn-backup {
+        padding: 0.875rem 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-body {
+        padding: 1.5rem;
+    }
+    
+    .auth-title {
+        font-size: 1.5rem;
+    }
+    
+    .auth-subtitle {
+        font-size: 1rem;
+    }
+    
+    .verification-input {
+        font-size: 1.1rem;
+        padding: 0.875rem 1rem;
+    }
+}
+</style>
 {% endblock %}

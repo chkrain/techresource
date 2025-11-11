@@ -128,14 +128,25 @@
                     
                     <div class="summary-row">
                         <span>Доставка</span>
-                        <span class="free-shipping">Бесплатно</span>
+                        <span class="free-shipping">
+                            {% if delivery_cost == 0 %}
+                                Бесплатно
+                            {% else %}
+                                {{ delivery_cost }} ₽
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Комиссия платежной системы</span>
+                        <span id="payment-fee">-</span>
                     </div>
                     
                     <div class="summary-divider"></div>
                     
                     <div class="summary-total">
-                        <span>Итого</span>
-                        <span class="total-amount" id="total-price">{{ cart.get_total_price }} ₽</span>
+                        <span>Итого к оплате</span>
+                        <span class="total-amount" id="final-price">{{ cart.get_total_price }} ₽</span>
                     </div>
                     
                     <form method="post" class="order-form">
@@ -1839,6 +1850,44 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentSystemRadios = document.querySelectorAll('input[name="payment_system"]');
+    
+    function updatePaymentFee(paymentSystem) {
+        const subtotal = parseFloat('{{ subtotal }}'.replace(',', '.'));
+        const deliveryCost = parseFloat('{{ delivery_cost }}'.replace(',', '.'));
+        
+        const fees = {
+            'yookassa': 0.025,
+            'cardlink': 0.02
+        };
+        
+        const feePercent = fees[paymentSystem] || 0.05;
+        let feeAmount = Math.round((subtotal + deliveryCost) * feePercent * 100) / 100;
+        feeAmount = Math.max(feeAmount, 10.00); 
+        
+        const finalPrice = subtotal + deliveryCost + feeAmount;
+        
+        document.getElementById('payment-fee').textContent = feeAmount.toFixed(2) + ' ₽';
+        document.getElementById('final-price').textContent = finalPrice.toFixed(2) + ' ₽';
+    }
+    
+    paymentSystemRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                updatePaymentFee(this.value);
+            }
+        });
+    });
+    
+    const selectedRadio = document.querySelector('input[name="payment_system"]:checked');
+    if (selectedRadio) {
+        updatePaymentFee(selectedRadio.value);
+    }
 });
 </script>
 

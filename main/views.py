@@ -14,11 +14,11 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Min, Max
 import secrets
 import hmac
+from decimal import Decimal
 import requests
 from .models import NotificationLog
 import uuid
-import pyotp
-import qrcode
+import time
 import base64
 from io import BytesIO
 from django.contrib.auth.decorators import user_passes_test
@@ -51,7 +51,7 @@ from .models import SupportTicket, SupportAttachment
 from .forms import SupportTicketForm
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm
 
-from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview
+from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm
 
 
@@ -103,13 +103,17 @@ def admin_dashboard(request):
     # Статистика
     total_orders = Order.objects.count()
     pending_orders = Order.objects.filter(status='pending').count()
-    paid_orders = Order.objects.filter(status='paid').count()
+    paid_orders = Order.objects.filter(is_payment_finalized=True).count()
     
     # Выручка (только оплаченные заказы)
     total_revenue = Order.objects.filter(status='paid').aggregate(
-        total=Sum('total_price')
+        total=Sum('final_price')
     )['total'] or 0
-    
+
+    total_gross = Order.objects.filter(is_payment_finalized=True).aggregate(
+        total=Sum('paid_amount')
+    )['total'] or 0
+
     # Отзывы на модерации
     pending_reviews = ProductReview.objects.filter(
         is_moderated=False
@@ -123,6 +127,7 @@ def admin_dashboard(request):
         'pending_orders': pending_orders,
         'paid_orders': paid_orders,
         'total_revenue': total_revenue,
+        'total_gross': total_gross,  # Для отображения в шаблоне
         'status_choices': Order.STATUS_CHOICES,
         'selected_status': status_filter,
         'selected_date': date_filter,
@@ -434,18 +439,62 @@ def add_to_cart(request, product_id):
     
     return JsonResponse({'success': False, 'error': 'Неверный запрос'})
 
+from decimal import Decimal
+
+def calculate_payment_fee(order_total, payment_system):
+    """Расчет комиссии платежной системы"""
+    fees = {
+        'yookassa': Decimal('0.025'),  # 2.5%
+        'cardlink': Decimal('0.02'),   # 2.0%
+    }
+    fee_percent = fees.get(payment_system, Decimal('0.05'))  # 5% по умолчанию
+    
+    fee_amount = (order_total * fee_percent).quantize(Decimal('0.01'))
+    
+    min_fee = Decimal('10.00')
+    return max(fee_amount, min_fee)
+
+def calculate_delivery_cost(address, order_total, items_count):
+    """Расчет стоимости доставки"""
+    base_cost = 300  
+    
+    if order_total >= 50000:
+        return 0
+    
+    return base_cost
+
+def calculate_delivery_cost(address, order_total, items_count, weight=0):
+    """Расширенный расчет стоимости доставки"""
+    
+    if order_total >= 10000:
+        return 0 
+    
+    base_cost = 1000
+    
+    return base_cost
+
 @login_required
 def cart_view(request):
     cart, created = Cart.objects.get_or_create(user=request.user)
     cart_items = cart.cartitem_set.all()
-    addresses = Address.objects.filter(user=request.user)
+    
+    addresses = Address.objects.filter(user=request.user).values(
+        'id', 'title', 'full_name', 'phone', 'address', 
+        'city', 'postal_code', 'is_default'
+    )
+    
+    subtotal = cart.get_total_price()
+    delivery_cost = Decimal('1000')
+    
+    selected_payment_system = request.GET.get('payment_system', 'yookassa')
+    payment_fee = calculate_payment_fee(subtotal + delivery_cost, selected_payment_system)
+    final_price = subtotal + delivery_cost + payment_fee
     
     if request.method == 'POST':
         address_id = request.POST.get('address_id')
         payment_method = request.POST.get('payment_method')
         payment_system = request.POST.get('payment_system', 'yookassa')
         
-        # Детальная проверка полей
         errors = []
         
         if not address_id or address_id == '':
@@ -468,25 +517,28 @@ def cart_view(request):
             messages.error(request, 'Выбранный адрес не найден')
             return redirect('cart')
         
-        # Проверяем наличие товаров
         for cart_item in cart_items:
             if cart_item.quantity > cart_item.product.quantity:
                 messages.error(request, f'Недостаточно товара "{cart_item.product.name}" в наличии. Доступно: {cart_item.product.quantity} шт.')
                 return redirect('cart')
         
-        # Создаем заказ
+        payment_fee = calculate_payment_fee(subtotal + delivery_cost, payment_system)
+        final_price = subtotal + delivery_cost + payment_fee
+
         order = Order.objects.create(
             user=request.user,
-            total_price=cart.get_total_price(),
+            total_price=subtotal,
+            final_price=final_price,
             payment_method=payment_method,
             payment_system=payment_system,
+            payment_fee=payment_fee,
+            delivery_cost=delivery_cost,
             customer_name=address.full_name,
             customer_phone=address.phone,
             customer_email=request.user.email,
             delivery_address=f"{address.city}, {address.address}, {address.postal_code}"
         )
         
-        # Переносим товары из корзины в заказ
         for cart_item in cart_items:
             OrderItem.objects.create(
                 order=order,
@@ -495,10 +547,8 @@ def cart_view(request):
                 price=cart_item.product.price
             )
         
-        # Очищаем корзину
         cart_items.delete()
         
-        # Перенаправляем в зависимости от способа оплаты и платежной системы
         if payment_method == 'card':
             if payment_system == 'cardlink':
                 return redirect('create_cardlink_payment', order_id=order.id)
@@ -515,7 +565,18 @@ def cart_view(request):
     context = {
         'cart': cart,
         'cart_items': cart_items,
-        'addresses': addresses,
+        'addresses': list(addresses),  
+        'subtotal': subtotal,
+        'delivery_cost': delivery_cost,
+        'payment_fee': payment_fee,
+        'final_price': final_price,
+        'selected_payment_system': selected_payment_system,
+        'fee_breakdown': {
+            'subtotal': subtotal,
+            'delivery': delivery_cost,
+            'payment_fee': payment_fee,
+            'total': final_price
+        }
     }
     return render(request, 'main/cart.html', context)
 
@@ -525,14 +586,19 @@ def send_invoice_order_notification(order):
         if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
             print("⚠️ TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не настроены")
             return False
-            
+        
+        commission_text = f"• Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
+    
         message = f"""
 📄 <b>НОВЫЙ ЗАКАЗ ПО СЧЕТУ #{order.id}</b>
 
 👤 <b>Клиент:</b> {order.customer_name}
 📞 <b>Телефон:</b> {order.customer_phone}
 📧 <b>Email:</b> {order.customer_email}
-💰 <b>Сумма:</b> {order.total_price} руб.
+💰 <b>Стоимость:</b>
+   • Товары: {order.total_price} руб.
+   • Доставка: {order.delivery_cost} руб.
+{commission_text}   • <b>Итого: {order.get_final_price_with_fees()} руб.</b>
 🚚 <b>Адрес:</b> {order.delivery_address}
 📦 <b>Статус:</b> {order.get_status_display()}
 
@@ -542,7 +608,7 @@ def send_invoice_order_notification(order):
         for item in order.orderitem_set.all():
             message += f"• {item.product.name} x{item.quantity} - {item.get_total_price()} руб.\n"
         
-        message += f"\n<b>Итого:</b> {order.total_price} руб."
+        message += f"\n<b>Итого:</b> {order.get_final_price_with_fees()} руб."
         message += f"\n\n💡 <b>Требуется выставить счет для оплаты</b>"
         
         # Отправка в Telegram
@@ -1303,14 +1369,19 @@ def send_cancellation_notification(order):
         if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
             print("⚠️ TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не настроены")
             return False
-            
+
+        commission_text = f"   • Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
+    
         message = f"""
 ❌ <b>ЗАКАЗ ОТМЕНЕН #{order.id}</b>
         
 👤 <b>Клиент:</b> {order.customer_name}
 📞 <b>Телефон:</b> {order.customer_phone}
 📧 <b>Email:</b> {order.customer_email}
-💰 <b>Сумма:</b> {order.total_price} руб.
+💰 <b>Стоимость:</b>
+   • Товары: {order.total_price} руб.
+   • Доставка: {order.delivery_cost} руб.
+{commission_text}   • <b>Итого: {order.final_price} руб.</b>
 🚚 <b>Адрес:</b> {order.delivery_address}
 🕒 <b>Время отмены:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
 
@@ -2013,8 +2084,13 @@ def update_order_status(request, order_id=None):
         
         if new_status and new_status in dict(Order.STATUS_CHOICES):
             old_status = order.status
+
+            if new_status == 'paid' and old_status != 'paid':
+                order.finalize_payment()
+            elif new_status != 'paid' and order.is_payment_finalized:
+                order.is_payment_finalized = False
+                order.save(update_fields=['is_payment_finalized'])
             
-            # Создаем лог изменения
             OrderStatusLog.objects.create(
                 order=order,
                 old_status=old_status,
@@ -2076,15 +2152,20 @@ def get_order_timeline(request, order_id):
 def send_order_status_notification(order, old_status, new_status):
     """Отправка уведомления об изменении статуса"""
     try:
-        # Уведомление в Telegram для админов
         if settings.TELEGRAM_BOT_TOKEN and settings.TELEGRAM_CHAT_ID:
+            
+            commission_text = f"   • Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
+
             message = f"""
 🔄 <b>ИЗМЕНЕНИЕ СТАТУСА ЗАКАЗА #{order.id}</b>
 
 📊 <b>Статус:</b> {dict(Order.STATUS_CHOICES)[old_status]} → {dict(Order.STATUS_CHOICES)[new_status]}
 👤 <b>Клиент:</b> {order.customer_name}
 📞 <b>Телефон:</b> {order.customer_phone}
-💰 <b>Сумма:</b> {order.total_price} руб.
+💰 <b>Стоимость:</b>
+   • Товары: {order.total_price} руб.
+   • Доставка: {order.delivery_cost} руб.
+{commission_text}   • <b>Итого: {order.final_price} руб.</b>
 
 ⏰ <b>Время:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
 """
@@ -2104,18 +2185,22 @@ def send_refund_request_notification(order, reason):
     """Уведомление о запросе возврата"""
     try:
         if settings.TELEGRAM_BOT_TOKEN and settings.TELEGRAM_CHAT_ID:
+            commission_text = f"   • Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
             message = f"""
-            💰 <b>ЗАПРОС ВОЗВРАТА СРЕДСТВ</b>
+💰 <b>ЗАПРОС ВОЗВРАТА СРЕДСТВ</b>
 
-            🆔 <b>Заказ:</b> #{order.id}
-            👤 <b>Клиент:</b> {order.customer_name}
-            📞 <b>Телефон:</b> {order.customer_phone}
-            💳 <b>Сумма:</b> {order.total_price} руб.
+🆔 <b>Заказ:</b> #{order.id}
+👤 <b>Клиент:</b> {order.customer_name}
+📞 <b>Телефон:</b> {order.customer_phone}
+💰 <b>Стоимость:</b>
+• Товары: {order.total_price} руб.
+• Доставка: {order.delivery_cost} руб.
+• Комиссия: {commission_text} руб.  
 
-            📝 <b>Причина:</b> {reason}
+📝 <b>Причина:</b> {reason}
 
-            ⏰ <b>Время запроса:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
-            """
+⏰ <b>Время запроса:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
+"""
             
             url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
             payload = {
@@ -2868,13 +2953,16 @@ def send_chargeback_notification(order):
     try:
         if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
             return False
-            
+        commission_text = f"   • Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
         message = f"""
 ⚠️ <b>ЧАРДЖБЭК ПО ЗАКАЗУ #{order.id}</b>
 
 👤 <b>Клиент:</b> {order.customer_name}
 📞 <b>Телефон:</b> {order.customer_phone}
-💰 <b>Сумма:</b> {order.total_price} руб.
+💰 <b>Стоимость:</b>
+   • Товары: {order.total_price} руб.
+   • Доставка: {order.delivery_cost} руб.
+{commission_text}
 🕒 <b>Дата заказа:</b> {order.created_at.strftime('%d.%m.%Y %H:%M')}
 
 <b>Требуется срочная проверка!</b>
@@ -3513,72 +3601,62 @@ def admin_2fa_setup(request):
     try:
         admin_2fa, created = Admin2FA.objects.get_or_create(user=request.user)
         
+        backup_codes = None
+        
         if request.method == 'POST':
             action = request.POST.get('action')
             
-            if action == 'enable':
-                if not admin_2fa.secret_key:
-                    admin_2fa.secret_key = pyotp.random_base32()
-                
+            if action == 'generate':
+                secret_key = admin_2fa.generate_secret_key()
                 admin_2fa.generate_backup_codes()
                 admin_2fa.save()
                 
-                messages.success(request, '2FA настроена. Сохраните резервные коды!')
+                messages.success(request, 'Секретный ключ сгенерирован! Настройте приложение аутентификации.')
                 
+            elif action == 'verify':
+                code = request.POST.get('code', '').strip()
+                
+                if not code:
+                    messages.error(request, 'Введите код подтверждения')
+                else:
+                    if admin_2fa.verify_totp(code, valid_window=1):
+                        admin_2fa.is_enabled = True
+                        admin_2fa.last_used = timezone.now()
+                        admin_2fa.save()
+                        
+                        request.session['admin_2fa_verified'] = True
+                        backup_codes = admin_2fa.backup_codes
+                        
+                        messages.success(request, '2FA успешно активирована! Сохраните резервные коды.')
+                        return redirect('admin_2fa_setup')
+                    else:
+                        messages.error(request, 'Неверный код. Попробуйте снова.')
+                        
             elif action == 'disable':
                 admin_2fa.is_enabled = False
                 admin_2fa.secret_key = ''
                 admin_2fa.backup_codes = []
                 admin_2fa.save()
                 
-                messages.success(request, '2FA отключена.')
-            
-            elif action == 'verify':
-                code = request.POST.get('code', '').strip()
+                if 'admin_2fa_verified' in request.session:
+                    del request.session['admin_2fa_verified']
                 
-                if admin_2fa.verify_backup_code(code):
-                    messages.success(request, 'Резервный код принят.')
-                else:
-                    totp = pyotp.TOTP(admin_2fa.secret_key)
-                    if totp.verify(code):
-                        admin_2fa.is_enabled = True
-                        admin_2fa.last_used = timezone.now()
-                        admin_2fa.save()
-                        
-                        request.session['admin_2fa_verified'] = True
-                        messages.success(request, '2FA успешно активирована!')
-                        return redirect('admin:index')
-                    else:
-                        messages.error(request, 'Неверный код. Попробуйте снова.')
-        
-        qr_code_url = None
-        if admin_2fa.secret_key:
-            totp = pyotp.TOTP(admin_2fa.secret_key)
-            provisioning_url = totp.provisioning_uri(
-                name=request.user.email or request.user.username,
-                issuer_name="Техресурс Админка"
-            )
-            
-            qr = qrcode.QRCode(version=1, box_size=10, border=5)
-            qr.add_data(provisioning_url)
-            qr.make(fit=True)
-            
-            img = qr.make_image(fill_color="black", back_color="white")
-            buffer = BytesIO()
-            img.save(buffer, format='PNG')
-            qr_code_url = base64.b64encode(buffer.getvalue()).decode()
+                messages.success(request, '2FA отключена.')
+                return redirect('admin_2fa_setup')
         
         context = {
             'admin_2fa': admin_2fa,
-            'qr_code_url': qr_code_url,
-            'backup_codes': admin_2fa.backup_codes,
+            'backup_codes': backup_codes or admin_2fa.backup_codes,
+            'secret_key': admin_2fa.secret_key
         }
         
         return render(request, 'main/admin_2fa_setup.html', context)
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         messages.error(request, f'Ошибка настройки 2FA: {str(e)}')
-        return redirect('admin:index')
+        return render(request, 'main/admin_2fa_setup.html', {'error': str(e)})
 
 @staff_required
 def admin_2fa_verify(request):
@@ -3590,12 +3668,16 @@ def admin_2fa_verify(request):
         admin_2fa = Admin2FA.objects.get(user=request.user)
         
         if not admin_2fa.is_enabled:
-            request.session['admin_2fa_verified'] = True
-            return redirect('admin:index')
+            messages.info(request, 'Сначала настройте 2FA в панели администратора.')
+            return redirect('admin_2fa_setup')
         
         if request.method == 'POST':
             code = request.POST.get('code', '').strip()
             use_backup = request.POST.get('use_backup', False)
+
+            if not code:
+                messages.error(request, 'Введите код подтверждения')
+                return render(request, 'main/admin_2fa_verify.html')
             
             if use_backup:
                 if admin_2fa.verify_backup_code(code):
@@ -3607,8 +3689,7 @@ def admin_2fa_verify(request):
                 else:
                     messages.error(request, 'Неверный резервный код.')
             else:
-                totp = pyotp.TOTP(admin_2fa.secret_key)
-                if totp.verify(code):
+                if admin_2fa.verify_totp(code, valid_window=1):
                     request.session['admin_2fa_verified'] = True
                     admin_2fa.last_used = timezone.now()
                     admin_2fa.save()
@@ -3621,8 +3702,8 @@ def admin_2fa_verify(request):
         
     except Admin2FA.DoesNotExist:
         Admin2FA.objects.create(user=request.user)
-        request.session['admin_2fa_verified'] = True
-        return redirect('admin:index')
+        messages.info(request, 'Сначала настройте 2FA.')
+        return redirect('admin_2fa_setup')
     except Exception as e:
         messages.error(request, f'Ошибка верификации: {str(e)}')
         return render(request, 'main/admin_2fa_verify.html')

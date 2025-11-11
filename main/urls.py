@@ -124,11 +124,5 @@ urlpatterns = [
     # Политика конфиденциальности
     path('privacy/', views.privacy_policy, name='privacy'),
 
-    # Админка Django
-    path('admin/', admin.site.urls),
-
-    path('admin/2fa/verify/', views.admin_2fa_verify, name='admin_2fa_verify'),
-    path('admin/2fa/setup/', views.admin_2fa_setup, name='admin_2fa_setup'),
-
     re_path(r'^\.well-known/.*$', lambda request: HttpResponseNotFound()),
 ]

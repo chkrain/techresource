@@ -45,8 +45,23 @@
             <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
                 <div class="stat-icon">💵</div>
                 <div class="stat-info">
-                    <h3>Выручка</h3>
+                    <h3>Чистая выручка</h3>
                     <p class="stat-number revenue">{{ total_revenue }} ₽</p>
+                    <small style="font-size: 0.8rem; color: #6c757d;">
+                        (без доставки и комиссий)
+                    </small>
+                </div>
+            </div>
+
+            <!-- Дополнительная карточка для общей суммы -->
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <h3>Общая сумма</h3>
+                    <p class="stat-number">{{ total_gross }} ₽</p>
+                    <small style="font-size: 0.8rem; color: #6c757d;">
+                        (с доставкой и комиссиями)
+                    </small>
                 </div>
             </div>
 

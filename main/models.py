@@ -11,6 +11,9 @@ import time
 from datetime import timedelta
 from django.conf import settings
 import json
+import hmac
+import base64
+import struct
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE) 
@@ -48,10 +51,10 @@ class UserProfile(models.Model):
         verbose_name_plural = "Профили пользователей"
 
 class Admin2FA(models.Model):
-    """2FA для администраторов"""
+    """2FA для администраторов (упрощенная версия без pyotp)"""
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_enabled = models.BooleanField(default=False, verbose_name='2FA включена')
-    secret_key = models.CharField(max_length=32, verbose_name='Секретный ключ')
+    secret_key = models.CharField(max_length=32, blank=True, verbose_name='Секретный ключ')
     backup_codes = models.JSONField(default=list, verbose_name='Резервные коды')
     last_used = models.DateTimeField(null=True, blank=True, verbose_name='Последнее использование')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
@@ -59,20 +62,85 @@ class Admin2FA(models.Model):
     def __str__(self):
         return f"2FA для {self.user.username}"
     
+    def generate_secret_key(self):
+        """Генерация секретного ключа"""
+        self.secret_key = base64.b32encode(secrets.token_bytes(20)).decode('utf-8').rstrip('=')
+        self.is_enabled = False
+        self.save()
+        return self.secret_key
+    
     def generate_backup_codes(self):
         """Генерация резервных кодов"""
-        import secrets
-        self.backup_codes = [secrets.token_hex(4).upper() for _ in range(8)]
+        # Генерируем 8-символьные коды для удобства
+        self.backup_codes = [secrets.token_hex(4).upper() for _ in range(8)]  # 8-символьные коды
         self.save()
+        return self.backup_codes
     
     def verify_backup_code(self, code):
         """Проверка резервного кода"""
-        code = code.upper().strip()
+        if not self.backup_codes:
+            return False
+        
+        code = code.strip().upper()
         if code in self.backup_codes:
+            # Удаляем использованный код
             self.backup_codes.remove(code)
             self.save()
             return True
         return False
+    
+    def generate_totp(self, timestamp=None):
+        """Генерация TOTP кода"""
+        if not self.secret_key:
+            return None
+        
+        if timestamp is None:
+            timestamp = int(time.time())
+        
+        time_step = 30
+        T = timestamp // time_step
+        
+        try:
+            secret_key = self.secret_key
+            padding = 8 - (len(secret_key) % 8)
+            if padding != 8:
+                secret_key += '=' * padding
+            
+            key = base64.b32decode(secret_key)
+            
+            msg = struct.pack('>Q', T)
+            hmac_result = hmac.new(key, msg, hashlib.sha1).digest()
+            
+            offset = hmac_result[-1] & 0xf
+            binary = struct.unpack('>I', hmac_result[offset:offset+4])[0] & 0x7fffffff
+            
+            otp = binary % 1000000
+            return str(otp).zfill(6)
+            
+        except Exception as e:
+            print(f"❌ Ошибка генерации TOTP: {e}")
+            return None
+    
+    def verify_totp(self, code, valid_window=1):
+        """Проверка TOTP кода"""
+        if not self.secret_key:
+            return False
+        
+        code = code.strip()
+        timestamp = int(time.time())
+        for i in range(-valid_window, valid_window + 1):
+            expected_code = self.generate_totp(timestamp + i * 30)
+            print(f"🔍 Проверка кода: введен '{code}', ожидается '{expected_code}' (сдвиг {i})")
+            if code == expected_code:
+                print("✅ Код верный!")
+                return True
+        
+        print("❌ Код неверный!")
+        return False
+    
+    def get_provisioning_uri(self, username, issuer_name):
+        """Генерация URI для QR-кода"""
+        return f"otpauth://totp/{issuer_name}:{username}?secret={self.secret_key}&issuer={issuer_name}"
     
     class Meta:
         verbose_name = "2FA администратора"
@@ -244,6 +312,23 @@ class Address(models.Model):
     city = models.CharField(max_length=100, verbose_name="Город")
     postal_code = models.CharField(max_length=20, verbose_name="Почтовый индекс")
     is_default = models.BooleanField(default=False, verbose_name="Адрес по умолчанию")
+
+
+    # region = models.CharField(max_length=100, verbose_name="Регион", blank=True)
+    # country = models.CharField(max_length=100, verbose_name="Страна", default="Россия")
+    # delivery_zone = models.CharField(
+    #     max_length=20, 
+    #     choices=[
+    #         ('central', 'Центральный'),
+    #         ('far_east', 'Дальний восток'), 
+    #         ('siberia', 'Сибирь'),
+    #         ('ural', 'Урал'),
+    #         ('south', 'Юг'),
+    #         ('north_west', 'Северо-Запад'),
+    #     ],
+    #     blank=True,
+    #     verbose_name="Зона доставки"
+    # )
     
     # Новые поля для безопасности - ИСПРАВЛЕННЫЕ
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
@@ -283,6 +368,8 @@ class Product(models.Model):
     # Новые поля для безопасности
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
     last_restock = models.DateTimeField(null=True, blank=True, verbose_name="Последнее пополнение")
+
+    specifications = models.JSONField(default=dict, blank=True, verbose_name="Характеристики")
     
     def __str__(self):
         return self.name
@@ -415,6 +502,10 @@ class Order(models.Model):
     tracking_number = models.CharField(max_length=100, blank=True, verbose_name="Трек-номер")
     shipping_company = models.CharField(max_length=100, blank=True, verbose_name="Служба доставки")
     estimated_delivery = models.DateField(null=True, blank=True, verbose_name="Примерная дата доставки")
+
+    payment_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Комиссия платежной системы")
+    delivery_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Стоимость доставки")
+    final_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Итоговая сумма с учетом доставки и комиссий")
     
     # Таймстампы
     paid_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата оплаты")
@@ -424,9 +515,47 @@ class Order(models.Model):
     fraud_score = models.DecimalField(max_digits=5, decimal_places=2, default=0, verbose_name="Оценка мошенничества")
     ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name="IP-адрес создания")
     user_agent = models.TextField(blank=True, verbose_name="User Agent")
+
+    paid_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0, 
+        verbose_name="Оплаченная сумма"
+    )
+    is_payment_finalized = models.BooleanField(
+        default=False, verbose_name="Оплата завершена"
+    )
+    net_revenue = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0,
+        verbose_name="Чистая выручка (без доставки и комиссий)"
+    )
     
+    def finalize_payment(self):
+        """Фиксирует оплату при смене статуса на 'paid'"""
+        if self.status == 'paid' and not self.is_payment_finalized:
+            self.paid_amount = self.final_price
+            self.net_revenue = self.total_price  # Только стоимость товаров
+            self.is_payment_finalized = True
+            self.paid_at = timezone.now()
+            self.save()
+    
+    def get_clean_revenue(self):
+        """Возвращает чистую выручку"""
+        return self.net_revenue if self.is_payment_finalized else 0
+
     def __str__(self):
         return f"Заказ #{self.id} - {self.customer_name}"
+    
+    def get_final_price_with_fees(self):
+        """Возвращает итоговую сумму с учетом доставки и комиссий"""
+        return self.total_price + self.delivery_cost + self.payment_fee
+    
+    def get_fee_breakdown(self):
+        """Возвращает детализацию стоимости"""
+        return {
+            'subtotal': self.total_price,
+            'delivery': self.delivery_cost,
+            'payment_fee': self.payment_fee,
+            'total': self.get_final_price_with_fees()
+        }
     
     def can_be_cancelled(self):
         """Можно отменить заказ в течение 10 минут после оплаты"""

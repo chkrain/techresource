@@ -72,6 +72,7 @@
                         </div>
                     </div>
                     
+                    
                     <div class="order-summary">
                         <div class="summary-header">
                             <h4>Состав заказа</h4>
@@ -89,6 +90,30 @@
                                 <div class="item-price">{{ item.get_total_price }} ₽</div>
                             </div>
                             {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <h4>Стоимость заказа</h4>
+                        <div class="price-breakdown">
+                            <div class="price-row">
+                                <span class="price-label">Сумма товаров:</span>
+                                <span class="price-value">{{ order.total_price }} ₽</span>
+                            </div>
+                            <div class="price-row">
+                                <span class="price-label">Доставка:</span>
+                                <span class="price-value">{{ order.delivery_cost }} ₽</span>
+                            </div>
+                            {% if order.payment_fee %}
+                            <div class="price-row">
+                                <span class="price-label">Комиссия платежной системы:</span>
+                                <span class="price-value">{{ order.payment_fee }} ₽</span>
+                            </div>
+                            {% endif %}
+                            <div class="price-row total">
+                                <span class="price-label">Итого к оплате:</span>
+                                <span class="price-value">{{ order.get_final_price_with_fees }} ₽</span>
+                            </div>
                         </div>
                     </div>
                 </div>

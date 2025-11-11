@@ -52,8 +52,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'main.middleware.AdminSecurityMiddleware',
     'main.middleware.Admin2FAMiddleware',
+    'main.middleware.AdminSecurityMiddleware',
 ]
 
 ROOT_URLCONF = 'techresource.urls'
@@ -141,9 +141,10 @@ USE_I18N = True
 USE_TZ = True
 
 
-ADMIN_ALLOWED_IPS = ['127.0.0.1', '192.168.1.0/24'] 
+ADMIN_ALLOWED_IPS = [] 
 ADMIN_SESSION_TIMEOUT = 7200 
 TWO_FACTOR_FOR_ADMINS = True
+TWO_FACTOR_FOR_SUPERUSERS = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
