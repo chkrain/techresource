@@ -67,7 +67,7 @@ Configuration.account_id = settings.YOOKASSA_SHOP_ID
 Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
 
 def index(request):
-    featured_products = Product.objects.filter(is_active=True, quantity__gt=0)[:6]
+    featured_products = Product.objects.filter(is_active=True, quantity__gt=0)[:6]  
     return render(request, 'main/index.html', {'featured_products': featured_products})
 
 def about(request):
@@ -494,7 +494,8 @@ def calculate_delivery_cost(address, order_total, items_count, weight=0):
 @login_required
 def cart_view(request):
     cart, created = Cart.objects.get_or_create(user=request.user)
-    cart_items = cart.cartitem_set.all()
+    cart_items = cart.cartitem_set.all().select_related('product')
+
     
     addresses = Address.objects.filter(user=request.user).values(
         'id', 'title', 'full_name', 'phone', 'address', 
