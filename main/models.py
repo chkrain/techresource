@@ -16,12 +16,31 @@ import base64
 import struct
 
 class UserProfile(models.Model):
+    ACCOUNT_TYPE_CHOICES = [
+        ('individual', 'Физическое лицо'),
+        ('legal', 'Юридическое лицо'),
+    ]
+    account_type = models.CharField(
+        max_length=20, 
+        choices=ACCOUNT_TYPE_CHOICES, 
+        default='individual'
+    )
     user = models.OneToOneField(User, on_delete=models.CASCADE) 
     phone = models.CharField(max_length=20, blank=True, null=True, verbose_name='Телефон')
     company = models.CharField(max_length=100, blank=True, verbose_name='Компания')
     position = models.CharField(max_length=100, blank=True, verbose_name='Должность')
     date_of_birth = models.DateField(blank=True, null=True, verbose_name='Дата рождения')
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name='Аватар')
+
+    company_name = models.CharField(max_length=255, blank=True, null=True)
+    inn = models.CharField(max_length=12, blank=True, null=True)
+    kpp = models.CharField(max_length=9, blank=True, null=True)
+    ogrn = models.CharField(max_length=13, blank=True, null=True)
+    legal_address = models.TextField(blank=True, null=True)
+    bank_name = models.CharField(max_length=255, blank=True, null=True)
+    bik = models.CharField(max_length=9, blank=True, null=True)
+    settlement_account = models.CharField(max_length=20, blank=True, null=True)
+    correspondent_account = models.CharField(max_length=20, blank=True, null=True)
     
     # Поля для восстановления пароля
     phone_verified = models.BooleanField(default=False, verbose_name='Телефон подтвержден')
@@ -313,24 +332,22 @@ class Address(models.Model):
     postal_code = models.CharField(max_length=20, verbose_name="Почтовый индекс")
     is_default = models.BooleanField(default=False, verbose_name="Адрес по умолчанию")
 
-
-    # region = models.CharField(max_length=100, verbose_name="Регион", blank=True)
-    # country = models.CharField(max_length=100, verbose_name="Страна", default="Россия")
-    # delivery_zone = models.CharField(
-    #     max_length=20, 
-    #     choices=[
-    #         ('central', 'Центральный'),
-    #         ('far_east', 'Дальний восток'), 
-    #         ('siberia', 'Сибирь'),
-    #         ('ural', 'Урал'),
-    #         ('south', 'Юг'),
-    #         ('north_west', 'Северо-Запад'),
-    #     ],
-    #     blank=True,
-    #     verbose_name="Зона доставки"
-    # )
+    region = models.CharField(max_length=100, verbose_name="Регион", blank=True)
+    country = models.CharField(max_length=100, verbose_name="Страна", default="Россия")
+    delivery_zone = models.CharField(
+        max_length=20, 
+        choices=[
+            ('central', 'Центральный'),
+            ('far_east', 'Дальний восток'), 
+            ('siberia', 'Сибирь'),
+            ('ural', 'Урал'),
+            ('south', 'Юг'),
+            ('north_west', 'Северо-Запад'),
+        ],
+        blank=True,
+        verbose_name="Зона доставки"
+    )
     
-    # Новые поля для безопасности - ИСПРАВЛЕННЫЕ
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
     
@@ -338,9 +355,29 @@ class Address(models.Model):
         return f"{self.title} - {self.city}"
     
     def save(self, *args, **kwargs):
+        if self.city and not self.delivery_zone:
+            self.delivery_zone = self.detect_delivery_zone()
+        
         if self.is_default:
             Address.objects.filter(user=self.user, is_default=True).update(is_default=False)
         super().save(*args, **kwargs)
+
+    def detect_delivery_zone(self):
+        city_zones = {
+            'central': ['москва', 'санкт-петербург', 'тверь', 'ярославль', 'кострома', 'иваново', 'владимир'],
+            'south': ['ростов', 'краснодар', 'сочи', 'волгоград', 'астрахань'],
+            'north_west': ['псков', 'новгород', 'калининград', 'мурманск'],
+            'ural': ['екатеринбург', 'челябинск', 'пермь', 'тюмень'],
+            'siberia': ['новосибирск', 'омск', 'красноярск', 'иркутск'],
+            'far_east': ['владивосток', 'хабаровск', 'якутск']
+        }
+        
+        city_lower = self.city.lower()
+        for zone, cities in city_zones.items():
+            if any(city in city_lower for city in cities):
+                return zone
+        
+        return 'central' 
     
     class Meta:
         verbose_name = "Адрес"
@@ -364,6 +401,21 @@ class Product(models.Model):
     dimensions = models.CharField(max_length=50, blank=True, verbose_name="Габариты")
     material = models.CharField(max_length=100, blank=True, verbose_name="Материал")
     warranty = models.IntegerField(default=12, verbose_name="Гарантия (мес)")
+
+    weight = models.DecimalField(
+        max_digits=8, 
+        decimal_places=2, 
+        default=0.1,
+        verbose_name="Вес (кг)"
+    )
+    dimensions = models.CharField(
+        max_length=50, 
+        blank=True, 
+        verbose_name="Габариты (Д×Ш×В см)"
+    )
+    is_fragile = models.BooleanField(default=False, verbose_name="Хрупкий товар")
+    requires_special_delivery = models.BooleanField(default=False, verbose_name="Требует спецдоставки")
+
     
     # Новые поля для безопасности
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")

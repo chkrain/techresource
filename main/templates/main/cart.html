@@ -1,10 +1,10 @@
 <!-- main/templates/main/cart.html -->
 {% extends 'main/base.html' %}
+{% load math_filters %}
 
 {% block title %}Корзина - Техресурс{% endblock %}
 
 {% block content %}
-<!-- Hero секция -->
 <section class="cart-hero">
     <div class="container">
         <div class="hero-content">
@@ -153,28 +153,55 @@
                         {% csrf_token %}
                         
                         <div class="form-section">
-                            <h4>📦 Адрес доставки</h4>
-                            <div class="form-group">
-                                {% if addresses %}
-                                    <select name="address_id" id="address-select" class="form-select" required>
-                                        <option value="">-- Выберите адрес доставки --</option>
-                                        {% for address in addresses %}
-                                        <option value="{{ address.id }}" {% if address.is_default %}selected{% endif %}>
-                                            {{ address.title }} - {{ address.city }}, {{ address.address }}
-                                            {% if address.is_default %}(по умолчанию){% endif %}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                    <small class="form-help">
-                                        <a href="{% url 'profile' %}" class="manage-addresses">✏️ Управление адресами</a>
-                                    </small>
-                                {% else %}
-                                    <div class="no-addresses">
-                                        <p>❌ У вас нет сохраненных адресов</p>
-                                        <a href="{% url 'profile' %}" class="btn btn-small">➕ Добавить адрес</a>
+                            <h4>🚚 Доставка</h4>
+                            <div class="delivery-info" id="delivery-details">
+                                <div class="delivery-option selected">
+                                    <span class="delivery-icon">📦</span>
+                                    <div class="delivery-text">
+                                        <strong>Курьерская доставка</strong>
+                                        <small>1-3 рабочих дня • Бесплатно от 150 000 ₽</small>
                                     </div>
-                                {% endif %}
+                                    <span class="delivery-price">
+                                        {% if delivery_cost == 0 %}
+                                            Бесплатно
+                                        {% else %}
+                                            {{ delivery_cost }} ₽
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                
+                                <div class="delivery-details">
+                                    <div class="delivery-features">
+                                        <span class="feature">✓ Бесплатная доставка от 150 000 ₽</span>
+                                        <span class="feature">✓ Доставка в течение 1-3 дней</span>
+                                        <span class="feature">✓ Отслеживание заказа онлайн</span>
+                                    </div>
+                                    
+                                    <div class="delivery-notice">
+                                        <small>
+                                            💡 
+                                            {% if subtotal < 150000 %}
+                                                До бесплатной доставки осталось: {{ 150000|subtract:subtotal }} ₽
+                                            {% else %}
+                                                🎉 Поздравляем! Ваша доставка бесплатна!
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>📍 Адрес доставки</h4>
+                            <select name="address_id" id="address-select" class="form-select" required>
+                                <option value="">Выберите адрес доставки</option>
+                                {% for address in addresses %}
+                                    <option value="{{ address.id }}" {% if address.is_default %}selected{% endif %}>
+                                        {{ address.title }} - {{ address.city }}, {{ address.address }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <a href="{% url 'profile' %}" class="manage-addresses">Управление адресами</a>
                         </div>
                         
                         <div class="form-section">
@@ -1206,7 +1233,6 @@ section {
     }
 }
 
-/* Стили для валидации формы */
 .form-select:invalid,
 .form-select:required:invalid {
     border-color: #e53e3e;
@@ -1218,7 +1244,6 @@ section {
     background: #f0fff4;
 }
 
-/* Стили для отсутствия адресов */
 .no-addresses {
     background: #fff5f5;
     padding: 1rem;
@@ -1247,7 +1272,6 @@ section {
     color: white;
 }
 
-/* Индикатор обязательных полей */
 .form-section h4::after {
     content: " *";
     color: #e53e3e;
@@ -1274,7 +1298,6 @@ section {
     color: #0052cc;
 }
 
-/* Анимации для уведомлений */
 @keyframes slideInRight {
     from {
         transform: translateX(100%);
@@ -1316,6 +1339,104 @@ section {
     align-items: center;
     justify-content: center;
     margin-left: auto;
+}
+
+/* ДОБАВИТЬ в секцию стилей */
+.delivery-info {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+}
+
+.delivery-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid #0052cc;
+    margin-bottom: 1rem;
+}
+
+.delivery-option .delivery-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 8px;
+    color: white;
+}
+
+.delivery-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.delivery-text strong {
+    color: #2c3e50;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.delivery-text small {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+.delivery-price {
+    font-weight: 600;
+    color: #48bb78;
+    font-size: 1rem;
+}
+
+.delivery-features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.feature {
+    color: #495057;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.delivery-notice {
+    background: #e3f2fd;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border-left: 4px solid #2196f3;
+}
+
+.delivery-notice small {
+    color: #1976d2;
+    font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+    .delivery-option {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    
+    .delivery-text {
+        text-align: center;
+    }
+    
+    .delivery-features {
+        text-align: left;
+    }
 }
 
 /* Стили для ошибок полей */
@@ -1664,21 +1785,31 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Обновляем общую сводку
         updateCartSummary(data.cart_total, data.item_count, data.total_quantity);
+        
+        // ДОБАВИТЬ ЭТУ СТРОКУ - обновляем доставку и итоговую сумму
+        updateDeliveryAndTotals();
     }
     
     // Функция обновления сводки корзины
     function updateCartSummary(total, itemCount, totalQuantity) {
-        document.getElementById('subtotal-price').textContent = `${total} ₽`;
-        document.getElementById('total-price').textContent = `${total} ₽`;
-        document.getElementById('total-quantity').textContent = totalQuantity || itemCount;
+        const formattedTotal = parseFloat(total).toLocaleString('ru-RU');
+        document.getElementById('subtotal-price').textContent = `${formattedTotal} ₽`;
+        document.getElementById('final-price').textContent = `${formattedTotal} ₽`; // временно, потом пересчитается
         
-        // Обновляем счетчик товаров в заголовке
         const itemsCountElement = document.querySelector('.items-count');
         if (itemsCountElement) {
             itemsCountElement.textContent = `${totalQuantity || itemCount} товар(ов)`;
         }
+        
+        setTimeout(updateDeliveryAndTotals, 100);
     }
-    
+
+    function getPriceValue(priceElement) {
+        if (!priceElement) return 0;
+        const priceText = priceElement.textContent.replace(' ₽', '').replace(/\s/g, '').replace(',', '.');
+        return parseFloat(priceText) || 0;
+    }
+
     // Обработчики событий
     
     // Кнопки +/-
@@ -1888,6 +2019,113 @@ document.addEventListener('DOMContentLoaded', function() {
     if (selectedRadio) {
         updatePaymentFee(selectedRadio.value);
     }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addressSelect = document.getElementById('address-select');
+    
+    if (addressSelect) {
+        addressSelect.addEventListener('change', function() {
+            updateDeliveryAndTotals();
+        });
+    }
+
+    updateDeliveryAndTotals();
+    
+    async function updateDeliveryAndTotals() {
+        const addressSelect = document.getElementById('address-select');
+        const addressId = addressSelect?.value;
+        const subtotal = getPriceValue(document.getElementById('subtotal-price'));
+        
+        try {
+            const response = await fetch('/calculate-delivery-ajax/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    address_id: addressId,
+                    cart_total: subtotal
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                updateUIWithDelivery(data.delivery_cost, subtotal);
+                updateFreeDeliveryInfo(data.delivery_info);
+            } else {
+                console.error('Ошибка расчета доставки:', data.error);
+                const deliveryCost = subtotal >= 150000 ? 0 : 1000;
+                updateUIWithDelivery(deliveryCost, subtotal);
+            }
+            
+        } catch (error) {
+            console.error('Ошибка запроса доставки:', error);
+            const deliveryCost = subtotal >= 150000 ? 0 : 1000;
+            updateUIWithDelivery(deliveryCost, subtotal);
+        }
+    }
+    
+    function updateUIWithDelivery(deliveryCost, subtotal) {
+        const deliveryElement = document.querySelector('.free-shipping');
+        const deliveryPriceElement = document.querySelector('.delivery-price');
+        
+        if (deliveryElement) {
+            deliveryElement.textContent = deliveryCost === 0 ? 'Бесплатно' : deliveryCost + ' ₽';
+        }
+        if (deliveryPriceElement) {
+            deliveryPriceElement.textContent = deliveryCost === 0 ? 'Бесплатно' : deliveryCost + ' ₽';
+        }
+        
+        updateOrderSummary(subtotal, deliveryCost);
+    }
+    
+    function updateFreeDeliveryInfo(deliveryInfo) {
+        const deliveryNotice = document.querySelector('.delivery-notice small');
+        if (deliveryNotice && deliveryInfo) {
+            if (deliveryInfo.is_free) {
+                deliveryNotice.innerHTML = '🎉 Поздравляем! Ваша доставка бесплатна!';
+            } else {
+                deliveryNotice.innerHTML = `💡 До бесплатной доставки осталось: <strong>${deliveryInfo.remaining_for_free.toLocaleString()} ₽</strong>`;
+            }
+        }
+    }
+    
+    function updateOrderSummary(subtotal, deliveryCost) {
+        const paymentSystem = document.querySelector('input[name="payment_system"]:checked')?.value || 'yookassa';
+        
+        const paymentFee = calculatePaymentFee(subtotal + deliveryCost, paymentSystem);
+        const finalPrice = subtotal + deliveryCost + paymentFee;
+        
+        document.getElementById('payment-fee').textContent = paymentFee.toFixed(2) + ' ₽';
+        document.getElementById('final-price').textContent = finalPrice.toFixed(2) + ' ₽';
+    }
+        
+    function calculatePaymentFee(amount, paymentSystem) {
+        const fees = {
+            'yookassa': 0.025,
+            'cardlink': 0.02
+        };
+        
+        const feePercent = fees[paymentSystem] || 0.05;
+        let feeAmount = Math.round(amount * feePercent * 100) / 100;
+        return Math.max(feeAmount, 10.00);
+    }
+    
+    document.querySelectorAll('input[name="payment_system"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const subtotal = parseFloat(document.getElementById('subtotal-price').textContent.replace(' ₽', '').replace(/\s/g, ''));
+            const deliveryCost = parseFloat(document.querySelector('.free-shipping').textContent === 'Бесплатно' ? 0 : document.querySelector('.free-shipping').textContent.replace(' ₽', ''));
+            updateOrderSummary(subtotal, deliveryCost);
+        });
+    });
+    
+    updateDeliveryAndTotals();
 });
 </script>
 

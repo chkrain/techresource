@@ -19,6 +19,7 @@ import requests
 from .models import NotificationLog
 import uuid
 import time
+from .services.delivery_service import DeliveryService
 import base64
 from io import BytesIO
 from django.contrib.auth.decorators import user_passes_test
@@ -127,7 +128,7 @@ def admin_dashboard(request):
         'pending_orders': pending_orders,
         'paid_orders': paid_orders,
         'total_revenue': total_revenue,
-        'total_gross': total_gross,  # Для отображения в шаблоне
+        'total_gross': total_gross,  
         'status_choices': Order.STATUS_CHOICES,
         'selected_status': status_filter,
         'selected_date': date_filter,
@@ -349,11 +350,28 @@ def register(request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            messages.success(request, 'Регистрация прошла успешно!')
-            return redirect('profile')
+            
+            user = authenticate(
+                request, 
+                username=user.username,  
+                password=form.cleaned_data['password1']
+            )
+            
+            if user is not None:
+                login(request, user)
+                messages.success(request, 'Регистрация прошла успешно! Вы автоматически вошли в систему.')
+                
+                account_type = form.cleaned_data.get('account_type', 'individual')
+                account_type_display = 'Физическое лицо' if account_type == 'individual' else 'Юридическое лицо'
+                
+                messages.info(request, f'Аккаунт создан как {account_type_display}')
+                return redirect('profile')
+            else:
+                messages.error(request, 'Ошибка автоматического входа. Пожалуйста, войдите вручную.')
+                return redirect('login')
     else:
         form = UserRegisterForm()
+    
     return render(request, 'main/register.html', {'form': form})
 
 @login_required
@@ -466,10 +484,10 @@ def calculate_delivery_cost(address, order_total, items_count):
 def calculate_delivery_cost(address, order_total, items_count, weight=0):
     """Расширенный расчет стоимости доставки"""
     
-    if order_total >= 10000:
-        return 0 
+    if order_total >= 150000:
+        return Decimal('0')
     
-    base_cost = 1000
+    base_cost = Decimal('1000')
     
     return base_cost
 
@@ -480,11 +498,51 @@ def cart_view(request):
     
     addresses = Address.objects.filter(user=request.user).values(
         'id', 'title', 'full_name', 'phone', 'address', 
-        'city', 'postal_code', 'is_default'
+        'city', 'postal_code', 'is_default', 'delivery_zone'
     )
     
     subtotal = cart.get_total_price()
-    delivery_cost = Decimal('1000')
+    delivery_cost = Decimal('0')
+    selected_address_id = request.GET.get('address_id')
+    delivery_info = {}
+
+    total_weight = sum(
+        item.product.weight * item.quantity 
+        for item in cart_items 
+        if item.product.weight
+    )
+
+    delivery_cost = Decimal('0')
+    selected_address_id = request.GET.get('address_id')
+    delivery_info = {}
+
+    if selected_address_id:
+        try:
+            address = Address.objects.get(id=selected_address_id, user=request.user)
+            
+            total_weight = sum(
+                item.product.weight * item.quantity 
+                for item in cart_items 
+                if hasattr(item.product, 'weight') and item.product.weight
+            )
+            
+            delivery_cost = DeliveryService.calculate_delivery_cost(
+                address=address,
+                order_total=subtotal,
+                items_count=cart.get_items_count(),
+                total_weight=total_weight
+            )
+            
+            delivery_info = {
+                'zone': DeliveryService.detect_zone_by_city(address.city) if address.city else 'Не указана',
+                'time': DeliveryService.get_delivery_time(address),
+                'couriers': DeliveryService.get_available_couriers(address)
+            }
+            
+        except Address.DoesNotExist:
+            delivery_cost = Decimal('0') if subtotal >= 150000 else Decimal('1000')
+    else:
+        delivery_cost = Decimal('0') if subtotal >= 150000 else Decimal('1000')
     
     selected_payment_system = request.GET.get('payment_system', 'yookassa')
     payment_fee = calculate_payment_fee(subtotal + delivery_cost, selected_payment_system)
@@ -494,6 +552,7 @@ def cart_view(request):
         address_id = request.POST.get('address_id')
         payment_method = request.POST.get('payment_method')
         payment_system = request.POST.get('payment_system', 'yookassa')
+        selected_courier = request.POST.get('courier', 'СДЭК')
         
         errors = []
         
@@ -503,9 +562,6 @@ def cart_view(request):
         if not payment_method:
             errors.append('Выберите способ оплаты')
         
-        if not payment_system:
-            errors.append('Выберите платежную систему')
-        
         if errors:
             for error in errors:
                 messages.error(request, error)
@@ -513,64 +569,69 @@ def cart_view(request):
         
         try:
             address = Address.objects.get(id=address_id, user=request.user)
+            
+            delivery_cost = DeliveryService.calculate_delivery_cost(
+            address=address,
+            order_total=subtotal,
+            items_count=cart.get_items_count(),
+            total_weight=total_weight
+        )
+            
+            payment_fee = calculate_payment_fee(subtotal + delivery_cost, payment_system)
+            final_price = subtotal + delivery_cost + payment_fee
+
+            order = Order.objects.create(
+                user=request.user,
+                total_price=subtotal,
+                final_price=final_price,
+                payment_method=payment_method,
+                payment_system=payment_system,
+                payment_fee=payment_fee,
+                delivery_cost=delivery_cost,
+                customer_name=address.full_name,
+                customer_phone=address.phone,
+                customer_email=request.user.email,
+                delivery_address=f"{address.city}, {address.address}, {address.postal_code}",
+                shipping_company=selected_courier
+            )
+            
+            for cart_item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=cart_item.product,
+                    quantity=cart_item.quantity,
+                    price=cart_item.product.price
+                )
+            
+            cart_items.delete()
+            
+            if payment_method == 'card':
+                if payment_system == 'cardlink':
+                    return redirect('create_cardlink_payment', order_id=order.id)
+                else:
+                    return redirect('create_payment', order_id=order.id)
+            else:
+                order.status = 'processing'
+                order.save()
+                send_invoice_order_notification(order)
+                messages.success(request, f'Заказ #{order.id} создан! Мы вышлем счет на вашу почту {request.user.email}.')
+                return redirect('orders')
+        
         except Address.DoesNotExist:
             messages.error(request, 'Выбранный адрес не найден')
             return redirect('cart')
-        
-        for cart_item in cart_items:
-            if cart_item.quantity > cart_item.product.quantity:
-                messages.error(request, f'Недостаточно товара "{cart_item.product.name}" в наличии. Доступно: {cart_item.product.quantity} шт.')
-                return redirect('cart')
-        
-        payment_fee = calculate_payment_fee(subtotal + delivery_cost, payment_system)
-        final_price = subtotal + delivery_cost + payment_fee
-
-        order = Order.objects.create(
-            user=request.user,
-            total_price=subtotal,
-            final_price=final_price,
-            payment_method=payment_method,
-            payment_system=payment_system,
-            payment_fee=payment_fee,
-            delivery_cost=delivery_cost,
-            customer_name=address.full_name,
-            customer_phone=address.phone,
-            customer_email=request.user.email,
-            delivery_address=f"{address.city}, {address.address}, {address.postal_code}"
-        )
-        
-        for cart_item in cart_items:
-            OrderItem.objects.create(
-                order=order,
-                product=cart_item.product,
-                quantity=cart_item.quantity,
-                price=cart_item.product.price
-            )
-        
-        cart_items.delete()
-        
-        if payment_method == 'card':
-            if payment_system == 'cardlink':
-                return redirect('create_cardlink_payment', order_id=order.id)
-            else:
-                return redirect('create_payment', order_id=order.id)
-        else:
-            # Для оплаты по счету
-            order.status = 'processing'
-            order.save()
-            send_invoice_order_notification(order)
-            messages.success(request, f'Заказ #{order.id} создан! Мы вышлем счет на вашу почту {request.user.email}.')
-            return redirect('orders')
     
     context = {
         'cart': cart,
         'cart_items': cart_items,
-        'addresses': list(addresses),  
+        'addresses': list(addresses),
         'subtotal': subtotal,
         'delivery_cost': delivery_cost,
         'payment_fee': payment_fee,
         'final_price': final_price,
         'selected_payment_system': selected_payment_system,
+        'delivery_info': delivery_info,
+        'total_weight': total_weight,
         'fee_breakdown': {
             'subtotal': subtotal,
             'delivery': delivery_cost,
@@ -1639,27 +1700,25 @@ def secure_register(request):
     if request.method == 'POST':
         form = SecureUserCreationForm(request.POST)
         
-        # Логируем попытку регистрации
         ip_address = get_client_ip(request)
         user_agent = request.META.get('HTTP_USER_AGENT', '')
         
         if form.is_valid():
             user = form.save(commit=False)
             user.email = form.cleaned_data['email']
-            user.is_active = True  # Сразу активируем аккаунт для простоты
+            user.is_active = True
             user.save()
             
-            # Создаем профиль пользователя
             profile, created = UserProfile.objects.get_or_create(user=user)
-            
-            # Логируем успешную регистрацию
+            login(request, user)
+        
             log_security_event(user, 'register', ip_address, user_agent, True)
             
             messages.success(
                 request, 
-                'Регистрация успешна! Теперь вы можете войти в систему.'
+                'Регистрация успешна!'
             )
-            return redirect('login')
+            return redirect('profile')
         else:
             # Логируем неудачную попытку регистрации
             if hasattr(form, 'cleaned_data') and 'username' in form.cleaned_data:
@@ -3707,3 +3766,81 @@ def admin_2fa_verify(request):
     except Exception as e:
         messages.error(request, f'Ошибка верификации: {str(e)}')
         return render(request, 'main/admin_2fa_verify.html')
+
+@login_required
+def calculate_delivery_ajax(request):
+    """AJAX расчет стоимости доставки"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            address_id = data.get('address_id')
+            cart_total = Decimal(str(data.get('cart_total', 0)))
+            
+            delivery_cost = Decimal('0')
+            delivery_info = {}
+            
+            if address_id:
+                try:
+                    address = Address.objects.get(id=address_id, user=request.user)
+                    
+                    cart, created = Cart.objects.get_or_create(user=request.user)
+                    cart_items = cart.cartitem_set.all()
+                    
+                    total_weight = sum(
+                        item.product.weight * item.quantity 
+                        for item in cart_items 
+                        if hasattr(item.product, 'weight') and item.product.weight is not None
+                    )
+                    
+                    items_count = cart.get_items_count()
+                    
+                    delivery_cost = DeliveryService.calculate_delivery_cost(
+                        address=address,
+                        order_total=cart_total,
+                        items_count=items_count,
+                        total_weight=total_weight
+                    )
+                    
+                    delivery_info = {
+                        'zone': DeliveryService.detect_zone_by_city(address.city) if address.city else 'central',
+                        'time': DeliveryService.get_delivery_time(address),
+                        'couriers': DeliveryService.get_available_couriers(address),
+                        'free_delivery_threshold': 150000,
+                        'remaining_for_free': float(max(150000 - cart_total, 0)) if cart_total < 150000 else 0,
+                        'is_free': cart_total >= 150000
+                    }
+                    
+                except Address.DoesNotExist:
+                    delivery_cost = Decimal('0') if cart_total >= 150000 else Decimal('1000')
+                    delivery_info = {
+                        'zone': 'central',
+                        'time': '1-3 дня',
+                        'couriers': ['СДЭК', 'Почта России'],
+                        'is_free': cart_total >= 150000,
+                        'remaining_for_free': float(max(150000 - cart_total, 0)) if cart_total < 150000 else 0
+                    }
+            else:
+                # Если адрес не выбран
+                delivery_cost = Decimal('0') if cart_total >= 150000 else Decimal('1000')
+                delivery_info = {
+                    'zone': 'central',
+                    'time': '1-3 дня', 
+                    'couriers': ['СДЭК', 'Почта России'],
+                    'is_free': cart_total >= 150000,
+                    'remaining_for_free': float(max(150000 - cart_total, 0)) if cart_total < 150000 else 0
+                }
+            
+            return JsonResponse({
+                'success': True,
+                'delivery_cost': float(delivery_cost),
+                'delivery_info': delivery_info
+            })
+                
+        except Exception as e:
+            print(f"❌ Ошибка расчета доставки: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})

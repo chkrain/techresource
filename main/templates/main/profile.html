@@ -258,6 +258,9 @@
                                         {% if address_form.city.errors %}
                                         <div class="form-error">{{ address_form.city.errors }}</div>
                                         {% endif %}
+                                        <div class="form-help" id="delivery-zone-info">
+                                            <!-- Здесь будет отображаться информация о зоне доставки -->
+                                        </div>
                                     </div>
                                     
                                     <div class="form-group">
@@ -1183,7 +1186,6 @@ section {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Переключение табов
     const navItems = document.querySelectorAll('.nav-item');
     const tabContents = document.querySelectorAll('.tab-content');
     
@@ -1191,14 +1193,11 @@ document.addEventListener('DOMContentLoaded', function() {
         item.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Убираем активный класс у всех элементов
             navItems.forEach(nav => nav.classList.remove('active'));
             tabContents.forEach(content => content.classList.remove('active'));
             
-            // Добавляем активный класс к текущему элементу
             this.classList.add('active');
             
-            // Показываем соответствующий контент
             const tabId = this.getAttribute('data-tab');
             const targetTab = document.getElementById(tabId);
             if (targetTab) {
@@ -1207,7 +1206,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Маска для телефона
     const phoneInput = document.querySelector('input[type="tel"]');
     if (phoneInput) {
         phoneInput.addEventListener('input', function(e) {
@@ -1236,7 +1234,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Анимация форм
     document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(input => {
         input.addEventListener('focus', function() {
             this.parentElement.classList.add('focused');
@@ -1249,13 +1246,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Подтверждение удаления с улучшенным UI
     document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             if (!confirm('Вы уверены, что хотите удалить этот адрес?')) {
                 e.preventDefault();
             } else {
-                // Анимация удаления
                 const card = this.closest('.address-card');
                 if (card) {
                     card.style.opacity = '0';
@@ -1285,7 +1280,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!isValid) {
                 e.preventDefault();
-                // Показываем сообщение об ошибке
                 const errorMsg = document.createElement('div');
                 errorMsg.className = 'form-error';
                 errorMsg.textContent = 'Пожалуйста, заполните все обязательные поля';
@@ -1303,11 +1297,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 errorMsg.className = 'submit-error';
                 this.appendChild(errorMsg);
                 
-                // Прокрутка к ошибке
                 errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
     });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContent', function() {
+    const cityInput = document.querySelector('#id_city');
+    const zoneInfo = document.getElementById('delivery-zone-info');
+    
+    if (cityInput && zoneInfo) {
+        cityInput.addEventListener('blur', function() {
+            const city = this.value.trim();
+            if (city.length > 2) {
+                updateDeliveryZoneInfo(city);
+            }
+        });
+    }
+    
+    function updateDeliveryZoneInfo(city) {
+        const cityLower = city.toLowerCase();
+        let zone = 'центральная';
+        
+        if (cityLower.includes('владивосток') || cityLower.includes('хабаровск')) {
+            zone = 'дальневосточная';
+        } else if (cityLower.includes('новосибирск') || cityLower.includes('иркутск')) {
+            zone = 'сибирская';
+        } else if (cityLower.includes('екатеринбург') || cityLower.includes('челябинск')) {
+            zone = 'уральская';
+        }
+        
+        zoneInfo.innerHTML = `Зона доставки: ${zone} (определяется автоматически)`;
+    }
 });
 </script>
 {% endblock %}

@@ -17,15 +17,42 @@
                 <h2>Техресурс</h2>
             </div>
             <h1>Создать аккаунт</h1>
-            <p>Присоединяйтесь к нашему сообществу профессионалов</p>
+            <p>Выберите тип аккаунта и заполните данные</p>
         </div>
 
-        <form method="post" class="auth-form">
+        <form method="post" class="auth-form" id="register-form">
             {% csrf_token %}
             
+            <!-- Выбор типа аккаунта -->
+            <div class="form-section" data-aos="fade-up" data-aos-delay="50">
+            <h3 class="section-title">Тип аккаунта</h3>
+            <div class="account-type-selector">
+                <div class="account-type-options">
+                    <label class="account-type-option">
+                        <input type="radio" name="account_type" value="individual" checked class="account-type-radio">
+                        <div class="account-type-card">
+                            <span class="account-icon">👤</span>
+                            <span class="account-title">Физическое лицо</span>
+                            <span class="account-description">Для частных клиентов</span>
+                        </div>
+                    </label>
+                    
+                    <label class="account-type-option">
+                        <input type="radio" name="account_type" value="legal" class="account-type-radio">
+                        <div class="account-type-card">
+                            <span class="account-icon">🏢</span>
+                            <span class="account-title">Юридическое лицо</span>
+                            <span class="account-description">Для компаний и организаций</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+            <!-- Основные поля -->
             <div class="form-group" data-aos="fade-up" data-aos-delay="100">
                 <label class="form-label">
-                    <span class="label-text">Имя пользователя*</span>
+                    <span class="label-text">Имя на аккаунте*</span>
                     {{ form.username }}
                 </label>
                 {% if form.username.errors %}
@@ -51,7 +78,101 @@
                 {% endif %}
             </div>
 
-            <div class="form-group" data-aos="fade-up" data-aos-delay="200">
+            <!-- Поля для физлица -->
+            <div class="account-fields individual-fields" id="individual-fields">
+                <div class="form-grid" data-aos="fade-up" data-aos-delay="200">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">Имя*</span>
+                            <input type="text" name="first_name" class="form-input individual-field" placeholder="Введите ваше имя" required>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">Фамилия*</span>
+                            <input type="text" name="last_name" class="form-input individual-field" placeholder="Введите вашу фамилию" required>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Поля для юрлица -->
+            <div class="account-fields legal-fields" id="legal-fields" style="display: none;">
+                <div class="form-group" data-aos="fade-up" data-aos-delay="200">
+                    <label class="form-label">
+                        <span class="label-text">Название компании*</span>
+                        <input type="text" name="company_name" class="form-input legal-field" placeholder="Введите название компании">
+                    </label>
+                </div>
+
+                <div class="form-grid" data-aos="fade-up" data-aos-delay="250">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">ИНН*</span>
+                            <input type="text" name="inn" class="form-input legal-field" placeholder="10 или 12 цифр" maxlength="12">
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">КПП</span>
+                            <input type="text" name="kpp" class="form-input legal-field" placeholder="9 цифр" maxlength="9">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" data-aos="fade-up" data-aos-delay="300">
+                    <label class="form-label">
+                        <span class="label-text">ОГРН</span>
+                        <input type="text" name="ogrn" class="form-input legal-field" placeholder="13 цифр" maxlength="13">
+                    </label>
+                </div>
+
+                <div class="form-group" data-aos="fade-up" data-aos-delay="350">
+                    <label class="form-label">
+                        <span class="label-text">Юридический адрес*</span>
+                        <textarea name="legal_address" class="form-input legal-field" placeholder="Введите юридический адрес" rows="3"></textarea>
+                    </label>
+                </div>
+
+                <div class="form-section" data-aos="fade-up" data-aos-delay="400">
+                    <h4 class="section-subtitle">Банковские реквизиты</h4>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">Банк</span>
+                            <input type="text" name="bank_name" class="form-input legal-field" placeholder="Название банка">
+                        </label>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-text">БИК</span>
+                                <input type="text" name="bik" class="form-input legal-field" placeholder="9 цифр" maxlength="9">
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-text">Расчетный счет</span>
+                                <input type="text" name="settlement_account" class="form-input legal-field" placeholder="20 цифр" maxlength="20">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">Корреспондентский счет</span>
+                            <input type="text" name="correspondent_account" class="form-input legal-field" placeholder="Корреспондентский счет">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Пароли -->
+            <div class="form-group" data-aos="fade-up" data-aos-delay="450">
                 <label class="form-label">
                     <span class="label-text">Пароль*</span>
                     {{ form.password1 }}
@@ -64,11 +185,14 @@
                 </div>
                 {% endif %}
                 <div class="password-hint">
-                    Пароль должен содержать минимум 8 символов, заглавные и строчные буквы, цифры.
+                    Пароль должен содержать минимум 6 символов.
+                </div>
+                <div class="password-strength" id="password-strength">
+                    <div class="password-strength-fill" id="password-strength-fill"></div>
                 </div>
             </div>
             
-            <div class="form-group" data-aos="fade-up" data-aos-delay="250">
+            <div class="form-group" data-aos="fade-up" data-aos-delay="500">
                 <label class="form-label">
                     <span class="label-text">Подтверждение пароля*</span>
                     {{ form.password2 }}
@@ -80,9 +204,10 @@
                     {% endfor %}
                 </div>
                 {% endif %}
+                <div class="password-match" id="password-match"></div>
             </div>
 
-            <div class="form-group" data-aos="fade-up" data-aos-delay="300">
+            <div class="form-group" data-aos="fade-up" data-aos-delay="550">
                 <label class="checkbox-label">
                     {{ form.agree_terms }}
                     <span class="checkmark"></span>
@@ -110,6 +235,229 @@
 </div>
 
 <style>
+/* Стили для выбора типа аккаунта */
+.account-type-selector {
+    margin-bottom: 2rem;
+}
+
+.account-type-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.account-type-option {
+    cursor: pointer;
+}
+
+.account-type-option input[type="radio"] {
+    display: none;
+}
+
+.account-type-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: white;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.account-type-card:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.account-type-option input[type="radio"]:checked + .account-type-card {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #f8f9ff, #eef2ff);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.account-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.account-title {
+    font-weight: 600;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.account-description {
+    font-size: 0.85rem;
+    color: #718096;
+    display: block;
+}
+
+/* Секции формы */
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.section-subtitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+/* Поля для разных типов аккаунтов */
+.account-fields {
+    margin-bottom: 1.5rem;
+}
+
+.legal-fields {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
+
+/* Сетка для форм */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* Анимации появления полей */
+.account-fields {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .account-type-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    
+    .legal-fields {
+        padding: 1rem;
+    }
+}
+
+/* Дополнительные стили для улучшения UX */
+.form-label input:required + .label-text::after {
+    content: " *";
+    color: #e53e3e;
+}
+
+/* Подсветка обязательных полей для юрлица */
+.legal-fields .form-label input:required {
+    border-left: 3px solid #667eea;
+}
+
+/* Плейсхолдеры */
+.form-label input::placeholder {
+    color: #a0aec0;
+    font-size: 0.9rem;
+}
+
+/* Улучшенные сообщения об ошибках */
+.error-message {
+    background: #fed7d7;
+    border: 1px solid #feb2b2;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.error-icon {
+    color: #c53030;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+/* Индикаторы силы пароля */
+.password-strength {
+    margin-top: 0.5rem;
+    height: 4px;
+    border-radius: 2px;
+    background: #e2e8f0;
+    overflow: hidden;
+}
+
+.password-strength-fill {
+    height: 100%;
+    transition: all 0.3s ease;
+    width: 0%;
+}
+
+.password-strength.weak .password-strength-fill {
+    background: #e53e3e;
+    width: 33%;
+}
+
+.password-strength.medium .password-strength-fill {
+    background: #d69e2e;
+    width: 66%;
+}
+
+.password-strength.strong .password-strength-fill {
+    background: #38a169;
+    width: 100%;
+}
+
+/* Индикатор совпадения паролей */
+.password-match {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    display: none;
+}
+
+.password-match.match {
+    background: #c6f6d5;
+    color: #22543d;
+    border: 1px solid #9ae6b4;
+    display: block;
+}
+
+.password-match.mismatch {
+    background: #fed7d7;
+    color: #742a2a;
+    border: 1px solid #feb2b2;
+    display: block;
+}
+
+/* Существующие стили остаются без изменений */
 .container {
     border-radius: 20px;
 }
@@ -151,7 +499,7 @@
         0 20px 60px rgba(0, 0, 0, 0.1),
         0 8px 30px rgba(0, 0, 0, 0.05);
     width: 100%;
-    max-width: 500px;
+    max-width: 600px;
     position: relative;
     z-index: 2;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -242,12 +590,6 @@
     line-height: 1.4;
 }
 
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
 .form-group {
     margin-bottom: 1.5rem;
 }
@@ -265,7 +607,8 @@
     font-size: 0.9rem;
 }
 
-.form-label input {
+.form-label input,
+.form-label textarea {
     width: 100%;
     padding: 1rem 1.25rem;
     border: 2px solid #e2e8f0;
@@ -276,29 +619,17 @@
     color: #2d3748;
 }
 
-.form-label input:focus {
+.form-label input:focus,
+.form-label textarea:focus {
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     transform: translateY(-2px);
 }
 
-.form-label input:hover {
+.form-label input:hover,
+.form-label textarea:hover {
     border-color: #cbd5e0;
-}
-
-.error-message {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #e53e3e;
-    font-size: 0.85rem;
-    margin-top: 0.5rem;
-    font-weight: 500;
-}
-
-.error-icon {
-    font-size: 0.75rem;
 }
 
 .auth-btn {
@@ -374,11 +705,6 @@
         margin: 1rem;
     }
     
-    .form-grid {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
-    
     .auth-header h1 {
         font-size: 1.5rem;
     }
@@ -402,7 +728,8 @@
         padding: 1.5rem 1rem;
     }
     
-    .form-label input {
+    .form-label input,
+    .form-label textarea {
         padding: 0.875rem 1rem;
     }
     
@@ -410,19 +737,6 @@
         padding: 1rem 1.5rem;
         font-size: 1rem;
     }
-}
-
-/* Дополнительные стили для улучшения UX */
-.form-label input::placeholder {
-    color: #a0aec0;
-}
-
-.form-label input:valid {
-    border-color: #48bb78;
-}
-
-.form-label input:invalid:not(:focus):not(:placeholder-shown) {
-    border-color: #f56565;
 }
 
 /* Анимация появления */
@@ -453,6 +767,268 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    const accountTypeRadios = document.querySelectorAll('input[name="account_type"]');
+    const individualFields = document.getElementById('individual-fields');
+    const legalFields = document.getElementById('legal-fields');
+
+    function toggleAccountFields() {
+        const selectedType = document.querySelector('input[name="account_type"]:checked').value;
+        
+        console.log('Selected type:', selectedType); // Для отладки
+        
+        if (selectedType === 'individual') {
+            individualFields.style.display = 'block';
+            legalFields.style.display = 'none';
+            
+            document.querySelectorAll('.individual-field').forEach(input => {
+                if (input.name === 'first_name' || input.name === 'last_name') {
+                    input.required = true;
+                }
+            });
+            document.querySelectorAll('.legal-field').forEach(input => {
+                input.required = false;
+            });
+            
+        } else {
+            individualFields.style.display = 'none';
+            legalFields.style.display = 'block';
+            
+            document.querySelectorAll('.individual-field').forEach(input => {
+                input.required = false;
+            });
+            document.querySelectorAll('.legal-field').forEach(input => {
+                if (input.name === 'company_name' || input.name === 'inn' || input.name === 'legal_address') {
+                    input.required = true;
+                }
+            });
+        }
+    }
+
+    accountTypeRadios.forEach(radio => {
+        radio.addEventListener('change', toggleAccountFields);
+    });
+
+    toggleAccountFields();
+
+    // Валидация пароля
+    const passwordInput = document.querySelector('input[name="password1"]');
+    const passwordConfirmInput = document.querySelector('input[name="password2"]');
+    const passwordStrength = document.getElementById('password-strength');
+    const passwordStrengthFill = document.getElementById('password-strength-fill');
+    const passwordMatch = document.getElementById('password-match');
+
+    function validatePassword(password) {
+        const errors = [];
+        
+        if (password.length < 6) {
+            errors.push('Пароль должен содержать минимум 6 символов');
+        }
+        
+        if (password.toLowerCase() === '{{ form.email.value|default:""|lower }}') {
+            errors.push('Пароль не должен совпадать с email');
+        }
+        
+        return errors;
+    }
+
+    function updatePasswordStrength(password) {
+        let strength = 'weak';
+        
+        if (password.length >= 10) {
+            strength = 'strong';
+        } else if (password.length >= 7) {
+            strength = 'medium';
+        }
+        
+        passwordStrength.className = 'password-strength ' + strength;
+    }
+
+    function checkPasswordMatch() {
+        const password = passwordInput.value;
+        const confirmPassword = passwordConfirmInput.value;
+        
+        if (password && confirmPassword) {
+            if (password === confirmPassword) {
+                passwordMatch.textContent = 'Пароли совпадают';
+                passwordMatch.className = 'password-match match';
+            } else {
+                passwordMatch.textContent = 'Пароли не совпадают';
+                passwordMatch.className = 'password-match mismatch';
+            }
+        } else {
+            passwordMatch.className = 'password-match';
+        }
+    }
+
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function(e) {
+            const password = e.target.value;
+            updatePasswordStrength(password);
+            
+            // Показываем ошибки в реальном времени
+            const errors = validatePassword(password);
+            const errorDiv = passwordInput.parentNode.querySelector('.password-errors');
+            
+            if (errors.length > 0) {
+                if (!errorDiv) {
+                    const newErrorDiv = document.createElement('div');
+                    newErrorDiv.className = 'password-errors error-message';
+                    passwordInput.parentNode.appendChild(newErrorDiv);
+                }
+                const errorDiv = passwordInput.parentNode.querySelector('.password-errors');
+                errorDiv.innerHTML = errors.map(error => 
+                    `<span class="error-icon">⚠</span> ${error}`
+                ).join('<br>');
+            } else if (errorDiv) {
+                errorDiv.remove();
+            }
+        });
+    }
+
+    if (passwordConfirmInput) {
+        passwordConfirmInput.addEventListener('input', checkPasswordMatch);
+    }
+
+    function initMasks() {
+        const innInput = document.querySelector('input[name="inn"]');
+        if (innInput) {
+            innInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 12) value = value.slice(0, 12);
+                e.target.value = value;
+            });
+        }
+
+        const kppInput = document.querySelector('input[name="kpp"]');
+        if (kppInput) {
+            kppInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 9) value = value.slice(0, 9);
+                e.target.value = value;
+            });
+        }
+
+        // Маска для ОГРН (13 цифр)
+        const ogrnInput = document.querySelector('input[name="ogrn"]');
+        if (ogrnInput) {
+            ogrnInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 13) value = value.slice(0, 13);
+                e.target.value = value;
+            });
+        }
+
+        // Маска для БИК (9 цифр)
+        const bikInput = document.querySelector('input[name="bik"]');
+        if (bikInput) {
+            bikInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 9) value = value.slice(0, 9);
+                e.target.value = value;
+            });
+        }
+
+        // Маска для расчетного счета (20 цифр)
+        const accountInput = document.querySelector('input[name="settlement_account"]');
+        if (accountInput) {
+            accountInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 20) value = value.slice(0, 20);
+                e.target.value = value;
+            });
+        }
+    }
+
+    initMasks();
+
+    // Валидация формы
+    const registerForm = document.getElementById('register-form');
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            const accountType = document.querySelector('input[name="account_type"]:checked').value;
+            let isValid = true;
+            const errorMessages = [];
+
+            // Базовая валидация
+            const requiredFields = registerForm.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.classList.add('error');
+                    const fieldName = field.getAttribute('name') || field.previousElementSibling?.textContent || 'поле';
+                    errorMessages.push(`Заполните обязательное поле: ${fieldName}`);
+                } else {
+                    field.classList.remove('error');
+                }
+            });
+
+            // Валидация пароля
+            const password = passwordInput?.value;
+            if (password) {
+                const passwordErrors = validatePassword(password);
+                if (passwordErrors.length > 0) {
+                    isValid = false;
+                    errorMessages.push(...passwordErrors);
+                }
+            }
+
+            // Проверка совпадения паролей
+            if (passwordInput && passwordConfirmInput && passwordInput.value !== passwordConfirmInput.value) {
+                isValid = false;
+                errorMessages.push('Пароли не совпадают');
+            }
+
+            // Специфическая валидация для юрлица
+            if (accountType === 'legal') {
+                const inn = document.querySelector('input[name="inn"]').value;
+                if (inn && (inn.length !== 10 && inn.length !== 12)) {
+                    isValid = false;
+                    errorMessages.push('ИНН должен содержать 10 или 12 цифр');
+                }
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                showNotification(errorMessages.join('<br>'), 'error');
+            }
+        });
+    }
+
+    // Функция показа уведомлений
+    function showNotification(message, type = 'info') {
+        // Создаем элемент уведомления
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-icon">${type === 'error' ? '⚠' : 'ℹ'}</span>
+                <span class="notification-message">${message}</span>
+            </div>
+        `;
+        
+        // Стили для уведомления
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'error' ? '#fed7d7' : '#bee3f8'};
+            color: ${type === 'error' ? '#742a2a' : '#2a4365'};
+            border: 1px solid ${type === 'error' ? '#feb2b2' : '#90cdf4'};
+            border-radius: 8px;
+            padding: 1rem;
+            max-width: 400px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Автоматическое скрытие через 5 секунд
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+
     // Создание частиц для фона
     function createAuthParticles() {
         const container = document.getElementById('auth-particles');
@@ -480,61 +1056,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Добавление интерактивности к полям формы
-    const inputs = document.querySelectorAll('.form-label input');
-    inputs.forEach(input => {
-        input.addEventListener('focus', function() {
-            this.parentElement.classList.add('focused');
-        });
-        
-        input.addEventListener('blur', function() {
-            if (!this.value) {
-                this.parentElement.classList.remove('focused');
-            }
-        });
-        
-        // Проверка на заполненность при загрузке
-        if (input.value) {
-            input.parentElement.classList.add('focused');
-        }
-    });
-
-    // Анимация кнопки при наведении
-    const authBtn = document.querySelector('.auth-btn');
-    if (authBtn) {
-        authBtn.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-3px)';
-        });
-        
-        authBtn.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-        });
-    }
-
     // Запуск создания частиц
     createAuthParticles();
-});
-
-// Динамическая валидация пароля
-document.addEventListener('DOMContentLoaded', function() {
-    const password1 = document.querySelector('input[name="password1"]');
-    const password2 = document.querySelector('input[name="password2"]');
-    
-    function validatePasswords() {
-        if (password1 && password2 && password1.value && password2.value) {
-            if (password1.value !== password2.value) {
-                password2.style.borderColor = '#f56565';
-                // Можно добавить сообщение об ошибке
-            } else {
-                password2.style.borderColor = '#48bb78';
-            }
-        }
-    }
-    
-    if (password1 && password2) {
-        password1.addEventListener('input', validatePasswords);
-        password2.addEventListener('input', validatePasswords);
-    }
 });
 </script>
 

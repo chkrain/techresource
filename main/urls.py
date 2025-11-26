@@ -98,6 +98,7 @@ urlpatterns = [
     path('webhook/cardlink/fail/', views.cardlink_webhook, name='cardlink_webhook_fail'),
     path('payment/cardlink/mock/<int:order_id>/', views.cardlink_mock_process, name='cardlink_mock_process'),
     path('order/<int:order_id>/update-payment/', views.update_order_payment_method, name='update_order_payment'),
+    path('calculate-delivery-ajax/', views.calculate_delivery_ajax, name='calculate_delivery_ajax'),
 
     # Избранное
     path('wishlist/', views.wishlist_view, name='wishlist'),
