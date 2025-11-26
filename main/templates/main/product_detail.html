@@ -335,6 +335,7 @@
     font-size: 1rem;
     flex: 1;
     min-width: 200px;
+    color: var(--text-dark); /* Добавлено: черный текст для всех кнопок */
 }
 
 .btn-primary {
@@ -356,13 +357,13 @@
 }
 
 .btn-secondary {
-    background: transparent;
+    background: lightcoral !important;
     color: var(--text-dark);
     border: 2px solid var(--border-medium);
 }
 
 .btn-secondary:hover {
-    background: var(--bg-light);
+    background: coral !important;
     border-color: var(--accent-blue);
     transform: translateY(-2px);
 }
@@ -401,11 +402,11 @@
     font-size: 1.05rem;
 }
 
-/* Specifications */
+/* Specifications - ИСПРАВЛЕНО: flex-direction column */
 .specs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .spec-item {
@@ -512,7 +513,7 @@
     color: var(--text-gray);
 }
 
-/* Toast Notifications */
+/* Toast Notifications - ИСПРАВЛЕНО: цвет текста и фона */
 .toast-container {
     position: fixed;
     top: 100px;
@@ -532,6 +533,7 @@
     margin-bottom: 12px;
     transform: translateX(400px);
     transition: transform 0.3s ease;
+    color: var(--text-dark); /* Добавлено: черный текст */
 }
 
 .toast.show {
@@ -653,6 +655,10 @@
     .similar-products-grid {
         grid-template-columns: 1fr;
     }
+}
+
+.toggle-wishlist-btn {
+    background-color:#EF4444;
 }
 </style>
 {% endblock %}

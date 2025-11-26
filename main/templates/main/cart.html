@@ -193,17 +193,35 @@
 
                         <div class="form-section">
                             <h4>📍 Адрес доставки</h4>
-                            <select name="address_id" id="address-select" class="form-select" required>
-                                <option value="">Выберите адрес доставки</option>
-                                {% for address in addresses %}
-                                    <option value="{{ address.id }}" {% if address.is_default %}selected{% endif %}>
-                                        {{ address.title }} - {{ address.city }}, {{ address.address }}
-                                    </option>
-                                {% endfor %}
-                            </select>
+                            <div class="custom-select-wrapper">
+                                <select name="address_id" id="address-select" class="original-select" required>
+                                    <option value="">Выберите адрес доставки</option>
+                                    {% for address in addresses %}
+                                        <option value="{{ address.id }}" {% if address.is_default %}selected{% endif %}>
+                                            {{ address.title }}|{{ address.city }}, {{ address.address }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                
+                                <div class="custom-select">
+                                    <div class="custom-select-trigger placeholder">
+                                        <span class="selected-text">Выберите адрес доставки</span>
+                                        <span class="custom-arrow">▼</span>
+                                    </div>
+                                    <div class="custom-select-options">
+                                        {% for address in addresses %}
+                                            <div class="custom-select-option {% if address.is_default %}selected{% endif %}" 
+                                                data-value="{{ address.id }}">
+                                                <span class="option-title">{{ address.title }}</span>
+                                                <span class="option-details">{{ address.city }}, {{ address.address }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
                             <a href="{% url 'profile' %}" class="manage-addresses">Управление адресами</a>
                         </div>
-                        
+
                         <div class="form-section">
                             <h4>💳 Способ оплаты</h4>
                             <div class="payment-methods">
@@ -1451,6 +1469,198 @@ section {
     border-radius: 8px;
     padding: 0.5rem;
 }
+
+/* Стили для кастомного выпадающего списка адресов */
+.custom-select-wrapper {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.original-select {
+    display: none !important;
+}
+
+.custom-select {
+    position: relative;
+    display: block !important;
+}
+
+.custom-select-trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    min-height: 54px;
+}
+
+.custom-select-trigger:hover {
+    border-color: #adb5bd;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.custom-select-trigger:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.custom-arrow {
+    transition: transform 0.3s ease;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.custom-select.open .custom-arrow {
+    transform: rotate(180deg);
+}
+
+.custom-select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+    animation: dropdownAppear 0.3s ease;
+}
+
+.custom-select.open .custom-select-options {
+    display: block;
+}
+
+.custom-select.open .custom-select-trigger {
+    border-radius: 12px 12px 0 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.custom-select-option {
+    padding: 1rem;
+    border-bottom: 1px solid #f8f9fa;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.custom-select-option:hover {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    transform: translateX(5px);
+}
+
+.custom-select-option.selected {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-weight: 600;
+}
+
+.option-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.option-details {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.custom-select-option:hover .option-details {
+    opacity: 1;
+}
+
+.selected-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+/* Анимация появления */
+@keyframes dropdownAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для скроллбара */
+.custom-select-options::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-select-options::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 3px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb:hover {
+    background: #5a67d8;
+}
+
+/* Стили для состояния ошибки */
+.custom-select-wrapper.error .custom-select-trigger {
+    border-color: #e53e3e;
+    background: #fff5f5;
+    animation: shake 0.5s ease;
+}
+
+/* Стили для успешного выбора */
+.custom-select-wrapper.success .custom-select-trigger {
+    border-color: #48bb78;
+    background: #f0fff4;
+}
+
+/* Плейсхолдер когда ничего не выбрано */
+.custom-select-trigger.placeholder .selected-text {
+    color: #6c757d;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .custom-select-trigger {
+        padding: 0.875rem;
+        font-size: 0.85rem;
+        min-height: 50px;
+    }
+    
+    .custom-select-option {
+        padding: 0.875rem;
+    }
+    
+    .option-title {
+        font-size: 0.85rem;
+    }
+    
+    .option-details {
+        font-size: 0.75rem;
+    }
+}
 </style>
 
 <script>
@@ -2126,6 +2336,217 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     updateDeliveryAndTotals();
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function initCustomSelect() {
+        const originalSelect = document.getElementById('address-select');
+        const customSelect = document.querySelector('.custom-select');
+        const customTrigger = document.querySelector('.custom-select-trigger');
+        const customOptions = document.querySelector('.custom-select-options');
+        const customSelectWrapper = document.querySelector('.custom-select-wrapper');
+        
+        // Функция для обновления отображения выбранного значения
+        function updateCustomSelectDisplay() {
+            const selectedOption = originalSelect.options[originalSelect.selectedIndex];
+            
+            if (selectedOption.value) {
+                const textParts = selectedOption.text.split('|');
+                customTrigger.innerHTML = `
+                    <span class="selected-text">
+                        <span class="option-title">${textParts[0]}</span>
+                        <span class="option-details">${textParts[1]}</span>
+                    </span>
+                    <span class="custom-arrow">▼</span>
+                `;
+                customTrigger.classList.remove('placeholder');
+                customSelectWrapper.classList.remove('error');
+                customSelectWrapper.classList.add('success');
+                
+                // Обновляем выделение в кастомных опциях
+                customOptions.querySelectorAll('.custom-select-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                    if (opt.getAttribute('data-value') === selectedOption.value) {
+                        opt.classList.add('selected');
+                    }
+                });
+            } else {
+                customTrigger.innerHTML = `
+                    <span class="selected-text">Выберите адрес доставки</span>
+                    <span class="custom-arrow">▼</span>
+                `;
+                customTrigger.classList.add('placeholder');
+                customSelectWrapper.classList.remove('success');
+            }
+        }
+        
+        // Инициализация начального состояния
+        updateCustomSelectDisplay();
+        
+        // Открытие/закрытие выпадающего списка
+        customTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = customSelect.classList.contains('open');
+            
+            // Закрываем все другие открытые селекты
+            document.querySelectorAll('.custom-select.open').forEach(select => {
+                if (select !== customSelect) {
+                    select.classList.remove('open');
+                }
+            });
+            
+            // Переключаем текущий селект
+            customSelect.classList.toggle('open');
+            
+            if (!isOpen) {
+                // Прокрутка к выбранному элементу
+                const selectedOption = customOptions.querySelector('.custom-select-option.selected');
+                if (selectedOption) {
+                    selectedOption.scrollIntoView({ block: 'nearest' });
+                }
+            }
+        });
+        
+        // Выбор опции
+        customOptions.querySelectorAll('.custom-select-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                
+                // Обновляем оригинальный select
+                originalSelect.value = value;
+                
+                // Обновляем отображение
+                updateCustomSelectDisplay();
+                
+                // Закрываем выпадающий список
+                customSelect.classList.remove('open');
+                
+                // Триггерим событие change для обновления доставки
+                const event = new Event('change', { bubbles: true });
+                originalSelect.dispatchEvent(event);
+            });
+        });
+        
+        // Закрытие при клике вне элемента
+        document.addEventListener('click', function(e) {
+            if (!customSelect.contains(e.target)) {
+                customSelect.classList.remove('open');
+            }
+        });
+        
+        // Закрытие при нажатии Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && customSelect.classList.contains('open')) {
+                customSelect.classList.remove('open');
+            }
+        });
+        
+        // Навигация с клавиатуры
+        customTrigger.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                customSelect.classList.toggle('open');
+            } else if (e.key === 'ArrowDown' && !customSelect.classList.contains('open')) {
+                e.preventDefault();
+                customSelect.classList.add('open');
+            }
+        });
+        
+        customOptions.addEventListener('keydown', function(e) {
+            const options = Array.from(this.querySelectorAll('.custom-select-option'));
+            const currentIndex = options.findIndex(opt => opt.classList.contains('selected'));
+            let newIndex = currentIndex;
+            
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    newIndex = (currentIndex + 1) % options.length;
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    newIndex = (currentIndex - 1 + options.length) % options.length;
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if (currentIndex !== -1) {
+                        options[currentIndex].click();
+                    }
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    customSelect.classList.remove('open');
+                    customTrigger.focus();
+                    break;
+            }
+            
+            if (newIndex !== currentIndex && newIndex >= 0) {
+                options.forEach(opt => opt.classList.remove('selected'));
+                options[newIndex].classList.add('selected');
+                options[newIndex].scrollIntoView({ block: 'nearest' });
+            }
+        });
+        
+        // Синхронизация при изменении оригинального селекта (на всякий случай)
+        originalSelect.addEventListener('change', function() {
+            updateCustomSelectDisplay();
+        });
+    }
+    
+    // Инициализация при загрузке
+    if (document.getElementById('address-select')) {
+        initCustomSelect();
+    }
+    
+    // Обновление валидации для работы с кастомным селектом
+    const orderForm = document.querySelector('.order-form');
+    if (orderForm) {
+        orderForm.addEventListener('submit', function(e) {
+            const addressSelect = document.getElementById('address-select');
+            const customSelectWrapper = document.querySelector('.custom-select-wrapper');
+            
+            if (addressSelect && (!addressSelect.value || addressSelect.value === '')) {
+                // Показываем ошибку на кастомном селекте
+                customSelectWrapper.classList.add('error');
+                customSelectWrapper.classList.remove('success');
+                
+                // Создаем сообщение об ошибке
+                let errorMessage = customSelectWrapper.querySelector('.custom-error-message');
+                if (!errorMessage) {
+                    errorMessage = document.createElement('div');
+                    errorMessage.className = 'custom-error-message';
+                    errorMessage.style.cssText = `
+                        color: #e53e3e;
+                        font-size: 0.8rem;
+                        margin-top: 0.25rem;
+                        padding: 0.25rem 0.5rem;
+                        background: #fed7d7;
+                        border-radius: 4px;
+                        border-left: 3px solid #e53e3e;
+                    `;
+                    customSelectWrapper.appendChild(errorMessage);
+                }
+                errorMessage.textContent = 'Пожалуйста, выберите адрес доставки';
+                
+                e.preventDefault();
+                
+                // Прокрутка к ошибке
+                customSelectWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Открываем выпадающий список для выбора
+                const customSelect = document.querySelector('.custom-select');
+                customSelect.classList.add('open');
+            } else {
+                // Убираем ошибку если все ок
+                customSelectWrapper.classList.remove('error');
+                const errorMessage = customSelectWrapper.querySelector('.custom-error-message');
+                if (errorMessage) {
+                    errorMessage.remove();
+                }
+            }
+        });
+    }
 });
 </script>
 

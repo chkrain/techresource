@@ -5,7 +5,6 @@
 {% block title %}Товары - Техресурс{% endblock %}
 
 {% block content %}
-<!-- Hero секция -->
 <section class="products-hero">
     <div class="container">
         <div class="hero-content">
@@ -19,7 +18,6 @@
 <section class="products-main-section">
     <div class="container">
         <div class="products-layout">
-            <!-- Боковая панель фильтров -->
             <aside class="filters-sidebar">
                 <div class="filters-header">
                     <h3>Фильтры</h3>
@@ -29,10 +27,8 @@
                 </div>
                 
                 <form method="get" class="filters-form" id="filtersForm">
-                    <!-- Скрытые поля для сохранения параметров -->
                     <input type="hidden" name="search" value="{{ search_query }}">
                     
-                    <!-- Фильтр по категориям -->
                     <div class="filter-group">
                         <h4>Категория</h4>
                         <select name="category" class="filter-select" id="categorySelect">
@@ -62,7 +58,6 @@
                         </div>
                     </div>
                     
-                    <!-- Фильтр по наличию -->
                     <div class="filter-group">
                         <h4>Наличие</h4>
                         <label class="checkbox-label">
@@ -72,7 +67,6 @@
                         </label>
                     </div>
                     
-                    <!-- Сортировка -->
                     <div class="filter-group">
                         <h4>Сортировка</h4>
                         <select name="sort_by" class="filter-select" id="sortSelect">
@@ -90,7 +84,6 @@
             
             <!-- Основной контент -->
             <main class="products-content">
-                <!-- Поиск и информация -->
                 <div class="products-header">
                     <div class="search-container">
                         <div class="search-input-wrapper">
@@ -1868,7 +1861,7 @@ async function handleAddToCart(e) {
         const data = await response.json();
         
         if (data.success) {
-            showToast(data.message || 'Товар добавлен в корзину!', 'success');
+            showToast(data.message || 'Товар добавлен в <a href="/cart/" style="color: #fff; text-decoration: underline; font-weight: bold;">корзину</a>!', 'success');
             updateCartCounter(data.cart_count);
             
             this.innerHTML = '✅ Добавлено!';
