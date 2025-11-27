@@ -18,90 +18,38 @@
             <p class="section-subtitle">Комплексные решения от проектирования до технической поддержки</p>
             
             <div class="services-grid">
+                {% for service in navigation_tree %}
                 <div class="service-item" data-aos="fade-up">
                     <div class="service-content">
-                        <div class="service-icon">📐</div>
-                        <h3>Проектирование систем</h3>
-                        <p>Разработка комплексных проектных решений и технической документации для промышленных объектов</p>
+                        <div class="service-icon">
+                            {% if service.slug == 'design' %}📐
+                            {% elif service.slug == 'electrical' %}⚡
+                            {% elif service.slug == 'software' %}💻
+                            {% elif service.slug == 'equipment' %}🚚
+                            {% elif service.slug == 'support' %}🛠️
+                            {% elif service.slug == 'maintenance' %}🔧
+                            {% else %}📄{% endif %}
+                        </div>
+                        <h3>{{ service.title }}</h3>
+                        <p>{% if service.static %}Основная услуга{% else %}Дополнительная услуга{% endif %}</p>
+                        
+                        {% if service.children %}
                         <ul class="service-features">
-                            <li>3D-моделирование</li>
-                            <li>Технические спецификации</li>
-                            <li>Сметная документация</li>
+                            {% for child in service.children %}
+                            <li>{{ child.title }}</li>
+                            {% endfor %}
                         </ul>
+                        {% endif %}
                     </div>
-                    <a href="{% url 'service_design' %}" class="service-btn">Подробнее</a>
+                    <a href="{{ service.url }}" class="service-btn">Подробнее</a>
                 </div>
-
-                <div class="service-item" data-aos="fade-up" data-aos-delay="100">
-                    <div class="service-content">
-                        <div class="service-icon">⚡</div>
-                        <h3>Электромонтажные работы</h3>
-                        <p>Полный цикл электромонтажа промышленного оборудования и систем автоматизации</p>
-                        <ul class="service-features">
-                            <li>Прокладка кабельных линий</li>
-                            <li>Монтаж щитового оборудования</li>
-                            <li>Пусконаладочные работы</li>
-                        </ul>
-                    </div>
-                    <a href="{% url 'service_electrical' %}" class="service-btn">Подробнее</a>
+                {% empty %}
+                <div class="no-services">
+                    <p>Услуги пока не добавлены. Зайдите позже!</p>
                 </div>
-
-                <div class="service-item" data-aos="fade-up" data-aos-delay="200">
-                    <div class="service-content">
-                        <div class="service-icon">💻</div>
-                        <h3>Разработка ПО и SCADA</h3>
-                        <p>Создание программного обеспечения и систем диспетчеризации для автоматизации процессов</p>
-                        <ul class="service-features">
-                            <li>SCADA/HMI системы</li>
-                            <li>ПО для АСУ ТП</li>
-                            <li>Интуитивно понятный интерфейс</li>
-                        </ul>
-                    </div>
-                    <a href="{% url 'service_software' %}" class="service-btn">Подробнее</a>
-                </div>
-
-                <div class="service-item" data-aos="fade-up">
-                    <div class="service-content">
-                        <div class="service-icon">🚚</div>
-                        <h3>Поставка оборудования</h3>
-                        <p>Комплексные поставки промышленного оборудования от ведущих мировых производителей</p>
-                        <ul class="service-features">
-                            <li>Сертифицированное оборудование</li>
-                            <li>Доставка до места</li>
-                            <li>Гарантийная поддержка</li>
-                        </ul>
-                    </div>
-                    <a href="{% url 'service_equipment' %}" class="service-btn">Подробнее</a>
-                </div>
-
-                <div class="service-item" data-aos="fade-up" data-aos-delay="100">
-                    <div class="service-content">
-                        <div class="service-icon">🛠️</div>
-                        <h3>Техническая поддержка</h3>
-                        <p>Постоянная техническая поддержка и оперативное реагирование на инциденты</p>
-                        <ul class="service-features">
-                            <li>Онлайн техподдержка</li>
-                            <li>Выезд специалистов</li>
-                            <li>Дистанционная диагностика</li>
-                        </ul>
-                    </div>
-                    <a href="{% url 'service_support' %}" class="service-btn">Подробнее</a>
-                </div>
-
-                <div class="service-item" data-aos="fade-up" data-aos-delay="200">
-                    <div class="service-content">
-                        <div class="service-icon">🔧</div>
-                        <h3>Сервисное обслуживание</h3>
-                        <p>Плановое техническое обслуживание и ремонт промышленного оборудования</p>
-                        <ul class="service-features">
-                            <li>Профилактические работы</li>
-                            <li>Ремонт любой сложности</li>
-                            <li>Запасные части</li>
-                        </ul>
-                    </div>
-                    <a href="{% url 'service_maintenance' %}" class="service-btn">Подробнее</a>
-                </div>
+                {% endfor %}
             </div>
+
         </div>
     </section>
 
@@ -299,6 +247,21 @@
     100% {
         box-shadow: 0 0 0 0 rgba(0, 82, 204, 0);
     }
+}
+
+.no-services {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.no-services p {
+    font-size: 1.2rem;
+    color: #6c757d;
+    margin: 0;
 }
 
 .process-step {

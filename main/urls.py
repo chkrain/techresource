@@ -9,7 +9,7 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('about/', views.about, name='about'),
-    path('services/', views.services, name='services'),
+    path('services/', views.services_main, name='services'),
     path('products/', views.products, name='products'),
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
     path('product/<int:product_id>/review/add/', views.add_review, name='add_review'),
@@ -27,14 +27,19 @@ urlpatterns = [
 
     path('contact/submit/', views.contact_form_submit, name='contact_submit'),
 
-    # Страницы услуг
+    # Услуги
+    path('services/', views.services_main, name='services_main'),
     path('services/design/', views.service_design, name='service_design'),
     path('services/electrical/', views.service_electrical, name='service_electrical'),
     path('services/software/', views.service_software, name='service_software'),
     path('services/equipment/', views.service_equipment, name='service_equipment'),
     path('services/support/', views.service_support, name='service_support'),
     path('services/maintenance/', views.service_maintenance, name='service_maintenance'),
-    path('services/software/instructions/altyshevo/', views.altyshevo_instruction, name='altyshevo_instruction'),
+    path('instructions/altyshevo/', views.altyshevo_instruction, name='altyshevo_instruction'),
+    path('services/dynamic/<slug:service_slug>/', views.dynamic_service_page, name='dynamic_service_page'),
+    path('services/dynamic/<slug:service_slug>/<slug:sub_slug>/', views.dynamic_service_page, name='dynamic_sub_service'),
+    path('services/dynamic/<slug:service_slug>/<slug:sub_slug>/instructions/<slug:instruction_slug>/', 
+        views.dynamic_service_page, name='dynamic_instruction_page'),
     
     # Восстановление пароля
     path('password-reset/', 

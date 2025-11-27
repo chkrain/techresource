@@ -21,6 +21,10 @@
     --shadow-xl: 0 20px 25px -5px rgba(0, 82, 204, 0.15);
 }
 
+html {
+    overflow-x: hidden;
+}
+
 /* Base Styles */
 * {
     margin: 0;
@@ -263,6 +267,12 @@ section {
     transition: transform 0.3s ease;
 }
 
+@media screen and (max-width: 768px) {
+    .stat-card {
+        padding: 4px 2px;
+    }
+}
+
 .stat-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-lg);
@@ -301,6 +311,10 @@ section {
     color: var(--text-dark);
 }
 
+.description-content {
+    max-width: 92%;
+}
+
 .description-content p {
     font-size: 1.125rem;
     line-height: 1.7;
@@ -332,18 +346,20 @@ section {
 }
 
 .description-image {
-    display: flex;
+    display: none;
     justify-content: center;
 }
 
 .image-placeholder {
-    width: 400px;
-    height: 400px;
+    width: 80vw;
+    height: 40vw;
     background: linear-gradient(135deg, var(--bg-light) 0%, var(--border-light) 100%);
     border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 2rem;
+    color: white;
 }
 
 .placeholder-content {
@@ -530,11 +546,6 @@ section {
     justify-content: center;
 }
 
-.image-placeholder {
-    font-size: 4rem;
-    color: white;
-}
-
 .case-content {
     padding: 30px;
 }
@@ -669,6 +680,12 @@ section {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 16px;
+}
+
+@media screen and (max-width: 768px) {
+    .cta-content h2, .description-content, .section-header h2 {
+        font-size: 1.5rem;
+    }
 }
 
 .cta-content p {

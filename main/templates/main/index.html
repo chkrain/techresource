@@ -79,7 +79,7 @@
                 Инновационные инженерные решения и оборудование для трансформации вашего бизнеса
             </p>
             <div class="hero-buttons" data-aos="fade-up" data-aos-delay="600">
-                <a href="{% url 'products' %}" class="btn btn-primary">Каталог товаров</a>
+                <a href="{% url 'products' %}" class="btn btn-primary">Каталог&nbsp;товаров</a>
                 <a href="{% url 'services' %}" class="btn btn-secondary">Наши услуги</a>
             </div>
         </div>
@@ -285,7 +285,7 @@
                     Наши контакты
                 </a>
                 <a href="#" class="btn btn-secondary">
-                    ✉️ Написать нам
+                    ✉️&nbsp;Написать&nbsp;нам
                 </a>
             </div>
         </div>
@@ -410,6 +410,12 @@
     text-align: center;
     max-width: 800px;
     margin: 0 auto;
+}
+
+@media screen and (max-width: 1024px) {
+    .hero-content {
+        margin-top: 40vh;
+    }
 }
 
 .hero-title {
@@ -928,7 +934,7 @@ section {
     }
     
     .btn {
-        width: 200px;
+        max-width: 200px;
     }
     
     .benefits-grid {

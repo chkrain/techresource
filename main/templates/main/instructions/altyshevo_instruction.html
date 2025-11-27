@@ -2,747 +2,1630 @@
 
 <!DOCTYPE html>
 <html lang="ru">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Инструкция по работе с СКАДА системой</title>
-        <style>
-            :root {
-                --primary-color: #2c3e50;
-                --primary-body-color: #45678a;
-                --secondary-color: #3498db;
-                --accent-color: #2980b9;
-                --light-color: #ecf0f1;
-                --dark-color: #34495e;
-                --success-color: #27ae60;
-                --warning-color: #e67e22;
-                --danger-color: #e74c3c;
-                --text-color: #333;
-                --border-radius: 8px;
-                --box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.1), 0 -2px 8px rgba(0, 0, 0, 0.05);
-                --transition: all 0.3s ease;
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Техническая документация автоматизированной системы управления линией переработки и фасовки трепела</title>
+    <style>
+        :root {
+            --primary-color: #1e3a5f;
+            --primary-dark: #0f2a4a;
+            --primary-light: #2d4d7a;
+            --secondary-color: #3a6ea5;
+            --accent-color: #0056b3;
+            --light-color: #f8fafc;
+            --light-gray: #eef2f6;
+            --medium-gray: #d1d9e6;
+            --dark-color: #2d3748;
+            --text-color: #2d3748;
+            --text-light: #718096;
+            --success-color: #2e7d32;
+            --warning-color: #ed6c02;
+            --danger-color: #d32f2f;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --box-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s ease;
+            --header-height: 70px;
+            --container-width: 1200px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            padding-top: var(--header-height);
+            counter-reset: section;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            height: var(--header-height);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 100%;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            border-radius: 8px;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 5px;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        
+        nav li {
+            margin: 0;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 10px 16px;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        nav a:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: white;
+            transition: var(--transition);
+        }
+        
+        nav a:hover, nav a:focus {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        nav a:hover:before {
+            width: 100%;
+        }
+        
+        main {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+            margin: 30px auto;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        main:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--light-gray);
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            position: relative;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--accent-color);
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin: 40px 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--light-gray);
+            scroll-margin-top: calc(var(--header-height) + 20px);
+            counter-increment: section;
+            counter-reset: subsection;
+            font-weight: 600;
+            position: relative;
+        }
+        
+        h3 {
+            color: var(--primary-dark);
+            margin: 30px 0 15px;
+            counter-increment: subsection;
+            counter-reset: subsubsection;
+            font-weight: 600;
+        }
+        
+        h4 {
+            color: var(--dark-color);
+            margin: 20px 0 10px;
+            font-weight: 600;
+            counter-increment: subsubsection;
+        }
+        
+        p {
+            margin-bottom: 16px;
+            text-align: justify;
+            line-height: 1.7;
+        }
+        
+        ul, ol {
+            margin-left: 24px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        
+        .icon-explanation {
+            margin: 16px 0;
+            padding: 20px;
+            background: var(--light-gray);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: flex-start;
+            transition: var(--transition);
+            border-left: 4px solid var(--accent-color);
+            box-shadow: var(--box-shadow-light);
+        }
+        
+        .icon-explanation:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .icon {
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-right: 16px;
+            font-size: 1.5rem;
+            min-width: 40px;
+            text-align: center;
+            background: rgba(0, 86, 179, 0.1);
+            padding: 8px;
+            border-radius: 6px;
+        }
+        
+        .image-placeholder {
+            background-color: var(--light-gray);
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 24px 0;
+            color: var(--dark-color);
+            overflow: hidden;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow-light);
+        }
+
+        .image-placeholder img {
+            margin: 0;
+            width: 100%;
+            transition: var(--transition);
+        }
+        
+        .contact-info {
+            background: linear-gradient(135deg, var(--light-gray) 0%, #e4e8f0 100%);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            margin-top: 24px;
+            transition: var(--transition);
+            border-left: 4px solid var(--accent-color);
+            box-shadow: var(--box-shadow-light);
+        }
+        
+        .contact-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .contact-info p {
+            margin-bottom: 12px;
+        }
+        
+        footer {
+            text-align: center;
+            justify-content: center;
+            display: flex;
+            padding: 24px 0;
+            color: var(--text-light);
+            background-color: white;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        footer p {
+            padding: 0;
+            margin: 0;
+        }
+        
+        .section-nav {
+            position: sticky;
+            top: calc(var(--header-height) + 20px);
+            background-color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            z-index: 100;
+            border: 1px solid var(--medium-gray);
+        }
+        
+        .section-nav ul {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 0;
+        }
+        
+        .section-nav li {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .section-nav li:before {
+            content: none;
+        }
+        
+        .section-nav a {
+            text-decoration: none;
+            color: var(--primary-color);
+            padding: 8px 16px;
+            border-radius: 30px;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            background: var(--light-gray);
+            border: 1px solid var(--medium-gray);
+            font-weight: 500;
+        }
+        
+        .section-nav a:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .tip-box {
+            background: linear-gradient(135deg, #e8f4fd 0%, #d4e9fa 100%);
+            border-left: 4px solid var(--secondary-color);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            box-shadow: var(--box-shadow-light);
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fdf2e8 0%, #fae5d3 100%);
+            border-left: 4px solid var(--warning-color);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            box-shadow: var(--box-shadow-light);
+        }
+        
+        .danger-box {
+            background: linear-gradient(135deg, #fde8e8 0%, #fad6d6 100%);
+            border-left: 4px solid var(--danger-color);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            box-shadow: var(--box-shadow-light);
+        }
+        
+        .step-box {
+            background: linear-gradient(135deg, #e8f7e8 0%, #d4f0d4 100%);
+            border-left: 4px solid var(--success-color);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            box-shadow: var(--box-shadow-light);
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            border: 2px solid white;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .content-section {
+            margin-bottom: 50px;
+        }
+        
+        .image-caption {
+            text-align: center;
+            font-style: italic;
+            color: var(--text-light);
+            margin-top: 8px;
+            font-size: 0.9rem;
+            padding: 0 10px;
+        }
+
+        .step-box ol {
+            margin-left: 24px !important;
+        }
+        
+        .table-of-contents {
+            background: linear-gradient(135deg, var(--light-gray) 0%, #e4e8f0 100%);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            margin-bottom: 40px;
+            box-shadow: var(--box-shadow-light);
+            border: 1px solid var(--medium-gray);
+        }
+        
+        .table-of-contents h2 {
+            margin-top: 0;
+            border-bottom: none;
+            text-align: center;
+            color: var(--primary-color);
+        }
+        
+        .table-of-contents h2:after {
+            display: none;
+        }
+        
+        .table-of-contents ul {
+            list-style-type: none;
+            margin-left: 0;
+            list-style: none;
+        }
+        
+        .table-of-contents li {
+            margin-bottom: 12px;
+            padding-left: 0;
+            position: relative;
+            break-inside: avoid;
+        }
+        
+        .table-of-contents a {
+            text-decoration: none;
+            color: var(--dark-color);
+            transition: var(--transition);
+            display: block;
+            padding: 4px 0;
+        }
+        
+        .table-of-contents a:hover {
+            color: var(--accent-color);
+            transform: translateX(5px);
+        }
+        
+        .safety-section {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border: 1px solid var(--warning-color);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: var(--box-shadow-light);
+        }
+        
+        .safety-section h2 {
+            color: var(--warning-color);
+            border-bottom: 1px solid var(--warning-color);
+        }
+        
+        .standard-reference {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 8px;
+            font-style: italic;
+            border-left: 2px solid var(--medium-gray);
+            padding-left: 12px;
+        }
+        
+        .document-info {
+            background: linear-gradient(135deg, var(--light-gray) 0%, #e4e8f0 100%);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+            box-shadow: var(--box-shadow-light);
+            border: 1px solid var(--medium-gray);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .document-info p {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .document-info strong {
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+        
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 1024px) {
+            .table-of-contents ul {
+                columns: 1;
             }
-            
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            
-            html {
-                scroll-behavior: smooth;
-            }
-            
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                line-height: 1.6;
-                color: var(--text-color);
-                background-color: var(--primary-body-color);
-                padding-top: 80px;
-            }
-            
-            .container {
-                max-width: 1000px;
-                margin: 0 auto;
-                padding: 0 20px;
-            }
-            
+        }
+        
+        @media (max-width: 768px) {
             header {
-                background-color: var(--primary-color);
-                color: white;
-                padding: 12px 0;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1000;
-                box-shadow: var(--box-shadow);
+                height: auto;
+                padding: 10px 0;
             }
             
             .header-content {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                max-width: 1000px;
-                margin: 0 auto;
-                padding: 0 10px;
-            }
-            
-            .logo {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                font-weight: 600;
-                font-size: 1.2rem;
-            }
-            
-            .logo-icon {
-                font-size: 1.5rem;
+                flex-direction: column;
+                gap: 15px;
+                padding: 10px 20px;
             }
             
             nav ul {
-                display: flex;
-                list-style: none;
-            }
-            
-            nav li {
-                margin-left: 30px;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 5px;
             }
             
             nav a {
-                color: white;
-                text-decoration: none;
-                font-weight: 500;
-                transition: var(--transition);
-                padding: 5px 10px;
-                border-radius: 4px;
-            }
-            
-            nav a:hover, nav a:focus {
-                color: var(--light-color);
-                background-color: rgba(255, 255, 255, 0.1);
-            }
-            
-            main {
-                background-color: white;
-                border-radius: var(--border-radius);
-                box-shadow: var(--box-shadow);
-                padding: 30px;
-                margin-bottom: 40px;
-            }
-            
-            h1 {
-                color: var(--primary-color);
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid var(--light-color);
-            }
-            
-            h2 {
-                color: var(--dark-color);
-                margin: 30px 0 15px;
-                padding-bottom: 8px;
-                border-bottom: 1px solid var(--light-color);
-                scroll-margin-top: 90px;
-            }
-            
-            h3 {
-                color: var(--accent-color);
-                margin: 20px 0 10px;
-            }
-            
-            h4 {
-                color: var(--dark-color);
-                margin: 15px 0 10px;
-                font-weight: 500;
-            }
-            
-            p {
-                margin-bottom: 15px;
-            }
-            
-            ul {
-                list-style-type: none;
-                margin-left: 0;
-            }
-            
-            li {
-                padding-left: 20px;
-                position: relative;
-            }
-            
-            .icon-explanation {
-                margin: 10px 0;
-                padding: 15px;
-                background-color: var(--light-color);
-                border-radius: var(--border-radius);
-                display: flex;
-                align-items: flex-start;
-                transition: var(--transition);
-            }
-            
-            .icon-explanation:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
-            }
-            
-            .icon {
-                font-weight: bold;
-                color: var(--accent-color);
-                margin-right: 15px;
-                font-size: 1.5rem;
-                min-width: 40px;
-                text-align: center;
-            }
-            
-            .image-placeholder {
-                background-color: var(--light-color);
-                border: 1px dashed var(--dark-color);
-                border-radius: var(--border-radius);
-                height: auto;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                margin: 20px 0;
-                color: var(--dark-color);
-                overflow: hidden;
-                transition: var(--transition);
-            }
-
-            .image-placeholder:hover {
-                transform: scale(2);
-                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            }
-
-            .image-placeholder img {
-                margin: 2% 0;
-                width: 100%;
-                transition: var(--transition);
-            }
-            
-            .contact-info {
-                background-color: var(--light-color);
-                padding: 20px;
-                border-radius: var(--border-radius);
-                margin-top: 20px;
-                transition: var(--transition);
-            }
-            
-            .contact-info:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
-            }
-            
-            .contact-info p {
-                margin-bottom: 10px;
-            }
-            
-            footer {
-                text-align: center;
-                padding: 20px 0;
-                color: var(--dark-color);
-                background-color: var(--light-color);
-                border-radius: var(--border-radius);
+                padding: 8px 12px;
                 font-size: 0.9rem;
-                margin-bottom: 8px;
-            }
-
-            footer p {
-                padding: 0;
-                margin: 0;
             }
             
-            .section-nav {
-                position: sticky;
-                top: 90px;
-                background-color: white;
-                padding: 15px;
-                border-radius: var(--border-radius);
-                box-shadow: var(--box-shadow);
-                margin-bottom: 20px;
-                z-index: 100;
-            }
-
-            .section-nav ul li::after{
-                content: "|";
-                color: var(--accent-color);
-            }
-
-            .section-nav ul li:first-child::before{
-                content: "|";
-                color: var(--accent-color);
+            body {
+                padding-top: 120px;
             }
             
             .section-nav ul {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-                justify-content: center;
-            }
-            
-            .section-nav li {
-                margin: 0;
-                padding: 0;
-            }
-            
-            .section-nav li:before {
-                content: none;
+                flex-direction: column;
+                align-items: center;
             }
             
             .section-nav a {
-                text-decoration: none;
-                color: var(--accent-color);
-                padding: 5px 10px;
-                border-radius: 4px;
-                transition: var(--transition);
-                font-size: 0.9rem;
-            }
-            
-            .section-nav a:hover {
-                background-color: var(--light-color);
-            }
-            
-            .tip-box {
-                background-color: #e8f4fd;
-                border-left: 4px solid var(--secondary-color);
-                padding: 15px;
-                margin: 15px 0;
-                border-radius: 0 var(--border-radius) var(--border-radius) 0;
-            }
-            
-            .warning-box {
-                background-color: #fdf2e8;
-                border-left: 4px solid var(--warning-color);
-                padding: 15px;
-                margin: 15px 0;
-                border-radius: 0 var(--border-radius) var(--border-radius) 0;
-            }
-            
-            .danger-box {
-                background-color: #fde8e8;
-                border-left: 4px solid var(--danger-color);
-                padding: 15px;
-                margin: 15px 0;
-                border-radius: 0 var(--border-radius) var(--border-radius) 0;
-            }
-            
-            .step-box {
-                background-color: #e8f7e8;
-                border-left: 4px solid var(--success-color);
-                padding: 15px;
-                margin: 15px 0;
-                border-radius: 0 var(--border-radius) var(--border-radius) 0;
-            }
-            
-            .quick-actions {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-                margin: 20px 0;
-            }
-            
-            .quick-action {
-                flex: 1;
-                min-width: 200px;
-                background-color: var(--light-color);
-                padding: 15px;
-                border-radius: var(--border-radius);
+                width: 100%;
                 text-align: center;
-                transition: var(--transition);
-                cursor: pointer;
             }
             
-            .quick-action:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
-                background-color: #e0e8eb;
+            main {
+                padding: 25px;
             }
             
-            .quick-action-icon {
-                font-size: 2rem;
-                margin-bottom: 10px;
-                color: var(--accent-color);
+            h1 {
+                font-size: 1.7rem;
             }
-            
-            .back-to-top {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background-color: var(--primary-color);
-                color: white;
-                width: 50px;
-                height: 50px;
-                border-radius: 30%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-decoration: none;
-                font-size: 1.5rem;
-                box-shadow: var(--box-shadow);
-                transition: var(--transition);
-                z-index: 1000;
-                opacity: 0;
-                visibility: hidden;
-            }
-            
-            .back-to-top.visible {
-                opacity: 1;
-                visibility: visible;
-            }
-            
-            .back-to-top:hover {
-                background-color: var(--dark-color);
-                transform: translateY(-3px);
-            }
-            
-            .content-section {
-                margin-bottom: 40px;
-            }
-            
-            .image-caption {
-                text-align: center;
-                font-style: italic;
-                color: var(--dark-color);
-                margin-top: 5px;
-                font-size: 0.9rem;
-            }
-
-            .step-box ol {
-                margin-left: 36px !important;
-            }
-            
-            @media (max-width: 768px) {
-                header, .section-nav {
-                    display: none;
-                }
-
-                .header-content {
-                    flex-direction: column;
-                    text-align: center;
-                }
-                
-                nav ul {
-                    flex-wrap: wrap;
-                    justify-content: center;
-                    margin-top: 10px;
-                }
-                
-                nav li {
-                    margin: 5px 10px;
-                }
-                
-                body {
-                    padding-top: 120px;
-                }
-                
-                .section-nav ul {
-                    flex-direction: column;
-                    align-items: center;
-                }
-                
-                .quick-actions {
-                    flex-direction: column;
-                }
-            }
-        </style>
-    </head>
-
-    <body>
-        <header>
-            <div class="header-content">
-                <div class="logo">
-                    <span class="logo-icon">⚙️</span>
-                    <span>СКАДА система</span>
-                </div>
-                <nav>
-                    <ul>
-                        <li><a href="#intro">Введение</a></li>
-                        <li><a href="#interface">Интерфейс</a></li>
-                        <li><a href="#stations">Станции</a></li>
-                        <li><a href="#emergency">Аварии</a></li>
-                        <li><a href="#support">Контакты</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </header>
-
-        <div class="container">
-            <main>
-                <h1>Инструкция по работе со СКАДА системой управления линией переработки и фасовки трепела.</h1>
-                <h3>ВНИМАНИЕ! Релевантная версия инструкции находится на операторском ПК. Версии могут отличаться.</h3>
-
-                <section class="content-section">
-                    <h2 id="intro">Введение</h2>
-                    <p>Данная инструкция поможет вам эффективно контролировать и управлять линиями переработки и фасовки трепела с помощью СКАДА системы.</p>
-                    
-                    <div class="quick-actions">
-                        <div class="quick-action" onclick="location.href='#zone1'">
-                            <div class="quick-action-icon">🔥</div>
-                            <div>Экран сушки</div>
-                        </div>
-                        <div class="quick-action" onclick="location.href='#zone2'">
-                            <div class="quick-action-icon">📊</div>
-                            <div>Экран сортировки</div>
-                        </div>
-                        <div class="quick-action" onclick="location.href='#zone3'">
-                            <div class="quick-action-icon">📈</div>
-                            <div>Экран графиков</div>
-                        </div>
-                    </div>
-
-                    <h3 id="zone1">Первый экран zone_1</h3>
-                    <p>Экран сушки. На нем изображено всё, что находится до барабана (включительно), а также аспирация, дымосос, шнек сброса осадка из фильтров дымососа, компрессор.</p>
-                    
-                    <div class="tip-box">
-                        <strong>Важно:</strong> Аспирация включается автоматически при работе оборудования. Компрессор, дымосос и шнек сброса осадков также имеют свои зависимости и включаются при работе этих зависимостей.
-                    </div>
-                    
-                    <p>При включении горелки необходимо удостовериться в работе нужных элементов: фильтр дымососа должен работать и его <a href="#interface">скорость</a> должна быть 100%. Также на данном экране располагается график датчика влажности.</p>
-                    
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/cascade1.png' %}" alt="Экран сушки zone_1">
-                    </div>
-                    <div class="image-caption">Экран сушки zone_1 с элементами управления</div>
-
-                    <h3 id="zone2">Второй экран zone_2</h3>
-                    <p>Экран сортировки. На нем также располагается <a href="#cascade">каскадное управление</a>.</p>
-                    
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/cascade2.png' %}" alt="Экран сортировки zone_2">
-                    </div>
-                    <div class="image-caption">Экран сортировки zone_2 с каскадным управлением</div>
-
-                    <h3 id="zone3">Третий экран zone_3</h3>
-                    <p>Экран графиков и логирования. Они располагаются <a href="http://127.0.0.1:3000/d/f4d47ce2-b2f3-405d-8d96-6d7cd97ec646/overview?orgId=1&refresh=5s" target="_blank">на локальном хостe</a>.</p>
-                    
-                    <div class="tip-box">
-                        <strong>Совет:</strong> Для того, чтобы приблизить график, нажмите на 3 точки справа вверху графика и затем кнопку view или наведитесь на нужный график и нажмите клавишу V. Чтобы выйти ко всем графикам нажмите esc или V.
-                    </div>
-                    
-                    <p>На графике "РАБОТА" показаны пуски/остановы оборудования, где красный фон - останов оборудования, зеленый - пуск. То есть пока линия зеленая - оборудование работает.</p>
-                    
-                    <ul>
-                        <li>На графике "ТЕМПЕРАТУРЫ" показаны температуры на входе и выходе из барабана.</li>
-                        <li>На графике "ВЛАЖНОСТЬ" изображена влажность (датчик располагается после дробилки М15, на конвейере М16).</li>
-                        <li>На графике "ЧП" изображена скорость частотных пускателей в процентах.</li>
-                        <li>В журнале отображены недавние действия.</li>
-                    </ul>
-                    
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/cascade3.png' %}" alt="Экран графиков zone_3">
-                    </div>
-                    <div class="image-caption">Экран графиков и логирования zone_3</div>
-                </section>
-
-                <section class="content-section">
-                    <h2 id="interface">Основные элементы интерфейса</h2>
-                    
-                    <h3 id="motors">Станции управления</h3>
-                    <div class="icon-explanation">
-                        <span class="icon">🎛️</span>
-                        <span>Есть несколько разновидностей пультов станций управления, основные различия - в регулировке скорости. С помощью пультов можно узнать всё о станции, к которой относится пульт. Основная информация: состояние ручного режима, состояние станции (вкл/выкл), наличие блокировки, доп.настройки (скорость, время останова, наладка). При этом в ручном режиме дистанционное управление станцией запрещено.</span>
-                    </div>
-                    
-                    <h4>Пульт мотора</h4>
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/mtr.png' %}" alt="Пульт управления мотором" style="width:30% !important; height:30% !important;"    >
-                    </div>
-                    <div class="image-caption">Пульт управления стандартным мотором</div>
-                    
-                    <div class="step-box">
-                        <p>Когда механизм, который относится к пульту в работе, загорается кнопка "работа" и молния. Если загорается кнопка "замка", значит, что станция заблокирована (по ошибке, соседу или аварии). Кнопка "руки" означает ручной режим, с ним дистанционное управление невозможно. Кнопка "настройки" позволяет вызвать дополнительное окно настроек, в котором доступна регулировка времени останова оборудования и наладки.</p>
-                    </div>
-
-                    <h4>Дополнительное меню у мотора без частотника</h4>
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/menu.png' %}" alt="Меню мотора без частотника" style="width:30% !important; height:30% !important;">
-                    </div>
-                    <div class="image-caption">Дополнительное меню настройки мотора без частотника</div>
-                    
-                    <div class="tip-box">
-                        <p><strong>Ручной режим</strong> означает то же, что и на основном окне. <strong>Наладка:</strong> если стоит галочка (наладка включена), можно запускать это оборудование без зависимостей.</p>
-                        <p>Если наладка выключена (нет галочки), то оборудование не будет включено, пока другое оборудование после него не работает, в том числе в ручном режиме.</p>
-                    </div>
-                    
-                    <p>При выключенной наладке для того, чтобы запустить оборудование, надо включать линию согласно правилам: каскадно из конца в начало.</p>
-                    
-                    <div class="warning-box">
-                        <p><strong>Останов</strong> - время, которое понадобится оборудованию для останова при автоматическом останове.</p>
-                        <p>Пример: у М2 останов - 10 секунд, у М3 - 20, во время автоматического останова сперва выключится М1 со своим временем останова, затем в течение 10 секунд будет работать М2, после чего тоже выключится, освободив себя от материала, затем в течение 20 секунд будет выключаться М3, перекинув весь материал на М4.</p>
-                    </div>
-
-                    <h4>Пульт мотора с частотником</h4>
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/chp.png' %}" alt="Пульт мотора с частотником" style="width:30% !important; height:30% !important;">
-                    </div>
-                    <div class="image-caption">Пульт управления мотором с частотником</div>
-                    
-                    <div class="danger-box">
-                        <p>Отличия от обычного мотора: <strong>трос</strong>. С ним оборудование жестко блокируется и не может быть включено пока трос не будет отжат. Наличие красного названия "трос" является аварией станции. Может быть сработан в случае, когда нужно срочно остановить конвейер/для перестраховки во время работы на конвейере.</p>
-                    </div>
-
-                    <h4>Дополнительное меню у мотора с частотником</h4>
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/menu2.png' %}" alt="Меню мотора с частотником" style="width:30% !important; height:30% !important;">
-                    </div>
-                    <div class="image-caption">Дополнительное меню настройки мотора с частотником</div>
-                    
-                    <p>Отличия от меню обычного мотора: <strong>пуск</strong>. Это частота (в процентах), с которой оборудование будет запущено и продолжит работу. Значения являются энергонезависимыми, то есть будут оставаться и после перезапуска программы, но в случае изменения программы (на контроллере) скорость примет стандартное значение.</p>
-                    
-                    <div class="warning-box">
-                        <p>В этом случае нужно перепроверить скорость оборудования и выставить необходимые значения перед запуском. Скорость вентилятору дымососа (станция М12) рекомендуется выставлять 100%, при этом данная станция выдает ошибку по току при частых включениях-выключениях, поэтому станция должна быть выключена или не должна включаться в течение 10 минут после выключения.</p>
-                    </div>
-
-                    <h3>Обозначения элементов интерфейса</h3>
-                    
-                    <div class="icon-explanation">
-                        <span class="icon">🖐</span>
-                        <span><strong>Ручной режим</strong> — станция заблокирована для дистанционного управления. В этом случае управление оборудованием можно произвести только с пульта местного управления. На станции М1 (ленточный питатель) при этом также можно воспользоваться двухкнопочным пультом, который располагается на улице.</span>
-                    </div>
-                    
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/man.png' %}" alt="Кнопки ручного управления" style="width:20% !important; height:20% !important;">
-                    </div>
-                    <div class="image-caption">Кнопки ручного управления на местном пульте</div>
-                    
-                    <div class="icon-explanation">
-                        <span class="icon">⚡</span>
-                        <span><strong>Станция в работе</strong> — отображается цветом и текстом «работа».</span>
-                    </div>
-                    
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/work.png' %}" alt="Индикатор работы" style="width:20% !important; height:20% !important;">
-                    </div>
-                    <div class="image-caption">Индикатор работы станции</div>
-                    
-                    <div class="icon-explanation">
-                        <span class="icon">🔒</span>
-                        <span><strong>Блокировка станции</strong> по ошибке. Это может быть: аварийная остановка, остановка по тросу, остановка по соседу (если следующее оборудование выключено и не включена кнопка наладки).</span>
-                    </div>
-                    
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/lock.png' %}" alt="Индикатор блокировки" style="width:20% !important; height:20% !important;">
-                    </div>
-                    <div class="image-caption">Индикатор блокировки станции</div>
-                    
-                    <div class="icon-explanation">
-                        <span class="icon">⚙️</span>
-                        <span><strong>Настройка станции</strong>. Вызывает дополнительное меню с возможностью настройки оборудования со СКАДА.</span>
-                    </div>
-                    
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/ext.png' %}" alt="Кнопка настроек" style="width:20% !important; height:20% !important;">
-                    </div>
-                    <div class="image-caption">Кнопка вызова дополнительных настроек</div>
-
-                    <h3 id="cascade">Каскады линий</h3>
-                    <p>Каждая линия имеет каскад, отображающий состояние всех станций. Для того, чтобы запустить каскадно оборудование, нужно, чтобы на кнопках отобразилось ключевое слово "ГОТОВ". После нажатия старта начнется запуск от последнего оборудования к первому.</p>
-                    
-                    <div class="tip-box">
-                        <p>При этом если нажать на стоп, сперва каскад остановится на текущем месте. Затем - при повторном нажатии - запустит останов с момента, на котором остановился. Для управления временем останова оборудования воспользуйтесь дополнительным меню пульта.</p>
-                    </div>
-                    
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/cascade.png' %}" alt="Каскадное управление">
-                    </div>
-                    <div class="image-caption">Интерфейс каскадного управления линиями</div>
-                </section>
-
-                <section class="content-section">
-                    <h2 id="stations">Управление станциями</h2>
-                    
-                    <h3>Запуск и остановка</h3>
-                    <ul>
-                        <li>Для запуска станции нажмите кнопку «Пуск», если хотите запустить станцию не в автоматическом режиме.</li>
-                        <li>Для остановки станции нажмите кнопку «Стоп».</li>
-                    </ul>
-                    
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/stst.png' %}" alt="Кнопки пуск и стоп" style="width:30% !important; height:30% !important;">
-                    </div>
-                    <div class="image-caption">Кнопки управления станцией: пуск и стоп</div>
-                    
-                    <div class="step-box">
-                        <p><strong>Если станция не запустилась после нажатия на старт:</strong></p>
-                        <ol>
-                            <li>Проверьте отсутствие аварий</li>
-                            <li>Если не помогло: проверьте, запущено ли следующее после включаемого оборудования оборудование (при отсутствии включенной наладки)</li>
-                            <li>Если не помогло: попробуйте зажать кнопку на 1-2 секунды</li>
-                            <li>Если ничего не помогло: проверить физические пуски (контактор срабатывает или нет), включен ли автомат, работает ли контроллер (должны мигать синие огни)</li>
-                            <li>Если всё проверено и запуска не происходит - свяжитесь с компанией ООО "Техресурс" (<a href="#support">контакты</a>)</li>
-                        </ol>
-                    </div>
-
-                    <h3>Ручной режим</h3>
-                    <ul>
-                        <li>Для включения ручного режима используется местный пульт управления станцией. Выключить ручной режим также можно только по месту. Для включения/выключения нужно перевести тумблер, при этом лампочка пульта загорится (вкл) или погаснет (выкл). В случае, если пульт был переведен в ручное управление и лампочка не зажглась, нужно проверить кабели.</li>
-                        <li>Ручной режим блокирует дистанционное управление станцией. При этом, если включить оборудование в ручном режиме и перевести его в дистанционное управление, оборудование продолжит работать, пока его не выключат дистанционно или не переведут пульт обратно в местное и не нажмут кнопку стоп.</li>
-                        <li>Существует 2 двухкнопочных пульта, они являются аварийными и минуют проверку местного управления. Первый относится к ленточному питателю (М1), чтобы при выгрузке материала можно было экстренно с улицы остановить/запустить питатель. Второй к барабану (М11), чтобы также включить или отключить его.</li>
-                    </ul>
-                </section>
-
-                <section class="content-section">
-                    <h2 id="emergency">Работа с аварийными ситуациями</h2>
-                    
-                    <h3>Экстренный останов</h3>
-                    <ul>
-                        <li>При аварийной ситуации используйте кнопку экстренного останова на панели. Она располагается сверху по центру экрана и горит красным цветом. Данная кнопка нужна только для экстренных случаев. Помимо кнопки на экране можно нажать клавишу <strong>F1</strong> на клавиатуре.</li>
-                        <li>После того, как устранены причины, по которым нажата кнопка аварийного останова, проведите процедуры по возвращению в строй оборудования: кнопка не должна быть нажата, тросы выключены, скорость выставлена верная.</li>
-                        <li>Справа от кнопки экстренного останова есть дублятор аварийной кнопки (физической), которая находится на шкафу АСУ ТП. Если кнопка нажата - дублятор будет гореть красным.</li>
-                    </ul>
-                    
-                    <div class="image-placeholder">
-                        <img src="{% static 'images/guide/emer2.png' %}" alt="Кнопка экстренного останова">
-                    </div>
-                    <div class="image-caption">Кнопка экстренного останова на интерфейсе СКАДА</div>
-
-                    <h3>Ошибки и блокировки</h3>
-                    <ul>
-                        <li>Значок замка 🔒 обозначает блокировку станции по ошибке</li>
-                        <li>Это может быть: аварийная остановка, остановка по тросу, остановка по соседу (если следующее оборудование выключено и не включена кнопка наладки).</li>
-                        <li>При нормальной работе конвейера отображаются на СКАДА крутящимися. Обратите внимание: если оборудование включено, при этом конвейер не крутится, вероятно, он буксует или произошел обрыв ленты. В этом случае нужно выключить проблемное оборудование и всё оборудование до него и физически посмотреть, всё ли в порядке. Если конвейер крутится, но на СКАДА отображается обратное, нужно проверить датчик вращения ленты. Если проблема в нем - заменить, если не в нем, проверить, приходит ли сигнал в контроллер.</li>
-                    </ul>
-                    
-                    <div class="danger-box">
-                        <p><strong>Важно:</strong> При возникновении аварийной ситуации всегда следуйте инструкциям по безопасности и используйте средства индивидуальной защиты!</p>
-                    </div>
-                </section>
-
-                <section class="content-section">
-                    <h2 id="support">Контакты</h2>
-                    <div class="contact-info">
-                        <h3>В случае возникновения каких-либо трудностей, если инструкция не помогла, обращайтесь по телефону:</h3>
-                        <p><strong>+7 (951) 892-20-09</strong> | Авхадиев Ильдар Марселевич</p>
-                        <p><strong>+7 (927) 416-84-49</strong> | Черепанов Айнур Альбертович</p>
-                    </div>
-                </section>
-            </main>
-            
-            <footer>
-                <p>© 2025 ООО "Техресурс"</p>
-            </footer>
-        </div>
+        }
         
-        <a href="#" class="back-to-top" id="backToTop">↑</a>
+        @media (max-width: 480px) {
+            main {
+                padding: 20px;
+            }
+            
+            .document-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                padding: 10px 15px;
+            }
+            
+            nav a {
+                padding: 6px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .logo {
+                font-size: 1rem;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            header, .section-nav, .back-to-top {
+                display: none;
+            }
+            
+            body {
+                padding-top: 0;
+                background: white;
+            }
+            
+            main {
+                box-shadow: none;
+                margin: 0;
+                padding: 20px;
+            }
+            
+            .table-of-contents, .tip-box, .warning-box, .danger-box, .step-box {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
 
-        <script>
-            // Плавная прокрутка для всех ссылок с якорями
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    
-                    const targetId = this.getAttribute('href');
-                    if (targetId === '#') return;
-                    
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        window.scrollTo({
-                            top: targetElement.offsetTop - 100,
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
+        @media print {
+            .content-section, 
+            .safety-section,
+            .icon-explanation,
+            .tip-box,
+            .warning-box,
+            .danger-box,
+            .step-box,
+            .contact-info,
+            .document-info,
+            .table-of-contents,
+            .image-placeholder {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin-bottom: 20px !important;
+            }
+        }
+        
+        .print-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-color);
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .print-toggle input { margin-left: 4px; }
+
+        body.print-mode {
+            background: white !important;
+        }
+        body.print-mode main {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 20px !important;
+            box-shadow: none !important;
+            background: white !important;
+        }
+        body.print-mode header, body.print-mode .section-nav, body.print-mode .back-to-top {
+            display: none !important;
+        }
+        body.print-mode .table-of-contents, body.print-mode .document-info {
+            border: 1px solid #aaa !important;
+        }
+        @media print {
+            header, .section-nav, .back-to-top { display: none !important; }
+            body { background: white !important; }
+            main { box-shadow: none; margin: 0; padding: 20px; }
+            .table-of-contents, .tip-box, .warning-box, .danger-box, .step-box {
+                box-shadow: none; border: 1px solid #ccc;
+            }
+            @page { size: A4; margin: 20mm; }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <span>ТЕХНИЧЕСКАЯ ДОКУМЕНТАЦИЯ</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#safety">Требования&nbsp;безопасности</a></li>
+                    <li><a href="#responsibilities">Обязанности&nbsp;оператора</a></li>
+                    <li><a href="#preparation">Подготовка&nbsp;к&nbsp;работе</a></li>
+                    <li><a href="#interface">Интерфейс</a></li>
+                    <li><a href="#emergency">Аварии</a></li>
+                </ul>
+            </nav>
+
+            <div style="display:flex; align-items:center; gap:10px;">
+                <label class="print-toggle" title="Переключить режим печати">
+                    <input type="checkbox" id="printModeToggle" aria-label="Режим печати">
+                </label>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <main>
+            <div class="document-info">
+                <p><strong>Наименование документа:</strong> Техническая документация автоматизированной системы управления линией переработки и фасовки трепела</p>
+                <p><strong>Разработчик:</strong> ООО "Техресурс"</p>
+                <p><strong>Дата введения:</strong> 2025 г.</p>
+                <p><strong>Срок действия:</strong> до замены новым документом</p>
+            </div>
             
-            // Кнопка "Наверх"
-            const backToTopButton = document.getElementById('backToTop');
+            <h1>ТЕХНИЧЕСКАЯ ДОКУМЕНТАЦИЯ<br>СИСТЕМЫ УПРАВЛЕНИЯ ЛИНИЕЙ ПЕРЕРАБОТКИ И ФАСОВКИ ТРЕПЕЛА</h1>
             
-            window.addEventListener('scroll', () => {
-                if (window.pageYOffset > 300) {
-                    backToTopButton.classList.add('visible');
-                } else {
-                    backToTopButton.classList.remove('visible');
+            <div class="table-of-contents">
+                <h2>СОДЕРЖАНИЕ</h2>
+                <ul>
+                    <li><a href="#safety">1. Требования безопасности</a></li>
+                    <li><a href="#responsibilities">2. Обязанности оператора</a></li>
+                    <li><a href="#intro">3. Введение</a>
+                        <ul>
+                            <li><a href="#purpose">3.1. Назначение системы</a></li>
+                            <li><a href="#scope">3.2. Область применения</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#preparation">4. Подготовка к работе</a>
+                        <ul>
+                            <li><a href="#initial-check">4.1. Первичный осмотр оборудования</a></li>
+                            <li><a href="#startup-sequence">4.2. Последовательность запуска</a></li>
+                            <li><a href="#maintenance">4.3. График контрольных осмотров</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#interface">5. Интерфейс оператора</a>
+                        <ul>
+                            <li><a href="#zone1">5.1. Экран сушки</a></li>
+                            <li><a href="#zone2">5.2. Экран сортировки</a></li>
+                            <li><a href="#zone3">5.3. Экран графиков и моточасов</a></li>
+                            <li><a href="#motors">5.4. Станции управления</a></li>
+                            <li><a href="#cascade">5.5. Каскады линий</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#operation">6. Эксплуатация системы</a>
+                        <ul>
+                            <li><a href="#start-stop">6.1. Запуск и остановка</a></li>
+                            <li><a href="#manual-mode">6.2. Ручной режим</a></li>
+                            <li><a href="#critical-conditions">6.3. Критически важные условия работы</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#emergency">7. Аварийные ситуации</a>
+                        <ul>
+                            <li><a href="#emergency-stop">7.1. Экстренный останов</a></li>
+                            <li><a href="#errors">7.2. Ошибки и блокировки</a></li>
+                            <li><a href="#power-outage">7.3. Действия при отключении электроэнергии</a></li>
+                            <li><a href="#fire">7.4. Действия при пожаре</a></li>
+                            <li><a href="#injury">7.5. Действия при травме</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#support">8. Контакты технической поддержки</a></li>
+                </ul>
+            </div>
+
+            <section class="safety-section">
+                <h2 id="safety">Требования безопасности</h2>
+                
+                <h3>Общие требования</h3>
+                <p>При работе со СКАДА системой управления линией переработки и фасовки трепела необходимо соблюдать следующие требования безопасности:</p>
+                
+                <h4>Работа с электрооборудованием</h4>
+                <ul>
+                    <li>К работе с электрооборудованием допускаются лица не моложе 18 лет, прошедшие медицинский осмотр, обучение и инструктаж по охране труда, имеющие соответствующую квалификационную группу по электробезопасности.</li>
+                    <li>Все работы по обслуживанию электрооборудования должны проводиться при полном снятии напряжения с последующей проверкой его отсутствия.</li>
+                    <li>Запрещается работать на электрооборудовании с признаками повреждения изоляции, наличия трещин на корпусах.</li>
+                </ul>
+                <p class="standard-reference">Согласно требованиям: ПУЭ (Правила устройства электроустановок), ГОСТ 12.1.019-79 "ССБТ. Электробезопасность. Общие требования", ГОСТ 12.2.007.0-75 "Изделия электротехнические. Общие требования безопасности".</p>
+                
+                <h4>Работа в условиях повышенного шума</h4>
+                <ul>
+                    <li>При работе в цехе с уровнем шума выше 80 дБА необходимо использовать средства индивидуальной защиты органов слуха (наушники, противошумные вкладыши).</li>
+                    <li>Запрещается находиться в зонах с уровнем шума выше установленных норм без средств защиты.</li>
+                </ul>
+                <p class="standard-reference">Согласно требованиям: СН 2.2.4/2.1.8.562-96 "Шум на рабочих местах, в помещениях жилых, общественных зданий и на территории жилой застройки", ГОСТ 12.1.003-83 "ССБТ. Шум. Общие требования безопасности".</p>
+                
+                <h4>Работа на высоте</h4>
+                <ul>
+                    <li>Работы на высоте более 1,8 м должны выполняться с применением средств подмащивания (лестницы, подмости) и средств защиты от падения с высоты.</li>
+                    <li>Запрещается выполнение работ на высоте без ограждений или систем страховки.</li>
+                </ul>
+                <p class="standard-reference">Согласно требованиям: Правила по охране труда при работе на высоте, утвержденные приказом Минтруда России от 16.11.2020 № 782н.</p>
+                
+                <h4>Работа в условиях повышенной вибрации</h4>
+                <ul>
+                    <li>При работе с вибрирующим оборудованием необходимо использовать виброзащитные рукавицы, сокращать время контакта с вибрирующими поверхностями.</li>
+                    <li>Запрещается длительная работа с оборудованием, создающим вибрацию выше допустимых норм.</li>
+                </ul>
+                <p class="standard-reference">Согласно требованиям: СанПиН 2.2.4.3359-16 "Санитарно-эпидемиологические требования к физическим факторам на рабочих местах", ГОСТ 12.1.012-2004 "ССБТ. Вибрационная безопасность. Общие требования".</p>
+
+                <h4>Работа с вращающимися механизмами и конвейерами</h4>
+                <ul>
+                    <li><strong>Запрещается:</strong>
+                        <ul>
+                            <li>Чистить, смазывать, ремонтировать движущиеся части механизмов (барабан, конвейеры, дробилки).</li>
+                            <li>Наступать на конвейерные ленты, перелезать через них.</li>
+                            <li>Снимать ограждения и защитные кожухи с вращающихся частей во время работы оборудования.</li>
+                            <li>Поправлять и натягивать конвейерные ленты на ходу.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Требования:</strong>
+                        <ul>
+                            <li>Все вращающиеся части (муфты, валы, шкивы) должны быть надежно ограждены.</li>
+                            <li>Работы по техническому обслуживанию проводить только при полной остановке оборудования с использованием <strong>блокировок</strong> и вывешиванием плаката "НЕ ВКЛЮЧАТЬ! РАБОТАЮТ ЛЮДИ".</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p class="standard-reference">Согласно требованиям: ГОСТ 12.2.022-80 «ССБТ. Конвейеры. Общие требования безопасности», ПОТ при работе на высоте и с движущимися механизмами.</p>
+
+                <h4>Пожарная безопасность</h4>
+                <ul>
+                    <li><strong>Запрещается:</strong>
+                        <ul>
+                            <li>Загромождать проходы и доступ к средствам пожаротушения (огнетушителям, пожарным кранам).</li>
+                            <li>Использовать открытый огонь вблизи легковоспламеняющихся материалов (трепельная пыль может быть взрывоопасна).</li>
+                            <li>Курить в неотведенных для этого местах.</li>
+                            <li>Эксплуатировать горелку при неисправной системе контроля пламени и аварийной сигнализации.</li>
+                            <li><strong>ЗАПРЕЩАЕТСЯ РАБОТА ГОРЕЛКИ ПРИ НЕРАБОТАЮЩЕМ ДЫМОСОСЕ (М12)!</strong></li>
+                        </ul>
+                    </li>
+                    <li><strong>Требования:</strong>
+                        <ul>
+                            <li>Территория вокруг сушильного барабана и горелки должна содержаться в чистоте, без скопления горючей пыли.</li>
+                            <li>Оператор должен знать план эвакуации и расположение первичных средств пожаротушения.</li>
+                            <li>Перед запуском горелки необходимо убедиться в исправности системы дымоудаления и отсутствии утечек топлива.</li>
+                            <li><strong>Дымосос (М12) должен работать на скорости 100% при работе горелки!</strong></li>
+                        </ul>
+                    </li>
+                </ul>
+                <p class="standard-reference">Согласно требованиям: Федеральный закон № 123-ФЗ "Технический регламент о требованиях пожарной безопасности", Правила противопожарного режима в РФ, ГОСТ 12.1.004-91 «ССБТ. Пожарная безопасность. Общие требования».</p>
+
+                <h4>Безопасность при работе с пылью (трепел)</h4>
+                <ul>
+                    <li><strong>Требования:</strong>
+                        <ul>
+                            <li>Система аспирации должна быть включена и исправна во время всех операций, связанных с пылеобразованием (сушка, дробление, транспортировка).</li>
+                            <li>При работах в запыленной атмосфере (например, при обслуживании фильтров) использовать средства индивидуальной защиты органов дыхания (респираторы).</li>
+                            <li>Регулярно проводить уборку помещений от производственной пыли для предотвращения взрывов и заболеваний.</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p class="standard-reference">Согласно требованиям: ГОСТ 12.1.005-88 «ССБТ. Общие санитарно-гигиенические требования к воздуху рабочей зоны», ТР ТС 019/2011 «О безопасности средств индивидуальной защиты».</p>
+                
+                <div class="danger-box">
+                    <p><strong>ВАЖНО:</strong> Перед началом работы оператор обязан пройти инструктаж по технике безопасности, надеть установленную спецодежду и средства индивидуальной защиты. Запрещается приступать к работе при неисправностях оборудования, нарушающих требования безопасности.</p>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2 id="responsibilities">Обязанности оператора</h2>
+                <div class="danger-box">
+                    <p><strong>ОПЕРАТОРУ ЗАПРЕЩАЕТСЯ:</strong></p>
+                    <ul>
+                        <li>Допускать к работе на оборудовании лиц, не прошедших инструктаж и не имеющих соответствующей квалификации.</li>
+                        <li>Работать на неисправном оборудовании или с неисправными средствами защиты.</li>
+                        <li>Оставлять работающее оборудование без присмотра, кроме случаев, предусмотренных технологическим регламентом.</li>
+                        <li>Самостоятельно вносить изменения в программу ПЛК (контроллера) и электрические схемы.</li>
+                        <li>Производить ремонтные работы под напряжением.</li>
+                        <li>Использовать оборудование не по назначению.</li>
+                        <li><strong>Запускать или эксплуатировать горелку при неработающем дымососе (М12)!</strong></li>
+                    </ul>
+                </div>
+                <div class="step-box">
+                    <p><strong>ОПЕРАТОР ОБЯЗАН:</strong></p>
+                    <ul>
+                        <li>Немедленно остановить оборудование тросовым выключателем/кнопкой экстренного останова при возникновении угрозы для людей или оборудования.</li>
+                        <li>Сообщить непосредственному руководителю о любой неисправности, аварийной ситуации или несчастном случае.</li>
+                        <li>Знать и строго соблюдать технологический регламент производства.</li>
+                        <li>Проходить периодические медицинские осмотры и проверки знаний по охране труда.</li>
+                        <li><strong>Убедиться в работе дымососа (М12) перед запуском и во время работы горелки!</strong></li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2 id="intro">Введение</h2>
+                
+                <h3 id="purpose">Назначение системы</h3>
+                <p>Автоматизированная система управления линией переработки и фасовки трепела предназначена для автоматизации технологических процессов сушки, сортировки и фасовки трепела, обеспечивая контроль параметров оборудования, управление технологическими процессами и регистрацию данных.</p>
+                
+                <h3 id="scope">Область применения</h3>
+                <p>Система применяется на производственных линиях переработки трепела и обеспечивает управление следующим оборудованием:</p>
+                <ul>
+                    <li>Сушильный барабан с горелкой</li>
+                    <li>Система аспирации и дымососа</li>
+                    <li>Конвейерные линии</li>
+                    <li>Дробильное оборудование</li>
+                    <li>Системы сортировки и фасовки</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2 id="preparation">Подготовка к работе</h2>
+                
+                <h3 id="initial-check">Первичный осмотр оборудования</h3>
+                <p>Оператор, прибыв в цех, обязан выполнить следующие действия перед началом работы:</p>
+                
+                <div class="step-box">
+                    <ol>
+                        <li><strong>Включение освещения:</strong> При необходимости включить свет в цеху (щиток освещения находится рядом с сушильным барабаном).</li>
+                        <li><strong>Проверка щитовой:</strong>
+                            <ul>
+                                <li>Осмотреть силовые шкафы (убедиться в отсутствии повреждений, посторонних шумов)</li>
+                                <li>Проверить шкаф управления АСУ ТП:
+                                    <ul>
+                                        <li>Убедиться, что контроллеры работают (индикаторы горят)</li>
+                                        <li>Проверить наличие всех фаз (индикаторы фаз на реле контроля фаз)</li>
+                                        <li>Убедиться, что кнопка экстренного останова не нажата и лампочка не горит</li>
+                                        <li>Проверить работу вентиляторов охлаждения в шкафах</li>
+                                        <li>Проверить работоспособность ПЧ (на экране должны присутствовать значения)</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li><strong>Проверка местных пультов управления:</strong> Убедиться в исправности всех местных пультов управления.</li>
+                        <li><strong>Проверка тросовых выключателей:</strong> Проверить работоспособность всех тросовых выключателей аварийной остановки. 
+                            При сработанном тросовом выключателе на операторском ПК это отобразится. Чтобы сбросить трос нужно нажать на кнопку троса по 
+                            месту, она располагается внизу тросового выключателя и может быть сработана с обеих сторон конвейера.</li>
+                        <li><strong>Проверка датчиков вращения:</strong> Убедиться в исправности датчиков вращения конвейеров. Для этого необходимо визуально 
+                            рассмотреть появление сигнала на датчике (располагается у вала конвейера), соблюдая технику безопасности. Также отображение есть 
+                            на ПК оператора. При отсутствии вращения/неисправности датчика/пробуксовке на экране сортировки в логах отобразится надпись "нет 
+                            вращения"</li>
+                        <li><strong>Проверка оборудования:</strong> в случае, если по <a href="#zone3">моточасам</a> пришло время проверки.</li>
+                    </ol>
+                    <div class="tip-box">
+                        <strong>Соответствие станций их нумерации и обозначению:</strong>
+                        <ul>
+                            <li>M1 - ленточный питатель (загрузка)</li>
+                            <li>M2 - роторный измельчитель</li>
+                            <li>М3 - конвейер на дробилку</li>
+                            <li>М4 - дробилка валковая</li>
+                            <li>М5 - конвейер на грохот</li>
+                            <li>М6 - грохот двухсеточный</li>
+                            <li>М7, М8 - линия неиспользуемых на данный момент конвейеров</li>
+                            <li>М10 - конвейер на барабан</li>
+                            <li>М11 - сушильный барабан</li>
+                            <li>М12 - дымосос</li>
+                            <li>М13 - шнек сброса осадка</li>
+                            <li>М14 - конвейер после барабана на дробилку</li>
+                            <li>М15 - дробилка валковая</li>
+                            <li>М16 - конвейер на грохот</li>
+                            <li>М17 - Грохот двухсеточный</li>
+                            <li>М18 - конвейер на бункер фракции 3-8мм (кошачья)</li>
+                            <li>М19 - конвейер на бункер фракции 0-2мм</li>
+                            <li>М20 - конвейер на станцию фасовки 3-8мм</li>
+                            <li>М22 - шнек на станцию фасовки 0-2мм</li>
+                            <strong>Станции фасовки управляются местно и имеют собственный паспорт, с которым необходимо ознакомиться</strong>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3 id="startup-sequence">Последовательность запуска</h3>
+                <p>После проверки оборудования выполнить следующий цикл действий для запуска линии:</p>
+                
+                <div class="step-box">
+                    <ol>
+                        <li>Включить компрессор</li>
+                        <li>Включить шкаф управления фильтром дымососа</li>
+                        <li>Включить фильтр дымососа</li>
+                        <li>Аспирация включится автоматически при запуске оборудования</li>
+                        <li><strong>Включить дымосос (М12) и убедиться, что он работает на скорости 100%</strong></li>
+                        <li>Включить горелку (в местном режиме управления):
+                            <ul>
+                                <li>Перейти к горелке</li>
+                                <li><strong>Убедиться, что дымосос (М12) работает на скорости 100%</strong></li>
+                                <li>Нажать кнопку включения горелки</li>
+                                <li>Дождаться выхода горелки в рабочий режим</li>
+                            </ul>
+                        </li>
+                        <li>Включить линию с помощью кнопки каскадного управления</li>
+                    </ol>
+                </div>
+
+                <h3 id="maintenance">График контрольных осмотров</h3>
+                <p>На основе данных <a href="#zone3">моточасов</a> необходимо проводить плановые осмотры и обслуживание:</p>
+                <ul>
+                    <li><strong>Ежесменно:</strong> Визуальный осмотр конвейерных лент, проверка натяжения.</li>
+                    <li><strong>Каждые 100 моточасов:</strong> Проверка датчиков вращения, тросовых выключателей, состояния ограждений.</li>
+                    <li><strong>Каждые 300 моточасов:</strong> Проверка подшипниковых узлов, редукторов, механических соединений 
+                        (при наличии в инструкциях к оборудованию).</li>
+                </ul>
+                <div class="tip-box">
+                    <strong>Как работать с моточасами:</strong>
+                    <div class="image-placeholder">
+                        <img src="{% static 'images/guide/btn-reset.png' %}" alt="Экран сброса" style="width:30% !important; height:30% !important;">
+                    </div>
+                    <div class="image-caption">Рис. Доп. окно с моточасами</div>
+                    Напротив надписи "моточасы" отображается значение, которое соответствует работе оборудования в целом. 
+                    Это значение не рекомендуется сбрасывать, для технического обслуживания есть значение с последнего ТО, которое отображается
+                    рядом с каждой станцией на мини-экране логирования. 
+                    <div class="image-placeholder">
+                        <img src="{% static 'images/guide/last-main.png' %}" alt="Экран логов">
+                    </div>
+                    <div class="image-caption">Рис. Окно с отображением прошедшего времени с последнего ТО</div>
+                    Как только отметка начнет приближаться к 300 - можно проводить ТО в возможное время, чтобы к 300 часам можно было сбросить
+                    предупреждение о необходимости начала ТО. Во время необходимости проведения тех.обслуживания появятся соответствующие 
+                    данные, а также кнопка сброса проведения ТО (см. выше). Более того, при возникновении необходимости проведения тех.обслуживания
+                    на первом экране появится отображение необходимости начала проведения ТО.
+                    <div class="image-placeholder">
+                        <img src="{% static 'images/guide/tech-info.png' %}" alt="Отображение необходимости начала проведения ТО" style="width:30% !important; height:30% !important;">
+                    </div>
+                    <div class="image-caption">Рис. Отображение необходимости начала проведения ТО</div>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2 id="interface">Интерфейс оператора</h2>
+        
+                <h3 id="zone1">Экран сушки</h3>
+                <p>Экран сушки. На нем изображено всё, что находится до барабана (включительно), а также аспирация, дымосос, шнек сброса осадка из фильтров дымососа, компрессор.</p>
+                
+                <div class="tip-box">
+                    <strong>Важно:</strong> Аспирация включается автоматически при работе оборудования 
+                    (<strong>Важно:</strong> необходимо производить осмотр хранилища аспирационных накоплений. 
+                    При накоплении более 10% объекма бака (их 3) рекомендуется его очистить. Не допускается накопление 
+                    объекма бака более 50%). Компрессор, дымосос и шнек сброса осадков также имеют свои зависимости и 
+                    включаются при работе этих зависимостей.
+                </div>
+                
+                <p>При включении горелки необходимо удостовериться в работе нужных элементов: фильтр дымососа должен работать и его скорость должна быть 100%. Также на данном экране располагается график датчика влажности.</p>
+                
+                <div class="danger-box">
+                    <p><strong>КРИТИЧЕСКИ ВАЖНО:</strong> Дымосос (М12) должен работать на скорости 100% при работе горелки! Отсутствие работы дымососа при работающей горелке недопустимо и может привести к аварийной ситуации!</p>
+                </div>
+                
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/cascade1.png' %}" alt="Экран сушки zone_1">
+                </div>
+                <div class="image-caption">Рис. 1. Экран сушки с элементами управления</div>
+
+                <h3 id="zone2">Экран сортировки</h3>
+                <p>Экран сортировки. На нем также располагается <a href="#cascade">каскадное управление</a>.</p>
+
+                <p>Помимо всех оборудований на этом экране располагаются бункера с датчиками уровня.
+                    Если сработает датчик минимума - загорится красный кружок внизу бункера. Если сработает датчик максимума - загорится 
+                    восклицательный знак в бело-желтой треугольной форме, а также появятся надписи, сигнализирующие о необходимости 
+                    начала фасовки. В случае, если фасовка не начнется через определенное время (30 минут), предыдущий конвейер за бункером 
+                    остановится. Если фасовка начата, но датчик уровня всё еще сработан - время на отключение конвейера до бункера 
+                    будет увеличено. Стоит понимать, что в описанном случае не должно быть режима наладки на станциях.
+                </p>
+                
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/cascade1.png' %}" alt="Экран сушки zone_1">
+                </div>
+                <div class="image-caption">Рис. 2. Экран сортировки с каскадным управлением</div>
+
+                <h3 id="zone3">Экран графиков и моточасов</h3>
+                <p>Экран графиков и логирования. Они располагаются <a href="http://127.0.0.1:3000/d/f4d47ce2-b2f3-405d-8d96-6d7cd97ec646/overview?orgId=1&refresh=5s" target="_blank">на локальном хостe</a>.</p>
+                
+                <div class="tip-box">
+                    <strong>Совет:</strong> Для того, чтобы приблизить график, нажмите на 3 точки справа вверху графика и затем кнопку view или наведитесь на нужный график и нажмите клавишу V. Чтобы выйти ко всем графикам нажмите esc или V.
+                </div>
+                
+                <p>На графике "РАБОТА" показаны пуски/остановы оборудования, где красный фон - останов оборудования, зеленый - пуск. То есть пока линия зеленая - оборудование работает.</p>
+                
+                <ul>
+                    <li>На графике "ТЕМПЕРАТУРЫ" показаны температуры на входе и выходе из барабана.</li>
+                    <li>На графике "ВЛАЖНОСТЬ" изображена влажность (датчик располагается после дробилки М15, на конвейере М16).</li>
+                    <li>На графике "ЧП" изображена скорость частотных пускателей в процентах.</li>
+                    <li>В журнале отображены недавние действия.</li>
+                </ul>
+                
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/cascade3.png' %}" alt="Экран графиков zone_3">
+                </div>
+                <div class="image-caption">Рис. 3. Экран графиков, моточасов и логирования</div>
+
+                <h3 id="motors">Станции управления</h3>
+                <div class="icon-explanation">
+                    <span class="icon">🎛️</span>
+                    <span>Есть несколько разновидностей пультов станций управления, основные различия - в регулировке скорости. 
+                        С помощью пультов можно узнать всё о станции, к которой относится пульт. Основная информация: состояние 
+                        ручного режима, состояние станции (вкл/выкл), наличие блокировки, доп.настройки (скорость, время останова, наладка). 
+                        При этом в ручном режиме дистанционное управление станцией запрещено.</span>
+                </div>
+                
+                <h4>Пульт мотора</h4>
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/mtr.png' %}" alt="Пульт управления мотором" style="width:30% !important; height:30% !important;">
+                </div>
+                <div class="image-caption">Рис. 4. Пульт управления стандартным мотором</div>
+
+                <div class="tip-box">
+                    <strong>О пульте барабана:</strong>
+                    Дополнительное окно у станции М11 включает барабан без звонка на случай, если необходимо 
+                    запустить барабан без задержек. В штатном режиме запускайте барабан из основного окна, в таком 
+                    случае прозвучит предупреждающая сирена.
+                </div>
+
+                <div class="tip-box">
+                    <strong>О сирене:</strong>
+                    Есть несколько разновидностей сигнала. <br>Предупреждающий - сирена звучит на протяжении 10 секунд и выключается. 
+                    В этом случае она либо предупреждает о старте каскад                    либо сообщает о предотвращенной ошибке (см. ниже)
+                    Сигнал аварии, ошибки - сигнал, который звучит при возникновении какой-либо ошибки или аварии:<br>
+                    1. Ошибка при включении барабана - работает в случае включения барабана без дымососа М12. В этом случае сирена звучит 
+                    переменно - 2 секунды сигнала, 2 секунды ожидания<br>
+                    2. Нажата кнопка EMERGENCY STOP на шкафу или с операторского ПК. В этом случае сирена звучит попеременно - 4 секунды 
+                    сигнала, 1.5 секунды ожидания.
+                </div>
+                
+                <div class="step-box">
+                    <p>Когда механизм, который относится к пульту в работе, загорается кнопка "работа" и молния. 
+                        Если загорается кнопка "замка", значит, что станция заблокирована (по ошибке, соседу или аварии). 
+                        Кнопка "руки" означает ручной режим, с ним дистанционное управление невозможно. Кнопка "настройки" 
+                        позволяет вызвать дополнительное окно настроек, в котором доступна регулировка времени останова оборудования 
+                        и наладки.</p>
+                </div>
+
+                <h4>Дополнительное меню у мотора без частотника</h4>
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/menu.png' %}" alt="Меню мотора без частотника" style="width:30% !important; height:30% !important;">
+                </div>
+                <div class="image-caption">Рис. 5. Дополнительное меню настройки мотора без частотника</div>
+                
+                <div class="tip-box">
+                    <p><strong>Ручной режим</strong> означает то же, что и на основном окне. <strong>Наладка:</strong> если стоит 
+                        галочка (наладка включена), можно запускать это оборудование без зависимостей.</p>
+                    <p>Если наладка выключена (нет галочки), то оборудование не будет включено, пока другое оборудование после 
+                        него не работает, в том числе в ручном режиме.</p>
+                </div>
+                
+                <p>При выключенной наладке для того, чтобы запустить оборудование, надо включать линию согласно правилам: каскадно из конца в начало.</p>
+                
+                <div class="warning-box">
+                    <p><strong>Останов</strong> - время, которое понадобится оборудованию для останова при автоматическом останове.</p>
+                    <p>Пример: у М2 останов - 10 секунд, у М3 - 20, во время автоматического останова сперва выключится М1 со 
+                        своим временем останова, затем в течение 10 секунд будет работать М2, после чего тоже выключится, освободив 
+                        себя от материала, затем в течение 20 секунд будет выключаться М3, перекинув весь материал на М4.</p>
+                </div>
+
+                <h4>Пульт мотора с частотником</h4>
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/menu2.png' %}" alt="Меню мотора с частотником" style="width:30% !important; height:30% !important;">
+                </div>
+                <div class="image-caption">Рис. 6. Пульт управления мотором с частотником</div>
+                
+                <div class="danger-box">
+                    <p>Отличия от обычного мотора: <strong>трос</strong>. С ним оборудование жестко блокируется и не может 
+                        быть включено пока трос не будет отжат. Наличие красного названия "трос" является аварией станции. 
+                        Может быть сработан в случае, когда нужно срочно остановить конвейер/для перестраховки во время работы 
+                        на конвейере.</p>
+                </div>
+
+                <h4>Дополнительное меню у мотора с частотником</h4>
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/menu2.png' %}" alt="Меню мотора с частотником" style="width:30% !important; height:30% !important;">
+                </div>
+                <div class="image-caption">Рис. 7. Дополнительное меню настройки мотора с частотником</div>
+                
+                <p>Отличия от меню обычного мотора: <strong>пуск</strong>. Это частота (в процентах), с которой оборудование будет 
+                    запущено и продолжит работу. Значения являются энергонезависимыми, то есть будут оставаться и после перезапуска 
+                    программы, но в случае изменения программы (на контроллере) скорость примет стандартное значение.</p>
+                
+                <div class="warning-box">
+                    <p>В этом случае нужно перепроверить скорость оборудования и выставить необходимые значения перед запуском. 
+                        Скорость вентилятору дымососа (станция М12) рекомендуется выставлять 100%, при этом данная станция выдает 
+                        ошибку по току при частых включениях-выключениях, поэтому станция должна быть выключена или не должна 
+                        включаться в течение 10 минут после выключения. <br><strong>Внимание!</strong> Если станция М12 выклчится 
+                        во время работы горелки - нужно срочно остановить горелку и попытаться восстановить работу дымососа. Проверить ПЧ
+                        станции М12 можно командой <strong>mbpoll 192.168.8.15 -m tcp -r 4 -c 2 -0 -a 4 -t 4</strong>, введя 
+                        её в терминал (CTRL + ALT + T). В поле под номером 4 должно быть значение не более 10 000, а в поле под номером
+                        5 значение, равное 15 000 (допускается погрешность в 1%)</p>
+                </div>
+
+                <h3>Обозначения элементов интерфейса</h3>
+                
+                <div class="icon-explanation">
+                    <span class="icon">🖐</span>
+                    <span><strong>Ручной режим</strong> — станция заблокирована для дистанционного управления. В этом случае 
+                        управление оборудованием можно произвести только с пульта местного управления. На станции М1 
+                        (ленточный питатель) при этом также можно воспользоваться двухкнопочным пультом, который располагается 
+                        на улице.</span>
+                </div>
+                
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/man.png' %}" alt="Кнопки ручного управления" style="width:20% !important; height:20% !important;">
+                </div>
+                <div class="image-caption">Рис. 8. Кнопки ручного управления на местном пульте</div>
+                
+                <div class="icon-explanation">
+                    <span class="icon">⚡</span>
+                    <span><strong>Станция в работе</strong> — отображается цветом и текстом «работа».</span>
+                </div>
+                
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/work.png' %}" alt="Индикатор работы" style="width:20% !important; height:20% !important;">
+                </div>
+                <div class="image-caption">Рис. 9. Индикатор работы станции</div>
+                
+                <div class="icon-explanation">
+                    <span class="icon">🔒</span>
+                    <span><strong>Блокировка станции</strong> по ошибке. Это может быть: аварийная остановка, остановка по тросу, остановка по соседу (если следующее оборудование выключено и не включена кнопка наладки).</span>
+                </div>
+                
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/lock.png' %}" alt="Индикатор блокировки" style="width:20% !important; height:20% !important;">
+                </div>
+                <div class="image-caption">Рис. 10. Индикатор блокировки станции</div>
+                
+                <div class="icon-explanation">
+                    <span class="icon">⚙️</span>
+                    <span><strong>Настройка станции</strong>. Вызывает дополнительное меню с возможностью настройки оборудования со СКАДА.</span>
+                </div>
+                
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/ext.png' %}" alt="Кнопка настроек" style="width:20% !important; height:20% !important;">
+                </div>
+                <div class="image-caption">Рис. 11. Кнопка вызова дополнительных настроек</div>
+
+                <h3 id="cascade">Каскады линий</h3>
+                <p>Каждая линия имеет каскад, отображающий состояние всех станций. Для того, чтобы запустить каскадно оборудование, нужно, чтобы на кнопках отобразилось ключевое слово "ГОТОВ". После нажатия старта начнется запуск от последнего оборудования к первому.</p>
+                
+                <div class="tip-box">
+                    <p>При этом если нажать на стоп, сперва каскад остановится на текущем месте. Затем - при повторном нажатии - запустит останов с момента, на котором остановился. Для управления временем останова оборудования воспользуйтесь дополнительным меню пульта.</p>
+                </div>
+                
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/cascade.png' %}" alt="Каскадное управление">
+                </div>
+                <div class="image-caption">Рис. 12. Интерфейс каскадного управления линиями</div>
+            </section>
+
+            <section class="content-section">
+                <h2 id="operation">Эксплуатация системы</h2>
+                
+                <h3 id="start-stop">Запуск и остановка</h3>
+                <ul>
+                    <li>Для запуска станции нажмите кнопку «Пуск», если хотите запустить станцию не в автоматическом режиме.</li>
+                    <li>Для остановки станции нажмите кнопку «Стоп».</li>
+                </ul>
+                
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/stst.png' %}" alt="Кнопки пуск и стоп" style="width:30% !important; height:30% !important;">
+                </div>
+                <div class="image-caption">Рис. 13. Кнопки управления станцией: пуск и стоп</div>
+                
+                <div class="step-box">
+                    <p><strong>Если станция не запустилась после нажатия на старт:</strong></p>
+                    <ol>
+                        <li>Проверьте отсутствие аварий</li>
+                        <li>Если не помогло: проверьте, запущено ли следующее после включаемого оборудования оборудование (при отсутствии включенной наладки)</li>
+                        <li>Если не помогло: попробуйте зажать кнопку на 1-2 секунды</li>
+                        <li>Если ничего не помогло: проверить физические пуски (контактор срабатывает или нет), включен ли автомат, работает ли контроллер (должны мигать синие огни)</li>
+                        <li>Если всё проверено и запуска не происходит - свяжитесь с компанией ООО "Техресурс" (<a href="#support">контакты</a>)</li>
+                    </ol>
+                </div>
+
+                <h3 id="manual-mode">Ручной режим</h3>
+                <ul>
+                    <li>Для включения ручного режима используется местный пульт управления станцией. Выключить ручной режим также можно только по месту. Для включения/выключения нужно перевести тумблер, при этом лампочка пульта загорится (вкл) или погаснет (выкл). В случае, если пульт был переведен в ручное управление и лампочка не зажглась, нужно проверить кабели.</li>
+                    <li>Ручной режим блокирует дистанционное управление станцией. При этом, если включить оборудование в ручном режиме и перевести его в дистанционное управление, оборудование продолжит работать, пока его не выключат дистанционно или не переведут пульт обратно в местное и не нажмут кнопку стоп.</li>
+                    <li>Существует 2 двухкнопочных пульта, они являются аварийными и минуют проверку местного управления. Первый относится к ленточному питателю (М1), чтобы при выгрузке материала можно было экстренно с улицы остановить/запустить питатель. Второй к барабану (М11), чтобы также включить или отключить его.</li>
+                </ul>
+
+                <h3 id="critical-conditions">Критически важные условия работы</h3>
+                
+                <div class="danger-box">
+                    <p><strong>ДЫМОСОС (М12) - КРИТИЧЕСКИ ВАЖНОЕ ОБОРУДОВАНИЕ!</strong></p>
+                    <ul>
+                        <li><strong>Дымосос (М12) должен быть включен и работать на скорости 100% при работе горелки!</strong></li>
+                        <li>Запрещается запуск горелки при неработающем дымососе</li>
+                        <li>При остановке дымососа во время работы горелки - немедленно остановить горелку!</li>
+                        <li>Скорость дымососа должна быть установлена на 100% в дополнительном меню управления</li>
+                        <li>Дымосос не должен часто включаться-выключаться (интервал между включениями не менее 10 минут)</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <p><strong>БЕЗОПАСНОСТЬ ПРИ РАБОТЕ НА ОБОРУДОВАНИИ:</strong></p>
+                    <ul>
+                        <li>Ручной режим не является безопасной блокировкой станции</li>
+                        <li>При работе на оборудовании необходимо полностью обесточить станцию или использовать систему блокировок</li>
+                        <li>Запрещается работать на оборудовании без использования установленных средств защиты</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2 id="emergency">Аварийные ситуации</h2>
+                
+                <h3 id="emergency-stop">Экстренный останов</h3>
+                <ul>
+                    <li>При аварийной ситуации используйте кнопку экстренного останова на панели. Она располагается сверху по центру экрана и горит красным цветом. Данная кнопка нужна только для экстренных случаев. Помимо кнопки на экране можно нажать клавишу <strong>F1</strong> на клавиатуре.</li>
+                    <li>После того, как устранены причины, по которым нажата кнопка аварийного останова, проведите процедуры по возвращению в строй оборудования: кнопка не должна быть нажата, тросы выключены, скорость выставлена верная.</li>
+                    <li>Справа от кнопки экстренного останова есть дублятор аварийной кнопки (физической), которая находится на шкафу АСУ ТП. Если кнопка нажата - дублятор будет гореть красным.</li>
+                </ul>
+                
+                <div class="image-placeholder">
+                    <img src="{% static 'images/guide/emer2.png' %}" alt="Кнопка экстренного останова">
+                </div>
+                <div class="image-caption">Рис. 14. Кнопка экстренного останова на интерфейсе СКАДА</div>
+
+                <h3 id="errors">Ошибки и блокировки</h3>
+                <ul>
+                    <li>Значок замка 🔒 обозначает блокировку станции. Критерий необходимости для отключения блокировки - устранить то, что эту блокировку вызвало. 
+                        При выполненных критериях необходимости критерием достаточности будет являться нажатая кнопка СТОП. В случае, если кнопка СТОП нажата у 
+                        оборудования с блокировкой, но замок не погас - критерии необходимости не были выполнены, необходимо проверить, что послужило блокировке: 
+                        трос, сосед без режима наладки, аварийный стоп, неудавшийся запуск, ошибка при управлении ПЧ.</li>
+                    <li>Это может быть: аварийная остановка, остановка по тросу, остановка по соседу (если следующее оборудование выключено и не включена кнопка 
+                        наладки).</li>
+                    <li>При нормальной работе конвейера отображаются на СКАДА крутящимися. Обратите внимание: если оборудование включено, при этом конвейер не 
+                        крутится, вероятно, он буксует или произошел обрыв ленты. В этом случае нужно провести осмотр оборудования по месту. Если конвейер 
+                        крутится, но на СКАДА отображается обратное, нужно проверить датчик вращения ленты. Если проблема в нем - заменить, если не в нем, 
+                        проверить, приходит ли сигнал в контроллер. Если всё в порядке, сообщите скоростной режим ленты программистам (вероятно скорость 
+                        низкая, при этом из-за небольшой пробуксовки с большим количеством материала время вращения увеличивается и контроллер считывает 
+                        это как превышающее лимит значение).</li>
+                </ul>
+
+                <h3 id="power-outage">Действия при отключении электроэнергии</h3>
+
+                <div class="danger-box">
+                    <p><strong>ВНИМАНИЕ:</strong> Внезапное отключение электроэнергии создает повышенную опасность! Необходимо выполнить следующие действия:</p>
+                </div>
+
+                <div class="step-box">
+                    <p><strong>НЕМЕДЛЕННЫЕ ДЕЙСТВИЯ ПРИ ОТКЛЮЧЕНИИ ЭЛЕКТРОЭНЕРГИИ:</strong></p>
+                    <ol>
+                        <li><strong>ОСТАНОВИТЬ ПОДАЧУ ТОПЛИВА</strong> к горелке (если это возможно сделать вручную)</li>
+                        <li><strong>НАЖАТЬ АВАРИЙНЫЙ СТОП</strong> на случай внезапного появления сети</li>
+                        <li><strong>СООБЩИТЬ</strong> о случившемся руководству</li>
+                        <li><strong>ПРОВЕРИТЬ</strong> отсутствие людей в опасных зонах (конвейеры, барабаны, бункера)</li>
+                    </ol>
+                </div>
+
+                <div class="warning-box">
+                    <p><strong>ПОСЛЕ ВОССТАНОВЛЕНИЯ ЭЛЕКТРОСНАБЖЕНИЯ:</strong></p>
+                    <ol>
+                        <li><strong>НЕ ВКЛЮЧАТЬ</strong> оборудование сразу после появления напряжения!</li>
+                        <li><strong>ПРОВЕСТИ ОСМОТР</strong> всего оборудования на предмет заклинивания, завалов, повреждений</li>
+                        <li><strong>ОЧИСТИТЬ</strong> технологические тракты от остатков материала, который мог застрять при внезапной остановке</li>
+                        <li><strong>ПРОВЕРИТЬ</strong> состояние электродвигателей, редукторов, подшипников</li>
+                        <li><strong>УБЕДИТЬСЯ</strong> в исправности систем аспирации и дымоудаления</li>
+                        <li>Только после полной проверки начинать <strong>последовательный запуск</strong> согласно разделу <a href="#startup-sequence">"Последовательность запуска"</a>, убрав аварийный стоп</li>
+                    </ol>
+                </div>
+
+                <div class="danger-box">
+                    <p><strong>ОСОБЫЕ РИСКИ ПРИ ВНЕЗАПНОМ ОТКЛЮЧЕНИИ ЭЛЕКТРОЭНЕРГИИ:</strong></p>
+                    <ul>
+                        <li><strong>Скопление продуктов горения</strong> в сушильном барабане и газоходах</li>
+                        <li><strong>Обратная тяга</strong> из барабана в помещение цеха</li>
+                        <li><strong>Заклинивание оборудования</strong> из-за остатков материала в механизмах</li>
+                        <li><strong>Перегруз электродвигателей</strong> при попытке пуска без предварительной очистки</li>
+                        <li><strong>Повреждение механических передач</strong> и конвейерных лент</li>
+                    </ul>
+                </div>
+
+                <h4>Требования к системе аварийного питания</h4>
+                <ul>
+                    <li>Система аварийного освещения должна обеспечивать минимальную освещенность в ключевых зонах</li>
+                    <li>Аварийные кнопки остановки должны оставаться функциональными (если предусмотрено проектом)</li>
+                    <li>Система вентиляции аварийных режимов должна активироваться автоматически</li>
+                </ul>
+                <p class="standard-reference">Согласно требованиям: ПУЭ гл. 6.1 "Аварийное освещение", ГОСТ Р 50571.5.56-2013 "Аварийные источники питания"</p>
+
+                <h3 id="fire">Действия при пожаре или задымлении</h3>
+                <div class="danger-box">
+                    <ol>
+                        <li>Немедленно нажать кнопку экстренного останова.</li>
+                        <li>Остановить горелку и дымосос.</li>
+                        <li>Сообщить в пожарную охрану по телефону <strong>101</strong> или <strong>112</strong> с мобильного.</li>
+                        <li>Приступить к тушению пожара первичными средствами пожаротушения (огнетушители), <strong>если это не сопряжено с риском для жизни</strong>.</li>
+                        <li>Немедленно покинуть зону пожара по плану эвакуации.</li>
+                    </ol>
+                </div>
+
+                <h3 id="injury">Действия при получении травмы</h3>
+                <div class="step-box">
+                    <ol>
+                        <li>Немедленно остановить оборудование.</li>
+                        <li>Оказать первую помощь пострадавшему.</li>
+                        <li>Вызвать скорую медицинскую помощь (<strong>103</strong> или <strong>112</strong>).</li>
+                        <li>Сообщить о происшествии руководителю.</li>
+                    </ol>
+                </div>
+                
+                <div class="danger-box">
+                    <p><strong>Важно:</strong> При возникновении аварийной ситуации всегда следуйте инструкциям по безопасности и используйте средства индивидуальной защиты!</p>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2 id="key-elements">Ключевые элементы линии (кратко)</h2>
+                <p>Ниже перечислены основные элементы производственной линии. Это краткое описание — подробности и требования по каждой станции содержатся в их паспортах и инструкциях производителя.</p>
+                <ul>
+                    <li><strong>Щитовая АСУ ТП и силовые шкафы</strong> — место размещения контроллеров, автоматов защиты и распределительных устройств.</li>
+                    <li><strong>Операторская (компьютер)</strong> — рабочее место оператора, с доступом к интерфейсу СКАДА, журналам и графикам.</li>
+                    <li><strong>Сушильный барабан с горелкой</strong> — источник тепла и основной узел сушки. Принцип работы горелки: поддержание заданной температуры по алгоритму с регулятором (ПИД-регуляция), процесс нагонки температуры и срабатывание гистерезиса при удержании заданного значения.</li>
+                    <li><strong>Конвейерные линии</strong>, <strong>дробилки</strong>, <strong>станции фасовки</strong> (ручные) — механические промежуточные звенья линии.</li>
+                    <li><strong>Фильтр дымососа и циклон</strong> — системы аспирации и очистки газов; шнек (М13) используется для удаления осадка из фильтра и должен регулярно работать во время эксплуатации завода.</li>
+                    <li><strong>Компрессор</strong> — источник сжатого воздуха; см. отдельный раздел с краткими рекомендациями.</li>
+                    <li><strong>Трансформаторная подстанция и газораспределение</strong> — внешние энерго- и газовые узлы, требующие координации с эксплуатирующей организацией.</li>
+                </ul>
+                <div class="danger-box">
+                    <p><strong>ВАЖНО:</strong> Нахождение животных на территории завода категорически запрещено.</p>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2 id="compressor_instr">Инструкция по компрессору (кратко)</h2>
+                <p>Краткие требования и контрольные точки для оператора при работе с компрессором. Подробную информацию и регламент обслуживания см. в паспорте компрессора.</p>
+                <ul>
+                    <li>Контроль уровня масла — регулярно проверять уровень и доливать согласно рекомендациям производителя.</li>
+                    <li>Поддерживать температуру в помещении — не допускать опускания температуры ниже <strong>0 °C</strong>.</li>
+                    <li>Следить за давлением в ресивере, фильтрами и состоянием приводных ремней.</li>
+                    <li>При постороннем шуме, вибрации, утечке масла или падении давления — немедленно остановить компрессор и сообщить инженерам.</li>
+                    <li>В дневной передсменный контроль включить компрессор и удостовериться в нормальном выходном давлении и отсутствии утечек.</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2 id="expanded-emergencies">Аварийные ситуации — расширенные подробности</h2>
+                <p>Этот подпункт дополняет раздел «Аварийные ситуации» подробными сценариями и короткими алгоритмами действий оператора.</p>
+
+                <h3>Аварии горелки</h3>
+                <ul>
+                    <li>Если аварии горелки повторяются неоднократно — их <strong>нельзя игнорировать</strong>. Оператор обязан немедленно сообщить в техническую службу и руководителю.</li>
+                    <li>Принцип работы: горелка работает в связке с регулятором температуры (ПИД-регулятор). При старте происходит «нагонка» до заданной температуры.</li>
+                    <li>Действия при аварии горелки: остановить подачу топлива (если возможно ручное управление), нажать кнопку аварийного останова, эвакуировать персонал при признаках пожара и вызвать специалистов.</li>
+                </ul>
+
+                <h3>Засор циклона</h3>
+                <ul>
+                    <li>Циклон и фильтр дымососа подвержены накоплению осадка. Для надёжной работы необходимо проводить регулярную очистку.</li>
+                    <li>Шнек М13 должен работать регулярно во время эксплуатации завода, чтобы предотвращать накопление осадка и препятствовать образованию пробок.</li>
+                    <li>При обнаружении ухудшения тяги — немедленно проверить фильтры и циклон, не допускать работы горелки при недостаточной тяге.</li>
+                </ul>
+
+                <h3>Обрыв конвейера</h3>
+                <ul>
+                    <li>При срабатывании датчика разрыва, сильной провисании ленты или визуальном обнаружении обрыва — немедленно остановить линию и зафиксировать место в журнале.</li>
+                    <li>Отключить питание соответствующей секции, установить ограждения и знаки «Не включать — работают люди» при проведении ремонта.</li>
+                </ul>
+
+                <h3>Клин / пробуксовка барабана</h3>
+                <ul>
+                    <li>Признаки: повышенная вибрация, неравномерная работа, повышенный ток электродвигателя.</li>
+                    <li>Не применять обильную смазку с целью «увеличения сцепления» — это усиливает пробуксовку. Использовать только рекомендованные смазочные материалы в рекомендованных объёмах.</li>
+                    <li>При сильной вибрации при высокой скорости — немедленно снизить скорость и остановить барабан, провести инспекцию подшипников и состояния лент/шкивов.</li>
+                </ul>
+
+                <h3>Отказ реле контроля фаз</h3>
+                <ul>
+                    <li>Признаки: потеря одной или более фаз, миграция индикаторов, ошибки на шкафах защиты.</li>
+                    <li>Действия: отключить нагрузку, сообщить электрику и не включать оборудование до восстановления нормальных фаз и проверки защит.</li>
+                </ul>
+
+                <div class="warning-box">
+                    <p><strong>Примечание по частотным приводам:</strong> Описания аварий частотных приводов в этом документе не даются — при неисправностях частотных приводов оператор обязан руководствоваться паспортом и инструкциями производителя <strong>MEGE DRIVE</strong> и сообщать об авариях в службу техподдержки.</p>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2 id="procedures">Технические процедуры и регламенты</h2>
+                <p>Ниже перечислены обязательные процедуры, которые должны быть внедрены и соблюдаться на предприятии.</p>
+
+                <h3>Порядок безопасного обесточивания оборудования</h3>
+                <ol>
+                    <li>Оповестить всех, кто работает в зоне.</li>
+                    <li>Остановить технологический процесс обычным способом.</li>
+                    <li>Отключить питание в щитовой (в рубильниках/автоматах) и убедиться в отсутствии напряжения измерительным прибором.</li>
+                    <li>Зафиксировать состояние в журнале и разместить плакат «Не включать — работают люди». (Ответственный — оператор, исполнитель работ).</li>
+                </ol>
+
+                <h3>Порядок допуска к ремонтным работам</h3>
+                <ul>
+                    <li>Допуск к ремонту получают только лица, прошедшие инструктаж и имеющие соответствующую квалификацию.</li>
+                    <li>Перед началом работ необходимо оформить наряд/наряд-допуск (если предусмотрено) и оформить запись в журнале работ.</li>
+                    <li>При выполнении работ в зоне вращающихся механизмов — обеспечить ограждения и подтверждение полной остановки.</li>
+                </ul>
+
+                <h3>Инструкция по безопасной очистке конвейера</h3>
+                <ol>
+                    <li>Остановить участок и обесточить (не допускается использование аварийного тросового выключателя, 
+                        пультов местного управления не по назначению. Во время работ необходимо полностью обесточивать зону проведения 
+                        работ).</li>
+                    <li>Зафиксировать положение и установить защитные ограждения.</li>
+                    <li>Проводить очистку только с использованием рекомендованных инструментов и СИЗ (перчатки, защитные очки, респиратор при запылении).</li>
+                </ol>
+
+                <h3>Регламент осмотров</h3>
+                <ul>
+                    <li>Ежесменно: визуальный осмотр конвейерных лент и мест срабатывания датчиков.</li>
+                    <li>Каждые 100 моточасов: проверка датчиков вращения, тросовых выключателей и ограждений.</li>
+                    <li>Каждые 300 моточасов: проверка подшипников, редукторов и механических соединений.</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2 id="journal">Журнал событий и регистрации</h2>
+                <p>Оператор обязан вести журнал всех необычных событий: аварий, остановов, ремонта, замены деталей. Приводится рекомендуемая форма записи:</p>
+                <ol>
+                    <li>Дата и время</li>
+                    <li>Событие (кратко)</li>
+                    <li>Оборудование / участок</li>
+                    <li>Краткое описание действий</li>
+                    <li>Ответственный</li>
+                </ol>
+            </section>
+
+            <section class="content-section">
+                <h2 id="full-safety">Полный развёрнутый блок требований безопасности (ниже)</h2>
+                <p>Ниже размещена расширенная версия требований безопасности — она дополняет и не отменяет краткую информацию вверху документа. Оператор должен ознакомиться с полной версией перед началом работы.</p>
+                <h3>Общие требования</h3>
+                <ul>
+                    <li>К работе с электрооборудованием допускаются лица не моложе 18 лет, прошедшие медицинский осмотр, обучение и инструктаж по охране труда.</li>
+                    <li>Все работы по обслуживанию электрооборудования должны проводиться при полном снятии напряжения и подтверждении его отсутствия измерительным прибором.</li>
+                </ul>
+
+                <h3>Пожарная безопасность и работа с горелкой</h3>
+                <ul>
+                    <li>ЗАПРЕЩАЕТСЯ работать горелкой при неработающем дымососе (М12).</li>
+                    <li>Перед запуском горелки убедиться в исправности системы дымоудаления и отсутствии утечек топлива.</li>
+                    <li>Операторы должны знать план эвакуации и расположение первичных средств пожаротушения.</li>
+                </ul>
+
+                <h3>Защита при работе с пылью</h3>
+                <ul>
+                    <li>Система аспирации должна работать при всех операциях, связанных с пылеобразованием.</li>
+                    <li>Использовать респираторы и вытяжные системы при работе в запылённых зонах.</li>
+                </ul>
+
+                <h3>Работа с вращающимися механизмами</h3>
+                <ul>
+                    <li>Запрещается снимать ограждения при работающем оборудовании.</li>
+                    <li>Работы по техническому обслуживанию проводить только при полной остановке и обесточивании оборудования.</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2 id="support">Контакты разработчиков</h2>
+                <div class="contact-info">
+                    <h3>В случае возникновения каких-либо трудностей, если инструкция не помогла, обращайтесь по телефону:</h3>
+                    <p><strong>+7 (927) 416-84-49</strong> | Черепанов Айнур Альбертович</p>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>© 2025 ООО "Техресурс"</p>
+        </footer>
+    </div>
+    
+    <a href="#" class="back-to-top" id="backToTop">↑</a>
+
+    <script>
+        // Плавная прокрутка для всех ссылок с якорями
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
                 }
             });
-            
-            backToTopButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
+        });
+        
+        // Кнопка "Наверх"
+        const backToTopButton = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('visible');
+            } else {
+                backToTopButton.classList.remove('visible');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
             });
-        </script>
-    </body>
+        });
+
+        // Переключатель печатного режима
+        const printToggle = document.getElementById('printModeToggle');
+        printToggle.addEventListener('change', (e) => {
+            if (e.target.checked) document.body.classList.add('print-mode');
+            else document.body.classList.remove('print-mode');
+        });
+
+        // Удобная кнопка "Сохранить в PDF"
+        function saveAsPDF() {
+            document.body.classList.add('print-mode');
+            setTimeout(() => { window.print(); }, 300);
+        }
+    </script>
+</body>
 </html>

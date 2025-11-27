@@ -955,3 +955,257 @@ def create_admin_2fa(sender, instance, created, **kwargs):
     """Создание записи 2FA для администраторов"""
     if created and instance.is_staff:
         Admin2FA.objects.get_or_create(user=instance)
+
+
+class ServicePage(models.Model):
+    """Модель для дополнительных динамических страниц услуг"""
+    PAGE_TYPES = [
+        ('main_service', 'Основная услуга'),
+        ('sub_service', 'Подуслуга'), 
+        ('instruction', 'Инструкция'),
+    ]
+    
+    # Связь со статической страницей (если есть)
+    STATIC_SERVICES = [
+        ('', '--- Не привязано ---'),
+        ('design', 'Проектирование систем'),
+        ('electrical', 'Электромонтажные работы'),
+        ('software', 'Разработка ПО и SCADA'),
+        ('equipment', 'Поставка оборудования'), 
+        ('support', 'Техническая поддержка'),
+        ('maintenance', 'Сервисное обслуживание'),
+    ]
+    
+    static_service = models.CharField(
+        max_length=20, 
+        choices=STATIC_SERVICES, 
+        blank=True, 
+        default='',
+        verbose_name="Привязать к статической странице"
+    )
+    
+    title = models.CharField(max_length=200, verbose_name="Заголовок страницы")
+    slug = models.SlugField(unique=True, verbose_name="URL-адрес")
+    page_type = models.CharField(max_length=20, choices=PAGE_TYPES, default='main_service', verbose_name="Тип страницы")
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, 
+                             verbose_name="Родительская страница", related_name='children')
+    
+    # Контент
+    hero_title = models.CharField(max_length=200, blank=True, verbose_name="Заголовок героя")
+    hero_subtitle = models.TextField(blank=True, verbose_name="Подзаголовок героя")
+    hero_image = models.ImageField(upload_to='service_heroes/', blank=True, null=True, verbose_name="Изображение героя")
+    content = models.TextField(blank=True, verbose_name="Основной контент")
+    
+    # Исправляем features - используем TextField для простоты
+    features_text = models.TextField(
+        blank=True, 
+        verbose_name="Особенности",
+        help_text="Каждая особенность с новой строки. Формат: Заголовок|Описание (разделитель - вертикальная черта)"
+    )
+    
+    # SEO и настройки
+    meta_description = models.TextField(blank=True, verbose_name="Мета-описание")
+    is_active = models.BooleanField(default=True, verbose_name="Активна")
+    show_in_navigation = models.BooleanField(default=True, verbose_name="Показывать в навигации")
+    order = models.IntegerField(default=0, verbose_name="Порядок сортировки")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Дополнительная страница услуги"
+        verbose_name_plural = "Дополнительные страницы услуг"
+        ordering = ['order', 'title']
+    
+    def __str__(self):
+        return self.title
+    
+    def get_absolute_url(self):
+        """Генерируем URL в зависимости от типа и привязки"""
+        if self.static_service:
+            # Если привязано к статической странице
+            base_url = f"/services/{self.static_service}/"
+            if self.page_type == 'instruction' and self.parent:
+                return f"{base_url}instructions/{self.slug}/"
+            elif self.parent:
+                return f"{base_url}{self.slug}/"
+            else:
+                return base_url
+        else:
+            # Динамические страницы
+            if self.page_type == 'instruction' and self.parent:
+                return f"/services/dynamic/{self.parent.slug}/instructions/{self.slug}/"
+            elif self.parent:
+                return f"/services/dynamic/{self.parent.slug}/{self.slug}/"
+            else:
+                return f"/services/dynamic/{self.slug}/"
+    
+    def get_static_url(self):
+        """Получить URL статической страницы"""
+        if self.static_service:
+            return f"/services/{self.static_service}/"
+        return None
+    
+    def get_breadcrumbs(self):
+        breadcrumbs = []
+        if self.parent:
+            breadcrumbs.extend(self.parent.get_breadcrumbs())
+        
+        breadcrumbs.append({
+            'title': self.title, 
+            'url': self.get_absolute_url()
+        })
+        return breadcrumbs
+    
+    def get_features_list(self):
+        """Получить особенности из текстового поля"""
+        if not self.features_text:
+            return []
+        
+        features = []
+        for line in self.features_text.strip().split('\n'):
+            line = line.strip()
+            if line:
+                # Разделяем по вертикальной черте
+                if '|' in line:
+                    title, description = line.split('|', 1)
+                    features.append({
+                        'title': title.strip(),
+                        'description': description.strip()
+                    })
+                else:
+                    features.append({
+                        'title': line,
+                        'description': ''
+                    })
+        return features
+    
+    @classmethod
+    def get_navigation_tree(cls):
+        """Получить дерево навигации включая статические страницы"""
+        navigation = []
+        
+        # Статические страницы (основные услуги)
+        static_services = [
+            {
+                'title': 'Проектирование систем',
+                'url': '/services/design/',
+                'slug': 'design',
+                'static': True,
+                'children': cls.objects.filter(
+                    static_service='design',
+                    page_type='sub_service',
+                    is_active=True,
+                    show_in_navigation=True
+                ).order_by('order')
+            },
+            {
+                'title': 'Электромонтажные работы', 
+                'url': '/services/electrical/',
+                'slug': 'electrical',
+                'static': True,
+                'children': cls.objects.filter(
+                    static_service='electrical', 
+                    page_type='sub_service',
+                    is_active=True,
+                    show_in_navigation=True
+                ).order_by('order')
+            },
+            {
+                'title': 'Разработка ПО и SCADA',
+                'url': '/services/software/',
+                'slug': 'software', 
+                'static': True,
+                'children': cls.objects.filter(
+                    static_service='software',
+                    page_type='sub_service', 
+                    is_active=True,
+                    show_in_navigation=True
+                ).order_by('order')
+            },
+            {
+                'title': 'Поставка оборудования',
+                'url': '/services/equipment/',
+                'slug': 'equipment',
+                'static': True,
+                'children': cls.objects.filter(
+                    static_service='equipment',
+                    page_type='sub_service',
+                    is_active=True,
+                    show_in_navigation=True
+                ).order_by('order')
+            },
+            {
+                'title': 'Техническая поддержка',
+                'url': '/services/support/',
+                'slug': 'support',
+                'static': True,
+                'children': cls.objects.filter(
+                    static_service='support',
+                    page_type='sub_service',
+                    is_active=True, 
+                    show_in_navigation=True
+                ).order_by('order')
+            },
+            {
+                'title': 'Сервисное обслуживание',
+                'url': '/services/maintenance/',
+                'slug': 'maintenance',
+                'static': True,
+                'children': cls.objects.filter(
+                    static_service='maintenance',
+                    page_type='sub_service',
+                    is_active=True,
+                    show_in_navigation=True
+                ).order_by('order')
+            }
+        ]
+        
+        # Динамические основные услуги (без привязки к статическим)
+        dynamic_services = cls.objects.filter(
+            page_type='main_service',
+            static_service='',  # Не привязаны к статическим
+            is_active=True,
+            show_in_navigation=True
+        ).order_by('order')
+        
+        # Объединяем статические и динамические
+        for static in static_services:
+            nav_item = {
+                'title': static['title'],
+                'url': static['url'],
+                'slug': static['slug'],
+                'static': True,
+                'children': []
+            }
+            
+            for child in static['children']:
+                child_data = {
+                    'title': child.title,
+                    'url': child.get_absolute_url(),
+                    'slug': child.slug,
+                    'children': child.children.filter(
+                        is_active=True,
+                        show_in_navigation=True
+                    ).order_by('order')
+                }
+                nav_item['children'].append(child_data)
+            
+            navigation.append(nav_item)
+        
+        # Добавляем динамические услуги
+        for service in dynamic_services:
+            nav_item = {
+                'title': service.title,
+                'url': service.get_absolute_url(),
+                'slug': service.slug,
+                'static': False,
+                'children': service.children.filter(
+                    page_type='sub_service',
+                    is_active=True,
+                    show_in_navigation=True
+                ).order_by('order')
+            }
+            navigation.append(nav_item)
+        
+        return navigation

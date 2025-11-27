@@ -1,0 +1,697 @@
+{% extends 'main/base.html' %}
+
+{% block title %}{{ page.title }} - Техресурс{% endblock %}
+
+{% block content %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    /* Основные стили */
+    .service-page-hero {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 160px 0 120px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        margin-top: 4%;
+        border-radius: 30px;
+    }
+
+    .service-page-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.05"><polygon fill="white" points="0,1000 1000,0 1000,1000"/></svg>');
+        background-size: cover;
+    }
+
+    .service-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .service-hero-content h1 {
+        font-size: 4rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        background: linear-gradient(135deg, #fff 0%, #f0f4ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .service-hero-content .subtitle {
+        font-size: 1.4rem;
+        opacity: 0.95;
+        max-width: 700px;
+        margin: 0 auto 2rem;
+        font-weight: 300;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .hero-image {
+        max-width: 500px;
+        margin: 3rem auto 0;
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        border: 3px solid rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform 0.5s ease;
+    }
+
+    .hero-image:hover img {
+        transform: scale(1.05);
+    }
+
+    .breadcrumbs {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem 0;
+        border-bottom: 1px solid #dee2e6;
+        border-radius: 0 0 15px 15px;
+    }
+
+    .breadcrumb-list {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .breadcrumb-list li {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-weight: 500;
+    }
+
+    .breadcrumb-list li:not(:last-child)::after {
+        content: '›';
+        color: #6c757d;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .breadcrumb-list a {
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        background: rgba(255,255,255,0.7);
+    }
+
+    .breadcrumb-list a:hover {
+        color: #0052cc;
+        background: rgba(255,255,255,0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .service-page-container {
+        padding: 6rem 0;
+        background: linear-gradient(135deg, #fafbfc 0%, #f8f9fa 100%);
+        border-radius: 30px;
+        margin-top: 6vh !important;
+    }
+
+    /* Контент секции */
+    .content-section {
+        margin-bottom: 5rem;
+        background: white;
+        padding: 4rem;
+        border-radius: 25px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.8);
+        backdrop-filter: blur(10px);
+    }
+
+    .content-section h2 {
+        font-size: 2.5rem;
+        margin-bottom: 2.5rem;
+        color: #2c3e50;
+        position: relative;
+        padding-bottom: 1.5rem;
+        font-weight: 700;
+    }
+
+    .content-section h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 4px;
+    }
+
+    .content-text {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        color: #4a5568;
+        margin-bottom: 2rem;
+    }
+
+    .content-text p {
+        margin-bottom: 1.8rem;
+        font-weight: 400;
+    }
+
+    /* Особенности */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2.5rem;
+        margin: 3rem 0;
+    }
+
+    .feature-item {
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        padding: 3rem 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: all 0.4s ease;
+        border: 1px solid rgba(255,255,255,0.8);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .feature-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
+        border-radius: 5px 5px 0 0;
+    }
+
+    .feature-item:hover::before {
+        transform: scaleX(1);
+    }
+
+    .feature-item:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+    }
+
+    .feature-item h4 {
+        font-size: 1.5rem;
+        margin-bottom: 1.2rem;
+        color: #2c3e50;
+        font-weight: 700;
+    }
+
+    .feature-item p {
+        color: #6c757d;
+        line-height: 1.7;
+        margin: 0;
+        font-size: 1.05rem;
+    }
+
+    /* Дочерние страницы */
+    .children-section {
+        margin-top: 5rem;
+        padding-top: 4rem;
+        border-top: 2px solid rgba(0,0,0,0.05);
+    }
+
+    .children-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .child-item {
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        padding: 2.5rem 2rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        text-align: center;
+        transition: all 0.4s ease;
+        border: 1px solid rgba(255,255,255,0.8);
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        backdrop-filter: blur(10px);
+    }
+
+    .child-item:hover {
+        transform: translateY(-8px) scale(1.03);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .child-item h4 {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .child-item p {
+        color: #6c757d;
+        font-size: 1rem;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    /* CTA секция */
+    .service-cta {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 5rem 0;
+        text-align: center;
+        border-radius: 30px;
+        margin: 6rem 0;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+    }
+
+    .service-cta::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.05"><polygon fill="white" points="0,0 1000,1000 0,1000"/></svg>');
+        background-size: cover;
+    }
+
+    .service-cta-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .service-cta h3 {
+        font-size: 2.8rem;
+        margin-bottom: 1.5rem;
+        font-weight: 800;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .service-cta p {
+        font-size: 1.3rem;
+        margin-bottom: 3rem;
+        opacity: 0.95;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: 300;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 30px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 1.1rem;
+        box-shadow: 0 10px 30px rgba(72, 187, 120, 0.3);
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 15px 40px rgba(72, 187, 120, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background: transparent;
+        color: white;
+        border: 3px solid rgba(255,255,255,0.8);
+        padding: 12px 35px;
+        border-radius: 30px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 1.1rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255,255,255,0.15);
+        border-color: white;
+        transform: translateY(-5px) scale(1.05);
+        color: white;
+        text-decoration: none;
+        box-shadow: 0 10px 30px rgba(255,255,255,0.2);
+    }
+
+    /* Навигация по услугам */
+    .service-navigation {
+        background: linear-gradient(135deg, #e5eaee 0%, #f8f9fa 100%);
+        padding: 4rem 2rem;
+        border-radius: 25px;
+        margin: 4rem 0;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.8);
+    }
+
+    .service-navigation h3 {
+        text-align: center;
+        margin-bottom: 3rem;
+        color: #2c3e50;
+        font-size: 2.2rem;
+        font-weight: 700;
+    }
+
+    .nav-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .nav-item {
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        padding: 2rem 1.5rem;
+        border-radius: 20px;
+        text-align: center;
+        text-decoration: none;
+        color: black;
+        transition: all 0.4s ease;
+        border: 2px solid transparent;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .nav-item:hover {
+        transform: translateY(-8px) scale(1.05);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        color: black;
+        text-decoration: none;
+        border-color: #667eea;
+    }
+
+    .nav-item.current {
+        background: #FFF;
+        color: black;
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .service-page-hero {
+            padding: 140px 0 100px;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .service-hero-content h1 {
+            font-size: 2.8rem;
+        }
+
+        .service-hero-content .subtitle {
+            font-size: 1.2rem;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .feature-item {
+            padding: 2.5rem 2rem;
+        }
+
+        .content-section {
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            max-width: 280px;
+            text-align: center;
+        }
+
+        .content-section h2 {
+            font-size: 2rem;
+        }
+
+        .service-cta h3 {
+            font-size: 2.2rem;
+        }
+
+        .service-cta p {
+            font-size: 1.1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .service-page-hero {
+            padding: 120px 0 80px;
+        }
+
+        .service-hero-content h1 {
+            font-size: 2.2rem;
+        }
+
+        .feature-item {
+            padding: 2rem 1.5rem;
+        }
+
+        .children-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .nav-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .service-navigation {
+            padding: 3rem 1.5rem;
+        }
+    }
+</style>
+
+<!-- Хлебные крошки -->
+{% if breadcrumbs %}
+<nav class="breadcrumbs" data-aos="fade-down" data-aos-duration="800">
+    <div class="container">
+        <ul class="breadcrumb-list">
+            <li><a href="{% url 'index' %}">Главная</a></li>
+            <li><a href="{% url 'services' %}">Услуги</a></li>
+            {% for crumb in breadcrumbs %}
+                {% if forloop.last %}
+                    <li>{{ crumb.title }}</li>
+                {% else %}
+                    <li><a href="{{ crumb.url }}">{{ crumb.title }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+</nav>
+{% endif %}
+
+<!-- Герой -->
+<section class="service-page-hero" data-aos="zoom-in" data-aos-duration="1200">
+    <div class="container">
+        <div class="service-hero-content">
+            <h1 data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">{{ page.hero_title|default:page.title }}</h1>
+            {% if page.hero_subtitle %}
+                <p class="subtitle" data-aos="fade-up" data-aos-delay="400" data-aos-duration="1000">{{ page.hero_subtitle }}</p>
+            {% endif %}
+            {% if page.hero_image %}
+                <div class="hero-image" data-aos="fade-up" data-aos-delay="600" data-aos-duration="1000">
+                    <img src="{{ page.hero_image.url }}" alt="{{ page.title }}">
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Основной контент -->
+<main class="service-page-container">
+    <div class="container">
+        <!-- Навигация по услугам -->
+        {% if navigation_tree %}
+        <section class="service-navigation" data-aos="fade-up" data-aos-duration="1000">
+            <h3>Наши услуги</h3>
+            <div class="nav-grid">
+                {% for service in navigation_tree %}
+                <a href="{{ service.url }}" class="nav-item {% if service.url == request.path %}current{% endif %}" 
+                   data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|add:100 }}">
+                    {{ service.title }}
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <div class="service-content">
+            <!-- Основной контент -->
+            {% if page.content %}
+            <section class="content-section" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
+                <div class="content-text">
+                    {{ page.content|linebreaks }}
+                </div>
+            </section>
+            {% endif %}
+            
+            <!-- Особенности -->
+            {% if page.get_features_list %}
+            <section class="content-section" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="300">
+                <h2>Ключевые особенности</h2>
+                <div class="features-grid">
+                    {% for feature in page.get_features_list %}
+                    <div class="feature-item" data-aos="flip-up" data-aos-delay="{{ forloop.counter0|add:400 }}">
+                        <h4>{{ feature.title }}</h4>
+                        <p>{{ feature.description }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Дочерние страницы -->
+            {% if page.children.all %}
+            <section class="content-section children-section" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400">
+                <h2>Связанные услуги</h2>
+                <div class="children-grid">
+                    {% for child in page.children.all %}
+                        {% if child.is_active %}
+                        <a href="{{ child.get_absolute_url }}" class="child-item" 
+                           data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|add:500 }}">
+                            <h4>{{ child.title }}</h4>
+                            {% if child.hero_subtitle %}
+                            <p>{{ child.hero_subtitle|truncatewords:15 }}</p>
+                            {% endif %}
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- CTA секция -->
+            <section class="service-cta" data-aos="zoom-in" data-aos-duration="1200" data-aos-delay="500">
+                <div class="service-cta-content">
+                    <h3 data-aos="fade-up" data-aos-delay="700">Готовы начать сотрудничество?</h3>
+                    <p data-aos="fade-up" data-aos-delay="800">Оставьте заявку и наш специалист свяжется с вами для бесплатной консультации</p>
+                    <div class="cta-buttons" data-aos="fade-up" data-aos-delay="900">
+                        <a href="{% url 'contacts' %}" class="btn-primary">Обсудить проект</a>
+                        <a href="{% url 'support' %}" class="btn-secondary">Задать вопрос</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация AOS с улучшенными настройками
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 50,
+            easing: 'ease-out-cubic',
+            delay: 0,
+            mirror: false
+        });
+
+        // Дополнительная анимация для карточек при скролле
+        const createScrollAnimations = () => {
+            const elements = document.querySelectorAll('.feature-item, .child-item, .nav-item');
+            
+            elements.forEach((element, index) => {
+                element.addEventListener('mouseenter', function() {
+                    this.style.transform = this.style.transform.replace('scale(1.02)', 'scale(1.05)');
+                });
+                
+                element.addEventListener('mouseleave', function() {
+                    this.style.transform = this.style.transform.replace('scale(1.05)', 'scale(1.02)');
+                });
+            });
+        };
+
+        createScrollAnimations();
+
+        // Параллакс эффект для героя с улучшениями
+        let ticking = false;
+        
+        const updateParallax = () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.service-page-hero');
+            if (hero) {
+                const rate = scrolled * 0.4;
+                hero.style.transform = `translateY(${rate}px) scale(${1 + scrolled * 0.0001})`;
+            }
+            ticking = false;
+        };
+
+        const onScroll = () => {
+            if (!ticking) {
+                requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        };
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        // Анимация градиентов при скролле
+        const animateGradients = () => {
+            const cta = document.querySelector('.service-cta');
+            if (cta) {
+                const scrolled = window.pageYOffset;
+                const rate = (scrolled * 0.5) % 360;
+                cta.style.background = `linear-gradient(${135 + Math.sin(scrolled * 0.01) * 10}deg, #667eea 0%, #764ba2 100%)`;
+            }
+        };
+
+        // window.addEventListener('scroll', animateGradients, { passive: true });
+    });
+</script>
+{% endblock %}

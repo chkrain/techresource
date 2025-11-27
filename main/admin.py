@@ -6,13 +6,15 @@ from django.utils.safestring import mark_safe
 from django.utils import timezone
 from django.contrib import messages
 import logging
+from django.utils.html import format_html
+
 
 from .models import (
     Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, 
     NotificationLog, OrderStatusLog, ProductReview, ProductImage,
     SecurityLog, LoginAttempt, PaymentAuditLog, Admin2FA,
     FraudDetectionLog, RateLimitLog, CSPViolationReport, Wishlist, WishlistItem,
-    SupportTicket, SupportAttachment
+    SupportTicket, SupportAttachment, ServicePage
 )
 
 logger = logging.getLogger('django.security')
@@ -504,3 +506,40 @@ class SupportAttachmentAdmin(admin.ModelAdmin):
     list_filter = ['uploaded_at']
     search_fields = ['ticket__subject', 'file_name']
     readonly_fields = ['uploaded_at']
+
+@admin.register(ServicePage)
+class ServicePageAdmin(admin.ModelAdmin):
+    list_display = ['title', 'slug', 'page_type', 'static_service', 'parent', 'order', 'is_active', 'show_in_navigation']
+    list_filter = ['page_type', 'static_service', 'is_active', 'show_in_navigation', 'created_at']
+    list_editable = ['order', 'is_active', 'show_in_navigation']
+    search_fields = ['title', 'slug', 'content']
+    prepopulated_fields = {'slug': ('title',)}
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('Основная информация', {
+            'fields': ('title', 'slug', 'page_type', 'static_service', 'parent', 'order')
+        }),
+        ('Герой страницы', {
+            'fields': ('hero_title', 'hero_subtitle', 'hero_image'),
+            'classes': ('collapse',)
+        }),
+        ('Контент', {
+            'fields': ('content', 'features_text'),
+            'description': 'В поле "Особенности" вводите каждую особенность с новой строки. Формат: Заголовок|Описание'
+        }),
+        ('Настройки', {
+            'fields': ('meta_description', 'is_active', 'show_in_navigation')
+        }),
+        ('Даты', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "parent":
+            kwargs["queryset"] = ServicePage.objects.filter(
+                page_type__in=['main_service', 'sub_service']
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)

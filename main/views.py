@@ -45,6 +45,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth import get_user_model
 import os
+from django.http import Http404
 import magic
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
@@ -52,7 +53,7 @@ from .models import SupportTicket, SupportAttachment
 from .forms import SupportTicketForm
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm
 
-from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA
+from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm
 
 
@@ -2826,30 +2827,6 @@ def contacts(request):
     """Страница контактов"""
     return render(request, 'main/contacts.html')
 
-def service_design(request):
-    """Страница услуги - Проектирование систем"""
-    return render(request, 'main/service_design.html')
-
-def service_electrical(request):
-    """Страница услуги - Электромонтажные работы"""
-    return render(request, 'main/service_electrical.html')
-
-def service_software(request):
-    """Страница услуги - Разработка ПО и SCADA"""
-    return render(request, 'main/service_software.html')
-
-def service_equipment(request):
-    """Страница услуги - Поставка оборудования"""
-    return render(request, 'main/service_equipment.html')
-
-def service_support(request):
-    """Страница услуги - Техническая поддержка"""
-    return render(request, 'main/service_support.html')
-
-def service_maintenance(request):
-    """Страница услуги - Сервисное обслуживание"""
-    return render(request, 'main/service_maintenance.html')
-
 def test_email_sending(request):
     """Тестовая функция для проверки отправки email"""
     try:
@@ -3845,3 +3822,98 @@ def calculate_delivery_ajax(request):
             })
     
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+# Статические страницы услуг (оставляем как есть)
+def service_design(request):
+    """Страница услуги - Проектирование систем"""
+    navigation_tree = ServicePage.get_navigation_tree()  # Для навигации
+    return render(request, 'main/service_design.html', {
+        'navigation_tree': navigation_tree
+    })
+
+def service_electrical(request):
+    """Страница услуги - Электромонтажные работы"""
+    navigation_tree = ServicePage.get_navigation_tree()
+    return render(request, 'main/service_electrical.html', {
+        'navigation_tree': navigation_tree
+    })
+
+def service_software(request):
+    """Страница услуги - Разработка ПО и SCADA"""
+    navigation_tree = ServicePage.get_navigation_tree()
+    return render(request, 'main/service_software.html', {
+        'navigation_tree': navigation_tree
+    })
+
+def service_equipment(request):
+    """Страница услуги - Поставка оборудования"""
+    navigation_tree = ServicePage.get_navigation_tree()
+    return render(request, 'main/service_equipment.html', {
+        'navigation_tree': navigation_tree
+    })
+
+def service_support(request):
+    """Страница услуги - Техническая поддержка"""
+    navigation_tree = ServicePage.get_navigation_tree()
+    return render(request, 'main/service_support.html', {
+        'navigation_tree': navigation_tree
+    })
+
+def service_maintenance(request):
+    """Страница услуги - Сервисное обслуживание"""
+    navigation_tree = ServicePage.get_navigation_tree()
+    return render(request, 'main/service_maintenance.html', {
+        'navigation_tree': navigation_tree
+    })
+
+def services_main(request):
+    """Главная страница услуг"""
+    navigation_tree = ServicePage.get_navigation_tree()
+    
+    context = {
+        'navigation_tree': navigation_tree,
+    }
+    return render(request, 'main/services.html', context)
+
+def dynamic_service_page(request, service_slug, sub_slug=None, instruction_slug=None):
+    """Универсальное представление для ДОПОЛНИТЕЛЬНЫХ динамических страниц"""
+    try:
+        if instruction_slug and sub_slug:
+            # Страница инструкции: /services/{service_slug}/{sub_slug}/instructions/{instruction_slug}/
+            page = ServicePage.objects.get(
+                slug=instruction_slug,
+                page_type='instruction',
+                parent__slug=sub_slug,
+                parent__parent__slug=service_slug,
+                is_active=True
+            )
+        elif sub_slug:
+            # Страница подуслуги: /services/{service_slug}/{sub_slug}/
+            page = ServicePage.objects.get(
+                slug=sub_slug,
+                page_type='sub_service', 
+                parent__slug=service_slug,
+                is_active=True
+            )
+        else:
+            # Основная услуга: /services/{service_slug}/
+            page = ServicePage.objects.get(
+                slug=service_slug,
+                page_type='main_service',
+                is_active=True
+            )
+        
+    except ServicePage.DoesNotExist:
+        # Если страница не найдена, показываем 404
+        raise Http404("Страница не найдена")
+    
+    navigation_tree = ServicePage.get_navigation_tree()
+    breadcrumbs = page.get_breadcrumbs()
+    
+    context = {
+        'page': page,
+        'navigation_tree': navigation_tree,
+        'breadcrumbs': breadcrumbs,
+    }
+    
+    return render(request, 'main/dynamic_service_page.html', context)
