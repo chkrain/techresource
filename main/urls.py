@@ -108,7 +108,7 @@ urlpatterns = [
     path('order/<int:order_id>/update-payment/', views.update_order_payment_method, name='update_order_payment'),
     path('calculate-delivery-ajax/', views.calculate_delivery_ajax, name='calculate_delivery_ajax'),
 
-    path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'images/favicon/favicon.ico')),
+    path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'images/favicon/favicon.svg')),
 
     # Избранное
     path('wishlist/', views.wishlist_view, name='wishlist'),
