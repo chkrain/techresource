@@ -246,22 +246,24 @@
         <div class="products-preview">
             {% for product in featured_products %}
             <div class="product-preview-card" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|add:100 }}">
-                {% if product.image and product.image.url %}
-                <div class="product-image">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                </div>
-                {% else %}
-                <div class="product-image">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='150' viewBox='0 0 250 150'%3E%3Crect width='250' height='150' fill='%23f8f9fa'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='14' fill='%236c757d'%3EИзображение не найдено%3C/text%3E%3C/svg%3E" alt="{{ product.name }}">
-                </div>
-                {% endif %}
+                {% with display_image=product.get_display_image %}
+                    {% if display_image %}
+                    <div class="product-image">
+                        <img src="{{ display_image.url }}" alt="{{ product.name }}" loading="lazy">
+                    </div>
+                    {% else %}
+                    <div class="product-image">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='150' viewBox='0 0 250 150'%3E%3Crect width='250' height='150' fill='%23f8f9fa'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='14' fill='%236c757d'%3EИзображение не найдено%3C/text%3E%3C/svg%3E" alt="{{ product.name }}">
+                    </div>
+                    {% endif %}
+                {% endwith %}
                 <div class="product-info">
                     <h3>{{ product.name }}</h3>
                     <p class="price">{{ product.price }} руб.</p>
                     <p class="quantity {% if product.quantity > 0 %}in-stock{% else %}out-of-stock{% endif %}">
                         {% if product.quantity > 0 %}В наличии{% else %}Нет в наличии{% endif %}
                     </p>
-                    <button class="product-btn" data-product-id="{{ product.id }}">В корзину</button>
+                    <button class="product-btn" data-product-id="{{ product.id }}">В&nbsp;корзину</button>
                 </div>
             </div>
             {% endfor %}
@@ -282,7 +284,7 @@
             <p>Свяжитесь с нами для бесплатной консультации и расчета стоимости проекта</p>
             <div class="cta-buttons">
                 <a href="/contacts/" class="btn btn-primary">
-                    Наши контакты
+                    Наши&nbsp;контакты
                 </a>
                 <a href="#" class="btn btn-secondary">
                     ✉️&nbsp;Написать&nbsp;нам

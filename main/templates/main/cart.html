@@ -29,13 +29,15 @@
                     {% for item in cart_items %}
                     <div class="cart-item" data-item-id="{{ item.id }}">
                         <div class="item-image">
-                            {% if item.product.image %}
-                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy">
-                            {% else %}
-                            <div class="image-placeholder">
-                                <span class="placeholder-icon">⚙️</span>
-                            </div>
-                            {% endif %}
+                            {% with display_image=item.product.get_display_image %}
+                                {% if display_image %}
+                                <img src="{{ display_image.url }}" alt="{{ item.product.name }}" loading="lazy">
+                                {% else %}
+                                <div class="image-placeholder">
+                                    <span class="placeholder-icon">⚙️</span>
+                                </div>
+                                {% endif %}
+                            {% endwith %}
                         </div>
                         
                         <div class="item-details">

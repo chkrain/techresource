@@ -697,6 +697,7 @@
 .add-review-section {
     background: var(--bg-light);
     padding: 30px;
+    color: black;
     border-radius: 16px;
     margin-bottom: 30px;
 }
@@ -747,6 +748,7 @@
 
 .review-item {
     background: var(--bg-light);
+    color: black;
     padding: 24px;
     border-radius: 16px;
     margin-bottom: 20px;
@@ -891,7 +893,7 @@
 <section class="product-main-section">
     <div class="container">
         <div class="product-detail-grid">
-            <!-- Image Gallery -->
+            <!-- Image Gallery -->  
             <div class="product-gallery">
                 <div class="main-image-container">
                     <div class="main-image" id="mainImageContainer">
@@ -1075,6 +1077,7 @@
         </div>
     </div>
 </section>
+{% endif %}
 
 <section class="reviews-section">
     <div class="container">
@@ -1205,8 +1208,7 @@
         </div>
         {% endif %}
     </div>
-</section>
-{% endif %}
+</section>  
 
 <!-- Toast Container -->
 <div id="toast-container" class="toast-container"></div>

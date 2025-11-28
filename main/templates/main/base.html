@@ -9,19 +9,10 @@
     <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="description" content="Профессиональные инженерные решения, оборудование и услуги для цифровой трансформации вашего бизнеса">
 
-    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
-    
-    <!-- Подключение шрифтов -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Иконки -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- AOS Animation -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-    <!-- Дополнительные CSS для конкретных страниц -->
     {% block extra_css %}{% endblock %}
 
     <style>
@@ -41,19 +32,15 @@
             --danger: #e53e3e;
             --warning: #ed8936;
             --info: #4299e1;
-            
             --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
             --shadow: 0 10px 30px rgba(0,0,0,0.1);
             --shadow-lg: 0 20px 60px rgba(0,0,0,0.15);
             --shadow-hover: 0 25px 50px rgba(0,0,0,0.2);
-            
             --border-radius: 16px;
             --border-radius-lg: 24px;
             --border-radius-xl: 32px;
-            
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            
             --header-height: 80px;
             --section-spacing: 6rem;
         }
@@ -79,7 +66,6 @@
             overflow-x: hidden;
         }
 
-        /* Header */
         .header {
             background: rgba(44, 62, 80, 0.95);
             backdrop-filter: blur(20px);
@@ -150,7 +136,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Navigation */
         .nav-main {
             display: flex;
             align-items: center;
@@ -389,7 +374,6 @@
             border: 2px solid var(--dark);
         }
 
-        /* Main content */
         .main-content {
             flex: 1;
             padding-top: var(--header-height);
@@ -408,7 +392,6 @@
             padding: 0 2rem;
         }
 
-        /* Messages */
         .messages {
             margin: 2rem 0;
         }
@@ -457,7 +440,6 @@
             border-left-color: var(--warning);
         }
 
-        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -546,7 +528,6 @@
             font-size: 1.1rem;
         }
 
-        /* Footer */
         .footer {
             background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 100%);
             color: var(--white);
@@ -653,7 +634,6 @@
             z-index: 2;
         }
 
-        /* Utility classes */
         .text-center { text-align: center; }
         .text-left { text-align: left; }
         .text-right { text-align: right; }
@@ -673,7 +653,6 @@
         .py-3 { padding: 3rem 0; }
         .py-4 { padding: 4rem 0; }
 
-        /* Mobile menu */
         .mobile-menu-btn {
             display: none;
             background: none;
@@ -693,7 +672,6 @@
             background: rgba(255,255,255,0.1);
         }
 
-        /* Back to top */
         .back-to-top {
             position: fixed;
             bottom: 2rem;
@@ -725,7 +703,6 @@
             box-shadow: 0 15px 35px rgba(0, 82, 204, 0.4);
         }
 
-        /* Loading animation */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -752,7 +729,6 @@
             animation: fadeInUp 0.8s ease-out;
         }
 
-        /* Responsive */
         @media (max-width: 1200px) {
             .footer-content {
                 grid-template-columns: 1fr 1fr;
@@ -900,7 +876,6 @@
             }
         }
 
-        /* Dark mode support */
         @media (prefers-color-scheme: dark) {
             body {
                 background: var(--dark);
@@ -908,7 +883,6 @@
             }
         }
 
-        /* Print styles */
         @media print {
             .header, .footer, .back-to-top {
                 display: none;
@@ -921,11 +895,10 @@
     </style>
 </head>
 <body>
-    <div style="display: none;">
+    <!-- <div style="display: none;">
         {% csrf_token %}
-    </div>
+    </div> -->
 
-    <!-- Header -->
     <header class="header" id="header">
         <div class="container">
             <a href="/" class="logo">
@@ -1040,7 +1013,6 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="main-content">
         <div class="container">
             {% if messages %}
@@ -1063,12 +1035,10 @@
             {% endif %}
 
             {% block content %}
-            <!-- Сюда будет подставляться контент конкретных страниц -->
             {% endblock %}
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -1148,27 +1118,23 @@
         </div>
     </footer>
 
-    <!-- Back to Top -->
     <button class="back-to-top" id="backToTop" aria-label="Вернуться наверх">
         <i class="fas fa-chevron-up"></i>
     </button>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // Инициализация AOS
         AOS.init({
             duration: 800,
             once: true,
             offset: 100
         });
 
-        // Mobile menu toggle
         function toggleMenu() {
             const nav = document.getElementById('main-nav');
             nav.classList.toggle('active');
         }
 
-        // Close mobile menu when clicking outside
         document.addEventListener('click', function(event) {
             const nav = document.getElementById('main-nav');
             const menuBtn = document.querySelector('.mobile-menu-btn');
@@ -1178,7 +1144,6 @@
             }
         });
 
-        // Header scroll effect
         window.addEventListener('scroll', function() {
             const header = document.getElementById('header');
             const backToTop = document.getElementById('backToTop');
@@ -1192,7 +1157,6 @@
             }
         });
 
-        // Back to top
         document.getElementById('backToTop').addEventListener('click', function() {
             window.scrollTo({
                 top: 0,
@@ -1200,7 +1164,6 @@
             });
         });
 
-        // Add active class to current page link
         document.addEventListener('DOMContentLoaded', function() {
             const currentPath = window.location.pathname;
             const navLinks = document.querySelectorAll('.nav-link');
@@ -1211,11 +1174,9 @@
                 }
             });
 
-            // Set current year in footer
             document.getElementById('currentYear').textContent = new Date().getFullYear();
         });
 
-        // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -1229,7 +1190,6 @@
             });
         });
 
-        // Add loading animation to buttons
         document.querySelectorAll('.btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 if (this.getAttribute('href') === '#' || this.type === 'submit') {
@@ -1242,7 +1202,6 @@
         });
     </script>
 
-    <!-- Дополнительные JS для конкретных страниц -->
     {% block extra_js %}{% endblock %}
 </body>
 </html>

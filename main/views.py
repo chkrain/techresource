@@ -13,6 +13,7 @@ import hashlib
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Min, Max
 import secrets
+from django.views.decorators.csrf import ensure_csrf_cookie
 import hmac
 from decimal import Decimal
 import requests
@@ -161,6 +162,7 @@ def moderate_review(request, review_id):
     
     return redirect('admin_dashboard')
 
+@ensure_csrf_cookie
 def products(request):
     # Параметры поиска
     search_query = request.GET.get('search', '')
@@ -286,6 +288,8 @@ def products(request):
         product_context = {
             'products': page_obj,
             'page_obj': page_obj,
+            'user': request.user, 
+            'request': request,  
         }
         
         products_html = render_to_string('main/components/product_grid.html', product_context)

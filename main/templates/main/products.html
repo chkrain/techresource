@@ -1637,7 +1637,6 @@ function debouncedSearch() {
     }, 500);
 }
 
-// Функция для загрузки товаров
 async function loadProducts(page = 1, additionalParams = {}) {
     if (isLoading) return;
     
@@ -1673,13 +1672,29 @@ async function loadProducts(page = 1, additionalParams = {}) {
         
         params.append('page', page);
         
+        // Добавляем CSRF токен в заголовки
+        const csrfToken = getCSRFToken();
+        const headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+        };
+        
+        if (csrfToken) {
+            headers['X-CSRFToken'] = csrfToken;
+        }
+        
         const response = await fetch(`?${params.toString()}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            },
+            headers: headers,
+            credentials: 'include' // Важно: включаем куки
         });
         
-        if (!response.ok) throw new Error('Network error');
+        if (!response.ok) {
+            // Если получили редирект на логин, значит сессия истекла
+            if (response.redirected && response.url.includes('/login/')) {
+                window.location.href = '/login/?next=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+            throw new Error('Network error: ' + response.status);
+        }
         
         const data = await response.json();
         
@@ -1719,7 +1734,13 @@ async function loadProducts(page = 1, additionalParams = {}) {
         
     } catch (error) {
         console.error('Error loading products:', error);
-        showToast('Ошибка при загрузке товаров', 'error');
+        
+        // Если ошибка аутентификации, перенаправляем на страницу входа
+        if (error.message.includes('401') || error.message.includes('403')) {
+            window.location.href = '/login/?next=' + encodeURIComponent(window.location.pathname);
+        } else {
+            showToast('Ошибка при загрузке товаров', 'error');
+        }
     } finally {
         isLoading = false;
         if (loadingIndicator) {
@@ -1973,29 +1994,38 @@ function updateCartCounter(count) {
 }
 
 function getCSRFToken() {
+    let csrfToken = null;
+    
+    // 1. В hidden input
     const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
     if (csrfInput) {
-        return csrfInput.value;
+        csrfToken = csrfInput.value;
     }
     
-    const metaToken = document.querySelector('meta[name="csrf-token"]');
-    if (metaToken) {
-        return metaToken.getAttribute('content');
+    // 2. В meta теге
+    if (!csrfToken) {
+        const metaToken = document.querySelector('meta[name="csrf-token"]');
+        if (metaToken) {
+            csrfToken = metaToken.getAttribute('content');
+        }
     }
     
-    const name = 'csrftoken';
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+    // 3. В куках
+    if (!csrfToken) {
+        const name = 'csrftoken';
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    csrfToken = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
         }
     }
-    return cookieValue;
+    
+    return csrfToken;
 }
 
 document.addEventListener('DOMContentLoaded', function() {

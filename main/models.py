@@ -444,6 +444,25 @@ class Product(models.Model):
         """Возвращает все изображения товара в правильном порядке"""
         return self.images.all().order_by('order', 'created_at')
     
+    def get_display_image(self):
+        """Возвращает изображение для отображения в каталоге и корзине"""
+        main_image = self.images.filter(is_main=True).first()
+        if main_image:
+            return main_image.image
+        
+        first_image = self.images.first()
+        if first_image:
+            return first_image.image
+        
+        return None
+    
+    def get_display_image_url(self):
+        """Возвращает URL изображения или None"""
+        display_image = self.get_display_image()
+        if display_image:
+            return display_image.url
+        return None
+    
     class Meta:
         verbose_name = "Товар"
         verbose_name_plural = "Товары"

@@ -24,12 +24,10 @@
             </div>
             <div class="wishlist-actions">
                 <button type="button" class="btn btn-secondary" id="clearWishlistBtn">
-                    <span class="btn-icon">🗑️</span>
-                    Очистить избранное
+                    Очистить&nbsp;избранное
                 </button>
                 <a href="{% url 'products' %}" class="btn btn-primary">
-                    <span class="btn-icon">🛒</span>
-                    Продолжить покупки
+                    Продолжить&nbsp;покупки
                 </a>
             </div>
         </div>
@@ -38,13 +36,15 @@
             {% for item in wishlist_items %}
             <div class="wishlist-item" data-product-id="{{ item.product.id }}">
                 <div class="item-image">
-                    {% if item.product.image %}
-                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy">
-                    {% else %}
-                    <div class="product-image-placeholder">
-                        <span class="placeholder-icon">⚙️</span>
-                    </div>
-                    {% endif %}
+                    {% with display_image=item.product.get_display_image %}
+                        {% if display_image %}
+                        <img src="{{ display_image.url }}" alt="{{ item.product.name }}" loading="lazy">
+                        {% else %}
+                        <div class="product-image-placeholder">
+                            <span class="placeholder-icon">⚙️</span>
+                        </div>
+                        {% endif %}
+                    {% endwith %}
                     
                     <button class="remove-wishlist-btn" data-product-id="{{ item.product.id }}" title="Удалить из избранного">
                         ❌
@@ -74,17 +74,14 @@
                     <div class="item-actions">
                         {% if item.product.quantity > 0 %}
                             <button type="button" class="btn btn-primary move-to-cart-btn" data-product-id="{{ item.product.id }}">
-                                <span class="btn-icon">🛒</span>
-                                В корзину
+                                В&nbsp;корзину
                             </button>
                         {% else %}
                             <button class="btn btn-secondary" disabled>
-                                <span class="btn-icon">⏸️</span>
-                                Нет в наличии
+                                Нет&nbsp;в&nbsp;наличии
                             </button>
                         {% endif %}
                         <a href="{% url 'product_detail' item.product.id %}" class="btn btn-secondary">
-                            <span class="btn-icon">👀</span>
                             Подробнее
                         </a>
                     </div>
@@ -480,6 +477,7 @@
     .wishlist-actions {
         width: 100%;
         justify-content: stretch;
+        flex-direction: column;
     }
     
     .wishlist-actions .btn {
