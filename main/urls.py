@@ -5,6 +5,9 @@ from django.http import HttpResponseNotFound
 from django.urls import path, re_path
 from django.contrib import admin
 from . import views
+from django.views.generic.base import RedirectView
+from django.conf import settings
+
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -104,6 +107,8 @@ urlpatterns = [
     path('payment/cardlink/mock/<int:order_id>/', views.cardlink_mock_process, name='cardlink_mock_process'),
     path('order/<int:order_id>/update-payment/', views.update_order_payment_method, name='update_order_payment'),
     path('calculate-delivery-ajax/', views.calculate_delivery_ajax, name='calculate_delivery_ajax'),
+
+    path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'images/favicon/favicon.ico')),
 
     # Избранное
     path('wishlist/', views.wishlist_view, name='wishlist'),
