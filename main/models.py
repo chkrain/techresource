@@ -558,6 +558,10 @@ class Order(models.Model):
     PAYMENT_METHODS = [
         ('invoice', 'По счету'),  
     ]
+
+    # PAYMENT_SYSTEMS = [
+    #     ('', 'Не используется'), 
+    # ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")

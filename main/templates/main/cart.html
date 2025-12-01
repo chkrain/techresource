@@ -123,19 +123,19 @@
                     
                     <div class="summary-row">
                         <span>Товары (<span id="total-quantity">{{ cart.get_total_quantity }}</span>)</span>
-                        <span id="subtotal-price">{{ cart.get_total_price }} ₽</span>
+                        <span id="subtotal-price">{{ cart.get_total_price|floatformat:2 }} ₽</span>
                     </div>
                     
                     <div class="summary-row">
-                        <span>НДС ({{ vat_rate }}%)</span>
-                        <span id="vat-total">{{ vat_total|floatformat:2 }} ₽</span>
+                        <span>НДС ({{ vat_rate|floatformat:0  }}%)</span>
+                        <span id="vat-total">{{ vat_total|floatformat:0 }} ₽</span>
                     </div>
                     
                     <div class="summary-divider"></div>
                     
                     <div class="summary-total">
                         <span>Итого к оплате</span>
-                        <span class="total-amount" id="final-price">{{ subtotal }} ₽</span>
+                        <span class="total-amount" id="final-price">{{ subtotal|floatformat:2 }} ₽</span>
                     </div>
                     
                     <div class="invoice-notice">
@@ -150,8 +150,7 @@
                         {% csrf_token %}
                         
                         <input type="hidden" name="payment_method" value="invoice">
-                        <input type="hidden" name="payment_system" value="">
-                        
+
                         <div class="form-section">
                             <h4>📍 Адрес для счета и доставки</h4>
                             <div class="custom-select-wrapper">
@@ -1722,200 +1721,6 @@ section {
 </style>
 
 <script>
-function updateCartItem(itemId, action, quantity = null) {
-    const formData = new FormData();
-    formData.append('action', action);
-    if (quantity) formData.append('quantity', quantity);
-    
-    fetch(`/cart/update/${itemId}/`, {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Обновляем данные на странице
-            document.getElementById('subtotal-price').textContent = data.cart_total.toFixed(2) + ' ₽';
-            document.getElementById('final-price').textContent = data.cart_total.toFixed(2) + ' ₽';
-            document.getElementById('price-without-vat').value = data.cart_total.toFixed(2);
-            document.getElementById('total-quantity').textContent = data.item_count;
-            document.getElementById('vat-total').textContent = data.vat_total.toFixed(2) + ' ₽';
-            
-            // Показываем сообщение
-            alert(data.message);
-            
-            // Если товар удален, перезагружаем страницу
-            if (action === 'remove') {
-                setTimeout(() => location.reload(), 500);
-            }
-        } else {
-            alert(data.error || 'Ошибка обновления корзины');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Ошибка соединения');
-    });
-}
-
-// Валидация формы заказа
-document.addEventListener('DOMContentLoaded', function() {
-    const orderForm = document.querySelector('.order-form');
-    const addressSelect = document.getElementById('address-select');
-    const priceWithoutVat = document.getElementById('price-without-vat');
-    
-    if (orderForm) {
-        orderForm.addEventListener('submit', function(e) {
-            let hasErrors = false;
-            
-            // Проверка адреса
-            if (addressSelect && (!addressSelect.value || addressSelect.value === '')) {
-                showFieldError(addressSelect, 'Пожалуйста, выберите адрес доставки');
-                hasErrors = true;
-            } else {
-                clearFieldError(addressSelect);
-            }
-            
-            // Обновляем скрытое поле price_without_vat перед отправкой
-            const subtotal = parseFloat(document.getElementById('subtotal-price').textContent.replace(' ₽', '').replace(/\s/g, '').replace(',', '.'));
-            priceWithoutVat.value = subtotal.toFixed(2);
-            
-            if (hasErrors) {
-                e.preventDefault();
-                showNotification('Пожалуйста, заполните все обязательные поля', 'error');
-                
-                // Прокрутка к первой ошибке
-                const firstError = document.querySelector('.field-error, .section-error');
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-        });
-    }
-    
-    // Функции для работы с ошибками
-    function showFieldError(field, message) {
-        clearFieldError(field);
-        field.classList.add('field-error');
-        
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = message;
-        errorDiv.style.cssText = `
-            color: #e53e3e;
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-            padding: 0.25rem 0.5rem;
-            background: #fed7d7;
-            border-radius: 4px;
-            border-left: 3px solid #e53e3e;
-        `;
-        
-        field.parentNode.appendChild(errorDiv);
-    }
-    
-    function clearFieldError(field) {
-        field.classList.remove('field-error');
-        const existingError = field.parentNode.querySelector('.error-message');
-        if (existingError) {
-            existingError.remove();
-        }
-    }
-    
-    function showSectionError(section, message) {
-        clearSectionError(section);
-        section.classList.add('section-error');
-        
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'section-error-message';
-        errorDiv.textContent = message;
-        errorDiv.style.cssText = `
-            color: #e53e3e;
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
-            padding: 0.5rem;
-            background: #fed7d7;
-            border-radius: 6px;
-            border: 1px solid #e53e3e;
-            text-align: center;
-        `;
-        
-        section.appendChild(errorDiv);
-    }
-    
-    function clearSectionError(section) {
-        section.classList.remove('section-error');
-        const existingError = section.querySelector('.section-error-message');
-        if (existingError) {
-            existingError.remove();
-        }
-    }
-    
-    // Валидация при изменении значений
-    if (addressSelect) {
-        addressSelect.addEventListener('change', function() {
-            if (this.value) {
-                clearFieldError(this);
-            }
-        });
-    }
-    
-    // Функция показа уведомлений
-    function showNotification(message, type = 'info') {
-        // Удаляем предыдущее уведомление
-        const existingNotification = document.querySelector('.form-notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
-        
-        const notification = document.createElement('div');
-        notification.className = `form-notification notification-${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <span class="notification-icon">${type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'}</span>
-                <span class="notification-message">${message}</span>
-                <button class="notification-close">&times;</button>
-            </div>
-        `;
-        
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${type === 'error' ? '#e53e3e' : type === 'success' ? '#48bb78' : '#0052cc'};
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            z-index: 10000;
-            max-width: 400px;
-            animation: slideInRight 0.3s ease;
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Автоматическое скрытие
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.style.animation = 'slideOutRight 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }
-        }, 5000);
-        
-        // Закрытие по клику
-        notification.querySelector('.notification-close').addEventListener('click', () => {
-            notification.style.animation = 'slideOutRight 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        });
-    }
-});
-</script>
-
-<script>
 document.addEventListener('DOMContentLoaded', function() {
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     let updateTimeout;
@@ -1944,13 +1749,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
     
-    // Функция для обновления количества через AJAX
     async function updateQuantity(itemId, newQuantity) {
         const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
-        
         if (!itemElement) return;
-        
-        // Блокируем элемент на время обновления
         itemElement.classList.add('quantity-updating');
         
         try {
@@ -1967,17 +1768,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                // Обновляем интерфейс
                 updateCartUI(itemId, newQuantity, data);
                 itemElement.classList.add('quantity-updated');
                 setTimeout(() => itemElement.classList.remove('quantity-updated'), 600);
                 showMessage('Количество обновлено', 'success');
-                
-                // Обновляем скрытое поле price_without_vat
-                const priceWithoutVat = document.getElementById('price-without-vat');
-                if (priceWithoutVat) {
-                    priceWithoutVat.value = data.cart_total.toFixed(2);
-                }
             } else {
                 showMessage(data.error || 'Ошибка обновления', 'error');
                 // Восстанавливаем предыдущее значение
@@ -1994,8 +1788,7 @@ document.addEventListener('DOMContentLoaded', function() {
             itemElement.classList.remove('quantity-updating');
         }
     }
-    
-    // Функция для удаления товара
+
     async function removeItem(itemId) {
         if (!confirm('Вы уверены, что хотите удалить товар из корзины?')) {
             return;
@@ -2026,13 +1819,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 itemElement.style.transform = 'translateX(-100px)';
                 setTimeout(() => {
                     itemElement.remove();
-                    updateCartSummary(data.cart_total, data.item_count);
-                    
-                    // Обновляем скрытое поле price_without_vat
-                    const priceWithoutVat = document.getElementById('price-without-vat');
-                    if (priceWithoutVat) {
-                        priceWithoutVat.value = data.cart_total.toFixed(2);
-                    }
+                    updateCartSummary(data);
                     
                     // Если корзина пуста, перезагружаем страницу
                     if (data.item_count === 0) {
@@ -2053,63 +1840,56 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Функция обновления UI
     function updateCartUI(itemId, newQuantity, data) {
         const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
         const price = parseFloat(itemElement.querySelector('.quantity-input').getAttribute('data-price'));
         const totalPrice = price * newQuantity;
-        
-        // Обновляем значение в поле ввода
         const input = itemElement.querySelector('.quantity-input');
         input.value = newQuantity;
         input.setAttribute('data-previous-value', newQuantity);
-        
-        // Обновляем цены
-        itemElement.querySelector('.total-price').textContent = `${totalPrice} ₽`;
-        itemElement.querySelector('.mobile-total-price').textContent = totalPrice;
-        
-        // Обновляем кнопки +/- 
+        itemElement.querySelector('.total-price').textContent = `${totalPrice.toFixed(2)} ₽`;
+        itemElement.querySelector('.mobile-total-price').textContent = totalPrice.toFixed(2);
         const decreaseBtn = itemElement.querySelector('.decrease');
         const increaseBtn = itemElement.querySelector('.increase');
         const maxQuantity = parseInt(itemElement.querySelector('.quantity-input').getAttribute('data-max-quantity'));
-        
         decreaseBtn.disabled = newQuantity <= 1;
         increaseBtn.disabled = newQuantity >= maxQuantity;
-        
-        // Обновляем общую сводку
-        updateCartSummary(data.cart_total, data.item_count, data.total_quantity);
-        
-        // Обновляем доставку и итоговую сумму
-        updateDeliveryAndTotals();
+        updateCartSummary(data);
     }
-    
-    // Функция обновления сводки корзины
-    function updateCartSummary(total, itemCount, totalQuantity) {
-        const formattedTotal = parseFloat(total).toLocaleString('ru-RU');
-        document.getElementById('subtotal-price').textContent = `${formattedTotal} ₽`;
-        document.getElementById('final-price').textContent = `${formattedTotal} ₽`; // временно, потом пересчитается
+
+    function updateCartSummary(data) {
+        // Форматируем общую сумму с двумя знаками после запятой
+        const formattedTotal = parseFloat(data.cart_total).toLocaleString('ru-RU', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
         
+        // Обновляем общую сумму товаров
+        document.getElementById('subtotal-price').textContent = `${formattedTotal} ₽`;
+        
+        // Обновляем итоговую сумму
+        document.getElementById('final-price').textContent = `${formattedTotal} ₽`;
+        
+        // Обновляем количество товаров
         const itemsCountElement = document.querySelector('.items-count');
         if (itemsCountElement) {
-            itemsCountElement.textContent = `${totalQuantity || itemCount} товар(ов)`;
+            itemsCountElement.textContent = `${data.item_count} товар(ов)`;
         }
         
-        // Обновляем скрытое поле price_without_vat
-        const priceWithoutVat = document.getElementById('price-without-vat');
-        if (priceWithoutVat) {
-            priceWithoutVat.value = total.toFixed(2);
+        // Обновляем НДС - без копеек (только целое число)
+        if (data.vat_total !== undefined) {
+            const vatTotal = Math.round(parseFloat(data.vat_total));
+            document.getElementById('vat-total').textContent = `${vatTotal} ₽`;
         }
         
-        setTimeout(updateDeliveryAndTotals, 100);
+        // Обновляем процент НДС если он изменился
+        if (data.vat_rate !== undefined) {
+            const vatRateElement = document.getElementById('vat-rate');
+            if (vatRateElement) {
+                vatRateElement.textContent = Math.round(parseFloat(data.vat_rate));
+            }
+        }
     }
-
-    function getPriceValue(priceElement) {
-        if (!priceElement) return 0;
-        const priceText = priceElement.textContent.replace(' ₽', '').replace(/\s/g, '').replace(',', '.');
-        return parseFloat(priceText) || 0;
-    }
-
-    // Обработчики событий
     
     // Кнопки +/-
     document.querySelectorAll('.quantity-btn').forEach(btn => {
@@ -2120,15 +1900,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const maxQuantity = parseInt(input.getAttribute('data-max-quantity'));
             
             if (this.classList.contains('increase') && currentValue < maxQuantity) {
-                input.value = currentValue + 1;
-                updateQuantity(itemId, input.value);
+                const newValue = currentValue + 1;
+                input.value = newValue;
+                updateQuantity(itemId, newValue);
             } else if (this.classList.contains('decrease') && currentValue > 1) {
-                input.value = currentValue - 1;
-                updateQuantity(itemId, input.value);
+                const newValue = currentValue - 1;
+                input.value = newValue;
+                updateQuantity(itemId, newValue);
             }
         });
     });
-    
+
     // Поле ввода количества
     document.querySelectorAll('.quantity-input').forEach(input => {
         // Сохраняем предыдущее значение
@@ -2183,7 +1965,13 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', function() {
             const itemId = this.getAttribute('data-item-id');
             const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
-            updateQuantity(itemId, input.value);
+            const newValue = parseInt(input.value);
+            
+            if (!isNaN(newValue) && newValue > 0) {
+                updateQuantity(itemId, newValue);
+            } else {
+                showMessage('Введите корректное количество', 'error');
+            }
         });
     });
     
@@ -2194,237 +1982,6 @@ document.addEventListener('DOMContentLoaded', function() {
             removeItem(itemId);
         });
     });
-    
-    // Обновление текста кнопки оформления при изменении способа оплаты
-    document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const checkoutBtn = document.querySelector('.checkout-btn');
-            if (this.value === 'invoice') {
-                checkoutBtn.textContent = '📄 Сформировать счет';
-            } else {
-                checkoutBtn.textContent = '🛒 Перейти к оплате';
-            }
-        });
-    });
-});
-</script>
-
-<script>
-    // Обработчики для выбора платежной системы
-document.addEventListener('DOMContentLoaded', function() {
-    // Обработчики выбора платежной системы
-    const paymentSystemRadios = document.querySelectorAll('input[name="payment_system"]');
-    const paymentSystemOptions = document.querySelectorAll('.payment-system-option');
-    
-    paymentSystemRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            // Убираем класс selected со всех опций
-            paymentSystemOptions.forEach(option => {
-                option.classList.remove('selected');
-            });
-            
-            // Добавляем класс selected к выбранной опции
-            if (this.checked) {
-                this.closest('.payment-system-option').classList.add('selected');
-            }
-            
-            // Обновляем текст кнопки оформления заказа
-            updateCheckoutButtonText(this.value);
-        });
-    });
-    
-    // Инициализация выбранной опции
-    const selectedRadio = document.querySelector('input[name="payment_system"]:checked');
-    if (selectedRadio) {
-        selectedRadio.closest('.payment-system-option').classList.add('selected');
-        updateCheckoutButtonText(selectedRadio.value);
-    }
-    
-    // Функция обновления текста кнопки
-    function updateCheckoutButtonText(paymentSystem) {
-        const checkoutBtn = document.querySelector('.checkout-btn');
-        if (!checkoutBtn) return;
-        
-        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-        
-        if (paymentMethod === 'invoice') {
-            checkoutBtn.textContent = '📄 Сформировать счет';
-        } else {
-            if (paymentSystem === 'cardlink') {
-                checkoutBtn.textContent = '💳 Оплатить через Cardlink';
-            } else {
-                checkoutBtn.textContent = '🏦 Оплатить через ЮКассу';
-            }
-        }
-    }
-    
-    // Обработчик изменения способа оплаты
-    document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const paymentSystem = document.querySelector('input[name="payment_system"]:checked').value;
-            updateCheckoutButtonText(paymentSystem);
-        });
-    });
-    
-    // Подсказки при наведении на платежные системы
-    paymentSystemOptions.forEach(option => {
-        option.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-2px)';
-            this.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)';
-        });
-        
-        option.addEventListener('mouseleave', function() {
-            if (!this.classList.contains('selected')) {
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = 'none';
-            }
-        });
-    });
-});
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const paymentSystemRadios = document.querySelectorAll('input[name="payment_system"]');
-    
-    function updatePaymentFee(paymentSystem) {
-        const subtotal = parseFloat('{{ subtotal }}'.replace(',', '.'));
-        const deliveryCost = parseFloat('{{ delivery_cost }}'.replace(',', '.'));
-        
-        const fees = {
-            'yookassa': 0.025,
-            'cardlink': 0.02
-        };
-        
-        const feePercent = fees[paymentSystem] || 0.05;
-        let feeAmount = Math.round((subtotal + deliveryCost) * feePercent * 100) / 100;
-        feeAmount = Math.max(feeAmount, 10.00); 
-        
-        const finalPrice = subtotal + deliveryCost + feeAmount;
-        
-        document.getElementById('payment-fee').textContent = feeAmount.toFixed(2) + ' ₽';
-        document.getElementById('final-price').textContent = finalPrice.toFixed(2) + ' ₽';
-    }
-    
-    paymentSystemRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.checked) {
-                updatePaymentFee(this.value);
-            }
-        });
-    });
-    
-    const selectedRadio = document.querySelector('input[name="payment_system"]:checked');
-    if (selectedRadio) {
-        updatePaymentFee(selectedRadio.value);
-    }
-});
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const addressSelect = document.getElementById('address-select');
-    
-    if (addressSelect) {
-        addressSelect.addEventListener('change', function() {
-            updateDeliveryAndTotals();
-        });
-    }
-
-    updateDeliveryAndTotals();
-    
-    async function updateDeliveryAndTotals() {
-        const addressSelect = document.getElementById('address-select');
-        const addressId = addressSelect?.value;
-        const subtotal = getPriceValue(document.getElementById('subtotal-price'));
-        
-        try {
-            const response = await fetch('/calculate-delivery-ajax/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    address_id: addressId,
-                    cart_total: subtotal
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                updateUIWithDelivery(data.delivery_cost, subtotal);
-                updateFreeDeliveryInfo(data.delivery_info);
-            } else {
-                console.error('Ошибка расчета доставки:', data.error);
-                const deliveryCost = subtotal >= 150000 ? 0 : 1000;
-                updateUIWithDelivery(deliveryCost, subtotal);
-            }
-            
-        } catch (error) {
-            console.error('Ошибка запроса доставки:', error);
-            const deliveryCost = subtotal >= 150000 ? 0 : 1000;
-            updateUIWithDelivery(deliveryCost, subtotal);
-        }
-    }
-    
-    function updateUIWithDelivery(deliveryCost, subtotal) {
-        const deliveryElement = document.querySelector('.free-shipping');
-        const deliveryPriceElement = document.querySelector('.delivery-price');
-        
-        if (deliveryElement) {
-            deliveryElement.textContent = deliveryCost === 0 ? 'Бесплатно' : deliveryCost + ' ₽';
-        }
-        if (deliveryPriceElement) {
-            deliveryPriceElement.textContent = deliveryCost === 0 ? 'Бесплатно' : deliveryCost + ' ₽';
-        }
-        
-        updateOrderSummary(subtotal, deliveryCost);
-    }
-    
-    function updateFreeDeliveryInfo(deliveryInfo) {
-        const deliveryNotice = document.querySelector('.delivery-notice small');
-        if (deliveryNotice && deliveryInfo) {
-            if (deliveryInfo.is_free) {
-                deliveryNotice.innerHTML = '🎉 Поздравляем! Ваша доставка бесплатна!';
-            } else {
-                deliveryNotice.innerHTML = `💡 До бесплатной доставки осталось: <strong>${deliveryInfo.remaining_for_free.toLocaleString()} ₽</strong>`;
-            }
-        }
-    }
-    
-    function updateOrderSummary(subtotal, deliveryCost) {
-        const paymentSystem = document.querySelector('input[name="payment_system"]:checked')?.value || 'yookassa';
-        
-        const paymentFee = calculatePaymentFee(subtotal + deliveryCost, paymentSystem);
-        const finalPrice = subtotal + deliveryCost + paymentFee;
-        
-        document.getElementById('payment-fee').textContent = paymentFee.toFixed(2) + ' ₽';
-        document.getElementById('final-price').textContent = finalPrice.toFixed(2) + ' ₽';
-    }
-        
-    function calculatePaymentFee(amount, paymentSystem) {
-        const fees = {
-            'yookassa': 0.025,
-            'cardlink': 0.02
-        };
-        
-        const feePercent = fees[paymentSystem] || 0.05;
-        let feeAmount = Math.round(amount * feePercent * 100) / 100;
-        return Math.max(feeAmount, 10.00);
-    }
-    
-    document.querySelectorAll('input[name="payment_system"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const subtotal = parseFloat(document.getElementById('subtotal-price').textContent.replace(' ₽', '').replace(/\s/g, ''));
-            const deliveryCost = parseFloat(document.querySelector('.free-shipping').textContent === 'Бесплатно' ? 0 : document.querySelector('.free-shipping').textContent.replace(' ₽', ''));
-            updateOrderSummary(subtotal, deliveryCost);
-        });
-    });
-    
-    updateDeliveryAndTotals();
 });
 </script>
 
@@ -2518,10 +2075,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Закрываем выпадающий список
                     customSelect.classList.remove('open');
-                    
-                    // Триггерим событие change для обновления доставки
-                    const event = new Event('change', { bubbles: true });
-                    originalSelect.dispatchEvent(event);
                 });
             });
         }
@@ -2540,56 +2093,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Навигация с клавиатуры
-        if (customTrigger) {
-            customTrigger.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    customSelect.classList.toggle('open');
-                } else if (e.key === 'ArrowDown' && !customSelect.classList.contains('open')) {
-                    e.preventDefault();
-                    customSelect.classList.add('open');
-                }
-            });
-        }
-        
-        if (customOptions) {
-            customOptions.addEventListener('keydown', function(e) {
-                const options = Array.from(this.querySelectorAll('.custom-select-option'));
-                const currentIndex = options.findIndex(opt => opt.classList.contains('selected'));
-                let newIndex = currentIndex;
-                
-                switch(e.key) {
-                    case 'ArrowDown':
-                        e.preventDefault();
-                        newIndex = (currentIndex + 1) % options.length;
-                        break;
-                    case 'ArrowUp':
-                        e.preventDefault();
-                        newIndex = (currentIndex - 1 + options.length) % options.length;
-                        break;
-                    case 'Enter':
-                        e.preventDefault();
-                        if (currentIndex !== -1) {
-                            options[currentIndex].click();
-                        }
-                        break;
-                    case 'Escape':
-                        e.preventDefault();
-                        customSelect.classList.remove('open');
-                        if (customTrigger) customTrigger.focus();
-                        break;
-                }
-                
-                if (newIndex !== currentIndex && newIndex >= 0) {
-                    options.forEach(opt => opt.classList.remove('selected'));
-                    options[newIndex].classList.add('selected');
-                    options[newIndex].scrollIntoView({ block: 'nearest' });
-                }
-            });
-        }
-        
-        // Синхронизация при изменении оригинального селекта (на всякий случай)
+        // Синхронизация при изменении оригинального селекта
         originalSelect.addEventListener('change', function() {
             updateCustomSelectDisplay();
         });

@@ -504,7 +504,6 @@ def cart_view(request):
                 price_without_vat=total_without_vat,
                 vat_amount=vat_total,
                 payment_method='invoice',  # Только оплата по счету
-                payment_system='',  # Пустая строка
                 payment_fee=Decimal('0'),
                 delivery_cost=Decimal('0'),
                 vat_rate=vat_rate,
@@ -531,7 +530,6 @@ def cart_view(request):
             order.status = 'processing'
             order.save()
             
-            # Отправляем уведомление о создании счета
             send_invoice_order_notification(order)
             
             messages.success(request, f'Заказ #{order.id} создан! Счет будет выставлен на вашу почту {request.user.email}.')
