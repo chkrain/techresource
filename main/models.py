@@ -13,6 +13,7 @@ from django.conf import settings
 import json
 import hmac
 import base64
+from decimal import Decimal
 import struct
 
 class UserProfile(models.Model):
@@ -413,6 +414,12 @@ class Product(models.Model):
         blank=True, 
         verbose_name="Габариты (Д×Ш×В см)"
     )
+    vat_rate = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        default=20.00,
+        verbose_name="Ставка НДС (%)"
+    )
     is_fragile = models.BooleanField(default=False, verbose_name="Хрупкий товар")
     requires_special_delivery = models.BooleanField(default=False, verbose_name="Требует спецдоставки")
 
@@ -423,6 +430,12 @@ class Product(models.Model):
 
     specifications = models.JSONField(default=dict, blank=True, verbose_name="Характеристики")
     
+    def save(self, *args, **kwargs):
+        # Автоматически рассчитываем цену без НДС
+        if self.price and self.vat_rate:
+            self.price_without_vat = self.price / (1 + self.vat_rate / 100)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
     
@@ -543,14 +556,7 @@ class Order(models.Model):
     ]
     
     PAYMENT_METHODS = [
-        ('card', 'Банковская карта'),
-        ('invoice', 'По счету'),
-        ('cardlink', 'Cardlink'),  
-    ]
-
-    PAYMENT_SYSTEMS = [
-        ('yookassa', 'ЮКасса'),
-        ('cardlink', 'Cardlink'),
+        ('invoice', 'По счету'),  
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
@@ -558,15 +564,15 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Общая сумма")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Статус")
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default='card', verbose_name="Способ оплаты")
-    payment_system = models.CharField(max_length=20, choices=PAYMENT_SYSTEMS, default='yookassa', verbose_name="Платежная система")
-    payment_id = models.CharField(max_length=100, blank=True, verbose_name="ID платежа")
-    cardlink_transaction_id = models.CharField(max_length=100, blank=True, verbose_name="ID транзакции Cardlink")
 
     # Данные доставки
     customer_name = models.CharField(max_length=100, verbose_name="Имя клиента")
     customer_phone = models.CharField(max_length=20, verbose_name="Телефон")
     customer_email = models.EmailField(verbose_name="Email")
     delivery_address = models.TextField(verbose_name="Адрес доставки")
+
+    vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=20.00,  verbose_name="Ставка НДС (%)")
+    price_without_vat = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена без НДС", help_text="Рассчитывается автоматически")
     
     # Новые поля для отслеживания
     status_changed_at = models.DateTimeField(auto_now=True, verbose_name="Время изменения статуса")
@@ -587,6 +593,19 @@ class Order(models.Model):
     ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name="IP-адрес создания")
     user_agent = models.TextField(blank=True, verbose_name="User Agent")
 
+    vat_amount = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0,
+        verbose_name="Сумма НДС"
+    )
+    total_without_vat = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0,
+        verbose_name="Сумма без НДС"
+    )
+
     paid_amount = models.DecimalField(
         max_digits=10, decimal_places=2, default=0, 
         verbose_name="Оплаченная сумма"
@@ -598,8 +617,22 @@ class Order(models.Model):
         max_digits=10, decimal_places=2, default=0,
         verbose_name="Чистая выручка (без доставки и комиссий)"
     )
+
+    def calculate_vat(self):
+        """Рассчитывает НДС для заказа"""
+        vat_total = Decimal('0')
+        total_without_vat = Decimal('0')
+        
+        for item in self.orderitem_set.all():
+            if hasattr(item, 'vat_amount'):
+                vat_total += item.vat_amount
+                total_without_vat += item.price_without_vat * item.quantity
+        
+        self.vat_amount = vat_total
+        self.total_without_vat = total_without_vat
+        self.save()
     
-    def finalize_payment(self):
+    def finalize_payment(self): 
         """Фиксирует оплату при смене статуса на 'paid'"""
         if self.status == 'paid' and not self.is_payment_finalized:
             self.paid_amount = self.final_price
@@ -715,6 +748,26 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="Товар")
     quantity = models.PositiveIntegerField(verbose_name="Количество")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+
+    vat_rate = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        default=20.00,
+        verbose_name="Ставка НДС (%)"
+    )
+    vat_amount = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0,
+        verbose_name="Сумма НДС"
+    )
+    price_without_vat = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0,  
+        verbose_name="Цена без НДС",
+        help_text="Рассчитывается автоматически"
+    )
     
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"
@@ -723,6 +776,14 @@ class OrderItem(models.Model):
         if self.price is not None and self.quantity is not None:
             return self.price * self.quantity
         return 0 
+    
+    def save(self, *args, **kwargs):
+        # Рассчитываем НДС и цену без НДС
+        if self.price and self.quantity and self.vat_rate:
+            total = self.price * self.quantity
+            self.vat_amount = total * (self.vat_rate / 100) / (1 + self.vat_rate / 100)
+            self.price_without_vat = self.price / (1 + self.vat_rate / 100)
+        super().save(*args, **kwargs)
     
     class Meta:
         verbose_name = "Элемент заказа"

@@ -240,15 +240,3 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '')
 TELEGRAM_CHAT_ID_CONTACTS = os.getenv('TELEGRAM_CHAT_ID_CONTACTS', '')
 TELEGRAM_CHAT_ID_CRITICAL = os.getenv('TELEGRAM_CHAT_ID_CRITICAL', '')
-
-# Настройки платежной системы 
-YOOKASSA_SHOP_ID = os.getenv('YOOKASSA_SHOP_ID')
-YOOKASSA_SECRET_KEY = os.getenv('YOOKASSA_SECRET_KEY')
-YOOKASSA_RETURN_URL = os.getenv('YOOKASSA_RETURN_URL', 'http://localhost:8000/payment/success/')
-
-CARDLINK_MERCHANT_ID = os.getenv('CARDLINK_MERCHANT_ID', '')
-CARDLINK_SECRET_KEY = os.getenv('CARDLINK_SECRET_KEY', '')
-CARDLINK_API_URL = os.getenv('CARDLINK_API_URL', 'https://cardlink.link/api/v1')
-CARDLINK_RETURN_URL = os.getenv('CARDLINK_RETURN_URL', 'http://localhost:8000/payment/cardlink/success/')
-CARDLINK_CALLBACK_URL = os.getenv('CARDLINK_CALLBACK_URL', 'http://localhost:8000/webhook/cardlink/')
-CARDLINK_TOKEN = os.getenv('CARDLINK_TOKEN', '')

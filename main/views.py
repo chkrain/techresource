@@ -8,7 +8,6 @@ from django.utils.html import strip_tags
 from django.contrib.admin.views.decorators import staff_member_required
 import datetime
 import json
-from .services.cardlink_service import CardlinkService
 import hashlib
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Min, Max
@@ -58,15 +57,9 @@ from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Addr
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm
 
 
-# Импорт ЮКассы
-from yookassa import Payment, Configuration
 from django.db.models import Sum
 
 User = get_user_model()
-
-# Настройка ЮКассы
-Configuration.account_id = settings.YOOKASSA_SHOP_ID
-Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
 
 def index(request):
     featured_products = Product.objects.filter(is_active=True, quantity__gt=0)[:6]  
@@ -464,165 +457,86 @@ def add_to_cart(request, product_id):
 
 from decimal import Decimal
 
-def calculate_payment_fee(order_total, payment_system):
-    """Расчет комиссии платежной системы"""
-    fees = {
-        'yookassa': Decimal('0.025'),  # 2.5%
-        'cardlink': Decimal('0.02'),   # 2.0%
-    }
-    fee_percent = fees.get(payment_system, Decimal('0.05'))  # 5% по умолчанию
-    
-    fee_amount = (order_total * fee_percent).quantize(Decimal('0.01'))
-    
-    min_fee = Decimal('10.00')
-    return max(fee_amount, min_fee)
-
-def calculate_delivery_cost(address, order_total, items_count):
-    """Расчет стоимости доставки"""
-    base_cost = 300  
-    
-    if order_total >= 50000:
-        return 0
-    
-    return base_cost
-
-def calculate_delivery_cost(address, order_total, items_count, weight=0):
-    """Расширенный расчет стоимости доставки"""
-    
-    if order_total >= 150000:
-        return Decimal('0')
-    
-    base_cost = Decimal('1000')
-    
-    return base_cost
-
 @login_required
 def cart_view(request):
     cart, created = Cart.objects.get_or_create(user=request.user)
     cart_items = cart.cartitem_set.all().select_related('product')
-
     
     addresses = Address.objects.filter(user=request.user).values(
         'id', 'title', 'full_name', 'phone', 'address', 
-        'city', 'postal_code', 'is_default', 'delivery_zone'
+        'city', 'postal_code', 'is_default'
     )
+
+    # Расчет НДС
+    vat_total = Decimal('0')
+    total_without_vat = Decimal('0')
+    vat_rate = Decimal('20.00')
+    
+    for item in cart_items:
+        item_total = item.get_total_price()
+        item_vat = item_total * (vat_rate / 100) / (1 + vat_rate / 100)
+        item_without_vat = item_total - item_vat
+        
+        vat_total += item_vat
+        total_without_vat += item_without_vat
+        
+        item.vat_amount = item_vat
+        item.price_without_vat = item_without_vat
+        item.vat_rate = vat_rate
     
     subtotal = cart.get_total_price()
-    delivery_cost = Decimal('0')
-    selected_address_id = request.GET.get('address_id')
-    delivery_info = {}
-
-    total_weight = sum(
-        item.product.weight * item.quantity 
-        for item in cart_items 
-        if item.product.weight
-    )
-
-    delivery_cost = Decimal('0')
-    selected_address_id = request.GET.get('address_id')
-    delivery_info = {}
-
-    if selected_address_id:
-        try:
-            address = Address.objects.get(id=selected_address_id, user=request.user)
-            
-            total_weight = sum(
-                item.product.weight * item.quantity 
-                for item in cart_items 
-                if hasattr(item.product, 'weight') and item.product.weight
-            )
-            
-            delivery_cost = DeliveryService.calculate_delivery_cost(
-                address=address,
-                order_total=subtotal,
-                items_count=cart.get_items_count(),
-                total_weight=total_weight
-            )
-            
-            delivery_info = {
-                'zone': DeliveryService.detect_zone_by_city(address.city) if address.city else 'Не указана',
-                'time': DeliveryService.get_delivery_time(address),
-                'couriers': DeliveryService.get_available_couriers(address)
-            }
-            
-        except Address.DoesNotExist:
-            delivery_cost = Decimal('0') if subtotal >= 150000 else Decimal('1000')
-    else:
-        delivery_cost = Decimal('0') if subtotal >= 150000 else Decimal('1000')
-    
-    selected_payment_system = request.GET.get('payment_system', 'yookassa')
-    payment_fee = calculate_payment_fee(subtotal + delivery_cost, selected_payment_system)
-    final_price = subtotal + delivery_cost + payment_fee
     
     if request.method == 'POST':
         address_id = request.POST.get('address_id')
-        payment_method = request.POST.get('payment_method')
-        payment_system = request.POST.get('payment_system', 'yookassa')
-        selected_courier = request.POST.get('courier', 'СДЭК')
-        
-        errors = []
         
         if not address_id or address_id == '':
-            errors.append('Выберите адрес доставки')
-        
-        if not payment_method:
-            errors.append('Выберите способ оплаты')
-        
-        if errors:
-            for error in errors:
-                messages.error(request, error)
+            messages.error(request, 'Выберите адрес доставки')
             return redirect('cart')
         
         try:
             address = Address.objects.get(id=address_id, user=request.user)
             
-            delivery_cost = DeliveryService.calculate_delivery_cost(
-            address=address,
-            order_total=subtotal,
-            items_count=cart.get_items_count(),
-            total_weight=total_weight
-        )
-            
-            payment_fee = calculate_payment_fee(subtotal + delivery_cost, payment_system)
-            final_price = subtotal + delivery_cost + payment_fee
-
+            # Создаем заказ только для оплаты по счету
             order = Order.objects.create(
                 user=request.user,
                 total_price=subtotal,
-                final_price=final_price,
-                payment_method=payment_method,
-                payment_system=payment_system,
-                payment_fee=payment_fee,
-                delivery_cost=delivery_cost,
+                final_price=subtotal,
+                price_without_vat=total_without_vat,
+                vat_amount=vat_total,
+                payment_method='invoice',  # Только оплата по счету
+                payment_system='',  # Пустая строка
+                payment_fee=Decimal('0'),
+                delivery_cost=Decimal('0'),
+                vat_rate=vat_rate,
                 customer_name=address.full_name,
                 customer_phone=address.phone,
                 customer_email=request.user.email,
-                delivery_address=f"{address.city}, {address.address}, {address.postal_code}",
-                shipping_company=selected_courier
+                delivery_address=f"{address.city}, {address.address}, {address.postal_code}"
             )
             
+            # Добавляем товары в заказ
             for cart_item in cart_items:
                 OrderItem.objects.create(
                     order=order,
                     product=cart_item.product,
                     quantity=cart_item.quantity,
-                    price=cart_item.product.price
+                    price=cart_item.product.price,
+                    vat_rate=vat_rate
                 )
             
+            # Очищаем корзину
             cart_items.delete()
             
-            if payment_method == 'card':
-                if payment_system == 'cardlink':
-                    return redirect('create_cardlink_payment', order_id=order.id)
-                else:
-                    return redirect('create_payment', order_id=order.id)
-            else:
-                order.status = 'processing'
-                order.save()
-                send_invoice_order_notification(order)
-                messages.success(request, f'Заказ #{order.id} создан! Мы вышлем счет на вашу почту {request.user.email}.')
-                return redirect('orders')
-        
+            # Статус заказа
+            order.status = 'processing'
+            order.save()
+            
+            # Отправляем уведомление о создании счета
+            send_invoice_order_notification(order)
+            
+            messages.success(request, f'Заказ #{order.id} создан! Счет будет выставлен на вашу почту {request.user.email}.')
+            return redirect('orders')
+            
         except Address.DoesNotExist:
             messages.error(request, 'Выбранный адрес не найден')
             return redirect('cart')
@@ -632,29 +546,19 @@ def cart_view(request):
         'cart_items': cart_items,
         'addresses': list(addresses),
         'subtotal': subtotal,
-        'delivery_cost': delivery_cost,
-        'payment_fee': payment_fee,
-        'final_price': final_price,
-        'selected_payment_system': selected_payment_system,
-        'delivery_info': delivery_info,
-        'total_weight': total_weight,
-        'fee_breakdown': {
-            'subtotal': subtotal,
-            'delivery': delivery_cost,
-            'payment_fee': payment_fee,
-            'total': final_price
-        }
+        'final_price': subtotal,
+        'vat_total': vat_total,
+        'total_without_vat': total_without_vat,
+        'vat_rate': vat_rate,
     }
     return render(request, 'main/cart.html', context)
 
 def send_invoice_order_notification(order):
-    """Отправка уведомления о заказе по счету"""
+    """Отправка уведомления о создании заказа по счету"""
     try:
         if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
             print("⚠️ TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не настроены")
             return False
-        
-        commission_text = f"• Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
     
         message = f"""
 📄 <b>НОВЫЙ ЗАКАЗ ПО СЧЕТУ #{order.id}</b>
@@ -662,23 +566,26 @@ def send_invoice_order_notification(order):
 👤 <b>Клиент:</b> {order.customer_name}
 📞 <b>Телефон:</b> {order.customer_phone}
 📧 <b>Email:</b> {order.customer_email}
-💰 <b>Стоимость:</b>
-   • Товары: {order.total_price} руб.
-   • Доставка: {order.delivery_cost} руб.
-{commission_text}   • <b>Итого: {order.get_final_price_with_fees()} руб.</b>
-🚚 <b>Адрес:</b> {order.delivery_address}
-📦 <b>Статус:</b> {order.get_status_display()}
+🚚 <b>Адрес доставки:</b> {order.delivery_address}
+
+<b>Финансовые данные:</b>
+💰 <b>Сумма товаров:</b> {order.total_price} руб.
+📊 <b>Без НДС:</b> {order.total_without_vat} руб.
+🏛️ <b>НДС:</b> {order.vat_amount} руб.
 
 <b>Товары:</b>
 """
         
         for item in order.orderitem_set.all():
-            message += f"• {item.product.name} x{item.quantity} - {item.get_total_price()} руб.\n"
+            message += f"• {item.product.name} x{item.quantity} - {item.get_total_price()} руб."
+            if item.vat_rate:
+                message += f" (НДС {item.vat_rate}% = {item.vat_amount} руб.)"
+            message += "\n"
         
-        message += f"\n<b>Итого:</b> {order.get_final_price_with_fees()} руб."
-        message += f"\n\n💡 <b>Требуется выставить счет для оплаты</b>"
+        message += f"\n<b>Итого:</b> {order.total_price} руб. (в т.ч. НДС {order.vat_amount} руб.)"
+        message += f"\n\n💡 <b>Доставка не включена в счет</b>"
+        message += f"\n⚡ <b>Требуется выставить счет на {order.total_price} руб.</b>"
         
-        # Отправка в Telegram
         url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
         payload = {
             'chat_id': settings.TELEGRAM_CHAT_ID,
@@ -690,7 +597,7 @@ def send_invoice_order_notification(order):
         return response.status_code == 200
         
     except Exception as e:
-        print(f"❌ Ошибка отправки уведомления о заказе по счету: {e}")
+        print(f"❌ Ошибка отправки уведомления: {e}")
         return False
 
 @login_required
@@ -699,8 +606,10 @@ def update_cart_item(request, item_id):
         cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
         action = request.POST.get('action')
         
-        # Проверяем AJAX запрос
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
+        # Сохраняем старое количество для расчета НДС
+        old_quantity = cart_item.quantity
         
         if action == 'increase':
             if cart_item.quantity < cart_item.product.quantity:
@@ -729,7 +638,6 @@ def update_cart_item(request, item_id):
             message = 'Товар удален из корзины'
             
         elif action == 'set':
-            # Новое действие - установка конкретного количества
             try:
                 new_quantity = int(request.POST.get('quantity', 1))
                 if 1 <= new_quantity <= cart_item.product.quantity:
@@ -749,29 +657,29 @@ def update_cart_item(request, item_id):
 
         # Получаем обновленные данные корзины
         cart = Cart.objects.get(user=request.user)
+        cart_items = cart.cartitem_set.all()
         cart_total = cart.get_total_price()
-        item_count = cart.get_items_count()  # Общее количество товаров
-        total_quantity = cart.get_total_quantity()  # Количество позиций
+        item_count = cart.get_items_count()
+        
+        # Рассчитываем НДС
+        vat_rate = Decimal('20.00')
+        vat_total = Decimal('0')
+        
+        for item in cart_items:
+            item_total = item.get_total_price()
+            item_vat = item_total * (vat_rate / 100) / (1 + vat_rate / 100)
+            vat_total += item_vat
         
         if is_ajax:
-            response_data = {
+            return JsonResponse({
                 'success': success,
                 'message': message,
                 'cart_total': float(cart_total),
                 'item_count': item_count,
-                'total_quantity': total_quantity,
-            }
-            
-            # Добавляем данные об элементе, если он не удален
-            if success and action != 'remove' and hasattr(cart_item, 'quantity'):
-                response_data.update({
-                    'new_quantity': cart_item.quantity,
-                    'item_total': float(cart_item.get_total_price())
-                })
-            
-            return JsonResponse(response_data)
+                'vat_total': float(vat_total),
+                'vat_rate': float(vat_rate),
+            })
         
-        # Если не AJAX, показываем сообщения и редирект
         if success:
             messages.success(request, message)
         else:
@@ -792,164 +700,6 @@ def rate_limit_payment(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
-@login_required
-@rate_limit_payment
-def create_payment(request, order_id):
-    """Создание платежа в ЮКассе"""
-    order = get_object_or_404(Order, id=order_id, user=request.user, status='pending')
-    
-    try:
-        # Создаем описание товаров для чека
-        items = []
-        for item in order.orderitem_set.all():
-            items.append({
-                "description": item.product.name[:128],  # Ограничение длины описания
-                "quantity": str(item.quantity),
-                "amount": {
-                    "value": f"{item.price:.2f}",
-                    "currency": "RUB"
-                },
-                "vat_code": "1",  # НДС 20%
-            })
-        
-        # Создаем платеж
-        payment = Payment.create({
-            "amount": {
-                "value": f"{order.total_price:.2f}",
-                "currency": "RUB"
-            },
-            "confirmation": {
-                "type": "redirect",
-                "return_url": f"{request.scheme}://{request.get_host()}/payment/success/{order.id}/"
-            },
-            "capture": True,
-            "description": f"Заказ #{order.id}",
-            "metadata": {
-                "order_id": order.id,
-                "user_id": request.user.id
-            },
-            "receipt": {
-                "customer": {
-                    "email": order.customer_email
-                },
-                "items": items
-            }
-        }, str(uuid.uuid4()))
-        
-        # Сохраняем ID платежа в заказе
-        order.payment_id = payment.id
-        order.save()
-        
-        # Перенаправляем на страницу оплаты ЮКассы
-        return redirect(payment.confirmation.confirmation_url)
-        
-    except Exception as e:
-        messages.error(request, f'Ошибка при создании платежа: {str(e)}')
-        return redirect('orders')
-
-@login_required
-def payment_success(request, order_id):
-    """Страница статуса оплаты"""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    
-    # Проверяем статус платежа
-    payment_status = None
-    payment_info = None
-    
-    try:
-        if order.payment_id:
-            payment = Payment.find_one(order.payment_id)
-            payment_status = payment.status
-            payment_info = {
-                'id': payment.id,
-                'amount': payment.amount.value,
-                'currency': payment.amount.currency,
-                'created_at': payment.created_at,
-                'description': getattr(payment, 'description', '')
-            }
-            
-            if payment_status == 'succeeded':
-                if order.status != 'paid':
-                    order.status = 'paid'
-                    order.paid_at = timezone.now()
-                    order.save()
-                    
-                    # Уменьшаем количество товаров
-                    for item in order.orderitem_set.all():
-                        if item.product.quantity >= item.quantity:
-                            item.product.quantity -= item.quantity
-                            item.product.save()
-                    
-                    send_order_notification(order)
-                    messages.success(request, '✅ Оплата прошла успешно! Заказ подтвержден.')
-                    
-            elif payment_status == 'canceled':
-                if order.status != 'cancelled':
-                    order.status = 'cancelled'
-                    order.save()
-                    messages.error(request, '❌ Платеж был отменен.')
-                    
-            elif payment_status == 'pending':
-                messages.info(request, '⏳ Платеж обрабатывается. Мы уведомим вас, когда он будет завершен.')
-                
-            else:
-                messages.warning(request, f'ℹ️ Статус платежа: {payment_status}')
-                
-    except Exception as e:
-        messages.error(request, '⚠️ Не удалось проверить статус платежа. Пожалуйста, свяжитесь с поддержкой.')
-    
-    context = {
-        'order': order,
-        'payment_status': payment_status,
-        'payment_info': payment_info
-    }
-    
-    # Если платеж отменен, перенаправляем на страницу неудачи
-    if payment_status == 'canceled':
-        return redirect('payment_failed', order_id=order.id)
-    
-    return render(request, 'main/payment_success.html', context)
-
-@login_required
-def retry_payment(request, order_id):
-    """Повторная попытка оплаты для отмененного заказа"""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    
-    # Проверяем, можно ли повторить оплату
-    if order.status not in ['pending', 'cancelled']:
-        messages.error(request, 'Невозможно повторить оплату для этого заказа.')
-        return redirect('orders')
-    
-    try:
-        # Создаем новый платеж
-        payment = Payment.create({
-            "amount": {
-                "value": f"{order.total_price:.2f}",
-                "currency": "RUB"
-            },
-            "confirmation": {
-                "type": "redirect",
-                "return_url": f"{request.scheme}://{request.get_host()}/payment/success/{order.id}/"
-            },
-            "capture": True,
-            "description": f"Повторная оплата заказа #{order.id}",
-            "metadata": {
-                "order_id": order.id,
-                "user_id": request.user.id
-            }
-        }, str(uuid.uuid4()))
-        
-        # Обновляем ID платежа в заказе
-        order.payment_id = payment.id
-        order.status = 'pending'  # Сбрасываем статус
-        order.save()
-        
-        # Перенаправляем на страницу оплаты ЮКассы
-        return redirect(payment.confirmation.confirmation_url)
-        
-    except Exception as e:
-        messages.error(request, f'❌ Ошибка при создании платежа: {str(e)}')
-        return redirect('orders')
 
 @login_required
 def update_order_payment_method(request, order_id):
@@ -984,183 +734,6 @@ def update_order_payment_method(request, order_id):
             messages.error(request, 'Неверный способ оплаты.')
     
     return redirect('orders')
-
-@csrf_exempt
-def yookassa_webhook(request):
-    """Webhook для уведомлений от ЮКассы"""
-    if request.method != 'POST':
-        return JsonResponse({'status': 'method_not_allowed'}, status=405)
-    if request.method == 'POST':
-        try:
-            event_json = json.loads(request.body.decode('utf-8'))
-            payment_id = event_json.get('object', {}).get('id')
-            event_type = event_json.get('event')
-
-            if PaymentSecurityService.is_webhook_duplicate(payment_id, event_type):
-                print(f"⚠️ Дублирующий webhook: {payment_id} {event_type}")
-                return JsonResponse({'status': 'duplicate'})
-            
-            try:
-                order = Order.objects.get(payment_id=payment_id)
-            except Order.DoesNotExist:
-                print(f"❌ Заказ с payment_id {payment_id} не найден")
-                return JsonResponse({'status': 'order_not_found'}, status=404)
-            
-            # Проверка суммы платежа
-            if not PaymentSecurityService.verify_payment_amount(order, event_json.get('object', {})):
-                print(f"❌ Несоответствие суммы для заказа #{order.id}")
-                SecurityLog.objects.create(
-                    user=order.user if order.user else None,
-                    action='payment_amount_mismatch',
-                    ip_address=get_client_ip(request),
-                    user_agent=request.META.get('HTTP_USER_AGENT', ''),
-                    success=False,
-                    details=f"Expected: {order.total_price}, Got: {event_json.get('object', {}).get('amount', {}).get('value')}"
-                )
-                return JsonResponse({'status': 'amount_mismatch'}, status=400)
-
-            if event_type == 'payment.succeeded':
-                return handle_successful_payment(event_json)
-            elif event_type == 'payment.canceled':
-                return handle_canceled_payment(event_json)
-            elif event_type == 'payment.waiting_for_capture':
-                return handle_pending_payment(event_json)
-            elif event_type == 'refund.succeeded':
-                return handle_refund(event_json)
-            else:
-                print(f"⚠️ Неизвестный тип события: {event_type}")
-                return JsonResponse({'status': 'unknown_event'})
-                
-        except Exception as e:
-            print(f"❌ Ошибка в webhook: {e}")
-            SecurityLog.objects.create(
-                action='webhook_error',
-                ip_address=get_client_ip(request),
-                user_agent=request.META.get('HTTP_USER_AGENT', ''),
-                success=False,
-                details=str(e)
-            )
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    
-    return JsonResponse({'status': 'method not allowed'}, status=405)
-
-def handle_successful_payment(event_json):
-    """Обработка успешного платежа"""
-    payment_id = event_json['object']['id']
-    
-    try:
-        order = Order.objects.get(payment_id=payment_id)
-        
-        if order.status != 'paid':
-            order.status = 'paid'
-            order.paid_at = timezone.now()
-            order.save()
-            
-            # Уменьшаем количество товаров
-            for item in order.orderitem_set.all():
-                if item.product.quantity >= item.quantity:
-                    item.product.quantity -= item.quantity
-                    item.product.save()
-                else:
-                    print(f"⚠️ Недостаточно товара {item.product.name} для заказа #{order.id}")
-            
-            # Отправляем уведомления
-            send_order_notification(order)
-            
-            # Логируем
-            NotificationLog.objects.create(
-                order=order,
-                notification_type='payment_success',
-                message=f'Заказ #{order.id} оплачен через webhook',
-                sent_to=order.customer_email,
-                success=True
-            )
-            
-            print(f"✅ Заказ #{order.id} оплачен через webhook")
-        
-        return JsonResponse({'status': 'success'})
-        
-    except Order.DoesNotExist:
-        print(f"❌ Заказ с payment_id {payment_id} не найден")
-        return JsonResponse({'status': 'order_not_found'}, status=404)
-
-def handle_canceled_payment(event_json):
-    """Обработка отмененного платежа"""
-    payment_id = event_json['object']['id']
-    
-    try:
-        order = Order.objects.get(payment_id=payment_id)
-        
-        if order.status != 'cancelled':
-            order.status = 'cancelled'
-            order.cancelled_at = timezone.now()
-            order.save()
-            
-            # Логируем
-            NotificationLog.objects.create(
-                order=order,
-                notification_type='payment_cancelled',
-                message=f'Платеж для заказа #{order.id} отменен',
-                sent_to=order.customer_email,
-                success=True
-            )
-            
-            print(f"❌ Платеж для заказа #{order.id} отменен")
-        
-        return JsonResponse({'status': 'cancelled'})
-        
-    except Order.DoesNotExist:
-        print(f"❌ Заказ с payment_id {payment_id} не найден")
-        return JsonResponse({'status': 'order_not_found'}, status=404)
-
-def handle_pending_payment(event_json):
-    """Обработка платежа, ожидающего подтверждения"""
-    payment_id = event_json['object']['id']
-    
-    try:
-        order = Order.objects.get(payment_id=payment_id)
-        
-        # Можно добавить логику для платежей, требующих подтверждения
-        print(f"⏳ Платеж для заказа #{order.id} ожидает подтверждения")
-        
-        return JsonResponse({'status': 'pending'})
-        
-    except Order.DoesNotExist:
-        print(f"❌ Заказ с payment_id {payment_id} не найден")
-        return JsonResponse({'status': 'order_not_found'}, status=404)
-
-def handle_refund(event_json):
-    """Обработка возврата средств"""
-    payment_id = event_json['object']['payment_id']
-    
-    try:
-        order = Order.objects.get(payment_id=payment_id)
-        
-        if order.status != 'refunded':
-            order.status = 'refunded'
-            order.save()
-            
-            # Возвращаем товары на склад
-            for item in order.orderitem_set.all():
-                item.product.quantity += item.quantity
-                item.product.save()
-            
-            # Логируем
-            NotificationLog.objects.create(
-                order=order,
-                notification_type='refund_processed',
-                message=f'Возврат средств для заказа #{order.id}',
-                sent_to=order.customer_email,
-                success=True
-            )
-            
-            print(f"💰 Возврат средств для заказа #{order.id}")
-        
-        return JsonResponse({'status': 'refunded'})
-        
-    except Order.DoesNotExist:
-        print(f"❌ Заказ с payment_id {payment_id} не найден")
-        return JsonResponse({'status': 'order_not_found'}, status=404)
 
 @login_required
 @require_http_methods(["POST"])
@@ -2336,32 +1909,6 @@ def request_order_refund(request, order_id):
     
     return redirect('orders')
 
-@login_required
-def payment_failed(request, order_id):
-    """Страница неудачной оплаты"""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    
-    # Получаем информацию о платеже
-    payment_info = None
-    try:
-        if order.payment_id:
-            payment = Payment.find_one(order.payment_id)
-            payment_info = {
-                'status': payment.status,
-                'cancellation_reason': getattr(payment, 'cancellation_details', {}).get('reason', 'Неизвестно'),
-                'description': getattr(payment, 'description', '')
-            }
-    except Exception as e:
-        print(f"❌ Ошибка получения информации о платеже: {e}")
-    
-    context = {
-        'order': order,
-        'payment_info': payment_info
-    }
-    return render(request, 'main/payment_failed.html', context)
-
-# main/views.py (добавить в конец файла)
-
 def handler404(request, exception):
     """Кастомная страница 404 ошибки"""
     context = {
@@ -2845,323 +2392,6 @@ def test_email_sending(request):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
     
-@login_required
-def create_cardlink_payment(request, order_id):
-    """Создание платежа через Cardlink API"""
-    order = get_object_or_404(Order, id=order_id, user=request.user, status='pending')
-    
-    try:
-        cardlink_service = CardlinkService()
-        result = cardlink_service.create_bill(order, request)
-        if result['success']:
-            order.payment_system = 'cardlink'
-            order.payment_id = result.get('bill_id')
-            order.save()
-            return redirect(result['payment_url'])
-        else:
-            error_msg = f'Ошибка при создании платежа: {result["error"]}'
-            messages.error(request, error_msg)
-            return redirect('orders')
-        
-    except Exception as e:
-        error_msg = f'Ошибка при создании платежа в Cardlink: {str(e)}'
-        import traceback
-        
-        messages.error(request, error_msg)
-        return redirect('orders')
-    
-@login_required
-def cardlink_mock_process(request, order_id):
-    """Обработка mock-платежа Cardlink - страница выбора результата"""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    
-    if request.method == 'GET':
-        context = {
-            'order': order,
-            'payment_url': f"http://127.0.0.1:8000/payment/cardlink/mock/{order.id}/"
-        }
-        return render(request, 'main/cardlink_mock.html', context)
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        
-        if action == 'success':
-            order.status = 'paid'
-            order.paid_at = timezone.now()
-            order.cardlink_transaction_id = f"mock_{uuid.uuid4().hex[:16]}"
-            order.save()
-            
-            for item in order.orderitem_set.all():
-                if item.product.quantity >= item.quantity:
-                    item.product.quantity -= item.quantity
-                    item.product.save()
-            
-            send_order_notification(order)
-            messages.success(request, '✅ Оплата прошла успешно! Заказ подтвержден.')
-            return redirect('payment_success', order_id=order.id)
-            
-        elif action == 'fail':
-            order.status = 'cancelled'
-            order.cancelled_at = timezone.now()
-            order.save()
-            messages.error(request, '❌ Платеж не прошел. Попробуйте еще раз или выберите другой способ оплаты.')
-            return redirect('payment_failed', order_id=order.id)
-    
-    # Если что-то пошло не так
-    return redirect('orders')
-
-@csrf_exempt
-def cardlink_webhook_refund(request):
-    """Webhook для возвратов Cardlink"""
-    if request.method == 'POST':
-        try:
-            data = request.POST.dict()
-            print(f"🔔 Cardlink refund webhook: {data}")
-            
-            order_id = data.get('InvId')
-            
-            try:
-                order = Order.objects.get(id=order_id)
-                
-                if order.status != 'refunded':
-                    order.status = 'refunded'
-                    order.save()
-                    
-                    for item in order.orderitem_set.all():
-                        item.product.quantity += item.quantity
-                        item.product.save()
-                    
-                    NotificationLog.objects.create(
-                        order=order,
-                        notification_type='refund_processed',
-                        message=f'Возврат средств для заказа #{order.id} (Cardlink)',
-                        sent_to=order.customer_email,
-                        success=True
-                    )
-                
-                return JsonResponse({'status': 'refunded'})
-                
-            except Order.DoesNotExist:
-                return JsonResponse({'status': 'order_not_found'}, status=404)
-                
-        except Exception as e:
-            print(f"❌ Ошибка в Cardlink refund webhook: {e}")
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    
-    return JsonResponse({'status': 'method_not_allowed'}, status=405)
-
-@csrf_exempt
-def cardlink_webhook_chargeback(request):
-    """Webhook для чарджбэков Cardlink"""
-    if request.method == 'POST':
-        try:
-            data = request.POST.dict()
-            print(f"🔔 Cardlink chargeback webhook: {data}")
-            
-            # Обработка чарджбэка
-            order_id = data.get('InvId')
-            
-            try:
-                order = Order.objects.get(id=order_id)
-                
-                order.status = 'disputed'
-                order.save()
-                
-                NotificationLog.objects.create(
-                    order=order,
-                    notification_type='chargeback',
-                    message=f'Чарджбэк для заказа #{order.id} (Cardlink)',
-                    sent_to=order.customer_email,
-                    success=True
-                )
-                
-                # Отправляем уведомление администратору
-                send_chargeback_notification(order)
-                
-                return JsonResponse({'status': 'chargeback_received'})
-                
-            except Order.DoesNotExist:
-                return JsonResponse({'status': 'order_not_found'}, status=404)
-                
-        except Exception as e:
-            print(f"❌ Ошибка в Cardlink chargeback webhook: {e}")
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    
-    return JsonResponse({'status': 'method_not_allowed'}, status=405)
-
-def send_chargeback_notification(order):
-    """Уведомление о чарджбэке"""
-    try:
-        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
-            return False
-        commission_text = f"   • Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
-        message = f"""
-⚠️ <b>ЧАРДЖБЭК ПО ЗАКАЗУ #{order.id}</b>
-
-👤 <b>Клиент:</b> {order.customer_name}
-📞 <b>Телефон:</b> {order.customer_phone}
-💰 <b>Стоимость:</b>
-   • Товары: {order.total_price} руб.
-   • Доставка: {order.delivery_cost} руб.
-{commission_text}
-🕒 <b>Дата заказа:</b> {order.created_at.strftime('%d.%m.%Y %H:%M')}
-
-<b>Требуется срочная проверка!</b>
-"""
-        
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            'chat_id': settings.TELEGRAM_CHAT_ID,
-            'text': message,
-            'parse_mode': 'HTML'
-        }
-        
-        response = requests.post(url, json=payload, timeout=10)
-        return response.status_code == 200
-        
-    except Exception as e:
-        print(f"❌ Ошибка отправки уведомления о чарджбэке: {e}")
-        return False
-
-@csrf_exempt
-def cardlink_webhook(request):
-    """Webhook для уведомлений от Cardlink (успешная оплата)"""
-    if request.method == 'POST':
-        try:
-            # Получаем данные из POST запроса
-            data = request.POST.dict()
-            
-            print(f"🔔 Cardlink webhook получен: {data}")
-            
-            cardlink_service = CardlinkService()
-            
-            # Проверяем подпись
-            if not cardlink_service.verify_callback_signature(data):
-                print("❌ Неверная подпись в webhook")
-                return JsonResponse({'status': 'invalid_signature'}, status=400)
-            
-            # Извлекаем данные
-            order_id = data.get('InvId')
-            amount = data.get('OutSum')
-            
-            try:
-                order = Order.objects.get(id=order_id)
-                
-                if order.status != 'paid':
-                    order.status = 'paid'
-                    order.paid_at = timezone.now()
-                    order.save()
-                    
-                    # Уменьшаем количество товаров
-                    for item in order.orderitem_set.all():
-                        if item.product.quantity >= item.quantity:
-                            item.product.quantity -= item.quantity
-                            item.product.save()
-                    
-                    send_order_notification(order)
-                    
-                    # Логируем
-                    NotificationLog.objects.create(
-                        order=order,
-                        notification_type='payment_success',
-                        message=f'Заказ #{order.id} оплачен через Cardlink webhook',
-                        sent_to=order.customer_email,
-                        success=True
-                    )
-                    
-                    print(f"✅ Заказ #{order.id} оплачен через Cardlink webhook")
-                
-                return JsonResponse({'status': 'success'})
-                
-            except Order.DoesNotExist:
-                print(f"❌ Заказ #{order_id} не найден")
-                return JsonResponse({'status': 'order_not_found'}, status=404)
-                
-        except Exception as e:
-            print(f"❌ Ошибка в Cardlink webhook: {e}")
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    
-    return JsonResponse({'status': 'method_not_allowed'}, status=405)
-
-@csrf_exempt
-def cardlink_webhook_fail(request):
-    """Webhook для неудачных платежей Cardlink"""
-    if request.method == 'POST':
-        try:
-            data = request.POST.dict()
-            print(f"🔔 Cardlink fail webhook: {data}")
-            
-            cardlink_service = CardlinkService()
-            
-            if not cardlink_service.verify_callback_signature(data):
-                return JsonResponse({'status': 'invalid_signature'}, status=400)
-            
-            order_id = data.get('InvId')
-            
-            try:
-                order = Order.objects.get(id=order_id)
-                
-                if order.status != 'cancelled':
-                    order.status = 'cancelled'
-                    order.cancelled_at = timezone.now()
-                    order.save()
-                    
-                    # Логируем
-                    NotificationLog.objects.create(
-                        order=order,
-                        notification_type='payment_failed',
-                        message=f'Платеж для заказа #{order.id} не удался (Cardlink)',
-                        sent_to=order.customer_email,
-                        success=True
-                    )
-                
-                return JsonResponse({'status': 'cancelled'})
-                
-            except Order.DoesNotExist:
-                return JsonResponse({'status': 'order_not_found'}, status=404)
-                
-        except Exception as e:
-            print(f"❌ Ошибка в Cardlink fail webhook: {e}")
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    
-    return JsonResponse({'status': 'method_not_allowed'}, status=405)
-
-@login_required
-def cardlink_payment_success(request, order_id):
-    """Страница успешной оплаты через Cardlink"""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    
-    # Проверяем статус заказа
-    if order.status == 'paid':
-        messages.success(request, '✅ Оплата прошла успешно! Заказ подтвержден.')
-    else:
-        # Если статус еще не обновился, проверяем через API
-        if order.payment_id and order.status == 'pending':
-            cardlink_service = CardlinkService()
-            bill_status = cardlink_service.get_bill_status(order.payment_id)
-            
-            if bill_status and bill_status.get('status') == 'paid':
-                order.status = 'paid'
-                order.paid_at = timezone.now()
-                order.save()
-                
-                # Уменьшаем количество товаров
-                for item in order.orderitem_set.all():
-                    if item.product.quantity >= item.quantity:
-                        item.product.quantity -= item.quantity
-                        item.product.save()
-                
-                send_order_notification(order)
-                messages.success(request, '✅ Оплата прошла успешно! Заказ подтвержден.')
-            else:
-                messages.info(request, '⏳ Платеж обрабатывается. Мы уведомим вас, когда он будет завершен.')
-    
-    context = {
-        'order': order,
-        'payment_system': 'cardlink',
-    }
-    
-    return render(request, 'main/payment_success.html', context)
 
 def support_view(request):
     if request.method == 'POST':
@@ -3750,83 +2980,6 @@ def admin_2fa_verify(request):
         return render(request, 'main/admin_2fa_verify.html')
 
 @login_required
-def calculate_delivery_ajax(request):
-    """AJAX расчет стоимости доставки"""
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            address_id = data.get('address_id')
-            cart_total = Decimal(str(data.get('cart_total', 0)))
-            
-            delivery_cost = Decimal('0')
-            delivery_info = {}
-            
-            if address_id:
-                try:
-                    address = Address.objects.get(id=address_id, user=request.user)
-                    
-                    cart, created = Cart.objects.get_or_create(user=request.user)
-                    cart_items = cart.cartitem_set.all()
-                    
-                    total_weight = sum(
-                        item.product.weight * item.quantity 
-                        for item in cart_items 
-                        if hasattr(item.product, 'weight') and item.product.weight is not None
-                    )
-                    
-                    items_count = cart.get_items_count()
-                    
-                    delivery_cost = DeliveryService.calculate_delivery_cost(
-                        address=address,
-                        order_total=cart_total,
-                        items_count=items_count,
-                        total_weight=total_weight
-                    )
-                    
-                    delivery_info = {
-                        'zone': DeliveryService.detect_zone_by_city(address.city) if address.city else 'central',
-                        'time': DeliveryService.get_delivery_time(address),
-                        'couriers': DeliveryService.get_available_couriers(address),
-                        'free_delivery_threshold': 150000,
-                        'remaining_for_free': float(max(150000 - cart_total, 0)) if cart_total < 150000 else 0,
-                        'is_free': cart_total >= 150000
-                    }
-                    
-                except Address.DoesNotExist:
-                    delivery_cost = Decimal('0') if cart_total >= 150000 else Decimal('1000')
-                    delivery_info = {
-                        'zone': 'central',
-                        'time': '1-3 дня',
-                        'couriers': ['СДЭК', 'Почта России'],
-                        'is_free': cart_total >= 150000,
-                        'remaining_for_free': float(max(150000 - cart_total, 0)) if cart_total < 150000 else 0
-                    }
-            else:
-                # Если адрес не выбран
-                delivery_cost = Decimal('0') if cart_total >= 150000 else Decimal('1000')
-                delivery_info = {
-                    'zone': 'central',
-                    'time': '1-3 дня', 
-                    'couriers': ['СДЭК', 'Почта России'],
-                    'is_free': cart_total >= 150000,
-                    'remaining_for_free': float(max(150000 - cart_total, 0)) if cart_total < 150000 else 0
-                }
-            
-            return JsonResponse({
-                'success': True,
-                'delivery_cost': float(delivery_cost),
-                'delivery_info': delivery_info
-            })
-                
-        except Exception as e:
-            print(f"❌ Ошибка расчета доставки: {e}")
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            })
-    
-    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
-
 # Статические страницы услуг (оставляем как есть)
 def service_design(request):
     """Страница услуги - Проектирование систем"""

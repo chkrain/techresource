@@ -96,17 +96,7 @@ urlpatterns = [
     path('order/update-status/', views.update_order_status, name='update_order_status_post'),
     path('order/<int:order_id>/reorder/', views.reorder_order, name='reorder_order'),
     path('order/<int:order_id>/details/', views.order_details, name='order_details'),
-    path('payment/cardlink/create/<int:order_id>/', views.create_cardlink_payment, name='create_cardlink_payment'),
-    path('payment/cardlink/success/<int:order_id>/', views.cardlink_payment_success, name='cardlink_payment_success'),
-    path('webhook/cardlink/', views.cardlink_webhook, name='cardlink_webhook'),
-    path('webhook/cardlink/fail/', views.cardlink_webhook_fail, name='cardlink_webhook_fail'),
-    path('webhook/cardlink/refund/', views.cardlink_webhook_refund, name='cardlink_webhook_refund'),
-    path('webhook/cardlink/success/', views.cardlink_webhook, name='cardlink_webhook_success'),
-    path('webhook/cardlink/chargeback/', views.cardlink_webhook_chargeback, name='cardlink_webhook_chargeback'),
-    path('webhook/cardlink/fail/', views.cardlink_webhook, name='cardlink_webhook_fail'),
-    path('payment/cardlink/mock/<int:order_id>/', views.cardlink_mock_process, name='cardlink_mock_process'),
     path('order/<int:order_id>/update-payment/', views.update_order_payment_method, name='update_order_payment'),
-    path('calculate-delivery-ajax/', views.calculate_delivery_ajax, name='calculate_delivery_ajax'),
 
     path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'images/favicon/favicon.svg')),
 
@@ -120,11 +110,6 @@ urlpatterns = [
     path('test-email/', views.test_email_sending, name='test_email'),
 
     # Оплата через ЮКассу
-    path('payment/create/<int:order_id>/', views.create_payment, name='create_payment'),
-    path('payment/success/<int:order_id>/', views.payment_success, name='payment_success'),
-    path('webhook/yookassa/', views.yookassa_webhook, name='yookassa_webhook'),
-    path('payment/failed/<int:order_id>/', views.payment_failed, name='payment_failed'),
-    path('payment/retry/<int:order_id>/', views.retry_payment, name='retry_payment'),
     path('payment/update-method/<int:order_id>/', views.update_order_payment_method, name='update_order_payment_method'),
     
     path('contacts/', views.contacts, name='contacts'),

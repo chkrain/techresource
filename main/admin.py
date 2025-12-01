@@ -265,7 +265,7 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'get_user', 'get_customer_name', 'get_total_price', 'get_status_display', 'get_payment_method_display', 'get_created_at']
-    list_filter = ['status', 'payment_method', 'created_at', 'payment_system']
+    list_filter = ['status', 'payment_method', 'created_at']
     search_fields = ['customer_name', 'customer_phone', 'customer_email', 'id']
     readonly_fields = ['get_created_at', 'get_paid_at', 'get_cancelled_at', 'status_changed_at']
     inlines = [OrderItemInline, OrderStatusLogInline, NotificationLogInline]
@@ -273,7 +273,7 @@ class OrderAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Основная информация', {
-            'fields': ('user', 'status', 'total_price', 'payment_method', 'payment_system', 'payment_id')
+            'fields': ('user', 'status', 'total_price', 'payment_method')
         }),
         ('Данные клиента', {
             'fields': ('customer_name', 'customer_phone', 'customer_email', 'delivery_address')

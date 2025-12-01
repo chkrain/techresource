@@ -1,4 +1,3 @@
-<!-- main/templates/main/cart.html -->
 {% extends 'main/base.html' %}
 {% load math_filters %}
 
@@ -9,7 +8,7 @@
     <div class="container">
         <div class="hero-content">
             <h1>Корзина покупок</h1>
-            <p class="hero-subtitle">Оформление заказа</p>
+            <p class="hero-subtitle">Оформление заказа по счету</p>
         </div>
     </div>
 </section>
@@ -128,75 +127,36 @@
                     </div>
                     
                     <div class="summary-row">
-                        <span>Доставка</span>
-                        <span class="free-shipping">
-                            {% if delivery_cost == 0 %}
-                                Бесплатно
-                            {% else %}
-                                {{ delivery_cost }} ₽
-                            {% endif %}
-                        </span>
-                    </div>
-
-                    <div class="summary-row">
-                        <span>Комиссия платежной системы</span>
-                        <span id="payment-fee">-</span>
+                        <span>НДС ({{ vat_rate }}%)</span>
+                        <span id="vat-total">{{ vat_total|floatformat:2 }} ₽</span>
                     </div>
                     
                     <div class="summary-divider"></div>
                     
                     <div class="summary-total">
                         <span>Итого к оплате</span>
-                        <span class="total-amount" id="final-price">{{ cart.get_total_price }} ₽</span>
+                        <span class="total-amount" id="final-price">{{ subtotal }} ₽</span>
+                    </div>
+                    
+                    <div class="invoice-notice">
+                        <div class="notice-icon">📄</div>
+                        <div class="notice-content">
+                            <strong>Оплата по счету</strong>
+                            <small>После оформления заказа мы вышлем вам счет на указанную почту. Доставка рассчитывается отдельно и добавляется к счету.</small>
+                        </div>
                     </div>
                     
                     <form method="post" class="order-form">
                         {% csrf_token %}
                         
+                        <input type="hidden" name="payment_method" value="invoice">
+                        <input type="hidden" name="payment_system" value="">
+                        
                         <div class="form-section">
-                            <h4>🚚 Доставка</h4>
-                            <div class="delivery-info" id="delivery-details">
-                                <div class="delivery-option selected">
-                                    <span class="delivery-icon">📦</span>
-                                    <div class="delivery-text">
-                                        <strong>Курьерская доставка</strong>
-                                        <small>1-3 рабочих дня • Бесплатно от 150 000 ₽</small>
-                                    </div>
-                                    <span class="delivery-price">
-                                        {% if delivery_cost == 0 %}
-                                            Бесплатно
-                                        {% else %}
-                                            {{ delivery_cost }} ₽
-                                        {% endif %}
-                                    </span>
-                                </div>
-                                
-                                <div class="delivery-details">
-                                    <div class="delivery-features">
-                                        <span class="feature">✓ Бесплатная доставка от 150 000 ₽</span>
-                                        <span class="feature">✓ Доставка в течение 1-3 дней</span>
-                                        <span class="feature">✓ Отслеживание заказа онлайн</span>
-                                    </div>
-                                    
-                                    <div class="delivery-notice">
-                                        <small>
-                                            💡 
-                                            {% if subtotal < 150000 %}
-                                                До бесплатной доставки осталось: {{ 150000|subtract:subtotal }} ₽
-                                            {% else %}
-                                                🎉 Поздравляем! Ваша доставка бесплатна!
-                                            {% endif %}
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-section">
-                            <h4>📍 Адрес доставки</h4>
+                            <h4>📍 Адрес для счета и доставки</h4>
                             <div class="custom-select-wrapper">
                                 <select name="address_id" id="address-select" class="original-select" required>
-                                    <option value="">Выберите адрес доставки</option>
+                                    <option value="">Выберите адрес</option>
                                     {% for address in addresses %}
                                         <option value="{{ address.id }}" {% if address.is_default %}selected{% endif %}>
                                             {{ address.title }}|{{ address.city }}, {{ address.address }}
@@ -206,7 +166,7 @@
                                 
                                 <div class="custom-select">
                                     <div class="custom-select-trigger placeholder">
-                                        <span class="selected-text">Выберите адрес доставки</span>
+                                        <span class="selected-text">Выберите адрес</span>
                                         <span class="custom-arrow">▼</span>
                                     </div>
                                     <div class="custom-select-options">
@@ -222,68 +182,25 @@
                             </div>
                             <a href="{% url 'profile' %}" class="manage-addresses">Управление адресами</a>
                         </div>
-
-                        <div class="form-section">
-                            <h4>💳 Способ оплаты</h4>
-                            <div class="payment-methods">
-                                <label class="payment-option">
-                                    <input type="radio" name="payment_method" value="card" checked required>
-                                    <span class="payment-content">
-                                        <span class="payment-icon">💳</span>
-                                        <span class="payment-text">
-                                            <strong>Банковская карта</strong>
-                                            <small>Онлайн оплата</small>
-                                        </span>
-                                    </span>
-                                </label>
-                                
-                                <label class="payment-option">
-                                    <input type="radio" name="payment_method" value="invoice" required>
-                                    <span class="payment-content">
-                                        <span class="payment-icon">📄</span>
-                                        <span class="payment-text">
-                                            <strong>Оплата по счету</strong>
-                                            <small>Для юридических лиц</small>
-                                        </span>
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="form-section">
-                            <h4>🏦 Платежная система</h4>
-                            <div class="payment-systems">
-                                <label class="payment-system-option">
-                                    <input type="radio" name="payment_system" value="yookassa" checked required>
-                                    <span class="system-content">
-                                        <span class="system-icon">🏦</span>
-                                        <span class="system-text">
-                                            <strong>ЮКасса</strong>
-                                            <small>Visa, Mastercard, МИР, ЮMoney, Qiwi</small>
-                                        </span>
-                                    </span>
-                                </label>
-                                
-                                <label class="payment-system-option">
-                                    <input type="radio" name="payment_system" value="cardlink" required>
-                                    <span class="system-content">
-                                        <span class="system-icon">💳</span>
-                                        <span class="system-text">
-                                            <strong>Cardlink</strong>
-                                            <small>Visa, Mastercard, Apple Pay, Google Pay</small>
-                                        </span>
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
                         
-                        <button type="submit" class="checkout-btn">
-                            🛒 Перейти к оплате
+                        <button type="submit" class="checkout-btn invoice-btn">
+                            📄 Оформить заказ по счету
                         </button>
+                        
+                        <div class="order-process-info">
+                            <h5>Как это работает:</h5>
+                            <ol>
+                                <li>Вы оформляете заказ с товарами</li>
+                                <li>Мы высылаем вам счет на указанную почту</li>
+                                <li>Вы оплачиваете счет в вашем банке</li>
+                                <li>Мы согласовываем доставку (стоимость добавим к счету)</li>
+                                <li>Отправляем ваш заказ</li>
+                            </ol>
+                        </div>
                         
                         <div class="security-notice">
                             <span class="security-icon">🔒</span>
-                            <span>Безопасная оплата. Ваши данные защищены</span>
+                            <span>Безопасные расчеты. Все документы предоставляются</span>
                         </div>
                     </form>
                 </div>
@@ -291,7 +208,7 @@
                 <div class="support-card">
                     <div class="support-icon">💬</div>
                     <h4>Нужна помощь?</h4>
-                    <p>Наши специалисты ответят на все вопросы по заказу</p>
+                    <p>Наши специалисты ответят на все вопросы по заказу и счетам</p>
                     <a href="/contacts/" class="support-phone">📞 +7 (800) 123-45-67</a>
                 </div>
             </div>
@@ -393,6 +310,79 @@
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
 }
 
+.info-note {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.info-tooltip {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 18px;
+    font-size: 12px;
+    cursor: help;
+    position: relative;
+}
+
+.tooltip-text {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    width: 200px;
+    z-index: 1000;
+    white-space: normal;
+    display: none;
+}
+
+.info-tooltip:hover .tooltip-text {
+    display: block;
+}
+
+.payment-info-note {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 15px 0;
+    font-size: 14px;
+}
+
+.order-process-info {
+    background: #e8f4fd;
+    border-left: 4px solid #007bff;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+    color: #333;
+}
+
+.order-process-info h5 {
+    margin-top: 0;
+    color: #0056b3;
+}
+
+.order-process-info ol {
+    margin: 10px 0 0 0;
+    padding-left: 20px;
+}
+
+.order-process-info li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+    color: #333;
+}
+
 /* Анимация переключения */
 @keyframes systemSelect {
     0% { transform: scale(1); }
@@ -411,7 +401,7 @@
     border-radius: 8px;
     margin-top: 0.5rem;
     border-left: 4px solid #0052cc;
-    color: black;
+    color: #333;
 }
 
 .payment-system-details {
@@ -895,7 +885,7 @@ section {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
-    color: #6c757d;
+    color: #2c3e50;
 }
 
 .free-shipping {
@@ -946,6 +936,7 @@ section {
     font-size: 0.9rem;
     background: white;
     transition: all 0.3s ease;
+    color: #2c3e50;
 }
 
 .form-select:focus {
@@ -984,6 +975,7 @@ section {
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
+    color: #2c3e50;
 }
 
 .payment-option:hover {
@@ -999,6 +991,7 @@ section {
     align-items: center;
     gap: 0.75rem;
     flex: 1;
+    color: #2c3e50;
 }
 
 .payment-icon {
@@ -1066,12 +1059,14 @@ section {
 .support-card h4 {
     margin: 0 0 0.5rem 0;
     font-size: 1.2rem;
+    color: white;
 }
 
 .support-card p {
     margin: 0 0 1rem 0;
     opacity: 0.9;
     font-size: 0.9rem;
+    color: white;
 }
 
 .support-phone {
@@ -1366,6 +1361,7 @@ section {
     border-radius: 12px;
     padding: 1rem;
     border: 1px solid #e9ecef;
+    color: #2c3e50;
 }
 
 .delivery-option {
@@ -1377,6 +1373,7 @@ section {
     border-radius: 8px;
     border: 2px solid #0052cc;
     margin-bottom: 1rem;
+    color: #2c3e50;
 }
 
 .delivery-option .delivery-icon {
@@ -1434,6 +1431,7 @@ section {
     padding: 0.75rem;
     border-radius: 6px;
     border-left: 4px solid #2196f3;
+    color: #1976d2;
 }
 
 .delivery-notice small {
@@ -1469,6 +1467,7 @@ section {
     border: 1px solid #e53e3e;
     border-radius: 8px;
     padding: 0.5rem;
+    color: #2c3e50;
 }
 
 /* Стили для кастомного выпадающего списка адресов */
@@ -1498,7 +1497,7 @@ section {
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.9rem;
-    color: #2c3e50;
+    color: #2c3e50 !important;
     min-height: 54px;
 }
 
@@ -1558,28 +1557,31 @@ section {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    color: #2c3e50 !important;
 }
 
 .custom-select-option:hover {
     background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
+    color: white !important;
     transform: translateX(5px);
 }
 
 .custom-select-option.selected {
     background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
+    color: white !important;
     font-weight: 600;
 }
 
 .option-title {
     font-weight: 600;
     font-size: 0.9rem;
+    color: inherit;
 }
 
 .option-details {
     font-size: 0.8rem;
     opacity: 0.8;
+    color: inherit;
 }
 
 .custom-select-option:hover .option-details {
@@ -1591,6 +1593,7 @@ section {
     flex-direction: column;
     gap: 0.25rem;
     flex: 1;
+    color: #2c3e50 !important;
 }
 
 /* Анимация появления */
@@ -1639,7 +1642,7 @@ section {
 
 /* Плейсхолдер когда ничего не выбрано */
 .custom-select-trigger.placeholder .selected-text {
-    color: #6c757d;
+    color: #6c757d !important;
 }
 
 /* Адаптивность */
@@ -1662,15 +1665,108 @@ section {
         font-size: 0.75rem;
     }
 }
+
+/* Исправление белого текста на белом фоне */
+.invoice-notice {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.invoice-notice .notice-icon {
+    font-size: 1.5rem;
+    float: left;
+    margin-right: 1rem;
+}
+
+.invoice-notice .notice-content {
+    overflow: hidden;
+}
+
+.invoice-notice strong {
+    color: #2c3e50 !important;
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.invoice-notice small {
+    color: #6c757d !important;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+/* Исправление для текста в сводке заказа */
+.summary-row span {
+    color: #2c3e50 !important;
+}
+
+.summary-total span {
+    color: #2c3e50 !important;
+}
+
+/* Исправление для текста в информации о доставке */
+.delivery-info,
+.delivery-option,
+.delivery-text,
+.delivery-notice,
+.feature {
+    color: #2c3e50 !important;
+}
+
+.delivery-text small {
+    color: #6c757d !important;
+}
 </style>
 
 <script>
-    // Валидация формы заказа
+function updateCartItem(itemId, action, quantity = null) {
+    const formData = new FormData();
+    formData.append('action', action);
+    if (quantity) formData.append('quantity', quantity);
+    
+    fetch(`/cart/update/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Обновляем данные на странице
+            document.getElementById('subtotal-price').textContent = data.cart_total.toFixed(2) + ' ₽';
+            document.getElementById('final-price').textContent = data.cart_total.toFixed(2) + ' ₽';
+            document.getElementById('price-without-vat').value = data.cart_total.toFixed(2);
+            document.getElementById('total-quantity').textContent = data.item_count;
+            document.getElementById('vat-total').textContent = data.vat_total.toFixed(2) + ' ₽';
+            
+            // Показываем сообщение
+            alert(data.message);
+            
+            // Если товар удален, перезагружаем страницу
+            if (action === 'remove') {
+                setTimeout(() => location.reload(), 500);
+            }
+        } else {
+            alert(data.error || 'Ошибка обновления корзины');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка соединения');
+    });
+}
+
+// Валидация формы заказа
 document.addEventListener('DOMContentLoaded', function() {
     const orderForm = document.querySelector('.order-form');
     const addressSelect = document.getElementById('address-select');
-    const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
-    const paymentSystems = document.querySelectorAll('input[name="payment_system"]');
+    const priceWithoutVat = document.getElementById('price-without-vat');
     
     if (orderForm) {
         orderForm.addEventListener('submit', function(e) {
@@ -1684,23 +1780,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearFieldError(addressSelect);
             }
             
-            // Проверка способа оплаты
-            const selectedPaymentMethod = Array.from(paymentMethods).some(radio => radio.checked);
-            if (!selectedPaymentMethod) {
-                showSectionError(document.querySelector('.payment-methods'), 'Пожалуйста, выберите способ оплаты');
-                hasErrors = true;
-            } else {
-                clearSectionError(document.querySelector('.payment-methods'));
-            }
-            
-            // Проверка платежной системы
-            const selectedPaymentSystem = Array.from(paymentSystems).some(radio => radio.checked);
-            if (!selectedPaymentSystem) {
-                showSectionError(document.querySelector('.payment-systems'), 'Пожалуйста, выберите платежную систему');
-                hasErrors = true;
-            } else {
-                clearSectionError(document.querySelector('.payment-systems'));
-            }
+            // Обновляем скрытое поле price_without_vat перед отправкой
+            const subtotal = parseFloat(document.getElementById('subtotal-price').textContent.replace(' ₽', '').replace(/\s/g, '').replace(',', '.'));
+            priceWithoutVat.value = subtotal.toFixed(2);
             
             if (hasErrors) {
                 e.preventDefault();
@@ -1781,18 +1863,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    paymentMethods.forEach(radio => {
-        radio.addEventListener('change', function() {
-            clearSectionError(document.querySelector('.payment-methods'));
-        });
-    });
-    
-    paymentSystems.forEach(radio => {
-        radio.addEventListener('change', function() {
-            clearSectionError(document.querySelector('.payment-systems'));
-        });
-    });
     
     // Функция показа уведомлений
     function showNotification(message, type = 'info') {
@@ -1902,6 +1972,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 itemElement.classList.add('quantity-updated');
                 setTimeout(() => itemElement.classList.remove('quantity-updated'), 600);
                 showMessage('Количество обновлено', 'success');
+                
+                // Обновляем скрытое поле price_without_vat
+                const priceWithoutVat = document.getElementById('price-without-vat');
+                if (priceWithoutVat) {
+                    priceWithoutVat.value = data.cart_total.toFixed(2);
+                }
             } else {
                 showMessage(data.error || 'Ошибка обновления', 'error');
                 // Восстанавливаем предыдущее значение
@@ -1952,6 +2028,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     itemElement.remove();
                     updateCartSummary(data.cart_total, data.item_count);
                     
+                    // Обновляем скрытое поле price_without_vat
+                    const priceWithoutVat = document.getElementById('price-without-vat');
+                    if (priceWithoutVat) {
+                        priceWithoutVat.value = data.cart_total.toFixed(2);
+                    }
+                    
                     // Если корзина пуста, перезагружаем страницу
                     if (data.item_count === 0) {
                         location.reload();
@@ -1997,7 +2079,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Обновляем общую сводку
         updateCartSummary(data.cart_total, data.item_count, data.total_quantity);
         
-        // ДОБАВИТЬ ЭТУ СТРОКУ - обновляем доставку и итоговую сумму
+        // Обновляем доставку и итоговую сумму
         updateDeliveryAndTotals();
     }
     
@@ -2010,6 +2092,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const itemsCountElement = document.querySelector('.items-count');
         if (itemsCountElement) {
             itemsCountElement.textContent = `${totalQuantity || itemCount} товар(ов)`;
+        }
+        
+        // Обновляем скрытое поле price_without_vat
+        const priceWithoutVat = document.getElementById('price-without-vat');
+        if (priceWithoutVat) {
+            priceWithoutVat.value = total.toFixed(2);
         }
         
         setTimeout(updateDeliveryAndTotals, 100);
@@ -2349,6 +2437,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const customOptions = document.querySelector('.custom-select-options');
         const customSelectWrapper = document.querySelector('.custom-select-wrapper');
         
+        if (!originalSelect || !customSelect) return;
+        
         // Функция для обновления отображения выбранного значения
         function updateCustomSelectDisplay() {
             const selectedOption = originalSelect.options[originalSelect.selectedIndex];
@@ -2357,8 +2447,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const textParts = selectedOption.text.split('|');
                 customTrigger.innerHTML = `
                     <span class="selected-text">
-                        <span class="option-title">${textParts[0]}</span>
-                        <span class="option-details">${textParts[1]}</span>
+                        <span class="option-title">${textParts[0] || 'Адрес'}</span>
+                        <span class="option-details">${textParts[1] || 'Не указан'}</span>
                     </span>
                     <span class="custom-arrow">▼</span>
                 `;
@@ -2367,12 +2457,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 customSelectWrapper.classList.add('success');
                 
                 // Обновляем выделение в кастомных опциях
-                customOptions.querySelectorAll('.custom-select-option').forEach(opt => {
-                    opt.classList.remove('selected');
-                    if (opt.getAttribute('data-value') === selectedOption.value) {
-                        opt.classList.add('selected');
-                    }
-                });
+                if (customOptions) {
+                    customOptions.querySelectorAll('.custom-select-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                        if (opt.getAttribute('data-value') === selectedOption.value) {
+                            opt.classList.add('selected');
+                        }
+                    });
+                }
             } else {
                 customTrigger.innerHTML = `
                     <span class="selected-text">Выберите адрес доставки</span>
@@ -2387,107 +2479,115 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCustomSelectDisplay();
         
         // Открытие/закрытие выпадающего списка
-        customTrigger.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const isOpen = customSelect.classList.contains('open');
-            
-            // Закрываем все другие открытые селекты
-            document.querySelectorAll('.custom-select.open').forEach(select => {
-                if (select !== customSelect) {
-                    select.classList.remove('open');
+        if (customTrigger) {
+            customTrigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isOpen = customSelect.classList.contains('open');
+                
+                // Закрываем все другие открытые селекты
+                document.querySelectorAll('.custom-select.open').forEach(select => {
+                    if (select !== customSelect) {
+                        select.classList.remove('open');
+                    }
+                });
+                
+                // Переключаем текущий селект
+                customSelect.classList.toggle('open');
+                
+                if (!isOpen && customOptions) {
+                    // Прокрутка к выбранному элементу
+                    const selectedOption = customOptions.querySelector('.custom-select-option.selected');
+                    if (selectedOption) {
+                        selectedOption.scrollIntoView({ block: 'nearest' });
+                    }
                 }
             });
-            
-            // Переключаем текущий селект
-            customSelect.classList.toggle('open');
-            
-            if (!isOpen) {
-                // Прокрутка к выбранному элементу
-                const selectedOption = customOptions.querySelector('.custom-select-option.selected');
-                if (selectedOption) {
-                    selectedOption.scrollIntoView({ block: 'nearest' });
-                }
-            }
-        });
+        }
         
         // Выбор опции
-        customOptions.querySelectorAll('.custom-select-option').forEach(option => {
-            option.addEventListener('click', function() {
-                const value = this.getAttribute('data-value');
-                
-                // Обновляем оригинальный select
-                originalSelect.value = value;
-                
-                // Обновляем отображение
-                updateCustomSelectDisplay();
-                
-                // Закрываем выпадающий список
-                customSelect.classList.remove('open');
-                
-                // Триггерим событие change для обновления доставки
-                const event = new Event('change', { bubbles: true });
-                originalSelect.dispatchEvent(event);
+        if (customOptions) {
+            customOptions.querySelectorAll('.custom-select-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    
+                    // Обновляем оригинальный select
+                    originalSelect.value = value;
+                    
+                    // Обновляем отображение
+                    updateCustomSelectDisplay();
+                    
+                    // Закрываем выпадающий список
+                    customSelect.classList.remove('open');
+                    
+                    // Триггерим событие change для обновления доставки
+                    const event = new Event('change', { bubbles: true });
+                    originalSelect.dispatchEvent(event);
+                });
             });
-        });
+        }
         
         // Закрытие при клике вне элемента
         document.addEventListener('click', function(e) {
-            if (!customSelect.contains(e.target)) {
+            if (customSelect && !customSelect.contains(e.target)) {
                 customSelect.classList.remove('open');
             }
         });
         
         // Закрытие при нажатии Escape
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && customSelect.classList.contains('open')) {
+            if (e.key === 'Escape' && customSelect && customSelect.classList.contains('open')) {
                 customSelect.classList.remove('open');
             }
         });
         
         // Навигация с клавиатуры
-        customTrigger.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                customSelect.classList.toggle('open');
-            } else if (e.key === 'ArrowDown' && !customSelect.classList.contains('open')) {
-                e.preventDefault();
-                customSelect.classList.add('open');
-            }
-        });
+        if (customTrigger) {
+            customTrigger.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    customSelect.classList.toggle('open');
+                } else if (e.key === 'ArrowDown' && !customSelect.classList.contains('open')) {
+                    e.preventDefault();
+                    customSelect.classList.add('open');
+                }
+            });
+        }
         
-        customOptions.addEventListener('keydown', function(e) {
-            const options = Array.from(this.querySelectorAll('.custom-select-option'));
-            const currentIndex = options.findIndex(opt => opt.classList.contains('selected'));
-            let newIndex = currentIndex;
-            
-            switch(e.key) {
-                case 'ArrowDown':
-                    e.preventDefault();
-                    newIndex = (currentIndex + 1) % options.length;
-                    break;
-                case 'ArrowUp':
-                    e.preventDefault();
-                    newIndex = (currentIndex - 1 + options.length) % options.length;
-                    break;
-                case 'Enter':
-                    e.preventDefault();
-                    if (currentIndex !== -1) {
-                        options[currentIndex].click();
-                    }
-                    break;
-                case 'Escape':
-                    e.preventDefault();
-                    customSelect.classList.remove('open');
-                    customTrigger.focus();
-                    break;
-            }
-            
-            if (newIndex !== currentIndex && newIndex >= 0) {
-                options.forEach(opt => opt.classList.remove('selected'));
-                options[newIndex].classList.add('selected');
-                options[newIndex].scrollIntoView({ block: 'nearest' });
-            }
-        });
+        if (customOptions) {
+            customOptions.addEventListener('keydown', function(e) {
+                const options = Array.from(this.querySelectorAll('.custom-select-option'));
+                const currentIndex = options.findIndex(opt => opt.classList.contains('selected'));
+                let newIndex = currentIndex;
+                
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        newIndex = (currentIndex + 1) % options.length;
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        newIndex = (currentIndex - 1 + options.length) % options.length;
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (currentIndex !== -1) {
+                            options[currentIndex].click();
+                        }
+                        break;
+                    case 'Escape':
+                        e.preventDefault();
+                        customSelect.classList.remove('open');
+                        if (customTrigger) customTrigger.focus();
+                        break;
+                }
+                
+                if (newIndex !== currentIndex && newIndex >= 0) {
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    options[newIndex].classList.add('selected');
+                    options[newIndex].scrollIntoView({ block: 'nearest' });
+                }
+            });
+        }
         
         // Синхронизация при изменении оригинального селекта (на всякий случай)
         originalSelect.addEventListener('change', function() {
@@ -2509,46 +2609,53 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (addressSelect && (!addressSelect.value || addressSelect.value === '')) {
                 // Показываем ошибку на кастомном селекте
-                customSelectWrapper.classList.add('error');
-                customSelectWrapper.classList.remove('success');
-                
-                // Создаем сообщение об ошибке
-                let errorMessage = customSelectWrapper.querySelector('.custom-error-message');
-                if (!errorMessage) {
-                    errorMessage = document.createElement('div');
-                    errorMessage.className = 'custom-error-message';
-                    errorMessage.style.cssText = `
-                        color: #e53e3e;
-                        font-size: 0.8rem;
-                        margin-top: 0.25rem;
-                        padding: 0.25rem 0.5rem;
-                        background: #fed7d7;
-                        border-radius: 4px;
-                        border-left: 3px solid #e53e3e;
-                    `;
-                    customSelectWrapper.appendChild(errorMessage);
+                if (customSelectWrapper) {
+                    customSelectWrapper.classList.add('error');
+                    customSelectWrapper.classList.remove('success');
+                    
+                    // Создаем сообщение об ошибке
+                    let errorMessage = customSelectWrapper.querySelector('.custom-error-message');
+                    if (!errorMessage) {
+                        errorMessage = document.createElement('div');
+                        errorMessage.className = 'custom-error-message';
+                        errorMessage.style.cssText = `
+                            color: #e53e3e;
+                            font-size: 0.8rem;
+                            margin-top: 0.25rem;
+                            padding: 0.25rem 0.5rem;
+                            background: #fed7d7;
+                            border-radius: 4px;
+                            border-left: 3px solid #e53e3e;
+                        `;
+                        customSelectWrapper.appendChild(errorMessage);
+                    }
+                    errorMessage.textContent = 'Пожалуйста, выберите адрес доставки';
                 }
-                errorMessage.textContent = 'Пожалуйста, выберите адрес доставки';
                 
                 e.preventDefault();
                 
                 // Прокрутка к ошибке
-                customSelectWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-                // Открываем выпадающий список для выбора
-                const customSelect = document.querySelector('.custom-select');
-                customSelect.classList.add('open');
+                if (customSelectWrapper) {
+                    customSelectWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // Открываем выпадающий список для выбора
+                    const customSelect = document.querySelector('.custom-select');
+                    if (customSelect) {
+                        customSelect.classList.add('open');
+                    }
+                }
             } else {
                 // Убираем ошибку если все ок
-                customSelectWrapper.classList.remove('error');
-                const errorMessage = customSelectWrapper.querySelector('.custom-error-message');
-                if (errorMessage) {
-                    errorMessage.remove();
+                if (customSelectWrapper) {
+                    customSelectWrapper.classList.remove('error');
+                    const errorMessage = customSelectWrapper.querySelector('.custom-error-message');
+                    if (errorMessage) {
+                        errorMessage.remove();
+                    }
                 }
             }
         });
     }
 });
 </script>
-
 {% endblock %}
