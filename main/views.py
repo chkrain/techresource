@@ -3346,9 +3346,9 @@ def send_password_changed_confirmation(email, username):
     except Exception as e:
         print(f"❌ Ошибка отправки подтверждения: {e}")
         return False
-    
+
 def check_rate_limit(email, action, limit=3, timeout=300):
-    """Проверка частоты запросов"""
+    """Проверка частоты запросов с указанием действия"""
     key = f"rate_limit_{action}_{email}"
     attempts = cache.get(key, 0)
     
