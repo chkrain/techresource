@@ -75,6 +75,9 @@ urlpatterns = [
 
     # Подтверждение email
     path('verify-email/<str:token>/', views.verify_email, name='verify_email'),
+    path('password-reset/', views.password_reset_request, name='password_reset_request'),
+    path('password-reset/verify/', views.verify_reset_code, name='verify_reset_code'),
+    path('password-reset/set-password/', views.set_new_password, name='set_new_password'),
     
     # Профиль
     path('profile/', views.profile, name='profile'),

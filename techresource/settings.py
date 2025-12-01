@@ -27,10 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-oqhf%&_!-(7g#n!ywbi%eqsh%(-c0*9+k_x3g(j8rlt)_vj%d+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -103,6 +102,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -112,26 +114,30 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-SESSION_COOKIE_SECURE = False
-SECURE_SSL_REDIRECT = False
-CSRF_COOKIE_SECURE = False
+CSRF_TRUSTED_ORIGINS = [
+    'https://tech-re.ru',
+    'https://www.tech-re.ru',
+    'https://193.187.96.9',
+]
 
-# SESSION_COOKIE_AGE = 1209600 
-# SESSION_COOKIE_SECURE = True  
-# SESSION_COOKIE_HTTPONLY = True
-# SESSION_COOKIE_SAMESITE = 'Lax'
 
-# CSRF_COOKIE_SECURE = True
-# CSRF_COOKIE_HTTPONLY = True
-# CSRF_USE_SESSIONS = True
+SESSION_COOKIE_SECURE = True
 
-# SECURE_BROWSER_XSS_FILTER = True
-# SECURE_CONTENT_TYPE_NOSNIFF = True
-# X_FRAME_OPTIONS = 'DENY'
-# SECURE_SSL_REDIRECT = True  
-# SECURE_HSTS_SECONDS = 31536000  # 
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
+SESSION_COOKIE_AGE = 1209600 
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+CSRF_USE_SESSIONS = True
+
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+# SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000  # 
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -166,29 +172,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Добавьте в ALLOWED_HOSTS для разработки:
-ALLOWED_HOSTS = ['*']
-
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Настройки email (для уведомлений)
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_HOST = 'smtp.mail.ru'   
-# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_FILE_PATH = BASE_DIR / 'sent_emails' 
-EMAIL_USE_TLS = True
-EMAIL_PORT = 465
-EMAIL_HOST = 'smtp.mail.ru'
-EMAIL_HOST_USER = 'ainurcherepanov@mail.ru'  
-EMAIL_HOST_PASSWORD = 'irynyfatajycux42'  
-DEFAULT_FROM_EMAIL = 'ainurcherepanov@mail.ru'
+EMAIL_HOST = 'localhost'  # Отправляем на Exim4
+EMAIL_PORT = 25           # Стандартный порт SMTP
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = ''      # Не нужно, аутентификация в Exim4
+EMAIL_HOST_PASSWORD = ''  # Не нужно
+DEFAULT_FROM_EMAIL = 'ainurcherepanov@mail.ru'  # Ваш mail.ru email
 SERVER_EMAIL = 'ainurcherepanov@mail.ru'
-# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-# DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', '')
-# SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
 
 LOGGING = {
     'version': 1,
@@ -240,3 +236,4 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '')
 TELEGRAM_CHAT_ID_CONTACTS = os.getenv('TELEGRAM_CHAT_ID_CONTACTS', '')
 TELEGRAM_CHAT_ID_CRITICAL = os.getenv('TELEGRAM_CHAT_ID_CRITICAL', '')
+
