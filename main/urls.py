@@ -44,6 +44,14 @@ urlpatterns = [
     path('cart/', views.cart_view, name='cart'),
     path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/update/<int:item_id>/', views.update_cart_item, name='update_cart_item'),
+
+    # Анонимная корзина
+    path('anonymous-cart/items/', views.anonymous_cart_items, name='anonymous_cart_items'),
+    path('anonymous-cart/add/<int:product_id>/', views.anonymous_add_to_cart, name='anonymous_add_to_cart'),
+    path('anonymous-cart/update/', views.anonymous_update_cart, name='anonymous_update_cart'),
+    path('anonymous-cart/remove/', views.anonymous_remove_from_cart, name='anonymous_remove_from_cart'),
+    path('anonymous-cart/create-order/', views.anonymous_create_order, name='anonymous_create_order'),
+    path('anonymous-order/', views.anonymous_order_page, name='anonymous_order_page'),
     
     # Заказы
     path('orders/', views.orders_view, name='orders'),

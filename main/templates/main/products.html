@@ -80,7 +80,6 @@
                 </form>
             </aside>
             
-            <!-- Основной контент -->
             <main class="products-content">
                 <div class="products-header">
                     <div class="search-container">
@@ -1208,11 +1207,11 @@ select.filter-select option:checked {
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 1.25rem 2.5rem;
+    padding: 0.5rem 1rem;
     border-radius: 50px;
     text-decoration: none;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 1rem;
     transition: all 0.4s ease;
     border: 2px solid transparent;
     text-transform: uppercase;
@@ -1266,18 +1265,15 @@ select.filter-select option:checked {
     gap: 1.5rem;
 }
 
-/* Исправление z-index для выпадающих элементов */
 .search-suggestions,
 .filter-select {
     z-index: 1000;
 }
 
-/* Убираем горизонтальный скролл */
 body {
     overflow-x: hidden;
 }
 
-/* Адаптивность */
 @media (max-width: 1024px) {
     .products-layout {
         grid-template-columns: 1fr;
@@ -1498,7 +1494,28 @@ body {
     }
 }
 
+.products-grid .add-to-cart-btn,
+.products-grid .login-to-buy-btn,
+.products-grid .out-of-stock-btn,
+.products-grid .anonymous-quick-order {
+    border-radius: 8px !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9rem !important;
+    margin-bottom: 8px !important;
+    width: 100% !important;
+    min-height: 44px !important;
+}
 
+.products-grid .add-to-cart-btn {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%) !important;
+}
+
+.products-grid .btn-details {
+    margin-top: 8px !important;
+    padding: 0.75rem 1rem !important;
+    border-radius: 8px !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
 </style>
 
 <script>

@@ -1,0 +1,1324 @@
+<!-- main/templates/main/anonymous_order.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Быстрый заказ без регистрации - Техресурс{% endblock %}
+
+{% block content %}
+<section class="cart-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Быстрый заказ</h1>
+            <p class="hero-subtitle">Оформление заказа для юридических лиц без регистрации</p>
+        </div>
+    </div>
+</section>
+
+<section class="cart-section">
+    <div class="container">
+        <div class="cart-layout">
+            <div class="cart-main">
+                <div class="cart-header">
+                    <h2>Товары в заказе</h2>
+                    <span class="items-count" id="itemsCount">0 товар(ов)</span>
+                </div>
+                
+                <div class="cart-items" id="anonymousCartItems">
+                    <div class="text-center py-4">
+                        <div class="spinner"></div>
+                        <p>Загружаем товары...</p>
+                    </div>
+                </div>
+                
+                <div class="continue-shopping">
+                    <a href="{% url 'products' %}" class="back-to-shopping">
+                        ← Продолжить покупки
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Правая колонка: форма -->
+            <div class="cart-sidebar">
+                <div class="order-summary">
+                    <h3>Данные для счета</h3>
+                    
+                    <form id="anonymousOrderForm" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="form-section">
+                            <h4>Контактные данные</h4>
+                            <div class="form-group">
+                                <label class="form-label">Контактное лицо *</label>
+                                <input type="text" name="contact_person" class="form-control" required 
+                                       placeholder="ФИО полностью">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Телефон *</label>
+                                <input type="tel" name="phone" class="form-control" required 
+                                       placeholder="+7 (XXX) XXX-XX-XX">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Email *</label>
+                                <input type="email" name="email" class="form-control" required 
+                                       placeholder="email@company.ru">
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h4>Реквизиты компании</h4>
+                            <div class="form-group">
+                                <label class="form-label">Компания *</label>
+                                <input type="text" name="company_name" class="form-control" required 
+                                       placeholder="Полное наименование организации">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">ИНН *</label>
+                                <input type="text" name="inn" class="form-control" required 
+                                       placeholder="10 или 12 цифр" pattern="\d{10}|\d{12}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">КПП</label>
+                                <input type="text" name="kpp" class="form-control" 
+                                       placeholder="9 цифр" pattern="\d{9}">
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h4>Адреса</h4>
+                            <div class="form-group">
+                                <label class="form-label">Юридический адрес *</label>
+                                <textarea name="legal_address" class="form-control" rows="2" required 
+                                          placeholder="По свидетельству о регистрации"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Адрес доставки *</label>
+                                <textarea name="delivery_address" class="form-control" rows="2" required 
+                                          placeholder="Куда доставить товар"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <div class="form-group">
+                                <label class="form-label">Комментарий к заказу</label>
+                                <textarea name="comment" class="form-control" rows="3" 
+                                          placeholder="Дополнительные пожелания, требования к доставке"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Прикрепить файл (техническое задание, реквизиты)</label>
+                                
+                                <div class="file-upload-area">
+                                    <input type="file" name="attachment" class="file-input" 
+                                        id="fileInput"
+                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx,.zip,.rar"
+                                        data-max-size="10485760">
+                                    
+                                    <label for="fileInput" class="file-upload-label">
+                                        <div class="upload-icon">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                        </div>
+                                        <div class="upload-text">
+                                            <span class="upload-title">Перетащите файл сюда или нажмите для выбора</span>
+                                            <span class="upload-subtitle">Максимальный размер: 10 МБ</span>
+                                            <span class="upload-formats">Поддерживаемые форматы: PDF, Word, Excel, JPG, PNG, архив</span>
+                                        </div>
+                                    </label>
+                                    
+                                    <div class="file-preview" id="filePreview"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                            <label class="form-check-label" for="agreeTerms">
+                                Я согласен с условиями <a href="{% url 'privacy' %}#data-usage" target="_blank">обработки персональных данных</a>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input type="checkbox" class="form-check-input" id="sendInvoice" checked>
+                            <label class="form-check-label" for="sendInvoice">
+                                Выслать счет на указанный email
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="checkout-btn invoice-btn">
+                            📄 Отправить заявку на счет
+                        </button>
+                        
+                        <div class="text-center mt-3">
+                            <a href="{% url 'register' %}" class="btn btn-outline-primary" style="width: 100%;">
+                                🔐 Зарегистрироваться для быстрых заказов
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="invoice-notice">
+                    <div class="notice-icon">📄</div>
+                    <div class="notice-content">
+                        <strong>Как это работает:</strong>
+                        <small>
+                            1. Заполните реквизиты компании<br>
+                            2. Мы вышлем счет на указанную почту<br>
+                            3. После оплаты согласуем доставку<br>
+                            4. Отправим товар по указанному адресу
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.cart-hero {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 80px 0 40px;
+    text-align: center;
+    border-radius: 20px;
+    margin-top: 2%;
+}
+
+.cart-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.cart-section {
+    padding: 3rem 0;
+    background: #f8f9fa;
+    min-height: 60vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.cart-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.cart-header h2 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.items-count {
+    background: #0052cc;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.cart-item {
+    display: grid;
+    grid-template-columns: 100px 1fr auto auto auto;
+    gap: 1.5rem;
+    align-items: center;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.cart-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.item-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+.placeholder-icon {
+    font-size: 2rem;
+}
+
+.item-details {
+    padding-right: 1rem;
+}
+
+.item-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.4;
+}
+
+.item-article {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin: 0 0 0.25rem 0;
+}
+
+.item-price-mobile {
+    display: none;
+}
+
+.item-quantity {
+    text-align: center;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.quantity-input {
+    width: 70px;
+    height: 40px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    transition: all 0.3s ease;
+}
+
+.quantity-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.quantity-btn {
+    width: 36px;
+    height: 36px;
+    border: 2px solid #e9ecef;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0052cc;
+    transition: all 0.3s ease;
+}
+
+.quantity-btn:hover:not(:disabled) {
+    background: #0052cc;
+    color: white;
+    border-color: #667eea;
+    transform: scale(1.1);
+}
+
+.quantity-btn:disabled {
+    color: #ced4da;
+    cursor: not-allowed;
+    background: #f8f9fa;
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.remove-btn:hover {
+    background: #fff5f5;
+    color: #e53e3e;
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.continue-shopping {
+    margin-top: 2rem;
+    text-align: left;
+}
+
+.back-to-shopping {
+    color: #0052cc;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.back-to-shopping:hover {
+    color: #5a67d8;
+}
+
+/* Правая колонка: форма заказа */
+.cart-sidebar {
+    position: sticky;
+    top: 2rem;
+}
+
+.order-summary {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.order-summary h3 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+}
+
+.form-section {
+    margin: 1.5rem 0;
+}
+
+.form-section h4 {
+    font-size: 1rem;
+    color: #2c3e50;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #f1f3f4;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    color: #2c3e50;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-text {
+    display: block;
+    margin-top: 0.25rem;
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.form-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.form-check-input {
+    margin-top: 0.25rem;
+}
+
+.form-check-label {
+    font-size: 0.9rem;
+    color: #495057;
+    line-height: 1.4;
+}
+
+.checkout-btn {
+    width: 100%;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 1.5rem 0 1rem 0;
+}
+
+.checkout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
+}
+
+.btn-outline-primary {
+    display: block;
+    width: 100%;
+    padding: 1rem 2rem;
+    background: transparent;
+    color: #0052cc;
+    border: 2px solid #0052cc;
+    border-radius: 12px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background: #0052cc;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+}
+
+.invoice-notice {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    color: #2c3e50;
+}
+
+.invoice-notice .notice-icon {
+    font-size: 1.5rem;
+    float: left;
+    margin-right: 1rem;
+}
+
+.invoice-notice .notice-content {
+    overflow: hidden;
+}
+
+.invoice-notice strong {
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.invoice-notice small {
+    color: #6c757d;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+/* Стили для итоговой суммы (если нужно будет добавить) */
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    padding: 1rem 0;
+    border-top: 2px solid #e9ecef;
+    margin-top: 1rem;
+}
+
+.total-amount {
+    font-size: 1.5rem;
+    color: #0052cc;
+}
+
+/* Спиннер */
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .cart-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .cart-sidebar {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .cart-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .cart-item {
+        grid-template-columns: 80px 1fr auto;
+        grid-template-areas: 
+            "image details remove"
+            "image quantity price"
+            "image . .";
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .item-image { 
+        grid-area: image; 
+        width: 80px;
+        height: 80px;
+    }
+    
+    .item-details { 
+        grid-area: details; 
+        padding-right: 0;
+    }
+    
+    .item-quantity { 
+        grid-area: quantity; 
+        text-align: left;
+    }
+    
+    .item-price { 
+        grid-area: price; 
+        text-align: right;
+    }
+    
+    .item-remove { 
+        grid-area: remove; 
+        text-align: right;
+    }
+    
+    .item-price-mobile {
+        display: block;
+        margin-top: 0.5rem;
+    }
+    
+    .cart-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .order-summary {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-section {
+        padding: 1.5rem 0;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
+    
+    .cart-item {
+        grid-template-columns: 60px 1fr;
+        grid-template-areas: 
+            "image details"
+            "quantity price"
+            "remove remove";
+    }
+    
+    .item-remove {
+        text-align: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .quantity-controls {
+        justify-content: center;
+    }
+    
+    .form-control {
+        padding: 0.75rem;
+    }
+}
+
+/* Стили для сообщений об ошибках валидации */
+.form-control:invalid:focus {
+    border-color: #e53e3e;
+}
+
+.form-check-input:invalid {
+    border-color: #e53e3e;
+}
+
+/* Стили для пустой корзины */
+.empty-cart {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.py-4 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.file-upload-area {
+    border: 2px dashed #cbd5e0;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    background: #f8fafc;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.file-upload-area:hover {
+    border-color: #667eea;
+    background: #edf2f7;
+}
+
+.file-upload-area.drag-over {
+    border-color: #48bb78;
+    background: #f0fff4;
+    transform: translateY(-2px);
+}
+
+.file-input {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.file-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    color: #4a5568;
+}
+
+.upload-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.file-upload-area:hover .upload-icon {
+    transform: scale(1.1);
+}
+
+.upload-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.upload-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #2d3748;
+}
+
+.upload-subtitle {
+    font-size: 0.9rem;
+    color: #718096;
+}
+
+.upload-formats {
+    font-size: 0.85rem;
+    color: #a0aec0;
+    margin-top: 0.25rem;
+}
+
+.file-preview {
+    margin-top: 1.5rem;
+    display: none;
+}
+
+.file-preview.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.file-icon {
+    width: 36px;
+    height: 36px;
+    background: #edf2f7;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: #4a5568;
+}
+
+.file-details {
+    text-align: left;
+}
+
+.file-name {
+    font-weight: 500;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+    word-break: break-all;
+}
+
+.file-size {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.file-remove {
+    background: none;
+    border: none;
+    color: #e53e3e;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.file-remove:hover {
+    background: #fff5f5;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .file-upload-area {
+        padding: 1.5rem;
+    }
+    
+    .upload-title {
+        font-size: 1rem;
+    }
+}
+</style>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('fileInput');
+    const fileUploadArea = document.querySelector('.file-upload-area');
+    const filePreview = document.getElementById('filePreview');
+    const maxSize = 10 * 1024 * 1024; 
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Б';
+        const k = 1024;
+        const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    function getFileIcon(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const icons = {
+            'pdf': '📄',
+            'doc': '📝',
+            'docx': '📝',
+            'xls': '📊',
+            'xlsx': '📊',
+            'jpg': '🖼️',
+            'jpeg': '🖼️',
+            'png': '🖼️',
+            'zip': '🗜️',
+            'rar': '🗜️'
+        };
+        return icons[ext] || '📎';
+    }
+    
+    function updatePreview() {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            
+            // Проверка размера
+            if (file.size > maxSize) {
+                alert('Файл слишком большой. Максимальный размер: 10 МБ');
+                fileInput.value = '';
+                return;
+            }
+            
+            // Создаем превью
+            filePreview.innerHTML = `
+                <div class="file-item">
+                    <div class="file-info">
+                        <div class="file-icon">${getFileIcon(file.name)}</div>
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                        </div>
+                    </div>
+                    <button type="button" class="file-remove" onclick="removeFile()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            filePreview.classList.add('show');
+            fileUploadArea.classList.remove('drag-over');
+        }
+    }
+    
+    fileInput.addEventListener('change', updatePreview);
+    
+    window.removeFile = function() {
+        fileInput.value = '';
+        filePreview.classList.remove('show');
+        filePreview.innerHTML = '';
+    };
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        fileUploadArea.addEventListener(eventName, function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.add('drag-over');
+        });
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        fileUploadArea.addEventListener(eventName, function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+        });
+    });
+    
+    fileUploadArea.addEventListener('drop', function(e) {
+        const dt = e.dataTransfer;
+        fileInput.files = dt.files;
+        updatePreview();
+    });
+});
+</script>
+
+<script>
+async function loadAnonymousCartItems() {
+    try {
+        const response = await fetch('/anonymous-cart/items/', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            renderCartItems(data.items, data.total);
+        } else {
+            document.getElementById('anonymousCartItems').innerHTML = `
+                <div class="empty-cart">
+                    <div class="empty-cart-icon">🛒</div>
+                    <h3>Корзина пуста</h3>
+                    <p>Добавьте товары из каталога, чтобы сделать заказ</p>
+                    <a href="{% url 'products' %}" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">
+                        📦 Перейти к покупкам
+                    </a>
+                </div>
+            `;
+            document.getElementById('itemsCount').textContent = '0 товар(ов)';
+        }
+    } catch (error) {
+        console.error('Error loading cart:', error);
+        document.getElementById('anonymousCartItems').innerHTML = `
+            <div class="empty-cart">
+                <div class="empty-cart-icon">⚠️</div>
+                <h3>Ошибка загрузки</h3>
+                <p>Попробуйте обновить страницу</p>
+            </div>
+        `;
+    }
+}
+
+function renderCartItems(items, total) {
+    if (items.length === 0) {
+        document.getElementById('anonymousCartItems').innerHTML = `
+            <div class="empty-cart">
+                <div class="empty-cart-icon">🛒</div>
+                <h3>Корзина пуста</h3>
+                <p>Добавьте товары из каталога, чтобы сделать заказ</p>
+                <a href="{% url 'products' %}" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">
+                    📦 Перейти к покупкам
+                </a>
+            </div>
+        `;
+        document.getElementById('itemsCount').textContent = '0 товар(ов)';
+        return;
+    }
+    
+    document.getElementById('itemsCount').textContent = `${items.length} товар(ов)`;
+    
+    let html = '';
+    
+    items.forEach(item => {
+        const itemTotal = parseFloat(item.total);
+        const price = parseFloat(item.price);
+        const maxQuantity = item.max_quantity || 999;
+        
+        html += `
+            <div class="cart-item" data-product-id="${item.product_id}">
+                <div class="item-image">
+                    ${item.image ? `<img src="${item.image}" alt="${item.name}" loading="lazy">` : `
+                        <div class="image-placeholder">
+                            <span class="placeholder-icon">⚙️</span>
+                        </div>
+                    `}
+                </div>
+                
+                <div class="item-details">
+                    <h3 class="item-title">${item.name}</h3>
+                    ${item.article ? `<p class="item-article">Артикул: ${item.article}</p>` : ''}
+                    
+                    <div class="item-price-mobile">
+                        <span class="price">${price.toFixed(2)} ₽</span>
+                        <span class="total">Итого: <span class="mobile-total-price">${itemTotal.toFixed(2)}</span> ₽</span>
+                    </div>
+                </div>
+                
+                <div class="item-quantity">
+                    <div class="quantity-controls">
+                        <button class="quantity-btn decrease" type="button" onclick="updateQuantity(${item.product_id}, -1)" ${item.quantity <= 1 ? 'disabled' : ''}>
+                            −
+                        </button>
+                        
+                        <input type="number" class="quantity-input" value="${item.quantity}" 
+                               min="1" max="${maxQuantity}" 
+                               onchange="updateQuantity(${item.product_id}, 0, this.value)"
+                               data-price="${price}"
+                               data-max-quantity="${maxQuantity}">
+                        
+                        <button class="quantity-btn increase" type="button" onclick="updateQuantity(${item.product_id}, 1)" ${item.quantity >= maxQuantity ? 'disabled' : ''}>
+                            +
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="item-price">
+                    <div class="price-per-item">${price.toFixed(2)} ₽/шт</div>
+                    <div class="total-price">${itemTotal.toFixed(2)} ₽</div>
+                </div>
+                
+                <div class="item-remove">
+                    <button class="remove-btn" type="button" onclick="removeFromCart(${item.product_id})" title="Удалить из заказа">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+        <div class="summary-total">
+            <span>Итого к оплате:</span>
+            <span class="total-amount">${parseFloat(total).toFixed(2)} ₽</span>
+        </div>
+    `;
+    
+    document.getElementById('anonymousCartItems').innerHTML = html;
+}
+
+async function updateQuantity(productId, delta, newValue = null) {
+    try {
+        const response = await fetch('/anonymous-cart/update/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                delta: delta,
+                quantity: newValue
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            loadAnonymousCartItems();
+            updateCartCounter(data.cart_count);
+            showToast('Количество обновлено', 'success');
+        } else {
+            showToast(data.error || 'Ошибка обновления', 'error');
+        }
+    } catch (error) {
+        console.error('Error updating quantity:', error);
+        showToast('Ошибка соединения', 'error');
+    }
+}
+
+async function removeFromCart(productId) {
+    if (!confirm('Вы уверены, что хотите удалить товар из заказа?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/anonymous-cart/remove/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ product_id: productId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            loadAnonymousCartItems();
+            updateCartCounter(data.cart_count);
+            showToast('Товар удален из заказа', 'success');
+        }
+    } catch (error) {
+        console.error('Error removing item:', error);
+        showToast('Ошибка соединения', 'error');
+    }
+}
+
+function updateCartCounter(count) {
+    const cartCount = document.getElementById('anonymousCartCount');
+    if (cartCount) {
+        cartCount.textContent = count;
+        cartCount.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+}
+
+function showToast(message, type = 'success') {
+    const messageEl = document.createElement('div');
+    messageEl.className = `cart-message ${type}`;
+    messageEl.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        z-index: 10000;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+        max-width: 300px;
+    `;
+    
+    if (type === 'success') {
+        messageEl.style.background = '#48bb78';
+    } else if (type === 'error') {
+        messageEl.style.background = '#e53e3e';
+    } else {
+        messageEl.style.background = '#0052cc';
+    }
+    
+    messageEl.textContent = message;
+    document.body.appendChild(messageEl);
+    
+    setTimeout(() => messageEl.style.transform = 'translateX(0)', 100);
+    
+    setTimeout(() => {
+        messageEl.style.transform = 'translateX(400px)';
+        setTimeout(() => messageEl.remove(), 300);
+    }, 3000);
+}
+
+document.getElementById('anonymousOrderForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    const requiredFields = this.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.style.borderColor = '#e53e3e';
+            isValid = false;
+        } else {
+            field.style.borderColor = '#e9ecef';
+        }
+    });
+    
+    if (!isValid) {
+        showToast('Заполните все обязательные поля', 'error');
+        return;
+    }
+    
+    submitBtn.innerHTML = '⏳ Отправляем...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('/anonymous-cart/create-order/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('✅ Заявка отправлена! Счет будет выставлен в течение рабочего дня.', 'success');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        } else {
+            showToast(data.error || 'Ошибка отправки заявки', 'error');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error submitting order:', error);
+        showToast('Ошибка соединения', 'error');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+function getCSRFToken() {
+    let csrfToken = null;
+    
+    const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfInput) {
+        csrfToken = csrfInput.value;
+    }
+    
+    if (!csrfToken) {
+        const metaToken = document.querySelector('meta[name="csrf-token"]');
+        if (metaToken) {
+            csrfToken = metaToken.getAttribute('content');
+        }
+    }
+    
+    if (!csrfToken) {
+        const name = 'csrftoken';
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    csrfToken = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+    }
+    
+    return csrfToken;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadAnonymousCartItems();
+});
+</script>
+
+{% endblock %}

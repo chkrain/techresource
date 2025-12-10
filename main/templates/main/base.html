@@ -111,7 +111,7 @@
         .header.scrolled {
             background: rgba(44, 62, 80, 0.98);
             box-shadow: var(--shadow-lg);
-            height: 70px;
+            height: var(--header-height) !important;
         }
 
         .header .container {
@@ -202,17 +202,6 @@
             background: var(--accent);
             border-radius: 50%;
             box-shadow: 0 0 10px var(--accent);
-        }
-
-        .nav-badge {
-            background: var(--accent);
-            color: var(--dark);
-            border-radius: 12px;
-            padding: 0.2rem 0.6rem;
-            font-size: 0.75rem;
-            font-weight: 800;
-            margin-left: 0.25rem;
-            box-shadow: 0 2px 8px rgba(72, 187, 120, 0.4);
         }
 
         .user-menu {
@@ -892,10 +881,64 @@
                 padding-top: 0;
             }
         }
+
+    .nav-link[href*="anonymous-order"] {
+        background: transparent !important;
+        color: white !important;
+        border: none;
+        padding: 0.75rem 1.5rem !important;
+        border-radius: 8px !important;
+        margin-right: 10px;
+        transition: all 0.3s ease !important;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .nav-link[href*="anonymous-order"]:hover {
+        background: rgba(255,255,255,0.1);
+        transform: translateY(-2px);
+        opacity: 1;
+    }
+
+    .nav-link[href*="register"] {
+        color: white !important;
+    }
+
+    .nav-link[href*="login"]:not([href*="logout"]) {
+        color: white !important;
+        border-radius: 8px !important;
+        padding: 0.75rem 1.5rem !important;
+    }
+
+    .nav-link[href*="anonymous-order"] .nav-badge {
+        background: #e53e3e !important;
+        color: white !important;
+        font-size: 11px;
+        font-weight: bold;
+        min-width: 18px;
+        height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin-left: 5px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    main.container > section:first-of-type {
+        margin-top: 2rem !important;
+        border-radius: 20px !important;
+    }
     </style>
 </head>
 <body>
-
     <header class="header" id="header">
         <div class="container">
             <a href="/" class="logo">
@@ -910,25 +953,25 @@
             </button>
 
             <nav class="nav-main" id="main-nav">
-                <a href="/" class="nav-link">
+                <a href="/" class="nav-link" title="Перейти на начальный экран">
                     <i class="fas fa-home"></i>
                     Главная
                 </a>
-                <a href="/about/" class="nav-link">
+                <a href="/about/" class="nav-link" title="О компании ООО Техресурс">
                     <i class="fas fa-building"></i>
                     О&nbsp;компании
                 </a>
-                <a href="/services/" class="nav-link">
+                <a href="/services/" class="nav-link" title="Услуги компании ООО Техресурс">
                     <i class="fas fa-cogs"></i>
                     Услуги
                 </a>
-                <a href="/products/" class="nav-link">
+                <a href="/products/" class="nav-link" title="Список товаров">
                     <i class="fas fa-box"></i>
                     Товары
-                    <span class="nav-badge">NEW</span>
                 </a>
                 
                 {% if user.is_authenticated %}
+                    <!-- Существующий код для авторизованных пользователей -->
                     <div class="user-menu">
                         <div class="user-dropdown">
                             <button class="user-trigger">
@@ -954,22 +997,22 @@
                                 
                                 <div class="dropdown-divider"></div>
                                 
-                                <a href="/profile/" class="dropdown-item">
+                                <a href="/profile/" class="dropdown-item" title="Перейти в профиль пользователя">
                                     <i class="fas fa-user"></i>
                                     Профиль
                                 </a>
-                                <a href="/orders/" class="dropdown-item">
+                                <a href="/orders/" class="dropdown-item" title="Оформленные заказы">
                                     <i class="fas fa-clipboard-list"></i>
-                                    Мои заказы
+                                    Мои&nbsp;заказы
                                 </a>
-                                <a href="/wishlist/" class="dropdown-item">
+                                <a href="/wishlist/" class="dropdown-item" title="Избранные товары">
                                     <i class="fas fa-heart"></i>
                                     Избранное
                                     {% if wishlist_count and wishlist_count > 0 %}
                                         <span class="cart-badge">{{ wishlist_count }}</span>
                                     {% endif %}
                                 </a>
-                                <a href="/cart/" class="dropdown-item">
+                                <a href="/cart/" class="dropdown-item" title="Перейти в корзину товаров">
                                     <i class="fas fa-shopping-cart"></i>
                                     Корзина
                                     {% if cart_count and cart_count > 0 %}
@@ -990,6 +1033,14 @@
                         </div>
                     </div>
                 {% else %}
+                    <a href="{% url 'anonymous_order_page' %}" class="nav-link" title="Быстрый анонимный заказ без входа в аккаунт" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <i class="fas fa-bolt"></i>
+                        Заказ
+                        {% if request.session.anonymous_cart and request.session.anonymous_cart|length > 0 %}
+                            <span class="nav-badge" style="background: #e53e3e; color: #e53e3e"></span>
+                        {% endif %}
+                    </a>
+                    
                     <a href="/login/" class="nav-link">
                         <i class="fas fa-sign-in-alt"></i>
                         Войти
@@ -1197,6 +1248,53 @@
                 }
             });
         });
+    </script>
+
+    <script>
+    function updateCartUI(responseData) {
+        if (responseData && responseData.cart_count !== undefined) {
+            const badge = document.getElementById('anonymousCartCount');
+            if (badge) {
+                const count = responseData.cart_count;
+                if (count > 0) {
+                    badge.style.display = 'inline-block';
+                    badge.innerHTML = ''; 
+                    badge.classList.add('pulse');
+                    setTimeout(() => badge.classList.remove('pulse'), 500);
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+    }
+
+    function refreshCartCount() {
+        fetch('/anonymous-cart/items/', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateCartUI({ cart_count: data.count });
+            }
+        })
+        .catch(error => console.error('Error refreshing cart:', error));
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        refreshCartCount();
+        
+        document.addEventListener('cartUpdated', function(e) {
+            updateCartUI(e.detail);
+        });
+    });
+
+    function triggerCartUpdate(data) {
+        document.dispatchEvent(new CustomEvent('cartUpdated', { detail: data }));
+    }
     </script>
 
     {% block extra_js %}{% endblock %}

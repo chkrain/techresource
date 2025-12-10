@@ -3340,3 +3340,393 @@ def check_rate_limit(email, action, limit=3, timeout=300):
     
     cache.set(key, attempts + 1, timeout)
     return True
+
+# main/views.py - добавьте эти функции
+
+def get_anonymous_cart(request):
+    """Получение анонимной корзины из сессии"""
+    if 'anonymous_cart' not in request.session:
+        request.session['anonymous_cart'] = {}
+    return request.session['anonymous_cart']
+
+def anonymous_cart_items(request):
+    """API: Получение товаров в анонимной корзине"""
+    cart = get_anonymous_cart(request)
+    items = []
+    total = Decimal('0')
+    
+    for product_id, item_data in cart.items():
+        try:
+            product = Product.objects.get(id=product_id)
+            quantity = item_data['quantity']
+            item_total = product.price * quantity
+            
+            items.append({
+                'product_id': product.id,
+                'name': product.name,
+                'article': product.article,
+                'price': str(product.price),
+                'quantity': quantity,
+                'total': str(item_total),
+                'image': product.get_display_image_url(),
+                'max_quantity': product.quantity
+            })
+            total += item_total
+        except Product.DoesNotExist:
+            continue
+    
+    return JsonResponse({
+        'success': True,
+        'items': items,
+        'total': str(total),
+        'count': len(cart)
+    })
+
+def anonymous_add_to_cart(request, product_id):
+    """API: Добавление товара в анонимную корзину"""
+    if request.method == 'POST':
+        try:
+            product = Product.objects.get(id=product_id, is_active=True)
+            quantity = int(request.POST.get('quantity', 1))
+            
+            cart = get_anonymous_cart(request)
+            product_key = str(product_id)
+            
+            if product_key in cart:
+                new_quantity = cart[product_key]['quantity'] + quantity
+                if new_quantity > product.quantity:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Максимальное количество: {product.quantity}'
+                    })
+                cart[product_key]['quantity'] = new_quantity
+            else:
+                if quantity > product.quantity:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Максимальное количество: {product.quantity}'
+                    })
+                cart[product_key] = {
+                    'product_id': product_id,
+                    'quantity': quantity,
+                    'added_at': timezone.now().isoformat()
+                }
+            
+            request.session['anonymous_cart'] = cart
+            request.session.modified = True
+            
+            cart_count = sum(item['quantity'] for item in cart.values())
+            
+            return JsonResponse({
+                'success': True,
+                'cart_count': cart_count,
+                'message': 'Товар добавлен в заказ'
+            })
+        except Product.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Товар не найден'
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Неверный запрос'})
+
+def anonymous_update_cart(request):
+    """API: Обновление количества товара в анонимной корзине"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            product_id = str(data.get('product_id'))
+            delta = data.get('delta', 0)
+            new_quantity = data.get('quantity')
+            
+            cart = get_anonymous_cart(request)
+            
+            if product_id not in cart:
+                return JsonResponse({'success': False, 'error': 'Товар не найден в заказе'})
+            
+            product = Product.objects.get(id=int(product_id))
+            
+            if new_quantity is not None:
+                quantity = int(new_quantity)
+            else:
+                quantity = cart[product_id]['quantity'] + delta
+            
+            if quantity < 1:
+                # Удаляем товар
+                del cart[product_id]
+            else:
+                if quantity > product.quantity:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Максимальное количество: {product.quantity}'
+                    })
+                cart[product_id]['quantity'] = quantity
+            
+            request.session['anonymous_cart'] = cart
+            request.session.modified = True
+            
+            cart_count = sum(item['quantity'] for item in cart.values())
+            
+            return JsonResponse({
+                'success': True,
+                'cart_count': cart_count
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Неверный запрос'})
+
+def anonymous_remove_from_cart(request):
+    """API: Удаление товара из анонимной корзины"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            product_id = str(data.get('product_id'))
+            
+            cart = get_anonymous_cart(request)
+            
+            if product_id in cart:
+                del cart[product_id]
+                request.session['anonymous_cart'] = cart
+                request.session.modified = True
+            
+            cart_count = sum(item['quantity'] for item in cart.values())
+            
+            return JsonResponse({
+                'success': True,
+                'cart_count': cart_count
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Неверный запрос'})
+
+def anonymous_order_page(request):
+    """Страница оформления анонимного заказа"""
+    cart = get_anonymous_cart(request)
+    
+    if not cart:
+        messages.info(request, 'Добавьте товары для оформления заказа')
+        return redirect('products')
+    
+    return render(request, 'main/anonymous_order.html')
+
+def anonymous_create_order(request):
+    """Создание анонимного заказа (оплата по счету)"""
+    if request.method == 'POST':
+        try:
+            cart = get_anonymous_cart(request)
+            
+            if not cart:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Заказ пуст'
+                })
+            
+            # Проверка обязательных полей
+            required_fields = ['contact_person', 'phone', 'email', 'company_name', 'inn', 
+                              'legal_address', 'delivery_address']
+            
+            for field in required_fields:
+                if not request.POST.get(field):
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Заполните поле: {field}'
+                    })
+            
+            # Валидация ИНН
+            inn = request.POST.get('inn')
+            if not inn.isdigit() or len(inn) not in [10, 12]:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'ИНН должен содержать 10 или 12 цифр'
+                })
+            
+            # Подсчет суммы
+            total = Decimal('0')
+            items_details = []
+            
+            for product_id, item_data in cart.items():
+                try:
+                    product = Product.objects.get(id=int(product_id))
+                    quantity = item_data['quantity']
+                    item_total = product.price * quantity
+                    total += item_total
+                    
+                    items_details.append({
+                        'name': product.name,
+                        'article': product.article,
+                        'quantity': quantity,
+                        'price': str(product.price),
+                        'total': str(item_total)
+                    })
+                except Product.DoesNotExist:
+                    continue
+            
+            # Подготовка данных для уведомления
+            order_data = {
+                'contact_person': request.POST.get('contact_person'),
+                'phone': request.POST.get('phone'),
+                'email': request.POST.get('email'),
+                'company_name': request.POST.get('company_name'),
+                'inn': inn,
+                'kpp': request.POST.get('kpp', ''),
+                'legal_address': request.POST.get('legal_address'),
+                'delivery_address': request.POST.get('delivery_address'),
+                'comment': request.POST.get('comment', ''),
+                'items': items_details,
+                'total': str(total),
+                'timestamp': timezone.now().isoformat()
+            }
+            
+            # Обработка файла
+            attachment_file = None
+            attachment_info = None
+            if 'attachment' in request.FILES:
+                attachment_file = request.FILES['attachment']
+                attachment_info = {
+                    'name': attachment_file.name,
+                    'size': attachment_file.size,
+                    'type': attachment_file.content_type
+                }
+            
+            # Отправка уведомления в Telegram
+            success = send_anonymous_order_to_telegram(order_data, attachment_info, attachment_file)
+            
+            if success:
+                # Очищаем корзину
+                request.session['anonymous_cart'] = {}
+                request.session.modified = True
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Заявка успешно отправлена!'
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Ошибка отправки заявки'
+                })
+                
+        except Exception as e:
+            print(f"❌ Ошибка создания анонимного заказа: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Произошла ошибка. Попробуйте позже.'
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+def send_anonymous_order_to_telegram(order_data, attachment_info=None, attachment_file=None):
+    """Отправка анонимного заказа в Telegram"""
+    try:
+        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
+            print("⚠️ TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не настроены")
+            return False
+        
+        # Формируем список товаров
+        items_text = ""
+        for item in order_data['items']:
+            items_text += f"• {item['name']}"
+            if item['article']:
+                items_text += f" (Арт: {item['article']})"
+            items_text += f" x{item['quantity']} = {item['total']} руб.\n"
+        
+        message = f"""
+📄 <b>НОВЫЙ АНОНИМНЫЙ ЗАКАЗ ПО СЧЕТУ</b>
+
+🏢 <b>Компания:</b> {order_data['company_name']}
+📋 <b>ИНН:</b> {order_data['inn']}
+📍 <b>КПП:</b> {order_data['kpp'] or 'Не указан'}
+🏠 <b>Юр. адрес:</b> {order_data['legal_address']}
+
+👤 <b>Контактное лицо:</b> {order_data['contact_person']}
+📞 <b>Телефон:</b> {order_data['phone']}
+📧 <b>Email:</b> {order_data['email']}
+🚚 <b>Адрес доставки:</b> {order_data['delivery_address']}
+
+<b>Товары:</b>
+{items_text}
+<b>Итого к оплате:</b> {order_data['total']} руб.
+
+💡 <b>Комментарий:</b>
+{order_data['comment'] or 'Не указан'}
+
+📎 <b>Вложение:</b> {attachment_info['name'] if attachment_info else 'Нет'}
+
+⏰ <b>Время заявки:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
+
+🌐 <b>Создано через:</b> Быстрый заказ (без регистрации)
+"""
+        
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            'chat_id': settings.TELEGRAM_CHAT_ID,
+            'text': message,
+            'parse_mode': 'HTML'
+        }
+        
+        response = requests.post(url, json=payload, timeout=10)
+        
+        # Если есть файл, отправляем его отдельно
+        if attachment_file and attachment_info:
+            try:
+                # Сохраняем файл во временное место
+                import tempfile
+                import os
+                
+                with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(attachment_file.name)[1]) as tmp_file:
+                    for chunk in attachment_file.chunks():
+                        tmp_file.write(chunk)
+                    tmp_file_path = tmp_file.name
+                
+                # Отправляем файл в Telegram
+                send_result = send_file_to_telegram(
+                    file_path=tmp_file_path,
+                    file_name=attachment_file.name,
+                    caption=f"Вложение к заказу от {order_data['company_name']}"
+                )
+                
+                # Удаляем временный файл
+                try:
+                    os.unlink(tmp_file_path)
+                except:
+                    pass
+                
+                if not send_result:
+                    print(f"⚠️ Не удалось отправить вложение: {attachment_file.name}")
+                
+            except Exception as e:
+                print(f"⚠️ Ошибка отправки вложения: {e}")
+        
+        return response.status_code == 200
+        
+    except Exception as e:
+        print(f"❌ Ошибка отправки анонимного заказа: {e}")
+        return False
+
+
+def send_file_to_telegram(file_path, file_name, caption=None):
+    """Отправка файла в Telegram"""
+    try:
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
+        
+        with open(file_path, 'rb') as file:
+            files = {'document': (file_name, file)}
+            data = {
+                'chat_id': settings.TELEGRAM_CHAT_ID,
+                'caption': caption or file_name
+            }
+            
+            response = requests.post(url, files=files, data=data, timeout=30)
+            
+            if response.status_code == 200:
+                print(f"✅ Файл {file_name} отправлен в Telegram")
+                return True
+            else:
+                print(f"❌ Ошибка отправки файла: {response.text}")
+                return False
+                
+    except Exception as e:
+        print(f"❌ Ошибка отправки файла: {e}")
+        return False

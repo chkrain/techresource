@@ -2,7 +2,6 @@
 <div class="products-grid {% if view == 'list' %}list-view{% endif %}" id="productsGrid">
     {% for product in products %}
     <div class="product-card" data-product-id="{{ product.id }}">
-        <!-- Бейдж наличия -->
         <div class="product-badge">
             {% if product.quantity > 0 %}
                 <span class="badge in-stock-badge">✓ В наличии</span>
@@ -11,7 +10,6 @@
             {% endif %}
         </div>
         
-        <!-- Кнопка избранного -->
         <div class="product-wishlist">
             {% if user.is_authenticated %}
                 <button class="wishlist-btn {% if product.in_wishlist %}in-wishlist{% endif %}" 
@@ -28,7 +26,6 @@
             {% endif %}
         </div>
         
-        <!-- Изображение товара -->
         <div class="product-image">
             {% with main_image=product.get_main_image %}
             {% if main_image %}
@@ -42,7 +39,6 @@
             {% endwith %}
         </div>
         
-        <!-- Контент товара -->
         <div class="product-content">
             <h3 class="product-title">{{ product.name }}</h3>
             
@@ -81,26 +77,30 @@
                 <div class="product-description">
                     {{ product.description|truncatewords:20 }}
                 </div>
-            {% endif %}
-            
+            {% endif %}        
             <div class="product-actions">
                 {% if product.quantity > 0 %}
                     {% if user.is_authenticated %}
                         <button class="add-to-cart-btn" data-product-id="{{ product.id }}">
-                            🛒 Добавить в корзину
+                            🛒 Добавить&nbsp;в&nbsp;корзину
                         </button>
                     {% else %}
-                        <a href="{% url 'login' %}?next={{ request.path }}" class="login-to-buy-btn">
-                            🔐 Войти для покупки
+                        <button class="btn btn-success anonymous-quick-order" 
+                                data-product-id="{{ product.id }}"
+                                style="width: 100%; margin-bottom: 8px;">
+                            Быстрый&nbsp;заказ&nbsp;по&nbsp;счету
+                        </button>
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-primary" style="width: 100%;">
+                            Войти
                         </a>
                     {% endif %}
                 {% else %}
                     <button class="out-of-stock-btn" disabled>
-                        📦 Нет в наличии
+                        Нет в наличии
                     </button>
                 {% endif %}
-                 <a href="{% url 'product_detail' product.id %}" class="btn-details">
-                    📖 Подробнее
+                <a href="{% url 'product_detail' product.id %}" class="btn-details">
+                    ПОДРОБНЕЕ
                 </a>
             </div>
         </div>
@@ -131,4 +131,183 @@
 .product-image {
     border-radius: 20px;
 }
+
+.btn-details,
+.add-to-cart-btn,
+.login-to-buy-btn,
+.out-of-stock-btn,
+.anonymous-quick-order {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.btn-details {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-details:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.add-to-cart-btn {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+}
+
+.add-to-cart-btn:hover {
+    background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+}
+
+.login-to-buy-btn, .btn-outline-primary {
+    background: linear-gradient(135deg, #0052cc 0%, #0047b3 100%);
+    color: white;
+    border-radius: 8px !important;
+    font-size: 0.9rem !important;
+}
+
+.btn-outline-primary {
+    justify-content: center;
+    padding: 0.4rem 0.5rem 8px !important;
+}
+
+.login-to-buy-btn:hover {
+    background: linear-gradient(135deg, #0047b3 0%, #003d99 100%);
+    transform: translateY(-2px);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+}
+
+.anonymous-quick-order {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+}
+
+.anonymous-quick-order:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+}
+
+.out-of-stock-btn {
+    background: #e2e8f0;
+    color: #a0aec0;
+    cursor: not-allowed;
+}
 </style>
+
+<script>
+function updateCartBadge(count) {
+    const cartBadge = document.getElementById('anonymousCartCount');
+    if (cartBadge) {
+        if (count > 0) {
+            cartBadge.style.display = 'inline-block';
+            cartBadge.textContent = ''; 
+            cartBadge.setAttribute('data-count', count);
+        } else {
+            cartBadge.style.display = 'none';
+        }
+    }
+}
+
+document.querySelectorAll('.anonymous-quick-order').forEach(btn => {
+    btn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        const productId = this.getAttribute('data-product-id');
+        const originalText = this.innerHTML;
+        
+        this.innerHTML = '⏳ Добавляем...';
+        this.disabled = true;
+        
+        try {
+            const formData = new FormData();
+            formData.append('quantity', 1);
+            formData.append('csrfmiddlewaretoken', getCSRFToken());
+            
+            const response = await fetch(`/anonymous-cart/add/${productId}/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                updateCartBadge(data.cart_count);
+                
+                showToast('✅ Товар добавлен! <a href="/anonymous-order/" style="color: #fff; text-decoration: underline; font-weight: bold;">Оформить заказ →</a>', 'success');
+                
+                this.innerHTML = '✅ В заказе!';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }, 2000);
+            } else {
+                showToast(data.error || 'Ошибка', 'error');
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Ошибка соединения', 'error');
+            this.innerHTML = originalText;
+            this.disabled = false;
+        }
+    });
+});
+
+function getCSRFToken() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    return csrfToken ? csrfToken.value : '';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const cartBadge = document.getElementById('anonymousCartCount');
+    if (cartBadge) {
+        const hasItems = cartBadge.style.display !== 'none';
+        if (hasItems) {
+            cartBadge.classList.add('pulse');
+            setTimeout(() => {
+                cartBadge.classList.remove('pulse');
+            }, 1000);
+        }
+    }
+});
+
+const style = document.createElement('style');
+style.textContent = `
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+#anonymousCartCount.pulse {
+    animation: pulse 0.5s ease-in-out;
+}
+`;
+document.head.appendChild(style);
+</script>
