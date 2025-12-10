@@ -49,6 +49,9 @@ from django.http import Http404
 import magic
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from .models import SupportTicket, SupportAttachment
 from .forms import SupportTicketForm
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm
@@ -495,6 +498,9 @@ def cart_view(request):
         
         try:
             address = Address.objects.get(id=address_id, user=request.user)
+
+            customer_inn = request.POST.get('customer_inn', '')
+            customer_kpp = request.POST.get('customer_kpp', '')
             
             # Создаем заказ только для оплаты по счету
             order = Order.objects.create(
@@ -503,14 +509,16 @@ def cart_view(request):
                 final_price=subtotal,
                 price_without_vat=total_without_vat,
                 vat_amount=vat_total,
-                payment_method='invoice',  # Только оплата по счету
+                payment_method='invoice',
                 payment_fee=Decimal('0'),
                 delivery_cost=Decimal('0'),
                 vat_rate=vat_rate,
                 customer_name=address.full_name,
                 customer_phone=address.phone,
                 customer_email=request.user.email,
-                delivery_address=f"{address.city}, {address.address}, {address.postal_code}"
+                delivery_address=f"{address.city}, {address.address}, {address.postal_code}",
+                customer_inn=customer_inn,
+                customer_kpp=customer_kpp,
             )
             
             # Добавляем товары в заказ
@@ -531,6 +539,7 @@ def cart_view(request):
             order.save()
             
             send_invoice_order_notification(order)
+            send_invoice_email(order)
             
             messages.success(request, f'Заказ #{order.id} создан! Счет будет выставлен на вашу почту {request.user.email}.')
             return redirect('orders')
@@ -698,6 +707,24 @@ def rate_limit_payment(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
+@login_required
+def resend_invoice(request, order_id):
+    """Повторная отправка счета"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    if request.method == 'POST':
+        try:
+            success = send_invoice_email(order)
+            
+            if success:
+                messages.success(request, f'Счет №{order.invoice_number} повторно отправлен на {order.customer_email}')
+            else:
+                messages.error(request, 'Ошибка отправки счета')
+                
+        except Exception as e:
+            messages.error(request, f'Ошибка: {str(e)}')
+    
+    return redirect('orders')
 
 @login_required
 def update_order_payment_method(request, order_id):
@@ -3280,13 +3307,104 @@ def check_rate_limit(email, action, limit=3, timeout=300):
     cache.set(key, attempts + 1, timeout)
     return True
 
-# main/views.py - добавьте эти функции
+def send_invoice_email(order):
+    """Отправка счета на email покупателя - аналогично восстановлению пароля"""
+    try:
+        print(f"🔍 Начинаем отправку счета для заказа #{order.id}")
+        
+        # Генерируем номер счета
+        invoice_number = order.generate_invoice_number()
+        
+        # Получаем товары заказа
+        order_items = order.orderitem_set.all()
+        
+        # Рассчитываем дату оплаты
+        due_date = order.get_due_date()
+        
+        # Подготовка контекста
+        context = {
+            'order': order,
+            'order_items': order_items,
+            'invoice_number': invoice_number,
+            'invoice_date': order.invoice_date,
+            'due_date': due_date,
+        }
+        
+        print(f"📧 Подготавливаем email для {order.customer_email}")
+        
+        # Рендерим HTML как при восстановлении пароля
+        html_message = render_to_string('main/invoice_email.html', context)
+        plain_message = strip_tags(html_message)
+        
+        subject = f"Счет на оплату №{invoice_number} от {order.invoice_date.strftime('%d.%m.%Y')} - Техресурс"
+        
+        # ИСПОЛЬЗУЕМ ТОТ ЖЕ ПОДХОД, ЧТО И ДЛЯ ВОССТАНОВЛЕНИЯ ПАРОЛЯ
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[order.customer_email],
+            reply_to=['billing@techresource.ru'],
+            headers={
+                'X-Priority': '1',
+                'X-MSMail-Priority': 'High',
+                'Importance': 'High'
+            }
+        )
+        
+        # Добавляем HTML версию
+        email.attach_alternative(html_message, "text/html")
+        
+        print(f"📨 Отправляем email на {order.customer_email}")
+        
+        # Отправляем email
+        email.send(fail_silently=False)
+        
+        # Обновляем статус заказа
+        order.invoice_sent = True
+        order.invoice_sent_at = timezone.now()
+        order.save()
+        
+        # Логируем успешную отправку
+        NotificationLog.objects.create(
+            order=order,
+            notification_type='invoice_sent',
+            message=f'Счет №{invoice_number} отправлен на {order.customer_email}',
+            sent_to=order.customer_email,
+            success=True
+        )
+        
+        print(f"✅ Счет отправлен на {order.customer_email}")
+        return True
+        
+    except Exception as e:
+        import traceback
+        print(f"❌ Ошибка отправки счета: {e}")
+        traceback.print_exc()
+        
+        # Логируем ошибку
+        NotificationLog.objects.create(
+            order=order,
+            notification_type='invoice_sent',
+            message=f'Ошибка отправки счета: {str(e)}',
+            sent_to=order.customer_email,
+            success=False,
+            error_message=str(e)
+        )
+        
+        return False
 
 def get_anonymous_cart(request):
     """Получение анонимной корзины из сессии"""
+    print(f"🔍 Проверяем сессию: {request.session.keys()}")
+    
     if 'anonymous_cart' not in request.session:
+        print("🆕 Создаем новую анонимную корзину")
         request.session['anonymous_cart'] = {}
-    return request.session['anonymous_cart']
+    
+    cart = request.session['anonymous_cart']
+    print(f"🛒 Корзина содержит: {len(cart)} товаров")
+    return cart
 
 def anonymous_cart_items(request):
     """API: Получение товаров в анонимной корзине"""
@@ -3454,9 +3572,14 @@ def anonymous_create_order(request):
     """Создание анонимного заказа (оплата по счету)"""
     if request.method == 'POST':
         try:
+            print("🔍 [ANONYMOUS] Начинаем создание анонимного заказа...")
+            
             cart = get_anonymous_cart(request)
             
+            print(f"🛒 [ANONYMOUS] Корзина: {len(cart)} товаров")
+            
             if not cart:
+                print("❌ [ANONYMOUS] Корзина пуста")
                 return JsonResponse({
                     'success': False,
                     'error': 'Заказ пуст'
@@ -3466,24 +3589,40 @@ def anonymous_create_order(request):
             required_fields = ['contact_person', 'phone', 'email', 'company_name', 'inn', 
                               'legal_address', 'delivery_address']
             
+            missing_fields = []
             for field in required_fields:
-                if not request.POST.get(field):
-                    return JsonResponse({
-                        'success': False,
-                        'error': f'Заполните поле: {field}'
-                    })
+                value = request.POST.get(field, '').strip()
+                print(f"📝 [ANONYMOUS] Поле {field}: '{value}'")
+                if not value:
+                    missing_fields.append(field)
+            
+            if missing_fields:
+                print(f"❌ [ANONYMOUS] Не заполнены поля: {missing_fields}")
+                return JsonResponse({
+                    'success': False,
+                    'error': f'Заполните обязательные поля: {", ".join(missing_fields)}'
+                })
             
             # Валидация ИНН
-            inn = request.POST.get('inn')
+            inn = request.POST.get('inn', '').strip()
+            print(f"📋 [ANONYMOUS] ИНН: {inn}")
             if not inn.isdigit() or len(inn) not in [10, 12]:
                 return JsonResponse({
                     'success': False,
                     'error': 'ИНН должен содержать 10 или 12 цифр'
                 })
             
+            # Валидация email
+            customer_email = request.POST.get('email', '').strip()
+            if not customer_email or '@' not in customer_email:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Введите корректный email адрес'
+                })
+            
             # Подсчет суммы
             total = Decimal('0')
-            items_details = []
+            order_items_data = []
             
             for product_id, item_data in cart.items():
                 try:
@@ -3492,66 +3631,167 @@ def anonymous_create_order(request):
                     item_total = product.price * quantity
                     total += item_total
                     
-                    items_details.append({
-                        'name': product.name,
-                        'article': product.article,
+                    order_items_data.append({
+                        'product': product,
                         'quantity': quantity,
-                        'price': str(product.price),
-                        'total': str(item_total)
+                        'price': product.price,
+                        'total': item_total
                     })
+                    
+                    print(f"📦 [ANONYMOUS] Товар {product_id}: {product.name} x{quantity} = {item_total}")
                 except Product.DoesNotExist:
+                    print(f"⚠️ [ANONYMOUS] Товар {product_id} не найден")
                     continue
             
-            # Подготовка данных для уведомления
-            order_data = {
-                'contact_person': request.POST.get('contact_person'),
-                'phone': request.POST.get('phone'),
-                'email': request.POST.get('email'),
-                'company_name': request.POST.get('company_name'),
-                'inn': inn,
-                'kpp': request.POST.get('kpp', ''),
-                'legal_address': request.POST.get('legal_address'),
-                'delivery_address': request.POST.get('delivery_address'),
-                'comment': request.POST.get('comment', ''),
-                'items': items_details,
-                'total': str(total),
-                'timestamp': timezone.now().isoformat()
-            }
+            print(f"💰 [ANONYMOUS] Итого сумма: {total}")
             
-            # Обработка файла
-            attachment_file = None
-            attachment_info = None
-            if 'attachment' in request.FILES:
-                attachment_file = request.FILES['attachment']
-                attachment_info = {
-                    'name': attachment_file.name,
-                    'size': attachment_file.size,
-                    'type': attachment_file.content_type
-                }
-            
-            # Отправка уведомления в Telegram
-            success = send_anonymous_order_to_telegram(order_data, attachment_info, attachment_file)
-            
-            if success:
-                # Очищаем корзину
-                request.session['anonymous_cart'] = {}
-                request.session.modified = True
-                
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Заявка успешно отправлена!'
-                })
-            else:
+            if total == Decimal('0'):
+                print("❌ [ANONYMOUS] Сумма заказа равна 0")
                 return JsonResponse({
                     'success': False,
-                    'error': 'Ошибка отправки заявки'
+                    'error': 'Некорректная сумма заказа'
+                })
+            
+            # Рассчитываем НДС
+            vat_rate = Decimal('20.00')
+            vat_amount = total * vat_rate / Decimal('120.00')
+            price_without_vat = total - vat_amount
+            
+            print(f"📊 [ANONYMOUS] НДС: {vat_amount}, Без НДС: {price_without_vat}")
+            
+            # СОЗДАЕМ ЗАКАЗ В БАЗЕ ДАННЫХ
+            print("📝 [ANONYMOUS] Создаем запись заказа в базе данных...")
+            
+            # Генерируем номер счета ДО создания заказа
+            from datetime import datetime
+            current_year = datetime.now().year
+            order_count = Order.objects.filter(invoice_date__year=current_year).count()
+            invoice_number = f"{datetime.now().strftime('%Y%m')}-{order_count + 1:04d}"
+            print(f"📄 [ANONYMOUS] Номер счета: {invoice_number}")
+            
+            # Создаем заказ без поля 'notes'
+            order = Order.objects.create(
+                user=None,  # Анонимный пользователь
+                total_price=total,
+                final_price=total,
+                price_without_vat=price_without_vat,
+                vat_amount=vat_amount,
+                vat_rate=vat_rate,
+                payment_method='invoice',
+                payment_fee=Decimal('0'),
+                delivery_cost=Decimal('0'),
+                customer_name=request.POST.get('contact_person', '').strip(),
+                customer_phone=request.POST.get('phone', '').strip(),
+                customer_email=customer_email,
+                customer_inn=inn,
+                customer_kpp=request.POST.get('kpp', '').strip(),
+                delivery_address=request.POST.get('delivery_address', '').strip(),
+                status='processing',
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                invoice_date=timezone.now().date(),
+                invoice_number=invoice_number,
+                invoice_sent=False,
+            )
+            
+            print(f"✅ [ANONYMOUS] Заказ #{order.id} создан")
+            print(f"📧 [ANONYMOUS] Email для счета: {order.customer_email}")
+            print(f"📅 [ANONYMOUS] Дата счета: {order.invoice_date}")
+            print(f"📄 [ANONYMOUS] Номер счета: {order.invoice_number}")
+            
+            # Добавляем товары в заказ
+            print("📦 [ANONYMOUS] Добавляем товары в заказ...")
+            for item_data in order_items_data:
+                try:
+                    order_item = OrderItem.objects.create(
+                        order=order,
+                        product=item_data['product'],
+                        quantity=item_data['quantity'],
+                        price=item_data['price'],
+                        vat_rate=vat_rate,
+                    )
+                    print(f"✅ [ANONYMOUS] Товар {item_data['product'].name} добавлен")
+                except Exception as e:
+                    print(f"⚠️ [ANONYMOUS] Ошибка добавления товара {item_data['product'].name}: {e}")
+            
+            # Очищаем корзину
+            request.session['anonymous_cart'] = {}
+            request.session.modified = True
+            print("🗑️ [ANONYMOUS] Корзина очищена")
+            
+            # 1. Отправляем уведомление в Telegram
+            print("📱 [ANONYMOUS] Отправляем уведомление в Telegram...")
+            try:
+                telegram_data = {
+                    'contact_person': order.customer_name,
+                    'phone': order.customer_phone,
+                    'email': order.customer_email,
+                    'company_name': request.POST.get('company_name', ''),
+                    'inn': order.customer_inn,
+                    'kpp': order.customer_kpp,
+                    'legal_address': request.POST.get('legal_address', ''),
+                    'delivery_address': order.delivery_address,
+                    'comment': request.POST.get('comment', ''),
+                    'total': str(total),
+                    'invoice_number': order.invoice_number,
+                    'items': [{
+                        'name': item['product'].name,
+                        'article': item['product'].article,
+                        'quantity': item['quantity'],
+                        'total': str(item['total'])
+                    } for item in order_items_data]
+                }
+                telegram_success = send_anonymous_order_to_telegram(telegram_data, None, None)
+                print(f"✅ [ANONYMOUS] Telegram отправка: {telegram_success}")
+            except Exception as e:
+                print(f"❌ [ANONYMOUS] Ошибка отправки в Telegram: {e}")
+                telegram_success = False
+            
+            # 2. ОТПРАВЛЯЕМ СЧЕТ НА EMAIL
+            print(f"📧 [ANONYMOUS] Отправляем счет на {order.customer_email}...")
+            try:
+                email_success = send_invoice_email(order)
+                print(f"✅ [ANONYMOUS] Email отправка: {email_success}")
+                
+                # Обновляем статус отправки
+                if email_success:
+                    order.invoice_sent = True
+                    order.invoice_sent_at = timezone.now()
+                    order.save(update_fields=['invoice_sent', 'invoice_sent_at'])
+            except Exception as e:
+                print(f"❌ [ANONYMOUS] Ошибка отправки email: {e}")
+                import traceback
+                traceback.print_exc()
+                email_success = False
+            
+            if email_success:
+                return JsonResponse({
+                    'success': True,
+                    'message': f'✅ Заявка отправлена! Счет №{order.invoice_number} выслан на {order.customer_email}',
+                    'email_sent': True,
+                    'telegram_sent': telegram_success,
+                    'order_id': order.id,
+                    'invoice_number': order.invoice_number
+                })
+            else:
+                # Если email не отправился, но заказ создан
+                return JsonResponse({
+                    'success': True,
+                    'message': f'⚠️ Заявка отправлена! Заказ #{order.id} создан. Для получения счета свяжитесь с нами по телефону.',
+                    'email_sent': False,
+                    'telegram_sent': telegram_success,
+                    'order_id': order.id,
+                    'invoice_number': order.invoice_number
                 })
                 
         except Exception as e:
-            print(f"❌ Ошибка создания анонимного заказа: {e}")
+            print(f"❌ [ANONYMOUS] КРИТИЧЕСКАЯ ОШИБКА: {e}")
+            import traceback
+            traceback.print_exc()
+            
             return JsonResponse({
                 'success': False,
-                'error': 'Произошла ошибка. Попробуйте позже.'
+                'error': f'Произошла ошибка: {str(e)}'
             })
     
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})

@@ -31,6 +31,8 @@ urlpatterns = [
     
     # Подтверждение email
     path('verify-email/<str:token>/', views.verify_email, name='verify_email'),
+
+    path('order/<int:order_id>/resend-invoice/', views.resend_invoice, name='resend_invoice'),
     
     # Товары
     path('products/', views.products, name='products'),

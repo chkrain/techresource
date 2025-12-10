@@ -1001,6 +1001,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 async function loadAnonymousCartItems() {
+    console.log("🔄 Загружаем товары из анонимной корзины...");
+    
     try {
         const response = await fetch('/anonymous-cart/items/', {
             headers: {
@@ -1008,36 +1010,51 @@ async function loadAnonymousCartItems() {
             }
         });
         
+        console.log("📨 Ответ от сервера получен");
         const data = await response.json();
+        console.log("📊 Данные корзины:", data);
         
         if (data.success) {
             renderCartItems(data.items, data.total);
         } else {
-            document.getElementById('anonymousCartItems').innerHTML = `
-                <div class="empty-cart">
-                    <div class="empty-cart-icon">🛒</div>
-                    <h3>Корзина пуста</h3>
-                    <p>Добавьте товары из каталога, чтобы сделать заказ</p>
-                    <a href="{% url 'products' %}" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">
-                        📦 Перейти к покупкам
-                    </a>
-                </div>
-            `;
-            document.getElementById('itemsCount').textContent = '0 товар(ов)';
+            console.log("ℹ️ Корзина пуста или ошибка");
+            const cartItemsContainer = document.getElementById('anonymousCartItems');
+            if (cartItemsContainer) {
+                cartItemsContainer.innerHTML = `
+                    <div class="empty-cart">
+                        <div class="empty-cart-icon">🛒</div>
+                        <h3>Корзина пуста</h3>
+                        <p>Добавьте товары из каталога, чтобы сделать заказ</p>
+                        <a href="{% url 'products' %}" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">
+                            📦 Перейти к покупкам
+                        </a>
+                    </div>
+                `;
+            }
+            
+            const itemsCountElement = document.getElementById('itemsCount');
+            if (itemsCountElement) {
+                itemsCountElement.textContent = '0 товар(ов)';
+            }
         }
     } catch (error) {
-        console.error('Error loading cart:', error);
-        document.getElementById('anonymousCartItems').innerHTML = `
-            <div class="empty-cart">
-                <div class="empty-cart-icon">⚠️</div>
-                <h3>Ошибка загрузки</h3>
-                <p>Попробуйте обновить страницу</p>
-            </div>
-        `;
+        console.error('❌ Ошибка загрузки корзины:', error);
+        const cartItemsContainer = document.getElementById('anonymousCartItems');
+        if (cartItemsContainer) {
+            cartItemsContainer.innerHTML = `
+                <div class="empty-cart">
+                    <div class="empty-cart-icon">⚠️</div>
+                    <h3>Ошибка загрузки</h3>
+                    <p>Попробуйте обновить страницу</p>
+                </div>
+            `;
+        }
     }
 }
 
 function renderCartItems(items, total) {
+    console.log("🛒 Рендерим товары:", items);
+    
     if (items.length === 0) {
         document.getElementById('anonymousCartItems').innerHTML = `
             <div class="empty-cart">
@@ -1049,11 +1066,20 @@ function renderCartItems(items, total) {
                 </a>
             </div>
         `;
-        document.getElementById('itemsCount').textContent = '0 товар(ов)';
+        
+        // Проверяем существует ли элемент перед обновлением
+        const itemsCountElement = document.getElementById('itemsCount');
+        if (itemsCountElement) {
+            itemsCountElement.textContent = '0 товар(ов)';
+        }
         return;
     }
     
-    document.getElementById('itemsCount').textContent = `${items.length} товар(ов)`;
+    // Проверяем существует ли элемент перед обновлением
+    const itemsCountElement = document.getElementById('itemsCount');
+    if (itemsCountElement) {
+        itemsCountElement.textContent = `${items.length} товар(ов)`;
+    }
     
     let html = '';
     
@@ -1224,7 +1250,11 @@ function showToast(message, type = 'success') {
     
     setTimeout(() => {
         messageEl.style.transform = 'translateX(400px)';
-        setTimeout(() => messageEl.remove(), 300);
+        setTimeout(() => {
+            if (messageEl.parentNode) {
+                messageEl.remove();
+            }
+        }, 300);
     }, 3000);
 }
 

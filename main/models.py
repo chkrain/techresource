@@ -563,7 +563,7 @@ class Order(models.Model):
     #     ('', 'Не используется'), 
     # ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь",null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Общая сумма")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Статус")
@@ -621,6 +621,87 @@ class Order(models.Model):
         max_digits=10, decimal_places=2, default=0,
         verbose_name="Чистая выручка (без доставки и комиссий)"
     )
+    invoice_number = models.CharField(
+        'Номер счета',
+        max_length=50,
+        blank=True,
+        null=True,
+        unique=True,
+        help_text="Автоматически генерируется при создании счета"
+    )
+    
+    invoice_date = models.DateField(
+        'Дата счета',
+        blank=True,
+        null=True,
+        help_text="Дата выставления счета"
+    )
+    
+    customer_inn = models.CharField(
+        'ИНН покупателя',
+        max_length=12,
+        blank=True,
+        null=True,
+        help_text="Для юридических лиц"
+    )
+    
+    customer_kpp = models.CharField(
+        'КПП покупателя',
+        max_length=9,
+        blank=True,
+        null=True,
+        help_text="Для юридических лиц"
+    )
+    
+    invoice_sent = models.BooleanField(
+        'Счет отправлен',
+        default=False,
+        help_text="Счет отправлен на email покупателя"
+    )
+    
+    invoice_sent_at = models.DateTimeField(
+        'Время отправки счета',
+        blank=True,
+        null=True
+    )
+    
+    # Метод для генерации номера счета
+    def generate_invoice_number(self):
+        """Генерация номера счета"""
+        if not self.invoice_number:
+            today = timezone.now()
+            prefix = "СЧ"
+            year = today.strftime('%Y')
+            month = today.strftime('%m')
+            
+            last_invoice = Order.objects.filter(
+                invoice_number__startswith=f"{prefix}-{year}-{month}-"
+            ).order_by('-invoice_number').first()
+            
+            if last_invoice and last_invoice.invoice_number:
+                last_num = int(last_invoice.invoice_number.split('-')[-1])
+                next_num = last_num + 1
+            else:
+                next_num = 1
+            
+            self.invoice_number = f"{prefix}-{year}-{month}-{next_num:04d}"
+            self.invoice_date = today.date()
+            self.save()
+        
+        return self.invoice_number
+    
+    def get_due_date(self):
+        """Получить дату оплаты (срок - 5 банковских дней)"""
+        if self.invoice_date:
+            from datetime import timedelta
+            due_date = self.invoice_date
+            added_days = 0
+            while added_days < 5:
+                due_date += timedelta(days=1)
+                if due_date.weekday() < 5:  
+                    added_days += 1
+            return due_date
+        return None
 
     def calculate_vat(self):
         """Рассчитывает НДС для заказа"""

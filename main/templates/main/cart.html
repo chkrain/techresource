@@ -180,6 +180,25 @@
                             </div>
                             <a href="{% url 'profile' %}" class="manage-addresses">Управление адресами</a>
                         </div>
+
+                        <div class="form-section">
+                            <h4>📋 Реквизиты для счета (для оплаты по счету)</h4>
+                            
+                            <div class="form-group">
+                                <label class="form-label">ИНН организации</label>
+                                <input type="text" name="customer_inn" class="form-control" 
+                                    placeholder="10 или 12 цифр" pattern="\d{10}|\d{12}"
+                                    required>
+                                <small class="form-text">Обязательно для оформления счета</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">КПП (для юридических лиц)</label>
+                                <input type="text" name="customer_kpp" class="form-control" 
+                                    placeholder="9 цифр" pattern="\d{9}">
+                                <small class="form-text">Для ИП оставьте пустым</small>
+                            </div>
+                        </div>
                         
                         <button type="submit" class="checkout-btn invoice-btn">
                             📄 Оформить заказ по счету
