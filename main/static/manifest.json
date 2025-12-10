@@ -1,0 +1,17 @@
+{
+  "name": "Техресурс",
+  "short_name": "Техресурс",
+  "description": "Инновационные инженерные решения",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2c3e50",
+  "theme_color": "#2c3e50",
+  "icons": [
+    {
+      "src": "{% static 'images/favicon/favicon.svg' %}",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
