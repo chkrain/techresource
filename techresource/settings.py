@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import socket
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -19,6 +20,7 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+socket.getaddrinfo = lambda *args, **kwargs: [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -177,14 +179,15 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Настройки email (для уведомлений)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'  # Отправляем на Exim4
+EMAIL_HOST = 'localhost'  # Локальный Exim4
 EMAIL_PORT = 25           # Стандартный порт SMTP
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
-EMAIL_HOST_USER = ''      # Не нужно, аутентификация в Exim4
-EMAIL_HOST_PASSWORD = ''  # Не нужно
-DEFAULT_FROM_EMAIL = 'ainurcherepanov@mail.ru'  # Ваш mail.ru email
-SERVER_EMAIL = 'ainurcherepanov@mail.ru'
+EMAIL_HOST_USER = ''      # Если не требуется аутентификация
+EMAIL_HOST_PASSWORD = ''  # Если не требуется аутентификация
+DEFAULT_FROM_EMAIL = 'noreply@tech-re.ru'  # ЛОКАЛЬНЫЙ домен вместо mail.ru
+SERVER_EMAIL = 'noreply@tech-re.ru'
+EMAIL_SUBJECT_PREFIX = '[Техресурс] '
 
 LOGGING = {
     'version': 1,

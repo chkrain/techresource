@@ -3072,182 +3072,121 @@ def dynamic_service_page(request, service_slug, sub_slug=None, instruction_slug=
     return render(request, 'main/dynamic_service_page.html', context)
 
 def send_password_reset_email_via_mail_ru(email, code, username):
-    """Отправка email с кодом восстановления через Mail.ru"""
+    """Исправленная отправка email - используем Python EmailMessage напрямую"""
     try:
-        subject = "Код восстановления пароля - Техресурс"
+        import smtplib
+        from email.message import EmailMessage
+        from email.header import Header
+        from email.utils import formataddr
         
-        html_message = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                body {{
-                    font-family: Arial, sans-serif;
-                    color: #333;
-                    line-height: 1.6;
-                    margin: 0;
-                    padding: 0;
-                    background-color: #f8f9fa;
-                }}
-                .container {{
-                    max-width: 600px;
-                    margin: 0 auto;
-                    padding: 20px;
-                    background-color: white;
-                    border-radius: 10px;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                }}
-                .header {{
-                    background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
-                    color: white;
-                    padding: 30px;
-                    text-align: center;
-                    border-radius: 10px 10px 0 0;
-                }}
-                .header h1 {{
-                    margin: 0;
-                    font-size: 24px;
-                    font-weight: bold;
-                }}
-                .content {{
-                    padding: 30px;
-                }}
-                .code-box {{
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    color: white;
-                    font-size: 32px;
-                    font-weight: bold;
-                    text-align: center;
-                    padding: 20px;
-                    border-radius: 8px;
-                    margin: 30px 0;
-                    letter-spacing: 5px;
-                }}
-                .footer {{
-                    margin-top: 30px;
-                    padding-top: 20px;
-                    border-top: 1px solid #e9ecef;
-                    color: #6c757d;
-                    font-size: 12px;
-                    text-align: center;
-                }}
-                .security-note {{
-                    background-color: #fff5f5;
-                    border: 1px solid #fed7d7;
-                    border-radius: 8px;
-                    padding: 15px;
-                    margin: 20px 0;
-                    color: #742a2a;
-                }}
-                @media (max-width: 600px) {{
-                    .container {{
-                        padding: 10px;
-                    }}
-                    .header {{
-                        padding: 20px;
-                    }}
-                    .content {{
-                        padding: 20px;
-                    }}
-                    .code-box {{
-                        font-size: 24px;
-                        padding: 15px;
-                    }}
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Техресурс</h1>
-                    <p>Восстановление пароля</p>
-                </div>
-                
-                <div class="content">
-                    <h2>Здравствуйте, {username}!</h2>
-                    <p>Вы запросили восстановление пароля для вашего аккаунта на сайте Техресурс.</p>
-                    <p>Используйте следующий код для подтверждения:</p>
-                    
-                    <div class="code-box">
-                        {code}
-                    </div>
-                    
-                    <div class="security-note">
-                        <strong>Важная информация:</strong>
-                        <p>• Код действителен в течение 10 минут</p>
-                        <p>• Не передавайте код третьим лицам</p>
-                        <p>• Если вы не запрашивали восстановление пароля, проигнорируйте это письмо</p>
-                    </div>
-                    
-                    <p>Если у вас возникли проблемы с вводом кода, попробуйте:</p>
-                    <ul>
-                        <li>Скопировать код и вставить в поле ввода</li>
-                        <li>Проверить, нет ли лишних пробелов</li>
-                        <li>Запросить новый код, если этот истек</li>
-                    </ul>
-                    
-                    <p>С уважением,<br>Команда Техресурс</p>
-                </div>
-                
-                <div class="footer">
-                    <p>Это письмо отправлено автоматически. Пожалуйста, не отвечайте на него.</p>
-                    <p>© {timezone.now().year} Техресурс. Все права защищены.</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
+        print(f"🔍 Отправляем email на {email}")
         
-        # Текстовая версия письма
-        plain_message = f"""
-        Восстановление пароля - Техресурс
+        # Создаем сообщение как делает mail команда
+        msg = EmailMessage()
         
-        Здравствуйте, {username}!
+        # Текстовое содержимое
+        text_content = f"""Код восстановления пароля - Техресурс
+
+Здравствуйте, {username}!
+
+Ваш код восстановления: {code}
+
+Код действителен в течение 10 минут.
+
+Если вы не запрашивали восстановление пароля, проигнорируйте это письмо.
+
+С уважением,
+Команда Техресурс
+"""
         
-        Вы запросили восстановление пароля для вашего аккаунта на сайте Техресурс.
+        # HTML содержимое
+        html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {{ font-family: Arial, sans-serif; color: #333; line-height: 1.6; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background: #0052cc; color: white; padding: 20px; text-align: center; }}
+        .content {{ padding: 20px; background: #f8f9fa; }}
+        .code {{ font-size: 24px; font-weight: bold; color: #0052cc; text-align: center; margin: 20px 0; padding: 15px; background: white; border: 2px dashed #0052cc; }}
+        .footer {{ margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Техресурс</h1>
+            <p>Восстановление пароля</p>
+        </div>
+        <div class="content">
+            <h2>Здравствуйте, {username}!</h2>
+            <p>Вы запросили восстановление пароля для вашего аккаунта.</p>
+            <p>Используйте следующий код для подтверждения:</p>
+            <div class="code">{code}</div>
+            <p><strong>Код действителен в течение 10 минут.</strong></p>
+            <p>Если вы не запрашивали восстановление пароля, просто проигнорируйте это письмо.</p>
+        </div>
+        <div class="footer">
+            <p>С уважением,<br>Команда Техресурс</p>
+            <p>Это письмо отправлено автоматически, пожалуйста, не отвечайте на него.</p>
+        </div>
+    </div>
+</body>
+</html>"""
         
-        Ваш код восстановления:
+        # Устанавливаем содержимое
+        msg.set_content(text_content)
+        msg.add_alternative(html_content, subtype='html')
         
-        {code}
+        # Устанавливаем заголовки ТОЧНО как у mail команды
+        msg['From'] = 'noreply@tech-re.ru'
+        msg['To'] = email
+        msg['Subject'] = 'Код восстановления пароля - Техресурс'
+        msg['X-Mailer'] = 'Django App'
         
-        Введите этот код на странице восстановления пароля.
+        # Отправляем
+        with smtplib.SMTP('localhost', 25) as server:
+            server.send_message(msg)
         
-        Код действителен в течение 10 минут.
-        
-        Важная информация:
-        • Не передавайте код третьим лицам
-        • Если вы не запрашивали восстановление пароля, проигнорируйте это письмо
-        
-        Если у вас возникли проблемы с вводом кода:
-        • Скопируйте код и вставьте в поле ввода
-        • Проверьте, нет ли лишних пробелов
-        • Запросите новый код, если этот истек
-        
-        С уважением,
-        Команда Техресурс
-        
-        Это письмо отправлено автоматически. Пожалуйста, не отвечайте на него.
-        © {timezone.now().year} Техресурс. Все права защищены.
-        """
-        
-        # Отправка email через Django
-        send_mail(
-            subject=subject,
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-            html_message=html_message,
-            fail_silently=False,
-        )
-        
-        print(f"✅ Email с кодом отправлен на {email}")
+        print(f"✅ Email отправлен на {email}")
         return True
         
     except Exception as e:
-        print(f"❌ Ошибка отправки email на {email}: {str(e)}")
-        return False
+        import traceback
+        print(f"❌ Ошибка отправки email: {e}")
+        traceback.print_exc()
+        
+        # Fallback: используем mail команду
+        try:
+            import subprocess
+            
+            # Формируем простой email
+            email_text = f"""From: noreply@tech-re.ru
+To: {email}
+Subject: Код восстановления пароля - Техресурс
+
+Код восстановления: {code}
+Действителен 10 минут."""
+            
+            result = subprocess.run(
+                ['mail', '-s', 'Код восстановления пароля - Техресурс', '-r', 'noreply@tech-re.ru', email],
+                input=email_text.encode('utf-8'),
+                capture_output=True,
+                text=False
+            )
+            
+            if result.returncode == 0:
+                print(f"✅ Email отправлен через mail command на {email}")
+                return True
+            else:
+                print(f"❌ Ошибка mail command: {result.stderr}")
+                return False
+                
+        except Exception as fallback_e:
+            print(f"❌ Fallback тоже не сработал: {fallback_e}")
+            return False
 
 def send_password_changed_confirmation(email, username):
     """Отправка подтверждения смены пароля"""
