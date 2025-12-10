@@ -7,6 +7,7 @@ from django.contrib import admin
 from . import views
 from django.views.generic.base import RedirectView
 from django.conf import settings
+from django.views.generic import TemplateView
 
 
 urlpatterns = [
@@ -106,4 +107,8 @@ urlpatterns = [
     
     # Для .well-known
     re_path(r'^\.well-known/.*$', lambda request: HttpResponseNotFound()),
+
+    path('manifest.json', TemplateView.as_view(template_name='manifest.json',content_type='application/json'), name='manifest'),
+    path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
+    path('sitemap.xml', TemplateView.as_view(template_name="sitemap.xml", content_type="application/xml")),
 ]

@@ -1,5 +1,45 @@
 {% extends 'main/base.html' %}
 
+{% block meta %}
+<meta property="og:title" content="Техресурс - Инновационные инженерные решения и оборудование">
+<meta property="og:description" content="Профессиональные инженерные решения, промышленное оборудование и услуги для цифровой трансформации вашего бизнеса. 50+ реализованных проектов.">
+<meta property="og:image" content="{% static 'images/og-main.jpg' %}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Техресурс - ведущий поставщик инженерных решений и промышленного оборудования. Проектирование, монтаж, разработка ПО, поставка оборудования.">
+<meta name="keywords" content="инженерные решения, промышленное оборудование, проектирование, монтаж, СКАДА системы, техническая поддержка">
+<link rel="canonical" href="https://tech-re.ru/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Техресурс",
+  "url": "https://techresurs.ru",
+  "logo": "{% static 'images/logo.svg' %}",
+  "description": "Инновационные инженерные решения и оборудование для трансформации вашего бизнеса",
+  "founder": "ООО Техресурс",
+  "foundingDate": "2020",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Казань",
+    "addressRegion": "Татарстан",
+    "addressCountry": "RU"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+79375246888",
+    "contactType": "customer service",
+    "email": "ainurcherepanov@mail.ru",
+    "availableLanguage": ["Russian"]
+  },
+  "sameAs": [
+    "https://vk.com/club233074446",
+    "https://t.me/techresourceru"
+  ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <div id="cookie-notification" class="cookie-notification">
     <div class="cookie-content">

@@ -3,6 +3,64 @@
 
 {% block title %}Сервисное обслуживание - Техресурс{% endblock %}
 
+{% block meta %}
+<meta property="og:title" content="Сервисное обслуживание промышленного оборудования | Техресурс">
+<meta property="og:description" content="Комплексное техническое обслуживание и ремонт промышленного оборудования. Гарантия надежной работы ваших систем 24/7. Выезд за 2 часа.">
+<meta property="og:image" content="{% static 'images/og-service-maintenance.jpg' %}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Сервисное обслуживание промышленного оборудования от Техресурс. Плановое ТО, аварийный ремонт, технический аудит. Обслуживаем 500+ единиц оборудования.">
+<meta name="keywords" content="сервисное обслуживание оборудования, ремонт промышленного оборудования, техническое обслуживание, аварийный ремонт, профилактика оборудования">
+<link rel="canonical" href="https://tech-re.ru/services/maintenance/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "serviceType": "Техническое обслуживание оборудования",
+  "provider": {
+    "@type": "LocalBusiness",
+    "name": "Техресурс"
+  },
+  "areaServed": {
+    "@type": "GeoCircle",
+    "geoMidpoint": {
+      "@type": "GeoCoordinates",
+      "latitude": 55.796391,
+      "longitude": 49.108891
+    },
+    "geoRadius": "500000"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Услуги сервисного обслуживания",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Плановое техническое обслуживание"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Аварийный ремонт"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Технический аудит"
+        }
+      }
+    ]
+  }
+}
+</script>
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/services.css' %}">
 {% endblock %}

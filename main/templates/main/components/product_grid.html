@@ -257,7 +257,7 @@ document.querySelectorAll('.anonymous-quick-order').forEach(btn => {
             if (data.success) {
                 updateCartBadge(data.cart_count);
                 
-                showToast('✅ Товар добавлен! <a href="/anonymous-order/" style="color: #fff; text-decoration: underline; font-weight: bold;">Оформить заказ →</a>', 'success');
+                showToast('Товар добавлен!', 'success');
                 
                 this.innerHTML = '✅ В заказе!';
                 

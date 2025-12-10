@@ -7,6 +7,50 @@
     <title>{% block title %}Техресурс - Инновационные инженерные решения{% endblock %}</title>
 
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon/favicon.svg' %}?v=2">
+    <link rel="apple-touch-icon" href="{% static 'images/favicon/favicon.svg' %}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Техресурс">
+    <meta name="theme-color" content="#2c3e50">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+
+    {% block meta %}
+    <meta property="og:title" content="Контакты Техресурс | Техническая поддержка и инженерные решения">
+    <meta property="og:description" content="Свяжитесь с нами по телефону +7 (937) 524-68-88, email info@techresurs.ru. Офис в Казани, ул. Техническая, 52. Время работы Пн-Пт: 8:00-17:00.">
+    <meta property="og:image" content="{% static 'images/og-contacts.jpg' %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="description" content="Контактная информация компании Техресурс. Телефоны, адреса офиса и цеха, электронная почта, карты проезда, ссылки на соцсети.">
+    <meta name="keywords" content="контакты Техресурс, техническая поддержка Казань, инженерные услуги контакты, промышленное оборудование телефон">
+    <link rel="canonical" href="https://tech-re.ru/contacts/">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Техресурс",
+        "image": "{% static 'images/favicon.svg' %}",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "ул. Техническая, 52",
+            "addressLocality": "Казань",
+            "addressRegion": "Татарстан",
+            "postalCode": "420054",
+            "addressCountry": "RU"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "55.738039",
+            "longitude": "49.134585"
+        },
+        "url": "https://tech-re.ru",
+        "telephone": "+79375246888",
+        "openingHours": "Пн-Пт 08:00-17:00",
+        "priceRange": "₽₽"
+    }
+    </script>
+    {% endblock %}
+
     
     {% csrf_token %}
     <meta name="csrf-token" content="{{ csrf_token }}">

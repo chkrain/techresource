@@ -4,6 +4,32 @@
 
 {% block title %}Товары - Техресурс{% endblock %}
 
+{% block meta %}
+<meta property="og:title" content="Каталог промышленного оборудования | Техресурс">
+<meta property="og:description" content="Широкий ассортимент промышленного оборудования и компонентов. Автоматизация, КИПиА, электрооборудование, системы управления.">
+<meta property="og:image" content="{% static 'images/og-products.jpg' %}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Каталог промышленного оборудования Техресурс. PLC контроллеры, HMI панели, датчики, электроприводы, щитовое оборудование. Фильтры по цене и категориям.">
+<meta name="keywords" content="промышленное оборудование купить, PLC контроллеры, HMI панели, датчики давления, электроприводы, КИПиА">
+<link rel="canonical" href="https://tech-re.ru/products/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Каталог промышленного оборудования",
+  "description": "Широкий ассортимент промышленного оборудования и компонентов",
+  "url": "https://tech-re.ru/products/",
+  "numberOfItems": "{{ page_obj.paginator.count }}",
+  "itemListOrder": "https://schema.org/ItemListOrderAscending",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tech-re.ru/products/"
+  }
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <section class="products-hero">
     <div class="container">
