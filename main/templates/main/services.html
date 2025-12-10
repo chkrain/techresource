@@ -1,968 +1,968 @@
-{% extends 'main/base.html' %}
+    {% extends 'main/base.html' %}
 
-{% block title %}Услуги - Техресурс{% endblock %}
+    {% block title %}Услуги - Техресурс{% endblock %}
 
-{% block content %}
-<div class="services-hero">
-    <div class="hero-content">
-        <h1 class="hero-title">Наши услуги</h1>
-        <p class="hero-subtitle">Полный спектр инженерных решений для трансформации вашего бизнеса</p>
+    {% block content %}
+    <div class="services-hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Наши услуги</h1>
+            <p class="hero-subtitle">Полный спектр инженерных решений для трансформации вашего бизнеса</p>
+        </div>
     </div>
-</div>
 
-<div class="services-container">
-    <!-- Основные услуги -->
-    <section class="services-section" id="main-services">
-        <div class="container">
-            <h2 class="section-title how-we">Ключевые направления</h2>
-            <p class="section-subtitle">Комплексные решения от проектирования до технической поддержки</p>
-            
-            <div class="services-grid">
-                {% for service in navigation_tree %}
-                <div class="service-item" data-aos="fade-up">
-                    <div class="service-content">
-                        <div class="service-icon">
-                            {% if service.slug == 'design' %}📐
-                            {% elif service.slug == 'electrical' %}⚡
-                            {% elif service.slug == 'software' %}💻
-                            {% elif service.slug == 'equipment' %}🚚
-                            {% elif service.slug == 'support' %}🛠️
-                            {% elif service.slug == 'maintenance' %}🔧
-                            {% else %}📄{% endif %}
+    <div class="services-container">
+        <!-- Основные услуги -->
+        <section class="services-section" id="main-services">
+            <div class="container">
+                <h2 class="section-title how-we">Ключевые направления</h2>
+                <p class="section-subtitle">Комплексные решения от проектирования до технической поддержки</p>
+                
+                <div class="services-grid">
+                    {% for service in navigation_tree %}
+                    <div class="service-item" data-aos="fade-up">
+                        <div class="service-content">
+                            <div class="service-icon">
+                                {% if service.slug == 'design' %}📐
+                                {% elif service.slug == 'electrical' %}⚡
+                                {% elif service.slug == 'software' %}💻
+                                {% elif service.slug == 'equipment' %}🚚
+                                {% elif service.slug == 'support' %}🛠️
+                                {% elif service.slug == 'maintenance' %}🔧
+                                {% else %}📄{% endif %}
+                            </div>
+                            <h3>{{ service.title }}</h3>
+                            <p>{% if service.static %}Основная услуга{% else %}Дополнительная услуга{% endif %}</p>
+                            
+                            {% if service.children %}
+                            <ul class="service-features">
+                                {% for child in service.children %}
+                                <li>{{ child.title }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
                         </div>
-                        <h3>{{ service.title }}</h3>
-                        <p>{% if service.static %}Основная услуга{% else %}Дополнительная услуга{% endif %}</p>
-                        
-                        {% if service.children %}
-                        <ul class="service-features">
-                            {% for child in service.children %}
-                            <li>{{ child.title }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
+                        <a href="{{ service.url }}" class="service-btn">Подробнее</a>
                     </div>
-                    <a href="{{ service.url }}" class="service-btn">Подробнее</a>
+                    {% empty %}
+                    <div class="no-services">
+                        <p>Услуги пока не добавлены. Зайдите позже!</p>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <div class="no-services">
-                    <p>Услуги пока не добавлены. Зайдите позже!</p>
-                </div>
-                {% endfor %}
+
             </div>
+        </section>
 
-        </div>
-    </section>
-
-    <!-- Дополнительные услуги -->
-    <section class="services-section alt-bg" id="additional-services">
-        <div class="container">
-            <h2 class="section-title">Специализированные услуги</h2>
-            
-            <div class="additional-services">
-                <div class="additional-service" data-aos="zoom-in">
-                    <div class="additional-icon">📊</div>
-                    <h4>Технический аудит</h4>
-                    <p>Комплексный анализ существующих систем и рекомендации по оптимизации</p>
-                </div>
+        <!-- Дополнительные услуги -->
+        <section class="services-section alt-bg" id="additional-services">
+            <div class="container">
+                <h2 class="section-title">Специализированные услуги</h2>
                 
-                <div class="additional-service" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="additional-icon">🎯</div>
-                    <h4>Интеграция систем</h4>
-                    <p>Объединение разнородных систем в единый информационный контур</p>
-                </div>
-                
-                <div class="additional-service" data-aos="zoom-in" data-aos-delay="200">
-                    <div class="additional-icon">🔒</div>
-                    <h4>Безопасность</h4>
-                    <p>Защита промышленных систем от несанкционированного доступа</p>
-                </div>
-                
-                <div class="additional-service" data-aos="zoom-in" data-aos-delay="300">
-                    <div class="additional-icon">📈</div>
-                    <h4>Аналитика данных</h4>
-                    <p>Сбор и анализ телеметрии для повышения эффективности производства</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Процесс работы -->
-    <section class="process-section">
-        <div class="container">
-            <h2 class="section-title hows-we">Как мы работаем</h2>
-            <p class="section-subtitle">Четкий поэтапный подход к реализации ваших проектов</p>
-            
-            <div class="process-timeline">
-                <div class="process-line" data-aos="fade-up" data-aos-duration="2000"></div>
-                
-                <div class="process-step" data-aos="fade-up">
-                    <div class="step-visual">
-                        <div class="step-circle">
-                            <div class="step-number">01</div>
-                        </div>
+                <div class="additional-services">
+                    <div class="additional-service" data-aos="zoom-in">
+                        <div class="additional-icon">📊</div>
+                        <h4>Технический аудит</h4>
+                        <p>Комплексный анализ существующих систем и рекомендации по оптимизации</p>
                     </div>
-                    <div class="step-content">
-                        <h3>Консультация и анализ</h3>
-                        <p>Глубокий анализ ваших требований, техническое обследование и подготовка детального технического задания</p>
-                        <ul class="step-details">
-                            <li>Встреча с техническими специалистами</li>
-                            <li>Анализ существующей инфраструктуры</li>
-                            <li>Формирование ТЗ и сметы</li>
-                        </ul>
+                    
+                    <div class="additional-service" data-aos="zoom-in" data-aos-delay="100">
+                        <div class="additional-icon">🎯</div>
+                        <h4>Интеграция систем</h4>
+                        <p>Объединение разнородных систем в единый информационный контур</p>
                     </div>
-                </div>
-                
-                <div class="process-step" data-aos="fade-up" data-aos-delay="100">
-                    <div class="step-visual">
-                        <div class="step-circle">
-                            <div class="step-number">02</div>
-                        </div>
+                    
+                    <div class="additional-service" data-aos="zoom-in" data-aos-delay="200">
+                        <div class="additional-icon">🔒</div>
+                        <h4>Безопасность</h4>
+                        <p>Защита промышленных систем от несанкционированного доступа</p>
                     </div>
-                    <div class="step-content">
-                        <h3>Проектирование</h3>
-                        <p>Разработка комплексной проектной документации, 3D-моделирование и создание цифровых двойников</p>
-                        <ul class="step-details">
-                            <li>Разработка технической документации</li>
-                            <li>3D-визуализация и BIM-моделирование</li>
-                            <li>Согласование с заказчиком</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div class="process-step" data-aos="fade-up" data-aos-delay="200">
-                    <div class="step-visual">
-                        <div class="step-circle">
-                            <div class="step-number">03</div>
-                        </div>
-                    </div>
-                    <div class="step-content">
-                        <h3>Реализация</h3>
-                        <p>Поставка оборудования, монтажные работы, программирование и комплексная пусконаладка систем</p>
-                        <ul class="step-details">
-                            <li>Поставка и монтаж оборудования</li>
-                            <li>Программирование и настройка</li>
-                            <li>Пусконаладочные работы</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div class="process-step" data-aos="fade-up" data-aos-delay="300">
-                    <div class="step-visual">
-                        <div class="step-circle">
-                            <div class="step-number">04</div>
-                        </div>
-                    </div>
-                    <div class="step-content">
-                        <h3>Поддержка и развитие</h3>
-                        <p>Круглосуточная техническая поддержка, мониторинг и плановое развитие системы</p>
-                        <ul class="step-details">
-                            <li>Гарантийное обслуживание</li>
-                            <li>Техническая поддержка</li>
-                            <li>Плановые обновления и модернизация</li>
-                        </ul>
+                    
+                    <div class="additional-service" data-aos="zoom-in" data-aos-delay="300">
+                        <div class="additional-icon">📈</div>
+                        <h4>Аналитика данных</h4>
+                        <p>Сбор и анализ телеметрии для повышения эффективности производства</p>
                     </div>
                 </div>
             </div>
-            
-            <div class="process-cta" data-aos="zoom-in">
-                <div class="cta-content">
-                    <h3>Готовы начать проект?</h3>
-                    <p>Оставьте заявку и получите бесплатную консультацию нашего специалиста</p>
-                    <a href="{% url 'contacts' %}" class="cta-btn">Обсудить проект</a>
+        </section>
+
+        <!-- Процесс работы -->
+        <section class="process-section">
+            <div class="container">
+                <h2 class="section-title hows-we">Как мы работаем</h2>
+                <p class="section-subtitle">Четкий поэтапный подход к реализации ваших проектов</p>
+                
+                <div class="process-timeline">
+                    <div class="process-line" data-aos="fade-up" data-aos-duration="2000"></div>
+                    
+                    <div class="process-step" data-aos="fade-up">
+                        <div class="step-visual">
+                            <div class="step-circle">
+                                <div class="step-number">01</div>
+                            </div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Консультация и анализ</h3>
+                            <p>Глубокий анализ ваших требований, техническое обследование и подготовка детального технического задания</p>
+                            <ul class="step-details">
+                                <li>Встреча с техническими специалистами</li>
+                                <li>Анализ существующей инфраструктуры</li>
+                                <li>Формирование ТЗ и сметы</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step" data-aos="fade-up" data-aos-delay="100">
+                        <div class="step-visual">
+                            <div class="step-circle">
+                                <div class="step-number">02</div>
+                            </div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Проектирование</h3>
+                            <p>Разработка комплексной проектной документации, 3D-моделирование и создание цифровых двойников</p>
+                            <ul class="step-details">
+                                <li>Разработка технической документации</li>
+                                <li>3D-визуализация и BIM-моделирование</li>
+                                <li>Согласование с заказчиком</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step" data-aos="fade-up" data-aos-delay="200">
+                        <div class="step-visual">
+                            <div class="step-circle">
+                                <div class="step-number">03</div>
+                            </div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Реализация</h3>
+                            <p>Поставка оборудования, монтажные работы, программирование и комплексная пусконаладка систем</p>
+                            <ul class="step-details">
+                                <li>Поставка и монтаж оборудования</li>
+                                <li>Программирование и настройка</li>
+                                <li>Пусконаладочные работы</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step" data-aos="fade-up" data-aos-delay="300">
+                        <div class="step-visual">
+                            <div class="step-circle">
+                                <div class="step-number">04</div>
+                            </div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Поддержка и развитие</h3>
+                            <p>Круглосуточная техническая поддержка, мониторинг и плановое развитие системы</p>
+                            <ul class="step-details">
+                                <li>Гарантийное обслуживание</li>
+                                <li>Техническая поддержка</li>
+                                <li>Плановые обновления и модернизация</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="process-cta" data-aos="zoom-in">
+                    <div class="cta-content">
+                        <h3>Готовы начать проект?</h3>
+                        <p>Оставьте заявку и получите бесплатную консультацию нашего специалиста</p>
+                        <a href="{% url 'contacts' %}" class="cta-btn">Обсудить проект</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
-</div>
+        </section>
+    </div>
 
-<!-- Подключение библиотек -->
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <!-- Подключение библиотек -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
-<style>
-/* Процесс работы - улучшенная версия */
-.process-section {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-    padding: 100px 0;
-    position: relative;
-    overflow: hidden;
-    margin-top: 4%;
-}
-
-.process-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.03"><polygon fill="white" points="0,1000 1000,0 1000,1000"/></svg>');
-    background-size: cover;
-}
-
-.process-timeline {
-    position: relative;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 60px 0;
-}
-
-.process-line {
-    position: absolute;
-    left: 100px;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(180deg, #0052cc 0%, transparent 100%);
-    opacity: 0;
-    transform: scaleY(0);
-    transform-origin: top center;
-    transition: all 0.8s ease;
-    border-radius: 2px;
-}
-
-.process-step.active .step-circle {
-    opacity: 1;
-    transform: scale(1);
-    animation: gentlePulse 3s ease-in-out infinite;
-}
-
-@keyframes gentlePulse {
-    0%, 100% {
-        box-shadow: 0 10px 30px rgba(0, 82, 204, 0.3);
-    }
-    50% {
-        box-shadow: 0 15px 40px rgba(0, 82, 204, 0.5);
-    }
-}
-
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(0, 82, 204, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(0, 82, 204, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(0, 82, 204, 0);
-    }
-}
-
-.no-services {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 3rem;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-}
-
-.no-services p {
-    font-size: 1.2rem;
-    color: #6c757d;
-    margin: 0;
-}
-
-.process-step {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 80px;
-    position: relative;
-    opacity: 0;
-    transform: translateX(-30px);
-    transition: all 0.6s ease;
-}
-
-.process-step.active {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.step-visual {
-    position: relative;
-    z-index: 2;
-    margin-right: 50px;
-    flex-shrink: 0;
-}
-
-.step-circle {
-    width: 120px;
-    height: 120px;
-    background: linear-gradient(135deg, #0052cc, #0066cc);
-    border-radius: 50%;
-    display: flex;
-    text-align: center;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0, 82, 204, 0.3);
-    transition: all 0.4s ease;
-    opacity: 0;
-    transform: scale(0.8);
-}
-
-.process-step:hover .step-circle {
-    transform: scale(1.1);
-    box-shadow: 0 15px 40px rgba(0, 82, 204, 0.4);
-}
-
-.step-number {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: white;
-    opacity: 0.8;
-    align-items: center;
-}
-
-.step-content {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    padding: 30px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-}
-
-.process-step:hover .step-content {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateX(10px);
-}
-
-.step-content h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: white;
-}
-
-.step-content p {
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-}
-
-.step-details {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.step-details li {
-    padding: 0.5rem 0;
-    color: rgba(255, 255, 255, 0.7);
-    position: relative;
-    padding-left: 1.5rem;
-}
-
-.step-details li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: #48bb78;
-    font-weight: bold;
-}
-
-.process-cta {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 50px;
-    text-align: center;
-    margin-top: 60px;
-}
-
-.cta-content h3 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    color: white;
-}
-
-.cta-content p {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.cta-btn {
-    background: linear-gradient(135deg, #48bb78, #38a169);
-    color: white;
-    border: none;
-    padding: 15px 40px;
-    border-radius: 30px;
-    font-weight: 600;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.cta-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
-    color: white;
-    text-decoration: none;
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-    .process-timeline {
-        padding: 40px 0;
-    }
-    
-    .process-line {
-        left: 60px;
-    }
-    
-    .process-step {
-        flex-direction: column;
-        margin-bottom: 60px;
-    }
-    
-    .step-visual {
-        margin-right: 0;
-        margin-bottom: 30px;
-        align-self: flex-start;
-    }
-    
-    .step-circle {
-        width: 100px;
-        height: 100px;
-    }
-    
-    .step-content {
-        padding: 20px;
-    }
-    
-    .process-cta {
-        padding: 30px 20px;
-    }
-    
-    .cta-content h3 {
-        font-size: 1.5rem;
-    }
-}
-
-@media (max-width: 480px) {
+    <style>
+    /* Процесс работы - улучшенная версия */
     .process-section {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        padding: 100px 0;
+        position: relative;
+        overflow: hidden;
+        margin-top: 4%;
+    }
+
+    .process-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.03"><polygon fill="white" points="0,1000 1000,0 1000,1000"/></svg>');
+        background-size: cover;
+    }
+
+    .process-timeline {
+        position: relative;
+        max-width: 900px;
+        margin: 0 auto;
         padding: 60px 0;
     }
-    
-    .step-circle {
-        width: 80px;
-        height: 80px;
+
+    .process-line {
+        position: absolute;
+        left: 100px;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(180deg, #0052cc 0%, transparent 100%);
+        opacity: 0;
+        transform: scaleY(0);
+        transform-origin: top center;
+        transition: all 0.8s ease;
+        border-radius: 2px;
     }
-    
-    .step-number {
-        font-size: 0.8rem;
+
+    .process-step.active .step-circle {
+        opacity: 1;
+        transform: scale(1);
+        animation: gentlePulse 3s ease-in-out infinite;
     }
-    
-    .step-content h3 {
-        font-size: 1.3rem;
+
+    @keyframes gentlePulse {
+        0%, 100% {
+            box-shadow: 0 10px 30px rgba(0, 82, 204, 0.3);
+        }
+        50% {
+            box-shadow: 0 15px 40px rgba(0, 82, 204, 0.5);
+        }
     }
-}
 
-/* Базовые стили */
-.services-hero {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-    color: white;
-    padding: 120px 0 80px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    margin-top: 4%;
-}
-
-section, .services-hero {
-    border-radius: 20px;
-}
-
-.hero-title {
-    font-size: 3.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    opacity: 0;
-    transform: translateY(30px);
-}
-
-.hero-subtitle {
-    font-size: 1.3rem;
-    opacity: 0.9;
-    max-width: 600px;
-    margin: 0 auto;
-    opacity: 0;
-    transform: translateY(30px);
-}
-
-.services-container {
-    opacity: 0;
-}
-
-.services-section {
-    padding: 80px 0;
-}
-
-.alt-bg {
-    background: #f8f9fa;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-.section-title {
-    font-size: 2.5rem;
-    text-align: center;
-    margin-bottom: 1rem;
-    color: #2c3e50;
-}
-
-.how-we {
-    color: white;
-    margin-top: 4% !important;
-}
-
-.hows-we {
-    color: white;
-}
-
-.section-subtitle {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #6c757d;
-    margin-bottom: 3rem;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Сетка услуг */
-.services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
-    margin-bottom: 4rem;
-}
-
-.service-item {
-    background: white;
-    padding: 2.5rem;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 1px solid #f1f3f4;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.service-content {
-    flex: 1;
-    margin-bottom: 1.5rem;
-}
-
-.service-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #0052cc, #0066cc);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
-.service-item:hover::before {
-    transform: scaleX(1);
-}
-
-.service-item:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-}
-
-.service-icon {
-    font-size: 4rem;
-    margin-bottom: 1.5rem;
-}
-
-.service-item h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: #2c3e50;
-}
-
-.service-item p {
-    color: #6c757d;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-}
-
-.service-features {
-    list-style: none;
-    padding: 0;
-    margin: 1.5rem 0;
-    text-align: left;
-}
-
-.service-features li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #f1f3f4;
-    position: relative;
-    padding-left: 1.5rem;
-    color: black;
-}
-
-.service-features li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: #48bb78;
-    font-weight: bold;
-}
-
-.service-btn {
-    background: linear-gradient(135deg, #0052cc, #0066cc);
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 25px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: auto;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-    width: 100%;
-    max-width: 200px;
-    align-self: center;
-}
-
-.service-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    color: white;
-    text-decoration: none;
-}
-
-/* Дополнительные услуги */
-.additional-services {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-}
-
-.additional-service {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-    transition: transform 0.3s ease;
-}
-
-.additional-service:hover {
-    transform: scale(1.05);
-}
-
-.additional-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
-.additional-service h4 {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    color: #2c3e50;
-}
-
-.additional-service p {
-    color: black;
-}
-
-/* Процесс работы */
-.process-steps {
-    max-width: 800px;
-    margin: 0 auto;
-    margin-top: 2%;
-}
-
-.process-step {
-    display: flex;
-    align-items: center;
-    margin-bottom: 3rem;
-    opacity: 0;
-}
-
-.step-number {
-    font-size: 3rem;
-    font-weight: 700;
-    color: white;
-    min-width: 80px;
-}
-
-.step-content h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-    color: white !important;
-}
-
-.step-content p {
-    color: white;
-    margin: 0;
-}
-
-/* Анимация появления */
-@keyframes bounce {
-    0%, 100% { transform: rotate(45deg) translate(0, 0); }
-    50% { transform: rotate(45deg) translate(-10px, -10px); }
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-    .hero-title {
-        font-size: 2.5rem;
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(0, 82, 204, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(0, 82, 204, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(0, 82, 204, 0);
+        }
     }
-    
-    .hero-subtitle {
-        font-size: 1.1rem;
-    }
-    
-    .services-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    
-    .service-item {
-        padding: 2rem;
-    }
-    
-    .process-step {
-        flex-direction: column;
+
+    .no-services {
+        grid-column: 1 / -1;
         text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     }
 
-    .additional-services {
-        grid-template-columns: 1fr;
+    .no-services p {
+        font-size: 1.2rem;
+        color: #6c757d;
+        margin: 0;
     }
-    
-    .service-btn {
-        width: 100%;
-        max-width: none;
-    }
-}
 
-@media (max-width: 480px) {
+    .process-step {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 80px;
+        position: relative;
+        opacity: 0;
+        transform: translateX(-30px);
+        transition: all 0.6s ease;
+    }
+
+    .process-step.active {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .step-visual {
+        position: relative;
+        z-index: 2;
+        margin-right: 50px;
+        flex-shrink: 0;
+    }
+
+    .step-circle {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #0052cc, #0066cc);
+        border-radius: 50%;
+        display: flex;
+        text-align: center;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0, 82, 204, 0.3);
+        transition: all 0.4s ease;
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    .process-step:hover .step-circle {
+        transform: scale(1.1);
+        box-shadow: 0 15px 40px rgba(0, 82, 204, 0.4);
+    }
+
+    .step-number {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: white;
+        opacity: 0.8;
+        align-items: center;
+    }
+
+    .step-content {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .process-step:hover .step-content {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(10px);
+    }
+
+    .step-content h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: white;
+    }
+
+    .step-content p {
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .step-details {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .step-details li {
+        padding: 0.5rem 0;
+        color: rgba(255, 255, 255, 0.7);
+        position: relative;
+        padding-left: 1.5rem;
+    }
+
+    .step-details li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #48bb78;
+        font-weight: bold;
+    }
+
+    .process-cta {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 50px;
+        text-align: center;
+        margin-top: 60px;
+    }
+
+    .cta-content h3 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: white;
+    }
+
+    .cta-content p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .cta-btn {
+        background: linear-gradient(135deg, #48bb78, #38a169);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .cta-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .process-timeline {
+            padding: 40px 0;
+        }
+        
+        .process-line {
+            left: 60px;
+        }
+        
+        .process-step {
+            flex-direction: column;
+            margin-bottom: 60px;
+        }
+        
+        .step-visual {
+            margin-right: 0;
+            margin-bottom: 30px;
+            align-self: flex-start;
+        }
+        
+        .step-circle {
+            width: 100px;
+            height: 100px;
+        }
+        
+        .step-content {
+            padding: 20px;
+        }
+        
+        .process-cta {
+            padding: 30px 20px;
+        }
+        
+        .cta-content h3 {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .process-section {
+            padding: 60px 0;
+        }
+        
+        .step-circle {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .step-number {
+            font-size: 0.8rem;
+        }
+        
+        .step-content h3 {
+            font-size: 1.3rem;
+        }
+    }
+
+    /* Базовые стили */
     .services-hero {
-        padding: 100px 0 60px;
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 120px 0 80px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        margin-top: 4%;
     }
-    
+
+    section, .services-hero {
+        border-radius: 20px;
+    }
+
     .hero-title {
-        font-size: 2rem;
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        opacity: 0;
+        transform: translateY(30px);
     }
-    
+
+    .hero-subtitle {
+        font-size: 1.3rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .services-container {
+        opacity: 0;
+    }
+
+    .services-section {
+        padding: 80px 0;
+    }
+
+    .alt-bg {
+        background: #f8f9fa;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
     .section-title {
-        font-size: 2rem;
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        color: #2c3e50;
     }
-    
+
+    .how-we {
+        color: white;
+        margin-top: 4% !important;
+    }
+
+    .hows-we {
+        color: white;
+    }
+
+    .section-subtitle {
+        text-align: center;
+        font-size: 1.2rem;
+        color: #6c757d;
+        margin-bottom: 3rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Сетка услуг */
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
     .service-item {
-        padding: 1.5rem;
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid #f1f3f4;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
-    
+
+    .service-content {
+        flex: 1;
+        margin-bottom: 1.5rem;
+    }
+
+    .service-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #0052cc, #0066cc);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .service-item:hover::before {
+        transform: scaleX(1);
+    }
+
+    .service-item:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
     .service-icon {
-        font-size: 3rem;
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
     }
-}
-</style>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    AOS.init({
-        duration: 800,
-        once: true,
-        offset: 100
-    });
+    .service-item h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #2c3e50;
+    }
 
-    anime({
-        targets: '.hero-title',
-        translateY: [30, 0],
-        opacity: [0, 1],
-        duration: 1000,
-        easing: 'easeOutCubic'
-    });
+    .service-item p {
+        color: #6c757d;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
 
-    anime({
-        targets: '.hero-subtitle',
-        translateY: [30, 0],
-        opacity: [0, 1],
-        duration: 1000,
-        delay: 300,
-        easing: 'easeOutCubic'
-    });
+    .service-features {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0;
+        text-align: left;
+    }
 
-    anime({
-        targets: '.services-container',
-        opacity: [0, 1],
-        duration: 800,
-        delay: 600,
-        easing: 'easeInOutQuad'
-    });
+    .service-features li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f1f3f4;
+        position: relative;
+        padding-left: 1.5rem;
+        color: black;
+    }
 
-    function animateProcessLine() {
-        const processLine = document.querySelector('.process-line');
-        const processSteps = document.querySelectorAll('.process-step');
+    .service-features li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #48bb78;
+        font-weight: bold;
+    }
+
+    .service-btn {
+        background: linear-gradient(135deg, #0052cc, #0066cc);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: auto;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+        max-width: 200px;
+        align-self: center;
+    }
+
+    .service-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* Дополнительные услуги */
+    .additional-services {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .additional-service {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease;
+    }
+
+    .additional-service:hover {
+        transform: scale(1.05);
+    }
+
+    .additional-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .additional-service h4 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        color: #2c3e50;
+    }
+
+    .additional-service p {
+        color: black;
+    }
+
+    /* Процесс работы */
+    .process-steps {
+        max-width: 800px;
+        margin: 0 auto;
+        margin-top: 2%;
+    }
+
+    .process-step {
+        display: flex;
+        align-items: center;
+        margin-bottom: 3rem;
+        opacity: 0;
+    }
+
+    .step-number {
+        font-size: 3rem;
+        font-weight: 700;
+        color: white;
+        min-width: 80px;
+    }
+
+    .step-content h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: white !important;
+    }
+
+    .step-content p {
+        color: white;
+        margin: 0;
+    }
+
+    /* Анимация появления */
+    @keyframes bounce {
+        0%, 100% { transform: rotate(45deg) translate(0, 0); }
+        50% { transform: rotate(45deg) translate(-10px, -10px); }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
         
-        if (!processLine) return;
+        .hero-subtitle {
+            font-size: 1.1rem;
+        }
         
-        processLine.style.opacity = '0';
-        processLine.style.transform = 'scaleY(0)';
-        processLine.style.transformOrigin = 'top center';
+        .services-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
         
+        .service-item {
+            padding: 2rem;
+        }
+        
+        .process-step {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .additional-services {
+            grid-template-columns: 1fr;
+        }
+        
+        .service-btn {
+            width: 100%;
+            max-width: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .services-hero {
+            padding: 100px 0 60px;
+        }
+        
+        .hero-title {
+            font-size: 2rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+        }
+        
+        .service-item {
+            padding: 1.5rem;
+        }
+        
+        .service-icon {
+            font-size: 3rem;
+        }
+    }
+    </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
         anime({
-            targets: processLine,
-            opacity: [0, 0.3],
-            scaleY: [0, 1],
-            duration: 1500,
-            delay: 800,
+            targets: '.hero-title',
+            translateY: [30, 0],
+            opacity: [0, 1],
+            duration: 1000,
             easing: 'easeOutCubic'
         });
-        
-        let hasAnimated = false;
-        
-        const lineObserver = new IntersectionObserver((entries) => {
+
+        anime({
+            targets: '.hero-subtitle',
+            translateY: [30, 0],
+            opacity: [0, 1],
+            duration: 1000,
+            delay: 300,
+            easing: 'easeOutCubic'
+        });
+
+        anime({
+            targets: '.services-container',
+            opacity: [0, 1],
+            duration: 800,
+            delay: 600,
+            easing: 'easeInOutQuad'
+        });
+
+        function animateProcessLine() {
+            const processLine = document.querySelector('.process-line');
+            const processSteps = document.querySelectorAll('.process-step');
+            
+            if (!processLine) return;
+            
+            processLine.style.opacity = '0';
+            processLine.style.transform = 'scaleY(0)';
+            processLine.style.transformOrigin = 'top center';
+            
+            anime({
+                targets: processLine,
+                opacity: [0, 0.3],
+                scaleY: [0, 1],
+                duration: 1500,
+                delay: 800,
+                easing: 'easeOutCubic'
+            });
+            
+            let hasAnimated = false;
+            
+            const lineObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !hasAnimated) {
+                        hasAnimated = true;
+                        
+                        anime({
+                            targets: processLine,
+                            background: [
+                                'linear-gradient(180deg, #0052cc 0%, transparent 100%)',
+                                'linear-gradient(180deg, #0052cc 0%, #0052cc 100%)'
+                            ],
+                            duration: 2000,
+                            easing: 'easeInOutQuad',
+                            delay: 300
+                        });
+                    }
+                });
+            }, {
+                threshold: 0.3
+            });
+            
+            lineObserver.observe(processLine);
+            
+            processSteps.forEach((step, index) => {
+                const stepObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            step.classList.add('active');
+                            
+                            const progress = ((index + 1) / processSteps.length) * 100;
+                            
+                            anime({
+                                targets: processLine,
+                                background: `linear-gradient(180deg, #0052cc 0%, #0052cc ${progress}%, rgba(0, 82, 204, 0.3) ${progress}%, rgba(0, 82, 204, 0.3) 100%)`,
+                                duration: 1000,
+                                easing: 'easeOutCubic'
+                            });
+                            
+                            // Анимация кружков шагов
+                            anime({
+                                targets: step.querySelector('.step-circle'),
+                                scale: [0.8, 1],
+                                opacity: [0, 1],
+                                duration: 600,
+                                easing: 'easeOutElastic(1, .6)'
+                            });
+                        } else {
+                            step.classList.remove('active');
+                        }
+                    });
+                }, {
+                    threshold: 0.6,
+                    rootMargin: '-50px 0px -100px 0px'
+                });
+                
+                stepObserver.observe(step);
+            });
+        }
+
+        setTimeout(animateProcessLine, 1000);
+
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.services-hero');
+            if (hero) {
+                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+
+        document.querySelectorAll('.service-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                anime({
+                    targets: this,
+                    scale: [1, 0.95, 1],
+                    duration: 300,
+                    easing: 'easeInOutQuad'
+                });
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting && !hasAnimated) {
-                    hasAnimated = true;
-                    
+                if (entry.isIntersecting) {
                     anime({
-                        targets: processLine,
-                        background: [
-                            'linear-gradient(180deg, #0052cc 0%, transparent 100%)',
-                            'linear-gradient(180deg, #0052cc 0%, #0052cc 100%)'
-                        ],
-                        duration: 2000,
-                        easing: 'easeInOutQuad',
-                        delay: 300
+                        targets: entry.target.querySelector('.service-icon'),
+                        scale: [0, 1],
+                        rotate: [180, 0],
+                        duration: 800,
+                        easing: 'easeOutElastic(1, .8)'
                     });
                 }
             });
         }, {
-            threshold: 0.3
+            threshold: 0.5,
+            rootMargin: '0px 0px -100px 0px'
         });
-        
-        lineObserver.observe(processLine);
-        
-        processSteps.forEach((step, index) => {
-            const stepObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        step.classList.add('active');
-                        
-                        const progress = ((index + 1) / processSteps.length) * 100;
-                        
-                        anime({
-                            targets: processLine,
-                            background: `linear-gradient(180deg, #0052cc 0%, #0052cc ${progress}%, rgba(0, 82, 204, 0.3) ${progress}%, rgba(0, 82, 204, 0.3) 100%)`,
-                            duration: 1000,
-                            easing: 'easeOutCubic'
-                        });
-                        
-                        // Анимация кружков шагов
-                        anime({
-                            targets: step.querySelector('.step-circle'),
-                            scale: [0.8, 1],
-                            opacity: [0, 1],
-                            duration: 600,
-                            easing: 'easeOutElastic(1, .6)'
-                        });
-                    } else {
-                        step.classList.remove('active');
-                    }
-                });
-            }, {
-                threshold: 0.6,
-                rootMargin: '-50px 0px -100px 0px'
-            });
-            
-            stepObserver.observe(step);
-        });
-    }
 
-    setTimeout(animateProcessLine, 1000);
-
-    window.addEventListener('scroll', function() {
-        const scrolled = window.pageYOffset;
-        const hero = document.querySelector('.services-hero');
-        if (hero) {
-            hero.style.transform = `translateY(${scrolled * 0.5}px)`;
-        }
-    });
-
-    document.querySelectorAll('.service-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            anime({
-                targets: this,
-                scale: [1, 0.95, 1],
-                duration: 300,
-                easing: 'easeInOutQuad'
-            });
+        document.querySelectorAll('.service-item').forEach(item => {
+            observer.observe(item);
         });
     });
+    </script>
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                anime({
-                    targets: entry.target.querySelector('.service-icon'),
-                    scale: [0, 1],
-                    rotate: [180, 0],
-                    duration: 800,
-                    easing: 'easeOutElastic(1, .8)'
-                });
-            }
-        });
-    }, {
-        threshold: 0.5,
-        rootMargin: '0px 0px -100px 0px'
-    });
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
 
-    document.querySelectorAll('.service-item').forEach(item => {
-        observer.observe(item);
-    });
-});
-</script>
-
-<!-- Yandex.Metrika counter -->
-<script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
-
-    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
-<!-- End Google Tag Manager -->
-{% endblock %}
+        ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
+    <!-- End Google Tag Manager -->
+    {% endblock %}
