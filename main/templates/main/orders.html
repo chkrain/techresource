@@ -3,7 +3,6 @@
 {% block title %}Мои заказы - Техресурс{% endblock %}
 
 {% block content %}
-<!-- Hero секция -->
 <section class="orders-hero">
     <div class="container">
         <div class="hero-content">
@@ -146,7 +145,6 @@
                     </div>
                 </div>
 
-                <!-- Кнопки действий -->
                 <div class="order-actions">
                     <button class="action-btn reorder-btn" data-order-id="{{ order.id }}">
                         📋 Повторить заказ
@@ -177,7 +175,6 @@
             {% endfor %}
         </div>
         {% else %}
-        <!-- Пустая страница заказов -->
         <div class="empty-orders" data-aos="zoom-in">
             <div class="empty-icon">📦</div>
             <h2>У вас пока нет заказов</h2>
@@ -195,10 +192,23 @@
     </div>
 </section>
 
-<!-- Подключение библиотек -->
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
+
+    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
 
 <style>
 section {
@@ -206,7 +216,6 @@ section {
     margin-top: 4%;
 }
 
-/* Hero секция */
 .orders-hero {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
@@ -234,7 +243,6 @@ section {
     margin: 0 auto;
 }
 
-/* Основная секция */
 .orders-section {
     padding: 4rem 0;
     background: #f8f9fa;
@@ -247,7 +255,6 @@ section {
     padding: 0 20px;
 }
 
-/* Шапка страницы */
 .orders-header {
     display: flex;
     justify-content: space-between;
@@ -294,7 +301,6 @@ section {
     font-weight: 500;
 }
 
-/* Карточка заказа */
 .orders-container {
     display: flex;
     flex-direction: column;
@@ -373,7 +379,6 @@ section {
     50% { opacity: 0.5; }
 }
 
-/* Кнопка раскрытия временной шкалы */
 .timeline-toggle {
     display: flex;
     align-items: center;
@@ -458,7 +463,6 @@ section {
     color: black;
 }
 
-/* Контент заказа */
 .order-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -733,7 +737,6 @@ section {
     box-shadow: 0 10px 25px rgba(0, 82, 204, 0.3);
 }
 
-/* Стили для временной шкалы статуса заказа */
 .order-timeline {
     background: white;
     border-radius: 0 0 16px 16px;
@@ -827,7 +830,6 @@ section {
     color: #6c757d !important;
 }
 
-/* Анимации для кнопок */
 .reorder-btn {
     background: linear-gradient(135deg, #28a745, #20c997);
     color: white;
@@ -951,7 +953,6 @@ section {
     color: #2c3e50;
 }
 
-/* Анимации */
 @keyframes pulse-blue {
     0%, 100% {
         box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
@@ -970,7 +971,6 @@ section {
     }
 }
 
-/* Адаптивность */
 @media (max-width: 1024px) {
     .order-content {
         grid-template-columns: 1fr;
@@ -1058,7 +1058,6 @@ section {
         justify-content: center;
     }
     
-    /* Адаптивность для временной шкалы */
     .order-timeline {
         padding: 1.5rem;
     }
@@ -1154,7 +1153,6 @@ section {
     }
 }
 
-/* Стили для расширенной информации о заказе */
 .order-details-expanded {
     background: #f8f9fa;
     border-radius: 12px;
@@ -1224,7 +1222,6 @@ section {
     flex: 1;
 }
 
-/* История статусов */
 .status-history {
     display: flex;
     flex-direction: column;
@@ -1275,7 +1272,6 @@ section {
     border: 1px dashed #e9ecef;
 }
 
-/* Детализированные товары */
 .order-items-detailed {
     display: flex;
     flex-direction: column;
@@ -1388,7 +1384,6 @@ section {
     font-weight: 800;
 }
 
-/* Кнопка отслеживания */
 .tracking-actions {
     display: flex;
     gap: 1rem;
@@ -1416,7 +1411,6 @@ section {
     color: white;
 }
 
-/* Адаптивность для деталей */
 @media (max-width: 1024px) {
     .details-grid {
         grid-template-columns: 1fr;
@@ -1508,14 +1502,12 @@ section {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация AOS
     AOS.init({
         duration: 800,
         once: true,
         offset: 100
     });
 
-    // Анимация появления героя
     anime({
         targets: '.hero-title',
         translateY: [30, 0],
@@ -1533,7 +1525,6 @@ document.addEventListener('DOMContentLoaded', function() {
         easing: 'easeOutCubic'
     });
 
-    // Обработчики для кнопок раскрытия временной шкалы
     document.querySelectorAll('.timeline-toggle').forEach(btn => {
         btn.addEventListener('click', function() {
             const orderId = this.getAttribute('data-order-id');
@@ -1541,7 +1532,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const isVisible = timeline.style.display === 'block';
             
             if (isVisible) {
-                // Скрываем
                 anime({
                     targets: timeline,
                     opacity: [1, 0],
@@ -1554,7 +1544,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 this.classList.remove('active');
             } else {
-                // Показываем
                 timeline.style.display = 'block';
                 anime({
                     targets: timeline,
@@ -1565,13 +1554,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 this.classList.add('active');
                 
-                // Запускаем анимацию заполнения линии
                 animateTimelineLine(timeline);
             }
         });
     });
 
-    // Функция для анимации заполнения линии прогресса
     function animateTimelineLine(timeline) {
         const timelineContainer = timeline.querySelector('.timeline-container');
         const steps = timeline.querySelectorAll('.timeline-step');
@@ -1587,7 +1574,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const totalSteps = steps.length;
             const fillHeight = (completedSteps / totalSteps) * 100;
             
-            // Создаем элемент для заполненной линии
             const filledLine = timelineContainer.querySelector('.timeline-filled-line') || 
                               document.createElement('div');
             filledLine.className = 'timeline-filled-line';
@@ -1607,7 +1593,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 timelineContainer.appendChild(filledLine);
             }
             
-            // Анимация заполнения линии
             anime({
                 targets: filledLine,
                 height: `${fillHeight}%`,
@@ -1618,7 +1603,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Функция для получения CSRF токена
     function getCSRFToken() {
         const name = 'csrftoken';
         let cookieValue = null;
@@ -1635,13 +1619,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return cookieValue;
     }
 
-    // Обработчики кнопок действий
     document.querySelectorAll('.reorder-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
             const orderId = this.getAttribute('data-order-id');
             const orderCard = this.closest('.order-card');
             
-            // Анимация нажатия
             anime({
                 targets: this,
                 scale: [1, 0.95, 1],
@@ -1650,12 +1632,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             try {
-                // Показываем индикатор загрузки
                 const originalText = this.innerHTML;
                 this.innerHTML = '⏳ Добавляем в корзину...';
                 this.disabled = true;
                 
-                // Отправляем запрос на повтор заказа
                 const response = await fetch(`/order/${orderId}/reorder/`, {
                     method: 'POST',
                     headers: {
@@ -1668,7 +1648,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const result = await response.json();
                 
                 if (result.success) {
-                    // Анимация успеха
                     await anime({
                         targets: this,
                         background: ['#28a745', '#155724'],
@@ -1678,13 +1657,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     this.innerHTML = '✅ Добавлено в корзину!';
                     
-                    // Обновляем счетчик корзины в навигации
                     updateCartCounter(result.cart_count);
                     
-                    // Показываем уведомление
                     showNotification(result.message, 'success');
                     
-                    // Возвращаем исходный текст через 2 секунды
                     setTimeout(() => {
                         this.innerHTML = originalText;
                         this.disabled = false;
@@ -1702,7 +1678,6 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (error) {
                 console.error('Ошибка при повторении заказа:', error);
                 
-                // Анимация ошибки
                 anime({
                     targets: this,
                     background: ['#28a745', '#dc3545'],
@@ -1714,7 +1689,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 showNotification(error.message, 'error');
                 
-                // Возвращаем исходный текст через 2 секунды
                 setTimeout(() => {
                     this.innerHTML = '📋 Повторить заказ';
                     anime({
@@ -1727,10 +1701,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Функция загрузки деталей заказа
     async function loadOrderDetails(orderId, orderCard, button) {
         try {
-            // Показываем индикатор загрузки
             const originalText = button.innerHTML;
             button.innerHTML = '⏳ Загрузка...';
             button.disabled = true;
@@ -1744,16 +1716,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             
             if (result.success) {
-                // Создаем секцию с деталями
                 const detailsSection = document.createElement('div');
                 detailsSection.className = 'order-details-full';
                 detailsSection.innerHTML = result.html;
                 
-                // Вставляем после основного контента
                 const orderContent = orderCard.querySelector('.order-content');
                 orderContent.parentNode.insertBefore(detailsSection, orderContent.nextSibling);
                 
-                // Анимация появления
                 await anime({
                     targets: detailsSection,
                     opacity: [0, 1],
@@ -1761,8 +1730,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     duration: 500,
                     easing: 'easeOutCubic'
                 }).finished;
-                
-                // Обновляем текст кнопки
+            
                 button.innerHTML = '📄 Скрыть детали';
                 button.disabled = false;
                 
@@ -1773,7 +1741,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Ошибка загрузки деталей заказа:', error);
             
-            // Восстанавливаем кнопку
             button.innerHTML = originalText;
             button.disabled = false;
             
@@ -1786,7 +1753,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const orderId = this.getAttribute('data-order-id');
             const orderCard = this.closest('.order-card');
             
-            // Анимация нажатия
             anime({
                 targets: this,
                 scale: [1, 0.95, 1],
@@ -1794,14 +1760,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 easing: 'easeInOutQuad'
             });
             
-            // Показываем/скрываем дополнительную информацию
             const detailsSection = orderCard.querySelector('.order-details-full');
             
             if (!detailsSection) {
-                // Если секции нет, загружаем детали
                 loadOrderDetails(orderId, orderCard, this);
             } else {
-                // Если секция есть, переключаем видимость
                 toggleDetailsSection(detailsSection, this);
             }
         });
@@ -1818,16 +1781,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             
             if (result.success) {
-                // Создаем секцию с деталями
                 const detailsSection = document.createElement('div');
                 detailsSection.className = 'order-details-full';
                 detailsSection.innerHTML = result.html;
                 
-                // Вставляем после основного контента
                 const orderContent = orderCard.querySelector('.order-content');
                 orderContent.parentNode.insertBefore(detailsSection, orderContent.nextSibling);
                 
-                // Анимация появления
                 anime({
                     targets: detailsSection,
                     opacity: [0, 1],
@@ -1846,7 +1806,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Обработчики кнопок отмены заказа
     document.querySelectorAll('.cancel-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
             const orderId = this.getAttribute('data-order-id');
@@ -1854,13 +1813,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const orderCard = this.closest('.order-card');
             
             if (confirm('Вы уверены, что хотите отменить этот заказ?')) {
-                // Показываем индикатор загрузки
                 const originalText = this.innerHTML;
                 this.innerHTML = '⏳ Отмена...';
                 this.disabled = true;
 
                 try {
-                    // Отправляем запрос на отмену заказа
                     const response = await fetch(`/order/cancel/${orderId}/`, {
                         method: 'POST',
                         headers: {
@@ -1873,7 +1830,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     const result = await response.json();
 
                     if (result.success) {
-                        // Анимация скрытия карточки заказа
                         await anime({
                             targets: orderCard,
                             opacity: [1, 0],
@@ -1882,10 +1838,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             easing: 'easeInOutQuad'
                         }).finished;
 
-                        // Показываем сообщение об успехе
                         showNotification(result.message || 'Заказ успешно отменен', 'success');
                         
-                        // Обновляем страницу через 1 секунду
                         setTimeout(() => {
                             location.reload();
                         }, 1000);
@@ -1896,14 +1850,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 } catch (error) {
                     console.error('Ошибка при отмене заказа:', error);
                     
-                    // Восстанавливаем кнопку
                     this.innerHTML = originalText;
                     this.disabled = false;
                     
-                    // Показываем сообщение об ошибке
                     showNotification(error.message || 'Произошла ошибка при отмене заказа', 'error');
                     
-                    // Анимация ошибки
                     anime({
                         targets: orderCard,
                         translateX: [0, 10, -10, 0],
@@ -1915,12 +1866,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Функция переключения видимости секции деталей
     function toggleDetailsSection(detailsSection, button) {
         const isVisible = detailsSection.style.display !== 'none';
         
         if (isVisible) {
-            // Скрываем
             anime({
                 targets: detailsSection,
                 opacity: [1, 0],
@@ -1933,7 +1882,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         } else {
-            // Показываем
             detailsSection.style.display = 'block';
             anime({
                 targets: detailsSection,
@@ -1946,11 +1894,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Функция обновления счетчика корзины
     function updateCartCounter(newCount) {
         const cartCounter = document.querySelector('.cart-counter');
         if (cartCounter) {
-            // Анимация обновления счетчика
             anime({
                 targets: cartCounter,
                 scale: [1, 1.5, 1],
@@ -1961,7 +1907,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Обработчики кнопок возврата
     document.querySelectorAll('.refund-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const orderId = this.getAttribute('data-order-id');
@@ -1969,9 +1914,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Функция показа уведомлений
     function showNotification(message, type = 'info') {
-        // Создаем элемент уведомления
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.innerHTML = `
@@ -1981,7 +1924,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        // Стили для уведомления
         notification.style.cssText = `
             position: fixed;
             top: 20px;
@@ -2019,7 +1961,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.appendChild(notification);
 
-        // Автоматическое скрытие через 5 секунд
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.style.animation = 'slideOutRight 0.3s ease';
@@ -2027,14 +1968,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 5000);
 
-        // Закрытие по клику
         notification.querySelector('.notification-close').addEventListener('click', () => {
             notification.style.animation = 'slideOutRight 0.3s ease';
             setTimeout(() => notification.remove(), 300);
         });
     }
 
-    // Добавляем стили для анимации уведомлений
     const style = document.createElement('style');
     style.textContent = `
         @keyframes slideInRight {
@@ -2061,7 +2000,6 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(style);
 
-    // Анимация статусов заказов
     document.querySelectorAll('.status-dot').forEach(dot => {
         anime({
             targets: dot,
@@ -2072,7 +2010,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Анимация временной шкалы при загрузке
     document.querySelectorAll('.timeline-step').forEach((step, index) => {
         setTimeout(() => {
             anime({
@@ -2085,7 +2022,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, index * 200);
     });
 
-    // Анимация иконок статусов
     document.querySelectorAll('.step-icon').forEach(icon => {
         const step = icon.closest('.timeline-step');
         if (step.classList.contains('current')) {
@@ -2099,7 +2035,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Плавное раскрытие информации о трекинге
     document.querySelectorAll('.tracking-info').forEach(info => {
         anime({
             targets: info,
@@ -2111,7 +2046,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Параллакс эффект для героя
     window.addEventListener('scroll', function() {
         const scrolled = window.pageYOffset;
         const hero = document.querySelector('.orders-hero');
@@ -2121,4 +2055,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
+
+    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+ <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
+<!-- End Google Tag Manager -->
 {% endblock %}

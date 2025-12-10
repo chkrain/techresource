@@ -23,7 +23,6 @@
         <form method="post" class="auth-form" id="register-form">
             {% csrf_token %}
             
-            <!-- Выбор типа аккаунта -->
             <div class="form-section" data-aos="fade-up" data-aos-delay="50">
             <h3 class="section-title">Тип аккаунта</h3>
             <div class="account-type-selector">
@@ -49,7 +48,6 @@
             </div>
         </div>
 
-            <!-- Основные поля -->
             <div class="form-group" data-aos="fade-up" data-aos-delay="100">
                 <label class="form-label">
                     <span class="label-text">Имя на аккаунте*</span>
@@ -78,7 +76,6 @@
                 {% endif %}
             </div>
 
-            <!-- Поля для физлица -->
             <div class="account-fields individual-fields" id="individual-fields">
                 <div class="form-grid" data-aos="fade-up" data-aos-delay="200">
                     <div class="form-group">
@@ -97,7 +94,6 @@
                 </div>
             </div>
 
-            <!-- Поля для юрлица -->
             <div class="account-fields legal-fields" id="legal-fields" style="display: none;">
                 <div class="form-group" data-aos="fade-up" data-aos-delay="200">
                     <label class="form-label">
@@ -235,7 +231,6 @@
 </div>
 
 <style>
-/* Стили для выбора типа аккаунта */
 .account-type-selector {
     margin-bottom: 2rem;
 }
@@ -299,7 +294,6 @@
     display: block;
 }
 
-/* Секции формы */
 .form-section {
     margin-bottom: 2rem;
 }
@@ -320,7 +314,6 @@
     margin-bottom: 1rem;
 }
 
-/* Поля для разных типов аккаунтов */
 .account-fields {
     margin-bottom: 1.5rem;
 }
@@ -332,14 +325,12 @@
     border: 1px solid #e9ecef;
 }
 
-/* Сетка для форм */
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
 }
 
-/* Анимации появления полей */
 .account-fields {
     animation: slideDown 0.3s ease-out;
 }
@@ -355,7 +346,6 @@
     }
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .account-type-options {
         grid-template-columns: 1fr;
@@ -371,24 +361,20 @@
     }
 }
 
-/* Дополнительные стили для улучшения UX */
 .form-label input:required + .label-text::after {
     content: " *";
     color: #e53e3e;
 }
 
-/* Подсветка обязательных полей для юрлица */
 .legal-fields .form-label input:required {
     border-left: 3px solid #667eea;
 }
 
-/* Плейсхолдеры */
 .form-label input::placeholder {
     color: #a0aec0;
     font-size: 0.9rem;
 }
 
-/* Улучшенные сообщения об ошибках */
 .error-message {
     background: #fed7d7;
     border: 1px solid #feb2b2;
@@ -404,7 +390,6 @@
     margin-right: 0.5rem;
 }
 
-/* Индикаторы силы пароля */
 .password-strength {
     margin-top: 0.5rem;
     height: 4px;
@@ -434,7 +419,6 @@
     width: 100%;
 }
 
-/* Индикатор совпадения паролей */
 .password-match {
     margin-top: 0.5rem;
     font-size: 0.85rem;
@@ -692,13 +676,11 @@
     text-decoration: underline;
 }
 
-/* Анимации частиц */
 @keyframes float {
     0% { transform: translateY(0) rotate(0deg); opacity: 1; }
     100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .auth-card {
         padding: 2rem 1.5rem;
@@ -739,7 +721,6 @@
     }
 }
 
-/* Анимация появления */
 @keyframes slideInUp {
     from {
         opacity: 0;
@@ -756,9 +737,22 @@
 }
 </style>
 
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
+
+    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация AOS
     if (typeof AOS !== 'undefined') {
         AOS.init({
             duration: 800,
@@ -774,7 +768,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleAccountFields() {
         const selectedType = document.querySelector('input[name="account_type"]:checked').value;
         
-        console.log('Selected type:', selectedType); // Для отладки
+        console.log('Selected type:', selectedType);
         
         if (selectedType === 'individual') {
             individualFields.style.display = 'block';
@@ -810,7 +804,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     toggleAccountFields();
 
-    // Валидация пароля
     const passwordInput = document.querySelector('input[name="password1"]');
     const passwordConfirmInput = document.querySelector('input[name="password2"]');
     const passwordStrength = document.getElementById('password-strength');
@@ -865,7 +858,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const password = e.target.value;
             updatePasswordStrength(password);
             
-            // Показываем ошибки в реальном времени
             const errors = validatePassword(password);
             const errorDiv = passwordInput.parentNode.querySelector('.password-errors');
             
@@ -908,7 +900,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Маска для ОГРН (13 цифр)
         const ogrnInput = document.querySelector('input[name="ogrn"]');
         if (ogrnInput) {
             ogrnInput.addEventListener('input', function(e) {
@@ -918,7 +909,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Маска для БИК (9 цифр)
         const bikInput = document.querySelector('input[name="bik"]');
         if (bikInput) {
             bikInput.addEventListener('input', function(e) {
@@ -928,7 +918,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Маска для расчетного счета (20 цифр)
         const accountInput = document.querySelector('input[name="settlement_account"]');
         if (accountInput) {
             accountInput.addEventListener('input', function(e) {
@@ -941,7 +930,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initMasks();
 
-    // Валидация формы
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
         registerForm.addEventListener('submit', function(e) {
@@ -949,7 +937,6 @@ document.addEventListener('DOMContentLoaded', function() {
             let isValid = true;
             const errorMessages = [];
 
-            // Базовая валидация
             const requiredFields = registerForm.querySelectorAll('[required]');
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
@@ -962,7 +949,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            // Валидация пароля
             const password = passwordInput?.value;
             if (password) {
                 const passwordErrors = validatePassword(password);
@@ -972,13 +958,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            // Проверка совпадения паролей
             if (passwordInput && passwordConfirmInput && passwordInput.value !== passwordConfirmInput.value) {
                 isValid = false;
                 errorMessages.push('Пароли не совпадают');
             }
 
-            // Специфическая валидация для юрлица
             if (accountType === 'legal') {
                 const inn = document.querySelector('input[name="inn"]').value;
                 if (inn && (inn.length !== 10 && inn.length !== 12)) {
@@ -994,9 +978,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Функция показа уведомлений
     function showNotification(message, type = 'info') {
-        // Создаем элемент уведомления
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.innerHTML = `
@@ -1006,7 +988,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
-        // Стили для уведомления
         notification.style.cssText = `
             position: fixed;
             top: 20px;
@@ -1023,13 +1004,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.body.appendChild(notification);
         
-        // Автоматическое скрытие через 5 секунд
         setTimeout(() => {
             notification.remove();
         }, 5000);
     }
 
-    // Создание частиц для фона
     function createAuthParticles() {
         const container = document.getElementById('auth-particles');
         if (!container) return;
@@ -1056,12 +1035,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Запуск создания частиц
     createAuthParticles();
 });
 </script>
 
-<!-- Подключение библиотек для анимаций -->
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 

@@ -788,7 +788,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentFile = null;
     const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
-    // Функция для форматирования размера файла
     function formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -797,7 +796,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    // Функция для получения иконки файла
     function getFileIcon(filename) {
         const ext = filename.split('.').pop().toLowerCase();
         const iconMap = {
@@ -820,7 +818,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return iconMap[ext] || 'fas fa-file';
     }
 
-    // Функция для получения типа файла
     function getFileType(filename) {
         const ext = filename.split('.').pop().toLowerCase();
         const typeMap = {
@@ -843,7 +840,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return typeMap[ext] || 'Файл';
     }
 
-    // Обновление прогресс-бара
     function updateProgressBar(fileSize) {
         const progress = (fileSize / MAX_FILE_SIZE) * 100;
         uploadProgress.style.width = Math.min(progress, 100) + '%';
@@ -857,7 +853,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Добавление файла в список
     function addFileToList(file) {
         const fileItem = document.createElement('div');
         fileItem.className = 'file-item';
@@ -882,7 +877,6 @@ document.addEventListener('DOMContentLoaded', function() {
         fileList.appendChild(fileItem);
     }
 
-    // Удаление файла из списка
     window.removeFile = function() {
         currentFile = null;
         fileInput.value = '';
@@ -890,7 +884,6 @@ document.addEventListener('DOMContentLoaded', function() {
         uploadProgress.style.width = '0%';
     };
 
-    // Обработка перетаскивания файлов
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         fileDropArea.addEventListener(eventName, preventDefaults, false);
     });
@@ -921,13 +914,11 @@ document.addEventListener('DOMContentLoaded', function() {
         handleFiles(e.target.files);
     });
 
-    // Обработка выбранных файлов
     function handleFiles(files) {
         if (files.length === 0) return;
 
         const file = files[0];
 
-        // Проверка размера файла
         if (file.size > MAX_FILE_SIZE) {
             alert(`Файл "${file.name}" слишком большой. Максимальный размер 25MB.`);
             return;
@@ -938,9 +929,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateProgressBar(file.size);
     }
 
-    // Обработка отправки формы
     supportForm.addEventListener('submit', function(e) {
-        // Валидация формы
         const subject = document.getElementById('id_subject').value.trim();
         const description = document.getElementById('id_description').value.trim();
 
@@ -956,13 +945,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Показываем индикатор загрузки
         btnText.style.display = 'none';
         btnLoading.style.display = 'inline-block';
         submitBtn.disabled = true;
     });
 
-    // Анимации при загрузке
     if (typeof AOS !== 'undefined') {
         AOS.init({
             duration: 800,
@@ -974,4 +961,25 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Страница поддержки инициализирована');
 });
 </script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
+
+    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+ <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
+<!-- End Google Tag Manager -->
 {% endblock %}

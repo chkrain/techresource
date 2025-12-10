@@ -1590,23 +1590,6 @@ def verify_email(request, token):
     except User.DoesNotExist:
         messages.error(request, 'Ссылка подтверждения недействительна или устарела.')
         return redirect('register')
-    
-# ------------------------------------------- !!! --------------------------------------
-@login_required
-def debug_codes(request):
-    """Страница для отладки - показывает последние коды восстановления"""
-    if not request.user.is_staff:
-        return redirect('index')
-    
-    profiles = UserProfile.objects.filter(
-        sms_code__isnull=False,
-        sms_code_expires__gt=timezone.now()
-    ).select_related('user')
-    
-    return render(request, 'main/debug_codes.html', {'profiles': profiles})
-
-# ------------------------------------------- !!! --------------------------------------
-
 
 def send_contact_message(name, email, phone, message, ip_address):
     """Отправка сообщения обратной связи в Telegram"""

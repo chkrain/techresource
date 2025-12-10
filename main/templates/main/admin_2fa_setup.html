@@ -28,7 +28,6 @@
                     {% if not admin_2fa.is_enabled %}
                     
                         {% if not admin_2fa.secret_key %}
-                        <!-- Шаг 1: Генерация ключа -->
                         <div class="auth-info-section">
                             <h5><i class="fas fa-shield-alt me-2"></i>Включение 2FA</h5>
                             <p>Для включения двухфакторной аутентификации:</p>
@@ -63,7 +62,6 @@
                         </div>
                         
                         {% else %}
-                        <!-- Шаг 2: Настройка приложения и подтверждение -->
                         <div class="qr-section">
                             <h6><i class="fas fa-key me-2"></i>Секретный ключ для настройки:</h6>
                             <div class="secret-key-container">
@@ -87,7 +85,6 @@
                             </div>
                         </div>
 
-                        <!-- Форма подтверждения кода -->
                         <div class="verification-section">
                             <h6><i class="fas fa-check-circle me-2"></i>Подтверждение кода</h6>
                             <form method="post" class="verification-form">
@@ -107,7 +104,6 @@
                         {% endif %}
                     
                     {% else %}
-                    <!-- 2FA уже включена -->
                     <div class="status-section enabled">
                         <div class="status-icon">
                             <i class="fas fa-check-circle"></i>
@@ -118,7 +114,6 @@
                         </div>
                     </div>
                     
-                    <!-- Резервные коды -->
                     {% if backup_codes %}
                     <div class="backup-codes-section">
                         <h6><i class="fas fa-exclamation-triangle me-2"></i>Резервные коды (сохраните их!):</h6>
@@ -265,7 +260,6 @@ div {
     margin: 1rem 0;
 }
 
-/* Стили для секции инструкций по настройке */
 .setup-instructions {
     background: #f8fafc;
     padding: 1.5rem;
@@ -302,7 +296,6 @@ div {
     color: #2d3748;
 }
 
-/* Стили для секции подтверждения кода */
 .verification-section {
     background: white;
     padding: 2rem;
@@ -390,7 +383,6 @@ div {
     font-size: 0.875rem;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .setup-instructions {
         padding: 1.25rem;

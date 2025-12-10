@@ -14,7 +14,6 @@
     </div>
 </section>
 
-<!-- Основной контейнер -->
 <section class="products-main-section">
     <div class="container">
         <div class="products-layout">
@@ -41,7 +40,6 @@
                         </select>
                     </div>
                     
-                    <!-- Фильтр по цене -->
                     <div class="filter-group">
                         <h4>Цена, ₽</h4>
                         <div class="price-inputs">
@@ -1504,12 +1502,10 @@ body {
 </style>
 
 <script>
-// Глобальные переменные
 let currentPage = 1;
 let isLoading = false;
 let searchTimeout;
 
-// Функция для обновления URL без перезагрузки страницы
 function updateURL(params) {
     const url = new URL(window.location);
     Object.keys(params).forEach(key => {
@@ -1519,11 +1515,10 @@ function updateURL(params) {
             url.searchParams.delete(key);
         }
     });
-    url.searchParams.delete('page'); // Сбрасываем страницу при изменении фильтров
+    url.searchParams.delete('page'); 
     window.history.replaceState({}, '', url);
 }
 
-// Функция для обновления фильтров
 function updateFilters() {
     const form = document.getElementById('filtersForm');
     const formData = new FormData(form);
@@ -1533,22 +1528,17 @@ function updateFilters() {
         params[key] = value;
     }
     
-    // Для чекбокса "в наличии"
     if (!params.in_stock) {
         params.in_stock = '';
     }
     
-    // Обновляем URL
     updateURL(params);
     
-    // Обновляем активные фильтры
     updateActiveFilters(params);
     
-    // Загружаем товары
     loadProducts(1, params);
 }
 
-// Функция для обновления отображения активных фильтров
 function updateActiveFilters(params) {
     const activeFiltersContainer = document.getElementById('activeFilters');
     if (!activeFiltersContainer) return;
@@ -1595,7 +1585,6 @@ function updateActiveFilters(params) {
         `;
     }
     
-    // В наличии
     if (params.in_stock === 'true') {
         activeFiltersHTML += `
             <span class="active-filter">
@@ -1615,7 +1604,6 @@ function updateActiveFilters(params) {
     });
 }
 
-// Функция для поиска с задержкой
 function debouncedSearch() {
     const searchInput = document.getElementById('searchInput');
     if (!searchInput) return;
@@ -1647,7 +1635,6 @@ async function loadProducts(page = 1, additionalParams = {}) {
     const productsContainer = document.getElementById('productsContainer');
     const paginationContainer = document.getElementById('paginationContainer');
     
-    // Показываем индикатор загрузки
     if (loadingIndicator) {
         loadingIndicator.style.display = 'block';
     }
@@ -1672,7 +1659,6 @@ async function loadProducts(page = 1, additionalParams = {}) {
         
         params.append('page', page);
         
-        // Добавляем CSRF токен в заголовки
         const csrfToken = getCSRFToken();
         const headers = {
             'X-Requested-With': 'XMLHttpRequest',
@@ -1684,11 +1670,10 @@ async function loadProducts(page = 1, additionalParams = {}) {
         
         const response = await fetch(`?${params.toString()}`, {
             headers: headers,
-            credentials: 'include' // Важно: включаем куки
+            credentials: 'include'
         });
         
         if (!response.ok) {
-            // Если получили редирект на логин, значит сессия истекла
             if (response.redirected && response.url.includes('/login/')) {
                 window.location.href = '/login/?next=' + encodeURIComponent(window.location.pathname);
                 return;
@@ -1735,7 +1720,6 @@ async function loadProducts(page = 1, additionalParams = {}) {
     } catch (error) {
         console.error('Error loading products:', error);
         
-        // Если ошибка аутентификации, перенаправляем на страницу входа
         if (error.message.includes('401') || error.message.includes('403')) {
             window.location.href = '/login/?next=' + encodeURIComponent(window.location.pathname);
         } else {
@@ -2105,4 +2089,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
+
+    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
+<!-- End Google Tag Manager -->
 {% endblock %}

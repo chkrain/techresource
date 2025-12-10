@@ -17,7 +17,6 @@
 <section class="contacts-section">
     <div class="container">
         <div class="contacts-grid">
-            <!-- Контактная информация -->
             <div class="contact-info" data-aos="fade-right">
                 <div class="contact-card" data-tilt>
                     <div class="card-icon">📞</div>
@@ -65,9 +64,7 @@
                 </div>
             </div>
 
-            <!-- Карты -->
             <div class="maps-container" data-aos="fade-left">
-                <!-- Офис -->
                 <div class="map-card">
                     <div class="map-header">
                         <h3>Офис на карте</h3>
@@ -89,7 +86,6 @@
                     </div>
                 </div>
 
-                <!-- Цех -->
                 <div class="map-card">
                     <div class="map-header">
                         <h3>Цех на карте</h3>
@@ -115,7 +111,6 @@
     </div>
 </section>
 
-<!-- Социальные сети -->
 <section class="social-section">
     <div class="container">
         <div class="social-content">
@@ -123,7 +118,6 @@
             <h2 class="section-subtitle" data-aos="fade-up" data-aos-delay="200">
                 Подписывайтесь и будьте в курсе последних новостей
             </h2>
-            <!-- Социальные карточки -->
             <div class="social-cards" data-aos="fade-right">
                 <div class="social-card" data-social="telegram">
                     <div class="social-icon">
@@ -196,7 +190,6 @@ section {
     margin-top: 4%;
 }
 
-/* Базовые стили */
 .contacts-hero {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
@@ -323,7 +316,6 @@ section {
     text-align: center;
 }
 
-/* Социальные сети - УПРОЩЕННЫЕ СТИЛИ */
 .social-section {
     padding: 60px 0;
     background: white;
@@ -403,7 +395,6 @@ section {
     }
 }
 
-/* QR-коды */
 .qr-section h3 {
     margin: 0 0 10px 0;
     color: #2c3e50;
@@ -473,7 +464,6 @@ section {
     margin: 0;
 }
 
-/* Кнопки */
 .btn-outline {
     background: transparent;
     color: #667eea;
@@ -491,7 +481,6 @@ section {
     color: white;
 }
 
-/* Адаптивность */
 @media (max-width: 968px) {
     .contacts-grid,
     .social-content {
@@ -537,9 +526,29 @@ section {
 }
 </style>
 
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
+
+    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
+<!-- End Google Tag Manager -->
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Простой эффект наклона для карточек
     const tiltCards = document.querySelectorAll('[data-tilt]');
     tiltCards.forEach(card => {
         card.addEventListener('mousemove', (e) => {

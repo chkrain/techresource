@@ -417,7 +417,7 @@ class Product(models.Model):
     vat_rate = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
-        default=20.00,
+        default=Decimal('20.00'),  # Используем Decimal
         verbose_name="Ставка НДС (%)"
     )
     is_fragile = models.BooleanField(default=False, verbose_name="Хрупкий товар")
@@ -431,9 +431,9 @@ class Product(models.Model):
     specifications = models.JSONField(default=dict, blank=True, verbose_name="Характеристики")
     
     def save(self, *args, **kwargs):
-        # Автоматически рассчитываем цену без НДС
         if self.price and self.vat_rate:
-            self.price_without_vat = self.price / (1 + self.vat_rate / 100)
+            hundred = Decimal('100')
+            self.price_without_vat = self.price / (1 + self.vat_rate / hundred)
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -756,7 +756,7 @@ class OrderItem(models.Model):
     vat_rate = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
-        default=20.00,
+        default=Decimal('20.00'),  # Используем Decimal
         verbose_name="Ставка НДС (%)"
     )
     vat_amount = models.DecimalField(
@@ -782,11 +782,11 @@ class OrderItem(models.Model):
         return 0 
     
     def save(self, *args, **kwargs):
-        # Рассчитываем НДС и цену без НДС
         if self.price and self.quantity and self.vat_rate:
+            hundred = Decimal('100')
             total = self.price * self.quantity
-            self.vat_amount = total * (self.vat_rate / 100) / (1 + self.vat_rate / 100)
-            self.price_without_vat = self.price / (1 + self.vat_rate / 100)
+            self.vat_amount = total * (self.vat_rate / hundred) / (1 + self.vat_rate / hundred)
+            self.price_without_vat = self.price / (1 + self.vat_rate / hundred)
         super().save(*args, **kwargs)
     
     class Meta:

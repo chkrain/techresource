@@ -116,7 +116,6 @@
                 </div>
             </div>
             
-            <!-- Боковая панель с итогами и оформлением -->
             <div class="cart-sidebar">
                 <div class="order-summary">
                     <h3>Сводка заказа</h3>
@@ -213,7 +212,6 @@
             </div>
         </div>
         {% else %}
-        <!-- Пустая корзина -->
         <div class="empty-cart">
             <div class="empty-cart-icon">🛒</div>
             <h2>Ваша корзина пуста</h2>
@@ -227,7 +225,6 @@
 </section>
 
 <style>
-/* Стили для выбора платежной системы */
 .payment-systems {
     display: flex;
     flex-direction: column;
@@ -302,7 +299,6 @@
     font-size: 0.8rem;
 }
 
-/* Выбранная опция */
 .payment-system-option.selected {
     border-color: #0052cc;
     background: linear-gradient(135deg, #f8f9ff, #eef2ff);
@@ -382,7 +378,6 @@
     color: #333;
 }
 
-/* Анимация переключения */
 @keyframes systemSelect {
     0% { transform: scale(1); }
     50% { transform: scale(1.02); }
@@ -393,7 +388,6 @@
     animation: systemSelect 0.3s ease;
 }
 
-/* Информация о платежных системах */
 .payment-systems-info {
     background: #f8f9fa;
     padding: 1rem;
@@ -424,7 +418,6 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Иконки платежных систем в деталях */
 .payment-methods-icons {
     display: flex;
     gap: 0.5rem;
@@ -445,7 +438,6 @@
     gap: 0.3rem;
 }
 
-/* Адаптивность для мобильных */
 @media (max-width: 768px) {
     .payment-systems {
         gap: 0.5rem;
@@ -547,7 +539,6 @@ section {
     color: white;
 }
 
-/* Анимации */
 .quantity-updating {
     opacity: 0.7;
     pointer-events: none;
@@ -562,7 +553,6 @@ section {
     100% { background-color: transparent; }
 }
 
-/* Оповещения */
 .cart-message {
     position: fixed;
     top: 20px;
@@ -592,7 +582,7 @@ section {
 .cart-message.info {
     background: #0052cc;
 }
-/* Hero секция */
+
 .cart-hero {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
@@ -611,7 +601,6 @@ section {
     opacity: 0.9;
 }
 
-/* Основная секция */
 .cart-section {
     padding: 3rem 0;
     background: #f8f9fa;
@@ -624,7 +613,6 @@ section {
     padding: 0 20px;
 }
 
-/* Макет корзины */
 .cart-layout {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -656,7 +644,6 @@ section {
     font-weight: 600;
 }
 
-/* Элементы корзины */
 .cart-items {
     display: flex;
     flex-direction: column;
@@ -745,7 +732,6 @@ section {
     display: none;
 }
 
-/* Управление количеством */
 .item-quantity {
     text-align: center;
 }
@@ -802,7 +788,6 @@ section {
     color: #e53e3e;
 }
 
-/* Цены */
 .item-price {
     text-align: right;
 }
@@ -819,7 +804,6 @@ section {
     color: #2c3e50;
 }
 
-/* Удаление */
 .remove-btn {
     background: none;
     border: none;
@@ -838,7 +822,6 @@ section {
     transform: scale(1.1);
 }
 
-/* Продолжение покупок */
 .continue-shopping {
     margin-top: 2rem;
     text-align: left;
@@ -858,7 +841,6 @@ section {
     color: #5a67d8;
 }
 
-/* Боковая панель */
 .cart-sidebar {
     position: sticky;
     top: 2rem;
@@ -912,7 +894,6 @@ section {
     color: #0052cc;
 }
 
-/* Форма заказа */
 .form-section {
     margin: 1.5rem 0;
 }
@@ -1012,7 +993,6 @@ section {
     font-size: 0.8rem;
 }
 
-/* Кнопка оформления */
 .checkout-btn {
     width: 100%;
     padding: 1.25rem;
@@ -1041,7 +1021,6 @@ section {
     font-size: 0.85rem;
 }
 
-/* Карточка поддержки */
 .support-card {
     background: linear-gradient(135deg, #0052cc, #0066cc);
     color: white;
@@ -1081,7 +1060,6 @@ section {
     color: white;
 }
 
-/* Пустая корзина */
 .empty-cart {
     text-align: center;
     padding: 4rem 2rem;
@@ -1129,7 +1107,6 @@ section {
     color: white;
 }
 
-/* Адаптивность */
 @media (max-width: 1024px) {
     .cart-layout {
         grid-template-columns: 1fr;
@@ -1290,7 +1267,6 @@ section {
     color: #e53e3e;
 }
 
-/* Анимация ошибки */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-5px); }
@@ -1301,7 +1277,6 @@ section {
     animation: shake 0.3s ease;
 }
 
-/* Подсветка выбранных опций */
 .payment-option input[type="radio"]:checked + .payment-content {
     color: #0052cc;
     font-weight: 600;
@@ -1354,7 +1329,6 @@ section {
     margin-left: auto;
 }
 
-/* ДОБАВИТЬ в секцию стилей */
 .delivery-info {
     background: #f8f9fa;
     border-radius: 12px;
@@ -1455,7 +1429,6 @@ section {
     }
 }
 
-/* Стили для ошибок полей */
 .field-error {
     border-color: #e53e3e !important;
     background: #fff5f5 !important;
@@ -1469,7 +1442,6 @@ section {
     color: #2c3e50;
 }
 
-/* Стили для кастомного выпадающего списка адресов */
 .custom-select-wrapper {
     position: relative;
     margin-bottom: 0.5rem;
@@ -1595,7 +1567,6 @@ section {
     color: #2c3e50 !important;
 }
 
-/* Анимация появления */
 @keyframes dropdownAppear {
     from {
         opacity: 0;
@@ -1607,7 +1578,6 @@ section {
     }
 }
 
-/* Стили для скроллбара */
 .custom-select-options::-webkit-scrollbar {
     width: 6px;
 }
@@ -1626,20 +1596,17 @@ section {
     background: #5a67d8;
 }
 
-/* Стили для состояния ошибки */
 .custom-select-wrapper.error .custom-select-trigger {
     border-color: #e53e3e;
     background: #fff5f5;
     animation: shake 0.5s ease;
 }
 
-/* Стили для успешного выбора */
 .custom-select-wrapper.success .custom-select-trigger {
     border-color: #48bb78;
     background: #f0fff4;
 }
 
-/* Плейсхолдер когда ничего не выбрано */
 .custom-select-trigger.placeholder .selected-text {
     color: #6c757d !important;
 }
@@ -1665,7 +1632,6 @@ section {
     }
 }
 
-/* Исправление белого текста на белом фоне */
 .invoice-notice {
     background: #f8f9fa;
     border: 1px solid #dee2e6;
@@ -1697,7 +1663,6 @@ section {
     line-height: 1.4;
 }
 
-/* Исправление для текста в сводке заказа */
 .summary-row span {
     color: #2c3e50 !important;
 }
@@ -1706,7 +1671,6 @@ section {
     color: #2c3e50 !important;
 }
 
-/* Исправление для текста в информации о доставке */
 .delivery-info,
 .delivery-option,
 .delivery-text,
@@ -1725,24 +1689,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     let updateTimeout;
     
-    // Функция для показа сообщений
     function showMessage(message, type = 'success') {
-        // Удаляем предыдущее сообщение
         const existingMessage = document.querySelector('.cart-message');
         if (existingMessage) {
             existingMessage.remove();
         }
         
-        // Создаем новое сообщение
         const messageEl = document.createElement('div');
         messageEl.className = `cart-message ${type}`;
         messageEl.textContent = message;
         document.body.appendChild(messageEl);
         
-        // Показываем сообщение
         setTimeout(() => messageEl.classList.add('show'), 100);
         
-        // Скрываем через 3 секунды
         setTimeout(() => {
             messageEl.classList.remove('show');
             setTimeout(() => messageEl.remove(), 300);
@@ -1774,7 +1733,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 showMessage('Количество обновлено', 'success');
             } else {
                 showMessage(data.error || 'Ошибка обновления', 'error');
-                // Восстанавливаем предыдущее значение
                 const input = itemElement.querySelector('.quantity-input');
                 input.value = input.getAttribute('data-previous-value') || newQuantity;
             }
@@ -1814,14 +1772,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                // Анимация удаления
                 itemElement.style.opacity = '0';
                 itemElement.style.transform = 'translateX(-100px)';
                 setTimeout(() => {
                     itemElement.remove();
                     updateCartSummary(data);
                     
-                    // Если корзина пуста, перезагружаем страницу
                     if (data.item_count === 0) {
                         location.reload();
                     }
@@ -1858,31 +1814,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateCartSummary(data) {
-        // Форматируем общую сумму с двумя знаками после запятой
         const formattedTotal = parseFloat(data.cart_total).toLocaleString('ru-RU', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
         
-        // Обновляем общую сумму товаров
         document.getElementById('subtotal-price').textContent = `${formattedTotal} ₽`;
         
-        // Обновляем итоговую сумму
         document.getElementById('final-price').textContent = `${formattedTotal} ₽`;
         
-        // Обновляем количество товаров
         const itemsCountElement = document.querySelector('.items-count');
         if (itemsCountElement) {
             itemsCountElement.textContent = `${data.item_count} товар(ов)`;
         }
         
-        // Обновляем НДС - без копеек (только целое число)
         if (data.vat_total !== undefined) {
             const vatTotal = Math.round(parseFloat(data.vat_total));
             document.getElementById('vat-total').textContent = `${vatTotal} ₽`;
         }
         
-        // Обновляем процент НДС если он изменился
         if (data.vat_rate !== undefined) {
             const vatRateElement = document.getElementById('vat-rate');
             if (vatRateElement) {
@@ -1891,7 +1841,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Кнопки +/-
     document.querySelectorAll('.quantity-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const itemId = this.getAttribute('data-item-id');
@@ -1911,9 +1860,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Поле ввода количества
     document.querySelectorAll('.quantity-input').forEach(input => {
-        // Сохраняем предыдущее значение
         input.setAttribute('data-previous-value', input.value);
         
         input.addEventListener('change', function() {
@@ -1921,7 +1868,6 @@ document.addEventListener('DOMContentLoaded', function() {
             let newValue = parseInt(this.value);
             const maxQuantity = parseInt(this.getAttribute('data-max-quantity'));
             
-            // Валидация
             if (isNaN(newValue) || newValue < 1) {
                 newValue = 1;
             } else if (newValue > maxQuantity) {
@@ -1932,17 +1878,14 @@ document.addEventListener('DOMContentLoaded', function() {
             this.value = newValue;
             this.setAttribute('data-previous-value', newValue);
             
-            // Обновляем на сервере
             updateQuantity(itemId, newValue);
         });
         
-        // Обновление при вводе (с задержкой)
         input.addEventListener('input', function() {
             clearTimeout(updateTimeout);
             const itemId = this.getAttribute('data-item-id');
             const value = this.value;
             
-            // Только если число и больше 0
             if (/^\d+$/.test(value) && parseInt(value) > 0) {
                 updateTimeout = setTimeout(() => {
                     this.setAttribute('data-previous-value', value);
@@ -1951,7 +1894,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Блокируем отправку формы при нажатии Enter
         input.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -1960,7 +1902,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Кнопка "Обновить"
     document.querySelectorAll('.update-quantity-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const itemId = this.getAttribute('data-item-id');
@@ -1975,7 +1916,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Кнопки удаления
     document.querySelectorAll('.remove-item-btn, .remove-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const itemId = this.getAttribute('data-item-id');
@@ -1996,7 +1936,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!originalSelect || !customSelect) return;
         
-        // Функция для обновления отображения выбранного значения
         function updateCustomSelectDisplay() {
             const selectedOption = originalSelect.options[originalSelect.selectedIndex];
             
@@ -2013,7 +1952,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 customSelectWrapper.classList.remove('error');
                 customSelectWrapper.classList.add('success');
                 
-                // Обновляем выделение в кастомных опциях
                 if (customOptions) {
                     customOptions.querySelectorAll('.custom-select-option').forEach(opt => {
                         opt.classList.remove('selected');
@@ -2032,27 +1970,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Инициализация начального состояния
         updateCustomSelectDisplay();
         
-        // Открытие/закрытие выпадающего списка
         if (customTrigger) {
             customTrigger.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const isOpen = customSelect.classList.contains('open');
                 
-                // Закрываем все другие открытые селекты
                 document.querySelectorAll('.custom-select.open').forEach(select => {
                     if (select !== customSelect) {
                         select.classList.remove('open');
                     }
                 });
                 
-                // Переключаем текущий селект
                 customSelect.classList.toggle('open');
                 
                 if (!isOpen && customOptions) {
-                    // Прокрутка к выбранному элементу
                     const selectedOption = customOptions.querySelector('.custom-select-option.selected');
                     if (selectedOption) {
                         selectedOption.scrollIntoView({ block: 'nearest' });
@@ -2061,19 +1994,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Выбор опции
         if (customOptions) {
             customOptions.querySelectorAll('.custom-select-option').forEach(option => {
                 option.addEventListener('click', function() {
                     const value = this.getAttribute('data-value');
                     
-                    // Обновляем оригинальный select
                     originalSelect.value = value;
                     
-                    // Обновляем отображение
                     updateCustomSelectDisplay();
                     
-                    // Закрываем выпадающий список
                     customSelect.classList.remove('open');
                 });
             });
@@ -2086,25 +2015,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Закрытие при нажатии Escape
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && customSelect && customSelect.classList.contains('open')) {
                 customSelect.classList.remove('open');
             }
         });
         
-        // Синхронизация при изменении оригинального селекта
         originalSelect.addEventListener('change', function() {
             updateCustomSelectDisplay();
         });
     }
     
-    // Инициализация при загрузке
     if (document.getElementById('address-select')) {
         initCustomSelect();
     }
     
-    // Обновление валидации для работы с кастомным селектом
     const orderForm = document.querySelector('.order-form');
     if (orderForm) {
         orderForm.addEventListener('submit', function(e) {
@@ -2112,12 +2037,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const customSelectWrapper = document.querySelector('.custom-select-wrapper');
             
             if (addressSelect && (!addressSelect.value || addressSelect.value === '')) {
-                // Показываем ошибку на кастомном селекте
                 if (customSelectWrapper) {
                     customSelectWrapper.classList.add('error');
                     customSelectWrapper.classList.remove('success');
                     
-                    // Создаем сообщение об ошибке
                     let errorMessage = customSelectWrapper.querySelector('.custom-error-message');
                     if (!errorMessage) {
                         errorMessage = document.createElement('div');
@@ -2138,18 +2061,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 e.preventDefault();
                 
-                // Прокрутка к ошибке
                 if (customSelectWrapper) {
                     customSelectWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     
-                    // Открываем выпадающий список для выбора
                     const customSelect = document.querySelector('.custom-select');
                     if (customSelect) {
                         customSelect.classList.add('open');
                     }
                 }
             } else {
-                // Убираем ошибку если все ок
                 if (customSelectWrapper) {
                     customSelectWrapper.classList.remove('error');
                     const errorMessage = customSelectWrapper.querySelector('.custom-error-message');
@@ -2162,4 +2082,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
+
+    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+ <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
+<!-- End Google Tag Manager -->
 {% endblock %}

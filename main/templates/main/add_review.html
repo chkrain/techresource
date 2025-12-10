@@ -16,7 +16,6 @@
 <section class="review-section">
     <div class="container">
         <div class="review-layout">
-            <!-- Информация о товаре -->
             <div class="product-info-sidebar">
                 <div class="product-card">
                     {% if product.image %}
@@ -45,12 +44,10 @@
                 </div>
             </div>
             
-            <!-- Форма отзыва -->
             <div class="review-form-container">
                 <form method="post" class="review-form">
                     {% csrf_token %}
                     
-                    <!-- Рейтинг -->
                     <div class="form-group">
                         <label class="form-label">Ваша оценка *</label>
                         <div class="rating-stars">
@@ -70,7 +67,6 @@
                         {% endif %}
                     </div>
                     
-                    <!-- Комментарий -->
                     <div class="form-group">
                         <label for="{{ form.comment.id_for_label }}" class="form-label">
                             {{ form.comment.label }} *
@@ -87,7 +83,6 @@
                         <div class="help-text">{{ form.comment.help_text }}</div>
                     </div>
                     
-                    <!-- Кнопки -->
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
                             📝 Опубликовать отзыв
@@ -185,7 +180,6 @@
     margin-top: 0.5rem;
 }
 
-/* Рекомендации */
 .review-guidelines {
     background: white;
     border-radius: 15px;
@@ -211,7 +205,6 @@
     line-height: 1.4;
 }
 
-/* Форма */
 .review-form-container {
     background: white;
     border-radius: 15px;
@@ -235,7 +228,6 @@
     font-size: 1.1rem;
 }
 
-/* Звезды рейтинга */
 .rating-stars {
     display: flex;
     gap: 1rem;
@@ -280,7 +272,6 @@
     font-weight: 600;
 }
 
-/* Поле комментария */
 .review-form textarea {
     width: 100%;
     padding: 1rem;
@@ -322,7 +313,6 @@
     border-left: 3px solid #e53e3e;
 }
 
-/* Кнопки */
 .form-actions {
     display: flex;
     gap: 1rem;
@@ -364,7 +354,6 @@
     transform: translateY(-2px);
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .review-layout {
         grid-template-columns: 1fr;
@@ -406,19 +395,15 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Счетчик символов
     const commentTextarea = document.querySelector('textarea[name="comment"]');
     const charCount = document.getElementById('charCount');
     
     if (commentTextarea && charCount) {
-        // Обновляем счетчик при загрузке
         charCount.textContent = commentTextarea.value.length;
         
-        // Обновляем счетчик при вводе
         commentTextarea.addEventListener('input', function() {
             charCount.textContent = this.value.length;
             
-            // Меняем цвет при приближении к лимиту
             if (this.value.length > 900) {
                 charCount.style.color = '#e53e3e';
                 charCount.style.fontWeight = 'bold';
@@ -430,17 +415,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Анимация выбора рейтинга
     const starLabels = document.querySelectorAll('.star-label');
     starLabels.forEach(label => {
         label.addEventListener('click', function() {
-            // Убираем выделение со всех звезд
             starLabels.forEach(l => {
                 l.style.borderColor = '#e9ecef';
                 l.style.background = 'transparent';
             });
             
-            // Выделяем выбранную звезду и все предыдущие
             const selectedValue = parseInt(this.querySelector('input').value);
             starLabels.forEach(l => {
                 const value = parseInt(l.querySelector('input').value);
@@ -452,20 +434,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Валидация формы
     const form = document.querySelector('.review-form');
     form.addEventListener('submit', function(e) {
         const rating = document.querySelector('input[name="rating"]:checked');
         const comment = document.querySelector('textarea[name="comment"]');
         let isValid = true;
         
-        // Проверка рейтинга
         if (!rating) {
             isValid = false;
             showError('Пожалуйста, выберите оценку');
         }
         
-        // Проверка комментария
         if (comment && comment.value.trim().length <= 1) {
             isValid = false;
             showError('Комментарий должен содержать минимум 1 символ');
@@ -477,9 +456,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function showError(message) {
-        // Можно добавить красивый toast или уведомление
         alert(message);
     }
 });
 </script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
+
+    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+ <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
+<!-- End Google Tag Manager -->
 {% endblock %}

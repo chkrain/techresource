@@ -4,7 +4,6 @@
 {% block title %}Вход - Техресурс{% endblock %}
 
 {% block content %}
-<!-- Hero секция -->
 <section class="login-hero">
     <div class="container">
         <div class="hero-content">
@@ -17,7 +16,6 @@
 <section class="login-section">
     <div class="container">
         <div class="login-layout">
-            <!-- Основная форма -->
             <div class="login-main">
                 <div class="login-card">
                     <div class="card-header">
@@ -86,7 +84,6 @@
                 </div>
             </div>
             
-            <!-- Боковая панель с преимуществами -->
             <div class="login-sidebar">
                 <div class="benefits-card">
                     <div class="benefits-header">
@@ -125,7 +122,6 @@
     </div>
 </section>
 
-<!-- Модальное окно восстановления пароля -->
 <div id="forgot-password" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -133,7 +129,6 @@
             <button class="modal-close">&times;</button>
         </div>
         <div class="modal-body">
-            <!-- Прогресс-бар -->
             <div class="recovery-progress">
                 <div class="progress-steps">
                     <div class="step-circle active" data-step="1">
@@ -158,7 +153,6 @@
                 </div>
             </div>
 
-            <!-- Шаг 1: Ввод email -->
             <div class="recovery-step active" id="step1">
                 <div class="step-icon">📧</div>
                 <h4>Введите ваш email</h4>
@@ -176,7 +170,6 @@
                 </form>
             </div>
 
-            <!-- Шаг 2: Ввод кода -->
             <div class="recovery-step" id="step2">
                 <div class="step-icon">🔒</div>
                 <h4>Проверка кода</h4>
@@ -198,7 +191,6 @@
                 </form>
             </div>
 
-            <!-- Шаг 3: Новый пароль -->
             <div class="recovery-step" id="step3">
                 <div class="step-icon">🔑</div>
                 <h4>Новый пароль</h4>
@@ -226,7 +218,6 @@
                 </form>
             </div>
 
-            <!-- Шаг 4: Успех -->
             <div class="recovery-step" id="step4">
                 <div class="step-icon success">✅</div>
                 <h4>Пароль изменен!</h4>
@@ -248,7 +239,6 @@ section {
     margin-top: 4%;
 }
 
-/* Hero секция */
 .login-hero {
     background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
     color: white;
@@ -267,7 +257,6 @@ section {
     opacity: 0.9;
 }
 
-/* Основная секция */
 .login-section {
     padding: 3rem 0;
     background: #f8f9fa;
@@ -280,7 +269,6 @@ section {
     padding: 0 20px;
 }
 
-/* Макет логина */
 .login-layout {
     display: grid;
     grid-template-columns: 1fr 400px;
@@ -288,7 +276,6 @@ section {
     align-items: start;
 }
 
-/* Основная форма */
 .login-main {
     max-width: 500px;
 }
@@ -324,7 +311,6 @@ section {
     font-weight: 600;
 }
 
-/* Форма */
 .login-form {
     padding: 0 2rem 2rem;
 }
@@ -406,7 +392,6 @@ section {
     text-decoration: underline;
 }
 
-/* Чекбокс */
 .checkbox-group {
     margin: 1.5rem 0;
 }
@@ -449,7 +434,6 @@ section {
     font-weight: bold;
 }
 
-/* Кнопка входа */
 .login-btn {
     width: 100%;
     padding: 1.25rem;
@@ -473,7 +457,6 @@ section {
     box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
 }
 
-/* Разделитель */
 .login-divider {
     text-align: center;
     margin: 2rem 0;
@@ -498,7 +481,6 @@ section {
     position: relative;
 }
 
-/* Социальные кнопки */
 .social-login {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -534,7 +516,6 @@ section {
     color: #ff3333;
 }
 
-/* Футер формы */
 .login-footer {
     text-align: center;
     color: #6c757d;
@@ -558,7 +539,6 @@ section {
     font-size: 1.1rem;
 }
 
-/* Боковая панель */
 .login-sidebar {
     position: sticky;
     top: 2rem;
@@ -651,8 +631,6 @@ section {
     font-size: 0.8rem;
 }
 
-/* Модальное окно */
-/* Стили для модального окна восстановления пароля */
 .modal {
     display: none;
     position: fixed;
@@ -726,7 +704,6 @@ section {
     padding: 0 2rem 2rem;
 }
 
-/* Прогресс-бар */
 .recovery-progress {
     margin-bottom: 2rem;
 }
@@ -802,7 +779,6 @@ section {
     background: #0052cc;
 }
 
-/* Шаги восстановления */
 .recovery-step {
     display: none;
     text-align: center;
@@ -926,12 +902,10 @@ section {
     color: #ef4444;
 }
 
-/* Успешное завершение */
 .success-actions {
     margin-top: 2rem;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .modal-content {
         margin: 10% auto;
@@ -972,7 +946,6 @@ section {
     }
 }
 
-/* Адаптивность */
 @media (max-width: 1024px) {
     .login-layout {
         grid-template-columns: 1fr;
@@ -1054,7 +1027,6 @@ section {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Обработка модального окна восстановления пароля
     const forgotPasswordLink = document.querySelector('.forgot-password');
     const modal = document.getElementById('forgot-password');
     const modalClose = document.querySelector('.modal-close');
@@ -1063,7 +1035,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentEmail = '';
     let timerInterval = null;
 
-    // Открытие модального окна
     if (forgotPasswordLink && modal) {
         forgotPasswordLink.addEventListener('click', function(e) {
             e.preventDefault();
@@ -1072,7 +1043,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Закрытие модального окна
     function closeModal() {
         modal.style.display = 'none';
         resetRecoveryForm();
@@ -1086,14 +1056,12 @@ document.addEventListener('DOMContentLoaded', function() {
         closeModalBtn.addEventListener('click', closeModal);
     }
 
-    // Закрытие модального окна при клике вне его
     window.addEventListener('click', function(e) {
         if (e.target === modal) {
             closeModal();
         }
     });
 
-    // Сброс формы восстановления
     function resetRecoveryForm() {
         goToStep(1);
         clearInterval(timerInterval);
@@ -1109,24 +1077,19 @@ document.addEventListener('DOMContentLoaded', function() {
         resetPasswordRequirements();
     }
 
-    // Переход к определенному шагу
     function goToStep(stepNumber) {
-        // Скрыть все шаги
         document.querySelectorAll('.recovery-step').forEach(step => {
             step.classList.remove('active');
         });
         
-        // Показать нужный шаг
         const targetStep = document.getElementById(`step${stepNumber}`);
         if (targetStep) {
             targetStep.classList.add('active');
         }
         
-        // Обновить прогресс-бар
         updateProgressBar(stepNumber);
     }
 
-    // Обновление прогресс-бара
     function updateProgressBar(currentStep) {
         const steps = document.querySelectorAll('.step-circle');
         const lines = document.querySelectorAll('.step-line');
@@ -1150,7 +1113,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Таймер для повторной отправки кода
     function startTimer() {
         const timerElement = document.getElementById('timer-count');
         const timerContainer = document.getElementById('code-timer');
@@ -1174,7 +1136,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 timerContainer.classList.add('expired');
                 timerContainer.innerHTML = 'Не получили код? <a href="#" id="resend-code">Отправить еще раз</a>';
                 
-                // Добавляем обработчик для повторной отправки
                 const resendLink = document.getElementById('resend-code');
                 if (resendLink) {
                     resendLink.addEventListener('click', function(e) {
@@ -1186,7 +1147,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1000);
     }
 
-    // Повторная отправка кода
     function resendCode() {
         const formData = new FormData();
         formData.append('email', currentEmail);
@@ -1208,7 +1168,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Валидация пароля
     function validatePassword(password) {
         const requirements = {
             length: password.length >= 8,
@@ -1228,14 +1187,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return Object.values(requirements).every(Boolean);
     }
 
-    // Сброс индикаторов пароля
     function resetPasswordRequirements() {
         document.querySelectorAll('.requirement').forEach(req => {
             req.classList.remove('valid', 'invalid');
         });
     }
 
-    // Функция для получения CSRF токена
     function getCSRFToken() {
         const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
         if (csrfInput) {
@@ -1262,13 +1219,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return cookieValue;
     }
 
-    // Функция валидации email
     function isValidEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
 
-    // Обработка формы email
     const emailForm = document.getElementById('emailForm');
     if (emailForm) {
         emailForm.addEventListener('submit', async function(e) {
@@ -1322,7 +1277,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Обработка формы кода
     const codeForm = document.getElementById('codeForm');
     if (codeForm) {
         codeForm.addEventListener('submit', async function(e) {
@@ -1365,10 +1319,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Обработка формы пароля
     const passwordForm = document.getElementById('passwordForm');
     if (passwordForm) {
-        // Валидация пароля в реальном времени
         const passwordInput = passwordForm.querySelector('input[name="new_password"]');
         if (passwordInput) {
             passwordInput.addEventListener('input', function() {
@@ -1425,9 +1377,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Показать ошибку
     function showRecoveryError(message) {
-        // Удаляем старые сообщения об ошибках
         const existingError = document.querySelector('.recovery-error');
         if (existingError) {
             existingError.remove();
@@ -1436,7 +1386,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const activeStep = document.querySelector('.recovery-step.active');
         if (!activeStep) return;
         
-        // Создаем новое сообщение об ошибке
         const errorDiv = document.createElement('div');
         errorDiv.className = 'error-message recovery-error';
         errorDiv.innerHTML = `
@@ -1449,17 +1398,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         activeStep.insertBefore(errorDiv, activeStep.firstChild);
         
-        // Прокрутка к ошибке
         errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    // Показать успех
     function showRecoverySuccess(message) {
-        // Можно добавить toast-уведомление
         console.log('✅ ' + message);
     }
 
-    // Анимация формы при фокусе
     document.querySelectorAll('.form-input').forEach(input => {
         input.addEventListener('focus', function() {
             this.parentElement.classList.add('focused');
@@ -1472,7 +1417,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Валидация формы входа
     const loginForm = document.querySelector('.login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
@@ -1497,7 +1441,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isValid) {
                 e.preventDefault();
                 
-                // Показываем сообщение об ошибке
                 let errorMsg = this.querySelector('.validation-error');
                 if (!errorMsg) {
                     errorMsg = document.createElement('div');
@@ -1512,13 +1455,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.insertBefore(errorMsg, this.firstChild);
                 }
                 
-                // Прокрутка к ошибке
                 errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
     }
     
-    // Плавное появление элементов
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -1533,7 +1474,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, observerOptions);
     
-    // Наблюдаем за карточками
     document.querySelectorAll('.login-card, .benefits-card').forEach(card => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
@@ -1542,4 +1482,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
+
+    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
+<!-- End Google Tag Manager -->
 {% endblock %}

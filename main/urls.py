@@ -88,10 +88,6 @@ urlpatterns = [
     path('admin-dashboard/order/<int:order_id>/update-status/', views.update_order_status, name='update_order_status'),
     path('moderate-review/<int:review_id>/', views.moderate_review, name='moderate_review'),
     
-    # Отладка
-    path('debug/codes/', views.debug_codes, name='debug_codes'),
-    path('test-email/', views.test_email_sending, name='test_email'),
-    
     # API
     path('api/search-suggestions/', views.search_suggestions, name='search_suggestions'),
     path('api/price-range/', views.get_price_range, name='get_price_range'),

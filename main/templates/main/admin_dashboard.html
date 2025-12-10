@@ -4,7 +4,6 @@
 {% block title %}Панель управления - Техресурс{% endblock %}
 
 {% block content %}
-<!-- Hero секция -->
 <section class="admin-hero">
     <div class="container">
         <div class="hero-content">
@@ -16,7 +15,6 @@
 
 <div class="admin-dashboard">
     <div class="container">
-        <!-- Статистика в карточках -->
         <div class="stats-grid">
             <div class="stat-card" data-aos="fade-up">
                 <div class="stat-icon">📊</div>
@@ -53,7 +51,6 @@
                 </div>
             </div>
 
-            <!-- Дополнительная карточка для общей суммы -->
             <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
                 <div class="stat-icon">💰</div>
                 <div class="stat-info">
@@ -74,7 +71,6 @@
             </div>
         </div>
 
-        <!-- СЕКЦИЯ МОДЕРАЦИИ ОТЗЫВОВ -->
         <div class="moderation-section" data-aos="fade-up">
             <div class="section-header">
                 <h2>💬 Модерация отзывов</h2>
@@ -152,7 +148,6 @@
             {% endif %}
         </div>
 
-        <!-- Фильтры -->
         <div class="filters-section" data-aos="fade-up">
             <div class="filters-card">
                 <div class="card-header">
@@ -203,7 +198,6 @@
             </div>
         </div>
 
-        <!-- Список заказов -->
         <div class="orders-section" data-aos="fade-up">
             <div class="section-header">
                 <h2>Список заказов</h2>
@@ -265,7 +259,6 @@
                         </div>
                     </div>
                     
-                    <!-- УПРАВЛЕНИЕ СТАТУСОМ ЗАКАЗА - ДОБАВЛЕНО В КАЖДУЮ КАРТОЧКУ -->
                     <div class="admin-order-actions">
                         <div class="section-header">
                             <h4>🔄 Управление статусом</h4>
@@ -307,7 +300,6 @@
                         </form>
                     </div>
 
-                    <!-- Лог изменений статуса -->
                     <div class="status-history">
                         <h5>📋 История изменений статуса</h5>
                         <div class="history-list">
@@ -387,7 +379,6 @@
     </div>
 </div>
 
-<!-- Подключение библиотек -->
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
@@ -397,7 +388,6 @@ section, .admin-dashboard {
     margin-top: 4%;
 }
 
-/* Hero секция */
 .admin-hero {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
@@ -432,10 +422,8 @@ section, .admin-dashboard {
     text-align: center;
 }
 
-/* Добавляем цвет для статистики модерации */
 .stat-number.moderation { color: #ed8936; }
 
-/* Стили для секции модерации */
 .moderation-section {
     margin-bottom: 3rem;
 }
@@ -580,7 +568,6 @@ section, .admin-dashboard {
     transform: translateY(-2px);
 }
 
-/* Адаптивность для модерации */
 @media (max-width: 768px) {
     .reviews-grid {
         grid-template-columns: 1fr;
@@ -611,7 +598,6 @@ section, .admin-dashboard {
     }
 }
 
-/* Основной контейнер */
 .admin-dashboard {
     padding: 3rem 0;
     background: #f8f9fa;
@@ -624,7 +610,6 @@ section, .admin-dashboard {
     padding: 0 20px;
 }
 
-/* Сетка статистики */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -680,7 +665,6 @@ section, .admin-dashboard {
 .stat-number.pending { color: #ed8936; }
 .stat-number.revenue { color: #667eea; }
 
-/* Секция фильтров */
 .filters-section {
     margin-bottom: 3rem;
 }
@@ -1070,7 +1054,6 @@ section, .admin-dashboard {
     font-size: 0.9rem;
 }
 
-/* Пустые состояния */
 .empty-state {
     text-align: center;
     padding: 4rem 2rem;
@@ -1096,7 +1079,6 @@ section, .admin-dashboard {
     font-size: 1rem;
 }
 
-/* Анимации */
 [data-aos] {
     opacity: 0;
     transition-property: opacity, transform;
@@ -1106,7 +1088,6 @@ section, .admin-dashboard {
     opacity: 1;
 }
 
-/* Адаптивность */
 @media (max-width: 1024px) {
     .order-details {
         grid-template-columns: 1fr;
@@ -1190,7 +1171,7 @@ section, .admin-dashboard {
         gap: 0.25rem;
     }
 }
-/* Стили для управления статусом заказа */
+
 .admin-order-actions {
     margin: 1.5rem 0;
     padding: 1.5rem;
@@ -1234,7 +1215,6 @@ section, .admin-dashboard {
     font-size: large;
 }
 
-/* Стили для истории статусов */
 .status-history {
     margin: 1.5rem 0;
     padding: 1.5rem;
@@ -1301,7 +1281,6 @@ section, .admin-dashboard {
     font-size: 0.9rem;
 }
 
-/* Адаптивность для формы управления */
 @media (max-width: 768px) {
     .status-update-form .form-row {
         flex-direction: column;
@@ -1325,22 +1304,19 @@ section, .admin-dashboard {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация AOS
     AOS.init({
         duration: 800,
         once: true,
         offset: 100
     });
     
-    // Динамическое отображение полей доставки
     document.querySelectorAll('.status-update-form select[name="status"]').forEach(select => {
         select.addEventListener('change', function() {
             const form = this.closest('.status-update-form');
-            const deliveryFields = form.querySelector('.form-row:nth-child(2)'); // Вторая строка формы
+            const deliveryFields = form.querySelector('.form-row:nth-child(2)');
             
             if (this.value === 'shipped' || this.value === 'ready_for_shipping') {
                 if (!deliveryFields || !deliveryFields.querySelector('input[name="tracking_number"]')) {
-                    // Создаем поля доставки если их нет
                     const newRow = document.createElement('div');
                     newRow.className = 'form-row';
                     newRow.innerHTML = `
@@ -1357,11 +1333,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Триггерим изменение при загрузке
         select.dispatchEvent(new Event('change'));
     });
     
-    // Подтверждение изменения статуса
     document.querySelectorAll('.status-update-form').forEach(form => {
         form.addEventListener('submit', function(e) {
             const orderId = this.querySelector('input[name="order_id"]').value;

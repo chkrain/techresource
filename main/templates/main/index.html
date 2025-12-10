@@ -1,8 +1,6 @@
-<!-- main/templates/main/index.html -->
 {% extends 'main/base.html' %}
 
 {% block content %}
-<!-- Cookie уведомление -->
 <div id="cookie-notification" class="cookie-notification">
     <div class="cookie-content">
         <div class="cookie-text">
@@ -20,7 +18,6 @@
         </div>
     </div>
     
-    <!-- Расширенные настройки (скрыты по умолчанию) -->
     <div id="cookie-settings" class="cookie-settings">
         <div class="settings-header">
             <h4>Настройки cookies</h4>
@@ -65,7 +62,6 @@
         </div>
     </div>
 </div>
-<!-- Hero секция с параллаксом -->
 <section class="hero-section">
     <div class="hero-background">
         <div class="hero-particles" id="hero-particles"></div>
@@ -101,7 +97,6 @@
     </div>
 </section>
 
-<!-- Преимущества -->
 <section class="benefits-section" data-aos="slide-up" data-aos-delay="200">
     <div class="container" data-aos="fade-up" data-aos-delay="200">
         <h2 class="section-title why-us" data-aos="fade-up" data-aos-delay="300">Почему выбирают нас</h2>
@@ -130,7 +125,6 @@
     </div>
 </section>
 
-<!-- Swiper слайдер с услугами -->
 <section class="services-section">
     <div class="container">
         <h2 class="section-title our-services" data-aos="fade-up">Наши услуги</h2>
@@ -142,7 +136,6 @@
     <div class="services-swiper">
         <div class="swiper">
             <div class="swiper-wrapper">
-                <!-- Заменил цикл на статические данные -->
                 <div class="swiper-slide">
                     <a href="{% url 'service_design' %}" class="service-link">
                         <div class="service-card" data-color="blue">
@@ -235,7 +228,6 @@
     </div>
 </section>
 
-<!-- Популярные товары -->
 {% if featured_products %}
 <section class="products-section">
     <div class="container">
@@ -277,7 +269,6 @@
 </section>
 {% endif %}
 
-<!-- CTA секция -->
 <section class="cta-section">
     <div class="container">
         <div class="cta-content" data-aos="fade-up">
@@ -341,7 +332,6 @@
     </div>
 </div>
 
-<!-- Подключение библиотек -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -711,7 +701,6 @@ section {
     transform: translateY(0);
 }
 
-/* Улучшенная навигация */
 .swiper-button-next,
 .swiper-button-prev {
     color: #4a5568;
@@ -763,7 +752,6 @@ section {
     transform: scale(1.2);
 }
 
-/* Прогресс бар */
 .swiper-progress-bar {
     position: absolute;
     bottom: 0;
@@ -783,7 +771,6 @@ section {
     transition: width 0.1s linear;
 }
 
-/* Товары */
 .products-section {
     background: #f8f9fa;
     color: black;
@@ -895,7 +882,6 @@ section {
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-/* CTA секция */
 .cta-section {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
@@ -921,7 +907,6 @@ section {
     flex-wrap: wrap;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .hero-title {
         font-size: 2.5rem;
@@ -983,7 +968,6 @@ section {
     }
 }
 
-/* Стили для Cookie уведомления */
 .cookie-notification {
     position: fixed;
     bottom: 20px;
@@ -1073,7 +1057,6 @@ section {
     color: white;
 }
 
-/* Стили для расширенных настроек */
 .cookie-settings {
     display: none;
     margin-top: 20px;
@@ -1195,7 +1178,6 @@ section {
     text-align: right;
 }
 
-/* Анимация появления */
 @keyframes slideInUp {
     from {
         transform: translateY(150%);
@@ -1211,7 +1193,6 @@ section {
     animation: slideInUp 0.5s ease-out;
 }
 
-/* Адаптивность для Cookie уведомления */
 @media (max-width: 768px) {
     .cookie-notification {
         left: 10px;
@@ -1415,7 +1396,6 @@ section {
     display: none;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .modal-content {
         margin: 10% auto;
@@ -1440,7 +1420,6 @@ section {
     font-size: 12px;
 }
 
-/* Стили для уведомлений корзины */
 .cart-notification {
     position: fixed;
     top: 20px;
@@ -1478,7 +1457,6 @@ section {
     font-weight: 500;
 }
 
-/* Стили для кнопки при загрузке */
 .product-btn.loading {
     position: relative;
     color: transparent;
@@ -1503,7 +1481,6 @@ section {
     100% { transform: rotate(360deg); }
 }
 
-/* Адаптивность уведомлений */
 @media (max-width: 768px) {
     .cart-notification {
         right: 10px;
@@ -1515,7 +1492,6 @@ section {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Функция для получения CSRF токена
     function getCSRFToken() {
         const name = 'csrftoken';
         let cookieValue = null;
@@ -1532,15 +1508,13 @@ document.addEventListener('DOMContentLoaded', function() {
         return cookieValue;
     }
 
-    // Функция для обновления счетчика корзины
     function updateCartCounter(quantity) {
-        // Ищем все возможные элементы счетчика корзины
         const cartCounters = [
             ...document.querySelectorAll('.cart-counter'),
             ...document.querySelectorAll('.cart-count'),
             ...document.querySelectorAll('[data-cart-count]'),
             ...document.querySelectorAll('.badge')
-        ].filter(el => el.textContent.match(/\d+/)); // Только элементы с цифрами
+        ].filter(el => el.textContent.match(/\d+/)); 
         
         cartCounters.forEach(counter => {
             const oldValue = parseInt(counter.textContent) || 0;
@@ -1548,14 +1522,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             counter.textContent = newValue;
             
-            // Показываем/скрываем счетчик
             if (newValue > 0) {
                 counter.style.display = 'inline-block';
             } else {
                 counter.style.display = 'none';
             }
             
-            // Анимация обновления
             if (window.anime) {
                 anime({
                     targets: counter,
@@ -1566,20 +1538,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Если счетчиков нет, создаем дебаг информацию
         if (cartCounters.length === 0) {
             console.log('Счетчики корзины не найдены. Количество:', quantity);
         }
     }
 
-    // Функция для показа уведомлений корзины
     function showCartNotification(message, type = 'success') {
         const existingNotification = document.querySelector('.cart-notification');
         if (existingNotification) {
             existingNotification.remove();
         }
         
-        // Создаем новое уведомление
         const notification = document.createElement('div');
         notification.className = `cart-notification ${type}`;
         notification.innerHTML = `
@@ -1591,12 +1560,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.body.appendChild(notification);
         
-        // Анимация появления
         setTimeout(() => {
             notification.classList.add('show');
         }, 100);
         
-        // Автоматическое скрытие через 3 секунды
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => {
@@ -1607,7 +1574,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
-    // Обработка добавления в корзину
     document.querySelectorAll('.product-btn').forEach(btn => {
         btn.addEventListener('click', async function(e) {
             e.preventDefault();
@@ -1625,12 +1591,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const originalBackground = this.style.background;
             
             try {
-                // Визуальная обратная связь
                 this.textContent = 'Добавляем...';
                 this.classList.add('loading');
                 this.disabled = true;
                 
-                // Отправка запроса на сервер
                 const response = await fetch('/cart/add/' + productId + '/', {
                     method: 'POST',
                     headers: {
@@ -1648,14 +1612,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Успешное добавление
                     this.textContent = '✓ Добавлено';
                     this.style.background = '#28a745';
                     
-                    // Обновляем счетчик корзины
                     updateCartCounter(data.cart_count || data.total_quantity || 1);
                     
-                    // Анимация
                     if (window.anime) {
                         anime({
                             targets: this,
@@ -1665,10 +1626,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                     }
                     
-                    // Показываем всплывающее уведомление
                     showCartNotification('Товар добавлен в корзину');
                     
-                    // Возвращаем исходный текст через 2 секунды
                     setTimeout(() => {
                         this.textContent = originalText;
                         this.style.background = '';
@@ -1700,7 +1659,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Параллакс эффект для hero секции
     const heroSection = document.querySelector('.hero-section');
     const benefitsSection = document.querySelector('.benefits-section');
     
@@ -1708,14 +1666,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const benefitsTop = benefitsSection.getBoundingClientRect().top;
         const windowHeight = window.innerHeight;
         
-        // Когда секция преимуществ появляется в viewport, скрываем hero
         if (benefitsTop < windowHeight * 0.6) {
             heroSection.classList.add('hidden');
         } else {
             heroSection.classList.remove('hidden');
         }
         
-        // Параллакс эффект
         const scrolled = window.pageYOffset;
         if (heroSection) {
             heroSection.style.transform = `translateY(${scrolled * 0.5}px)`;
@@ -1724,14 +1680,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     window.addEventListener('scroll', handleScroll);
 
-    // Инициализация AOS
     AOS.init({
         duration: 800,
         once: true,
         offset: 100
     });
 
-    // Анимация чисел в статистике
     function animateNumbers() {
         const counters = document.querySelectorAll('.stat-number');
         counters.forEach(counter => {
@@ -1766,7 +1720,6 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(statsSection);
     }
 
-    // Создание частиц в hero секции
     function createParticles() {
         const container = document.getElementById('hero-particles');
         if (!container) return;
@@ -1798,7 +1751,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     createParticles();
 
-    // Инициализация Swiper
     const swiper = new Swiper('.swiper', {
         loop: true,
         slidesPerView: 1,
@@ -1858,7 +1810,6 @@ document.addEventListener('DOMContentLoaded', function() {
         progress.style.width = progressWidth + '%';
     }
 
-    // Анимация карточек услуг
     document.querySelectorAll('.service-card').forEach(card => {
         card.addEventListener('click', function() {
             const serviceName = this.querySelector('h3').textContent;
@@ -1872,7 +1823,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Обработка Cookie уведомления
     const cookieNotification = document.getElementById('cookie-notification');
     const acceptCookiesBtn = document.getElementById('accept-cookies');
     const settingsCookiesBtn = document.getElementById('settings-cookies');
@@ -1880,16 +1830,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeSettingsBtn = document.getElementById('close-settings');
     const saveSettingsBtn = document.getElementById('save-settings');
     
-    // Ключи для localStorage
     const COOKIES_ACCEPTED = 'cookiesAccepted';
     const COOKIE_SETTINGS = 'cookieSettings';
     
-    // Проверяем, было ли уже принято соглашение
     function checkCookiesAccepted() {
         return localStorage.getItem(COOKIES_ACCEPTED) === 'true';
     }
     
-    // Получаем текущие настройки
     function getCookieSettings() {
         const settings = localStorage.getItem(COOKIE_SETTINGS);
         return settings ? JSON.parse(settings) : {
@@ -1899,16 +1846,14 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    // Показываем уведомление, если cookies еще не приняты
     function showCookieNotification() {
         if (!checkCookiesAccepted()) {
             setTimeout(() => {
                 cookieNotification.classList.add('show');
-            }, 2000); // Показываем через 2 секунды после загрузки
+            }, 2000); 
         }
     }
     
-    // Принимаем все cookies
     function acceptAllCookies() {
         const settings = {
             necessary: true,
@@ -1924,7 +1869,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showAcceptanceMessage('Все cookies приняты');
     }
     
-    // Сохраняем выбранные настройки
     function saveCookieSettings() {
         const settings = {
             necessary: true, // Всегда true, так как необходимые cookies обязательны
@@ -1941,54 +1885,30 @@ document.addEventListener('DOMContentLoaded', function() {
         showAcceptanceMessage('Настройки cookies сохранены');
     }
     
-    // Инициализация cookies на основе настроек
     function initializeCookies(settings) {
         console.log('Инициализация cookies с настройками:', settings);
         
-        // Необходимые cookies (всегда инициализируются)
         initializeNecessaryCookies();
         
-        // Аналитические cookies
         if (settings.analytical) {
             initializeAnalyticalCookies();
         }
         
-        // Функциональные cookies
         if (settings.functional) {
             initializeFunctionalCookies();
         }
     }
     
-    // Заглушки для инициализации разных типов cookies
-    function initializeNecessaryCookies() {
-        console.log('🚀 Инициализация необходимых cookies');
-        // Сессионные cookies, корзина, аутентификация и т.д.
-    }
-    
-    function initializeAnalyticalCookies() {
-        console.log('📊 Инициализация аналитических cookies');
-        // Google Analytics, Yandex.Metrika и другие системы аналитики
-    }
-    
-    function initializeFunctionalCookies() {
-        console.log('⚙️ Инициализация функциональных cookies');
-        // Настройки темы, языка, предпочтения пользователя
-    }
-    
-    // Показываем сообщение о принятии
     function showAcceptanceMessage(message) {
-        // Можно добавить toast-уведомление
         console.log('✅ ' + message);
     }
     
-    // Загружаем настройки в форму
     function loadSettingsToForm() {
         const settings = getCookieSettings();
         document.querySelector('input[name="analytical"]').checked = settings.analytical;
         document.querySelector('input[name="functional"]').checked = settings.functional;
     }
     
-    // Обработчики событий для Cookie
     if (acceptCookiesBtn) {
         acceptCookiesBtn.addEventListener('click', acceptAllCookies);
     }
@@ -2010,16 +1930,13 @@ document.addEventListener('DOMContentLoaded', function() {
         saveSettingsBtn.addEventListener('click', saveCookieSettings);
     }
     
-    // Проверяем и показываем уведомление при загрузке
     showCookieNotification();
     
-    // Если cookies уже приняты, инициализируем их сразу
     if (checkCookiesAccepted()) {
         const settings = getCookieSettings();
         initializeCookies(settings);
     }
 
-    // Модальное окно обратной связи
     const contactModal = document.getElementById('contactModal');
     const closeModal = document.querySelector('.close-modal');
     const contactForm = document.getElementById('contactForm');
@@ -2027,10 +1944,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
     const btnLoading = submitBtn ? submitBtn.querySelector('.btn-loading') : null;
     
-    // Находим кнопку "Написать нам" в CTA секции
     const writeUsBtn = document.querySelector('.cta-buttons .btn-secondary');
     
-    // Открытие модального окна
     if (writeUsBtn) {
         writeUsBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -2041,7 +1956,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     } else {
         console.log('Кнопка "Написать нам" не найдена');
-        // Альтернативный поиск по тексту
         const allButtons = document.querySelectorAll('.btn');
         allButtons.forEach(btn => {
             if (btn.textContent.includes('Написать нам')) {
@@ -2056,7 +1970,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Закрытие модального окна
     if (closeModal) {
         closeModal.addEventListener('click', function() {
             if (contactModal) {
@@ -2066,7 +1979,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Закрытие при клике вне окна
     window.addEventListener('click', function(e) {
         if (e.target === contactModal) {
             contactModal.style.display = 'none';
@@ -2074,7 +1986,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Валидация формы обратной связи
     function validateForm() {
         let isValid = true;
         const name = document.getElementById('contactName').value.trim();
@@ -2082,19 +1993,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const phone = document.getElementById('contactPhone').value.trim();
         const message = document.getElementById('contactMessage').value.trim();
         
-        // Сброс ошибок
         document.querySelectorAll('.error-message').forEach(el => {
             el.style.display = 'none';
         });
         
-        // Проверка имени
         if (!name) {
             document.getElementById('nameError').textContent = 'Введите ваше имя';
             document.getElementById('nameError').style.display = 'block';
             isValid = false;
         }
         
-        // Проверка контактов
         if (!email && !phone) {
             document.getElementById('emailError').textContent = 'Укажите email или телефон';
             document.getElementById('emailError').style.display = 'block';
@@ -2103,14 +2011,12 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
-        // Проверка email формата
         if (email && !isValidEmail(email)) {
             document.getElementById('emailError').textContent = 'Введите корректный email';
             document.getElementById('emailError').style.display = 'block';
             isValid = false;
         }
         
-        // Проверка сообщения
         if (!message) {
             document.getElementById('messageError').textContent = 'Введите ваше сообщение';
             document.getElementById('messageError').style.display = 'block';
@@ -2125,14 +2031,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return re.test(email);
     }
     
-    // Обработка отправки формы обратной связи
     if (contactForm) {
         contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             if (!validateForm()) return;
             
-            // Показываем индикатор загрузки
             if (btnText && btnLoading) {
                 btnText.style.display = 'none';
                 btnLoading.style.display = 'inline-block';
@@ -2175,7 +2079,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Ошибка:', error);
                 showMessage('error', 'Произошла ошибка при отправке. Попробуйте еще раз.');
             } finally {
-                // Скрываем индикатор загрузки
                 if (btnText && btnLoading) {
                     btnText.style.display = 'inline-block';
                     btnLoading.style.display = 'none';
@@ -2186,7 +2089,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showMessage(type, text) {
-        // Удаляем старые сообщения
         const oldMessages = document.querySelectorAll('.success-message, .error-message-global');
         oldMessages.forEach(msg => msg.remove());
         
@@ -2217,4 +2119,24 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
+
+    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
+<!-- End Google Tag Manager -->
 {% endblock %}

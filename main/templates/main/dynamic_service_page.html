@@ -5,7 +5,6 @@
 {% block content %}
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <style>
-    /* Основные стили */
     .service-page-hero {
         background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
         color: white;
@@ -128,7 +127,6 @@
         margin-top: 6vh !important;
     }
 
-    /* Контент секции */
     .content-section {
         margin-bottom: 5rem;
         background: white;
@@ -171,7 +169,6 @@
         font-weight: 400;
     }
 
-    /* Особенности */
     .features-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -378,7 +375,6 @@
         box-shadow: 0 10px 30px rgba(255,255,255,0.2);
     }
 
-    /* Навигация по услугам */
     .service-navigation {
         background: linear-gradient(135deg, #e5eaee 0%, #f8f9fa 100%);
         padding: 4rem 2rem;
@@ -513,7 +509,6 @@
     }
 </style>
 
-<!-- Хлебные крошки -->
 {% if breadcrumbs %}
 <nav class="breadcrumbs" data-aos="fade-down" data-aos-duration="800">
     <div class="container">
@@ -532,7 +527,6 @@
 </nav>
 {% endif %}
 
-<!-- Герой -->
 <section class="service-page-hero" data-aos="zoom-in" data-aos-duration="1200">
     <div class="container">
         <div class="service-hero-content">
@@ -549,10 +543,8 @@
     </div>
 </section>
 
-<!-- Основной контент -->
 <main class="service-page-container">
     <div class="container">
-        <!-- Навигация по услугам -->
         {% if navigation_tree %}
         <section class="service-navigation" data-aos="fade-up" data-aos-duration="1000">
             <h3>Наши услуги</h3>
@@ -568,7 +560,6 @@
         {% endif %}
 
         <div class="service-content">
-            <!-- Основной контент -->
             {% if page.content %}
             <section class="content-section" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
                 <div class="content-text">
@@ -577,7 +568,6 @@
             </section>
             {% endif %}
             
-            <!-- Особенности -->
             {% if page.get_features_list %}
             <section class="content-section" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="300">
                 <h2>Ключевые особенности</h2>
@@ -592,7 +582,6 @@
             </section>
             {% endif %}
 
-            <!-- Дочерние страницы -->
             {% if page.children.all %}
             <section class="content-section children-section" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400">
                 <h2>Связанные услуги</h2>
@@ -612,7 +601,6 @@
             </section>
             {% endif %}
 
-            <!-- CTA секция -->
             <section class="service-cta" data-aos="zoom-in" data-aos-duration="1200" data-aos-delay="500">
                 <div class="service-cta-content">
                     <h3 data-aos="fade-up" data-aos-delay="700">Готовы начать сотрудничество?</h3>
@@ -630,9 +618,28 @@
 
 {% block extra_scripts %}
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
+
+    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+ <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
+<!-- End Google Tag Manager -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Инициализация AOS с улучшенными настройками
         AOS.init({
             duration: 1000,
             once: true,
@@ -642,7 +649,6 @@
             mirror: false
         });
 
-        // Дополнительная анимация для карточек при скролле
         const createScrollAnimations = () => {
             const elements = document.querySelectorAll('.feature-item, .child-item, .nav-item');
             
@@ -659,7 +665,6 @@
 
         createScrollAnimations();
 
-        // Параллакс эффект для героя с улучшениями
         let ticking = false;
         
         const updateParallax = () => {
@@ -681,7 +686,6 @@
 
         window.addEventListener('scroll', onScroll, { passive: true });
 
-        // Анимация градиентов при скролле
         const animateGradients = () => {
             const cta = document.querySelector('.service-cta');
             if (cta) {
@@ -691,7 +695,6 @@
             }
         };
 
-        // window.addEventListener('scroll', animateGradients, { passive: true });
     });
 </script>
 {% endblock %}

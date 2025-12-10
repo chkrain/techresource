@@ -790,14 +790,12 @@ section, .services-hero {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация AOS
     AOS.init({
         duration: 800,
         once: true,
         offset: 100
     });
 
-    // Анимация появления героя
     anime({
         targets: '.hero-title',
         translateY: [30, 0],
@@ -815,7 +813,6 @@ document.addEventListener('DOMContentLoaded', function() {
         easing: 'easeOutCubic'
     });
 
-    // Появление основного контента
     anime({
         targets: '.services-container',
         opacity: [0, 1],
@@ -824,19 +821,16 @@ document.addEventListener('DOMContentLoaded', function() {
         easing: 'easeInOutQuad'
     });
 
-    // Улучшенная анимация линии процесса
     function animateProcessLine() {
         const processLine = document.querySelector('.process-line');
         const processSteps = document.querySelectorAll('.process-step');
         
         if (!processLine) return;
         
-        // Сначала скрываем линию
         processLine.style.opacity = '0';
         processLine.style.transform = 'scaleY(0)';
         processLine.style.transformOrigin = 'top center';
         
-        // Плавное появление линии
         anime({
             targets: processLine,
             opacity: [0, 0.3],
@@ -846,7 +840,6 @@ document.addEventListener('DOMContentLoaded', function() {
             easing: 'easeOutCubic'
         });
         
-        // Анимация заполнения линии при прокрутке
         let hasAnimated = false;
         
         const lineObserver = new IntersectionObserver((entries) => {
@@ -854,7 +847,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (entry.isIntersecting && !hasAnimated) {
                     hasAnimated = true;
                     
-                    // Постепенное заполнение линии
                     anime({
                         targets: processLine,
                         background: [
@@ -873,15 +865,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         lineObserver.observe(processLine);
         
-        // Анимация шагов с подсветкой линии
         processSteps.forEach((step, index) => {
             const stepObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        // Добавляем класс активного шага
                         step.classList.add('active');
                         
-                        // Плавное изменение цвета линии до текущего шага
                         const progress = ((index + 1) / processSteps.length) * 100;
                         
                         anime({
@@ -912,10 +901,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Запускаем анимацию линии после небольшой задержки
     setTimeout(animateProcessLine, 1000);
 
-    // Параллакс эффект для героя
     window.addEventListener('scroll', function() {
         const scrolled = window.pageYOffset;
         const hero = document.querySelector('.services-hero');
@@ -924,7 +911,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Интерактивность кнопок
     document.querySelectorAll('.service-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             anime({
@@ -936,7 +922,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Анимация иконок при скролле
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -959,4 +944,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
+
+    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
+<!-- End Google Tag Manager -->
 {% endblock %}
