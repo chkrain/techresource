@@ -264,7 +264,7 @@
                             <h4>🔄 Управление статусом</h4>
                         </div>
                         
-                        <form method="post" action="{% url 'update_order_status_post' %}" class="status-update-form">
+                        <form method="post" action="{% url 'update_order_status' order.id %}" class="status-update-form">
                             {% csrf_token %}
                             <input type="hidden" name="order_id" value="{{ order.id }}">
 
