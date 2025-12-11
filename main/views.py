@@ -23,6 +23,7 @@ from .services.delivery_service import DeliveryService
 import base64
 from io import BytesIO
 from django.contrib.auth.decorators import user_passes_test
+import logging
 from django.core.cache import cache
 from hashlib import sha256
 from django.conf import settings
@@ -49,11 +50,13 @@ from django.http import Http404
 import magic
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from weasyprint import HTML, CSS
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from .models import SupportTicket, SupportAttachment
 from .forms import SupportTicketForm
+import tempfile
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm
 
 from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage
@@ -63,6 +66,8 @@ from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePassw
 from django.db.models import Sum
 
 User = get_user_model()
+
+logger = logging.getLogger(__name__)
 
 def index(request):
     featured_products = Product.objects.filter(is_active=True, quantity__gt=0)[:6]  
@@ -564,7 +569,6 @@ def send_invoice_order_notification(order):
     """Отправка уведомления о создании заказа по счету"""
     try:
         if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
-            print("⚠️ TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не настроены")
             return False
     
         message = f"""
@@ -604,7 +608,6 @@ def send_invoice_order_notification(order):
         return response.status_code == 200
         
     except Exception as e:
-        print(f"❌ Ошибка отправки уведомления: {e}")
         return False
 
 @login_required
@@ -824,7 +827,6 @@ def cancel_order(request, order_id):
                 
     except Exception as e:
         error_msg = f'Ошибка при отмене заказа: {str(e)}'
-        print(f"❌ Ошибка отмены заказа #{order_id}: {e}")
         
         if is_ajax:
             return JsonResponse({
@@ -847,7 +849,6 @@ def send_order_notification(order):
     """Отправка уведомления в Telegram о новом заказе"""
     try:
         if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
-            print("⚠️ TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не настроены")
             
             # Логируем отсутствие настроек
             NotificationLog.objects.create(
@@ -912,7 +913,6 @@ def send_order_notification(order):
         
     except Exception as e:
         error_msg = f"❌ Ошибка отправки в Telegram: {e}"
-        print(error_msg)
         
         # Логируем исключение
         NotificationLog.objects.create(
@@ -1001,7 +1001,6 @@ def password_reset_request(request):
                 'message': 'Если email зарегистрирован, код будет отправлен'
             })
         except Exception as e:
-            print(f"❌ Ошибка при восстановлении пароля: {e}")
             return JsonResponse({
                 'success': False,
                 'error': 'Произошла ошибка. Попробуйте позже.'
@@ -1038,7 +1037,6 @@ def send_cancellation_notification(order):
     """Отправка уведомления об отмене заказа в Telegram"""
     try:
         if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
-            print("⚠️ TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не настроены")
             return False
 
         commission_text = f"   • Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
@@ -1076,7 +1074,6 @@ def send_cancellation_notification(order):
         return response.status_code == 200
         
     except Exception as e:
-        print(f"❌ Ошибка отправки уведомления об отмене: {e}")
         return False
 
 # API для обновления количества через AJAX
@@ -1224,7 +1221,6 @@ def send_password_reset_email(email, code):
         return True
         
     except Exception as e:
-        print(f"❌ Ошибка отправки email: {e}")
         return False
     
 def verify_reset_code(request):
@@ -1282,7 +1278,6 @@ def verify_reset_code(request):
                 'error': 'Пользователь не найден'
             })
         except Exception as e:
-            print(f"❌ Ошибка при проверке кода: {e}")
             return JsonResponse({
                 'success': False,
                 'error': 'Произошла ошибка. Попробуйте позже.'
@@ -1622,7 +1617,6 @@ def send_contact_message(name, email, phone, message, ip_address):
     """Отправка сообщения обратной связи в Telegram"""
     try:
         if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID_CONTACTS:
-            print("⚠️ TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID_CONTACTS не настроены")
             return False
         
             
@@ -1649,7 +1643,6 @@ def send_contact_message(name, email, phone, message, ip_address):
         return response.status_code == 200
         
     except Exception as e:
-        print(f"❌ Ошибка отправки сообщения обратной связи: {e}")
         return False
 
 @csrf_exempt
@@ -1711,7 +1704,6 @@ def contact_form_submit(request):
                 })
                 
         except Exception as e:
-            print(f"❌ Ошибка обработки формы: {e}")
             return JsonResponse({
                 'success': False,
                 'error': 'Произошла ошибка. Попробуйте еще раз.'
@@ -1840,7 +1832,7 @@ def send_order_status_notification(order, old_status, new_status):
             requests.post(url, json=payload, timeout=10)
             
     except Exception as e:
-        print(f"❌ Ошибка отправки уведомления о статусе: {e}")
+        return False
 
 def send_refund_request_notification(order, reason):
     """Уведомление о запросе возврата"""
@@ -1872,7 +1864,7 @@ def send_refund_request_notification(order, reason):
             requests.post(url, json=payload, timeout=10)
             
     except Exception as e:
-        print(f"❌ Ошибка отправки уведомления о возврате: {e}")
+        return False
 
 
 def send_order_status_email(order, old_status, new_status):
@@ -1900,7 +1892,7 @@ def send_order_status_email(order, old_status, new_status):
         )
         
     except Exception as e:
-        print(f"❌ Ошибка отправки email о статусе: {e}")
+        return False
 
 @login_required
 def request_order_refund(request, order_id):
@@ -2449,10 +2441,8 @@ def support_view(request):
                         support_attachment.save()
                         
                     except Exception as e:
-                        print(f"❌ Ошибка сохранения вложения {attachment_file.name}: {e}")
+                        return False
                 
-                # Отправляем уведомление в Telegram
-                # Получаем все вложения для этой заявки
                 ticket_attachments = SupportAttachment.objects.filter(ticket=ticket)
                 send_support_notification(ticket, list(ticket_attachments))
                 
@@ -2460,7 +2450,6 @@ def support_view(request):
                 return redirect('support')
                 
             except Exception as e:
-                print(f"❌ Ошибка создания заявки: {e}")
                 messages.error(request, '❌ Произошла ошибка при отправке обращения. Пожалуйста, попробуйте еще раз.')
         else:
             messages.error(request, '❌ Пожалуйста, исправьте ошибки в форме.')
@@ -2494,14 +2483,11 @@ def send_simple_attachment(attachment, chat_id=None):
             response = requests.post(url, data=data, files=files, timeout=30)
             
             if response.status_code == 200:
-                print(f"✅ Вложение {attachment.file_name} отправлено")
                 return True
             else:
-                print(f"❌ Ошибка отправки документа: {response.text}")
                 return False
                 
     except Exception as e:
-        print(f"❌ Ошибка отправки файла {attachment.file_name}: {e}")
         return False
     
 def send_simple_attachment(attachment):
@@ -2521,14 +2507,11 @@ def send_simple_attachment(attachment):
             response = requests.post(url, data=data, files=files, timeout=30)
             
             if response.status_code == 200:
-                print(f"✅ Вложение {attachment.file_name} отправлено")
                 return True
             else:
-                print(f"❌ Ошибка отправки документа: {response.text}")
                 return False
                 
     except Exception as e:
-        print(f"❌ Ошибка отправки файла {attachment.file_name}: {e}")
         return False
 
 def check_bot_settings():
@@ -2539,13 +2522,10 @@ def check_bot_settings():
         
         if response.status_code == 200:
             bot_info = response.json()
-            print(f"✅ Бот настроен: {bot_info['result']['username']}")
             return True
         else:
-            print(f"❌ Ошибка доступа к боту: {response.text}")
             return False
     except Exception as e:
-        print(f"❌ Ошибка проверки бота: {e}")
         return False
     
 def send_support_notification(ticket, attachments):
@@ -2561,7 +2541,6 @@ def send_support_notification(ticket, attachments):
             priority_text = "НОВОЕ ОБРАЩЕНИЕ"
         
         if not settings.TELEGRAM_BOT_TOKEN or not chat_id:
-            print(f"⚠️ TELEGRAM_BOT_TOKEN или chat_id не настроены")
             return False
         
         user_info = "Гость"
@@ -2601,7 +2580,6 @@ def send_support_notification(ticket, attachments):
         response = requests.post(url, json=payload, timeout=10)
         
         if response.status_code != 200:
-            print(f"❌ Ошибка отправки сообщения: {response.text}")
             return send_fallback_notification(ticket, attachments)
             
         # Отправка вложений если есть
@@ -2609,7 +2587,7 @@ def send_support_notification(ticket, attachments):
             try:
                 send_attachment_with_quality(attachment, chat_id)
             except Exception as e:
-                print(f"❌ Ошибка отправки вложения: {e}")
+                return False
         
         # Логируем отправку
         NotificationLog.objects.create(
@@ -2619,11 +2597,9 @@ def send_support_notification(ticket, attachments):
             success=True
         )
         
-        print(f"✅ Уведомление о заявке #{ticket.id} отправлено в Telegram ({ 'КРИТИЧЕСКИЙ' if ticket.priority == 'critical' else 'ОБЫЧНЫЙ' })")
         return True
         
     except Exception as e:
-        print(f"❌ Ошибка отправки уведомления поддержки: {e}")
         return send_fallback_notification(ticket, attachments)
 
 def parse_user_agent(user_agent):
@@ -2672,7 +2648,6 @@ def parse_user_agent(user_agent):
         return browser_info
         
     except Exception as e:
-        print(f"❌ Ошибка парсинга User-Agent: {e}")
         return {
             'browser': 'Ошибка парсинга',
             'os': 'Ошибка парсинга', 
@@ -2697,7 +2672,6 @@ def get_additional_client_info(ticket):
         return info
         
     except Exception as e:
-        print(f"❌ Ошибка получения доп. информации: {e}")
         return {}
 
 def send_attachment_with_quality(attachment, chat_id):
@@ -2708,7 +2682,6 @@ def send_attachment_with_quality(attachment, chat_id):
         
         # Определяем тип файла
         if any(ext in file_name for ext in ['.jpg', '.jpeg', '.png', '.webp']):
-            # Для изображений отправляем как документ для сохранения качества
             url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
             
             with open(file_path, 'rb') as file:
@@ -2733,14 +2706,11 @@ def send_attachment_with_quality(attachment, chat_id):
                 response = requests.post(url, data=data, files=files, timeout=30)
         
         if response.status_code == 200:
-            print(f"✅ Вложение {attachment.file_name} отправлено с сохранением качества")
             return True
         else:
-            print(f"❌ Ошибка отправки вложения: {response.text}")
             return False
             
     except Exception as e:
-        print(f"❌ Ошибка отправки файла {attachment.file_name}: {e}")
         return False
 
 def send_fallback_notification(ticket, attachments):
@@ -2766,14 +2736,11 @@ def send_fallback_notification(ticket, attachments):
         response = requests.post(url, json=payload, timeout=10)
         
         if response.status_code == 200:
-            print(f"✅ Резервное уведомление отправлено для заявки #{ticket.id}")
             return True
         else:
-            print(f"❌ Ошибка резервной отправки: {response.text}")
             return False
             
     except Exception as e:
-        print(f"❌ Критическая ошибка отправки: {e}")
         return False
     
 def send_attachment_to_telegram(attachment):
@@ -2816,14 +2783,11 @@ def send_attachment_to_telegram(attachment):
         files[file_key].close()
         
         if response.status_code != 200:
-            print(f"❌ Ошибка отправки вложения: {response.text}")
             return False
             
-        print(f"✅ Вложение {attachment.file_name} отправлено в Telegram")
         return True
         
     except Exception as e:
-        print(f"❌ Ошибка отправки вложения: {e}")
         return False
     
 class PaymentSecurityService:
@@ -3106,9 +3070,6 @@ def send_password_reset_email_via_mail_ru(email, code, username):
         from email.header import Header
         from email.utils import formataddr
         
-        print(f"🔍 Отправляем email на {email}")
-        
-        # Создаем сообщение как делает mail команда
         msg = EmailMessage()
         
         # Текстовое содержимое
@@ -3177,19 +3138,15 @@ def send_password_reset_email_via_mail_ru(email, code, username):
         with smtplib.SMTP('localhost', 25) as server:
             server.send_message(msg)
         
-        print(f"✅ Email отправлен на {email}")
         return True
         
     except Exception as e:
         import traceback
-        print(f"❌ Ошибка отправки email: {e}")
         traceback.print_exc()
         
-        # Fallback: используем mail команду
         try:
             import subprocess
             
-            # Формируем простой email
             email_text = f"""From: noreply@tech-re.ru
 To: {email}
 Subject: Код восстановления пароля - Техресурс
@@ -3205,14 +3162,11 @@ Subject: Код восстановления пароля - Техресурс
             )
             
             if result.returncode == 0:
-                print(f"✅ Email отправлен через mail command на {email}")
                 return True
             else:
-                print(f"❌ Ошибка mail command: {result.stderr}")
                 return False
                 
         except Exception as fallback_e:
-            print(f"❌ Fallback тоже не сработал: {fallback_e}")
             return False
 
 def send_password_changed_confirmation(email, username):
@@ -3289,11 +3243,9 @@ def send_password_changed_confirmation(email, username):
             fail_silently=False,
         )
         
-        print(f"✅ Подтверждение смены пароля отправлено на {email}")
         return True
         
     except Exception as e:
-        print(f"❌ Ошибка отправки подтверждения: {e}")
         return False
 
 def check_rate_limit(email, action, limit=3, timeout=300):
@@ -3308,37 +3260,107 @@ def check_rate_limit(email, action, limit=3, timeout=300):
     return True
 
 def send_invoice_email(order):
-    """Отправка счета на email покупателя - аналогично восстановлению пароля"""
+    """Отправка счета на email покупателя с PDF вложением"""
     try:
-        print(f"🔍 Начинаем отправку счета для заказа #{order.id}")
-        
-        # Генерируем номер счета
         invoice_number = order.generate_invoice_number()
-        
-        # Получаем товары заказа
         order_items = order.orderitem_set.all()
-        
-        # Рассчитываем дату оплаты
         due_date = order.get_due_date()
         
-        # Подготовка контекста
-        context = {
-            'order': order,
-            'order_items': order_items,
-            'invoice_number': invoice_number,
-            'invoice_date': order.invoice_date,
-            'due_date': due_date,
+        company_info = {
+            'name': 'Техресурс',
+            'inn': '1684010655',
+            'kpp': '168401001',
+            'ogrn': '1231600004712',
+            'legal_address': '422527 Республика Татарстан, ул. Техническая, зд. 52, офис 226',
+            'postal_address': '422527 Республика Татарстан, ул. Техническая, зд. 52, офис 226',
+            'bank_account': '40702810129930004534',
+            'bank_name': 'ФИЛИАЛ "НИЖЕГОРОДСКИЙ" АО "АЛЬФА-БАНК"',
+            'bik': '042202824',
+            'correspondent_account': '30101810200000000824',
+            'director': 'Казначеев Анатолий Андреевич',
+            'phone': '+7 (937) 524-68-88',
+            'email': 'Kaznacheev56@gmail.com',
         }
         
-        print(f"📧 Подготавливаем email для {order.customer_email}")
+        buyer_info = {
+            'name': order.customer_name,
+            'inn': order.customer_inn,
+            'kpp': order.customer_kpp or '',
+            'address': order.delivery_address,
+            'contact_name': order.customer_name,
+            'phone': order.customer_phone,
+            'email': order.customer_email,
+        }
         
-        # Рендерим HTML как при восстановлении пароля
-        html_message = render_to_string('main/invoice_email.html', context)
-        plain_message = strip_tags(html_message)
+        items_data = []
+        for index, order_item in enumerate(order_items, 1):
+            item_total = order_item.quantity * order_item.price
+            vat_amount = item_total * order_item.vat_rate / (100 + order_item.vat_rate)
+            
+            items_data.append({
+                'index': index,
+                'description': order_item.product.name,
+                'sku': order_item.product.article or '',
+                'quantity': order_item.quantity,
+                'unit': 'шт.',
+                'unit_price': order_item.price,
+                'line_total': item_total,
+                'vat': vat_amount,
+                'vat_rate': order_item.vat_rate,
+            })
+        
+        totals = {
+            'net': order.price_without_vat,
+            'vat': order.vat_amount,
+            'gross': order.total_price,
+            'vat_rate': order.vat_rate,
+        }
+        
+        context = {
+            'order': order,
+            'invoice_number': invoice_number,
+            'invoice_date': order.invoice_date.strftime('%d.%m.%Y'),
+            'due_date': due_date.strftime('%d.%m.%Y'),
+            'company': company_info,
+            'buyer': buyer_info,
+            'items': items_data,
+            'totals': totals,
+            'invoice_validity_days': 5,
+        }
+        
+        # Генерируем PDF
+        html_content = render_to_string('main/invoice_email.html', context)
+        pdf_file = generate_pdf_from_html(html_content, order, invoice_number)
+        
+        if not pdf_file:
+            raise Exception("Не удалось сгенерировать PDF файл")
         
         subject = f"Счет на оплату №{invoice_number} от {order.invoice_date.strftime('%d.%m.%Y')} - Техресурс"
         
-        # ИСПОЛЬЗУЕМ ТОТ ЖЕ ПОДХОД, ЧТО И ДЛЯ ВОССТАНОВЛЕНИЯ ПАРОЛЯ
+        # 1. ПРОСТОЕ ТЕКСТОВОЕ СООБЩЕНИЕ ДЛЯ EMAIL
+        plain_message = f"""
+Уважаемый(ая) {order.customer_name},
+
+Во вложении вы найдете счет на оплату №{invoice_number} от {order.invoice_date.strftime('%d.%m.%Y')}.
+
+Детали счета:
+- Номер счета: {invoice_number}
+- Дата счета: {order.invoice_date.strftime('%d.%m.%Y')}
+- Сумма к оплате: {order.total_price} руб.
+- Срок оплаты: {due_date.strftime('%d.%m.%Y')}
+- Поставщик: {company_info['name']}
+
+Пожалуйста, оплатите счет в течение {5} банковских дней.
+
+Если у вас возникли вопросы, свяжитесь с нами:
+Телефон: {company_info['phone']}
+Email: {company_info['email']}
+
+С уважением,
+Команда Техресурс
+"""
+        
+        # 2. СОЗДАЕМ EMAIL С ВЛОЖЕНИЕМ
         email = EmailMultiAlternatives(
             subject=subject,
             body=plain_message,
@@ -3352,58 +3374,243 @@ def send_invoice_email(order):
             }
         )
         
-        # Добавляем HTML версию
-        email.attach_alternative(html_message, "text/html")
-        
-        print(f"📨 Отправляем email на {order.customer_email}")
+        # Прикрепляем PDF
+        pdf_filename = f"Счет_{invoice_number}_{order.customer_name.replace(' ', '_')}.pdf"
+        email.attach(pdf_filename, pdf_file.getvalue(), 'application/pdf')
         
         # Отправляем email
         email.send(fail_silently=False)
         
-        # Обновляем статус заказа
+        # 3. ОТПРАВЛЯЕМ ОДНО СООБЩЕНИЕ В TELEGRAM С ВЛОЖЕНИЕМ И ИНФОРМАЦИЕЙ
+        telegram_sent = send_invoice_to_telegram_with_info(pdf_file.getvalue(), pdf_filename, order, company_info)
+        
+        # Обновляем статусы заказа
         order.invoice_sent = True
         order.invoice_sent_at = timezone.now()
+        order.invoice_pdf_sent_to_telegram = telegram_sent
         order.save()
         
-        # Логируем успешную отправку
         NotificationLog.objects.create(
             order=order,
             notification_type='invoice_sent',
-            message=f'Счет №{invoice_number} отправлен на {order.customer_email}',
+            message=f'Счет №{invoice_number} отправлен на {order.customer_email} с PDF вложением',
             sent_to=order.customer_email,
             success=True
         )
         
-        print(f"✅ Счет отправлен на {order.customer_email}")
+        pdf_file.close()
+        
         return True
         
     except Exception as e:
         import traceback
-        print(f"❌ Ошибка отправки счета: {e}")
         traceback.print_exc()
         
-        # Логируем ошибку
         NotificationLog.objects.create(
             order=order,
             notification_type='invoice_sent',
-            message=f'Ошибка отправки счета: {str(e)}',
+            message=f'Ошибка отправки счета с PDF: {str(e)}',
             sent_to=order.customer_email,
             success=False,
             error_message=str(e)
         )
         
         return False
+    
+def send_invoice_to_telegram_with_info(pdf_bytes, filename, order, company_info):
+    """Отправка PDF файла в Telegram с информацией о заказе в одном сообщении"""
+    try:
+        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
+            return False
+        
+        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_file:
+            temp_file.write(pdf_bytes)
+            temp_file_path = temp_file.name
+        
+        try:
+            # ФОРМИРУЕМ СООБЩЕНИЕ С ПОЛНОЙ ИНФОРМАЦИЕЙ О ЗАКАЗЕ
+            message = f"""
+📄 <b>СЧЕТ НА ОПЛАТУ #{order.invoice_number}</b>
+
+<b>📅 Дата:</b> {order.invoice_date.strftime('%d.%m.%Y')}
+<b>⏰ Срок оплаты:</b> {order.get_due_date().strftime('%d.%m.%Y')}
+
+<b>🏢 Поставщик:</b> {company_info['name']}
+<b>📋 ИНН/КПП:</b> {company_info['inn']}/{company_info['kpp']}
+
+<b>👤 Покупатель:</b> {order.customer_name}
+<b>📋 ИНН:</b> {order.customer_inn}
+<b>📍 КПП:</b> {order.customer_kpp or 'Не указан'}
+<b>📧 Email:</b> {order.customer_email}
+<b>📞 Телефон:</b> {order.customer_phone}
+
+<b>💰 Сумма:</b> {order.total_price} руб.
+<b>🏛️ Без НДС:</b> {order.price_without_vat} руб.
+<b>📊 НДС ({order.vat_rate}%):</b> {order.vat_amount} руб.
+
+<b>🚚 Адрес доставки:</b>
+{order.delivery_address}
+
+<b>🏦 Назначение платежа:</b>
+Оплата по счету №{order.invoice_number} от {order.invoice_date.strftime('%d.%m.%Y')}
+
+<b>📋 Контакты для связи:</b>
+📞 Телефон: {order.customer_phone}
+✉️ Email: {order.customer_email}
+👤 Контактное лицо: {order.customer_name}
+
+<b>⏰ Время создания:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
+"""
+            
+            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
+            
+            with open(temp_file_path, 'rb') as file:
+                files = {'document': (filename, file)}
+                data = {
+                    'chat_id': settings.TELEGRAM_CHAT_ID,
+                    'caption': message,
+                    'parse_mode': 'HTML',
+                    'disable_web_page_preview': True
+                }
+                
+                response = requests.post(url, files=files, data=data, timeout=30)
+                
+                if response.status_code == 200:
+                    
+                    NotificationLog.objects.create(
+                        order=order,
+                        notification_type='invoice_pdf_telegram',
+                        message=f'PDF счета №{order.invoice_number} с информацией о заказе отправлен в Telegram',
+                        sent_to=f"Telegram: {settings.TELEGRAM_CHAT_ID}",
+                        success=True
+                    )
+                    
+                    return True
+                else:
+                    return False
+                    
+        finally:
+            try:
+                os.unlink(temp_file_path)
+            except Exception as e:
+                return False
+                
+    except Exception as e:
+        
+        # Логируем ошибку отправки в Telegram
+        NotificationLog.objects.create(
+            order=order,
+            notification_type='invoice_pdf_telegram',
+            message=f'Ошибка отправки PDF в Telegram: {str(e)}',
+            sent_to=f"Telegram: {settings.TELEGRAM_CHAT_ID}",
+            success=False,
+            error_message=str(e)
+        )
+        
+        return False
+
+def generate_pdf_from_html(html_content, order, invoice_number):
+    """Генерация PDF из HTML с использованием WeasyPrint"""
+    try:
+        # Создаем временный файл для HTML
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False, encoding='utf-8') as html_file:
+            html_file.write(html_content)
+            html_file_path = html_file.name
+        
+        try:
+            # Генерируем PDF
+            pdf_file = BytesIO()
+            
+            # Используем WeasyPrint для конвертации
+            HTML(filename=html_file_path).write_pdf(
+                pdf_file,
+                stylesheets=[
+                    CSS(string='''
+                        @page {
+                            size: A4;
+                            margin: 18mm;
+                            @bottom-center {
+                                content: "Страница " counter(page) " из " counter(pages);
+                                font-size: 10px;
+                                color: #666;
+                            }
+                        }
+                        
+                        /* Улучшаем читаемость для печати */
+                        body {
+                            font-family: "DejaVu Sans", "Arial", sans-serif;
+                            font-size: 11pt;
+                            line-height: 1.4;
+                        }
+                        
+                        /* Убеждаемся, что таблицы не разрываются между страницами */
+                        table.items {
+                            page-break-inside: avoid;
+                        }
+                        
+                        .items th, .items td {
+                            padding: 6px 8px;
+                        }
+                        
+                        /* Улучшаем видимость границ при печати */
+                        .items {
+                            border: 1px solid #000 !important;
+                        }
+                        
+                        .items th, .items td {
+                            border: 1px solid #000 !important;
+                        }
+                        
+                        /* Делаем итоги более заметными */
+                        .summary .total {
+                            font-weight: bold;
+                            font-size: 14pt;
+                        }
+                        
+                        /* Для печати убираем тени и фоны */
+                        @media print {
+                            .sheet {
+                                box-shadow: none !important;
+                                margin: 0 !important;
+                            }
+                            
+                            .viewport {
+                                padding: 0 !important;
+                            }
+                        }
+                    ''')
+                ],
+                presentational_hints=True,
+                optimize_size=('fonts', 'images')
+            )
+            
+            pdf_file.seek(0)
+            return pdf_file
+            
+        finally:
+            try:
+                os.unlink(html_file_path)
+            except:
+                pass
+                
+    except Exception as e:
+        logger.error(f"Ошибка генерации PDF для заказа {order.id}: {str(e)}")
+        
+        try:
+            pdf_file = BytesIO()
+            HTML(string=html_content).write_pdf(pdf_file)
+            pdf_file.seek(0)
+            return pdf_file
+        except Exception as alt_e:
+            return None
 
 def get_anonymous_cart(request):
     """Получение анонимной корзины из сессии"""
-    print(f"🔍 Проверяем сессию: {request.session.keys()}")
     
     if 'anonymous_cart' not in request.session:
-        print("🆕 Создаем новую анонимную корзину")
         request.session['anonymous_cart'] = {}
     
     cart = request.session['anonymous_cart']
-    print(f"🛒 Корзина содержит: {len(cart)} товаров")
     return cart
 
 def anonymous_cart_items(request):
@@ -3572,14 +3779,10 @@ def anonymous_create_order(request):
     """Создание анонимного заказа (оплата по счету)"""
     if request.method == 'POST':
         try:
-            print("🔍 [ANONYMOUS] Начинаем создание анонимного заказа...")
-            
             cart = get_anonymous_cart(request)
             
-            print(f"🛒 [ANONYMOUS] Корзина: {len(cart)} товаров")
             
             if not cart:
-                print("❌ [ANONYMOUS] Корзина пуста")
                 return JsonResponse({
                     'success': False,
                     'error': 'Заказ пуст'
@@ -3592,12 +3795,10 @@ def anonymous_create_order(request):
             missing_fields = []
             for field in required_fields:
                 value = request.POST.get(field, '').strip()
-                print(f"📝 [ANONYMOUS] Поле {field}: '{value}'")
                 if not value:
                     missing_fields.append(field)
             
             if missing_fields:
-                print(f"❌ [ANONYMOUS] Не заполнены поля: {missing_fields}")
                 return JsonResponse({
                     'success': False,
                     'error': f'Заполните обязательные поля: {", ".join(missing_fields)}'
@@ -3605,7 +3806,6 @@ def anonymous_create_order(request):
             
             # Валидация ИНН
             inn = request.POST.get('inn', '').strip()
-            print(f"📋 [ANONYMOUS] ИНН: {inn}")
             if not inn.isdigit() or len(inn) not in [10, 12]:
                 return JsonResponse({
                     'success': False,
@@ -3638,15 +3838,11 @@ def anonymous_create_order(request):
                         'total': item_total
                     })
                     
-                    print(f"📦 [ANONYMOUS] Товар {product_id}: {product.name} x{quantity} = {item_total}")
                 except Product.DoesNotExist:
-                    print(f"⚠️ [ANONYMOUS] Товар {product_id} не найден")
                     continue
             
-            print(f"💰 [ANONYMOUS] Итого сумма: {total}")
             
             if total == Decimal('0'):
-                print("❌ [ANONYMOUS] Сумма заказа равна 0")
                 return JsonResponse({
                     'success': False,
                     'error': 'Некорректная сумма заказа'
@@ -3657,17 +3853,11 @@ def anonymous_create_order(request):
             vat_amount = total * vat_rate / Decimal('120.00')
             price_without_vat = total - vat_amount
             
-            print(f"📊 [ANONYMOUS] НДС: {vat_amount}, Без НДС: {price_without_vat}")
-            
-            # СОЗДАЕМ ЗАКАЗ В БАЗЕ ДАННЫХ
-            print("📝 [ANONYMOUS] Создаем запись заказа в базе данных...")
-            
             # Генерируем номер счета ДО создания заказа
             from datetime import datetime
             current_year = datetime.now().year
             order_count = Order.objects.filter(invoice_date__year=current_year).count()
             invoice_number = f"{datetime.now().strftime('%Y%m')}-{order_count + 1:04d}"
-            print(f"📄 [ANONYMOUS] Номер счета: {invoice_number}")
             
             # Создаем заказ без поля 'notes'
             order = Order.objects.create(
@@ -3693,14 +3883,7 @@ def anonymous_create_order(request):
                 invoice_number=invoice_number,
                 invoice_sent=False,
             )
-            
-            print(f"✅ [ANONYMOUS] Заказ #{order.id} создан")
-            print(f"📧 [ANONYMOUS] Email для счета: {order.customer_email}")
-            print(f"📅 [ANONYMOUS] Дата счета: {order.invoice_date}")
-            print(f"📄 [ANONYMOUS] Номер счета: {order.invoice_number}")
-            
-            # Добавляем товары в заказ
-            print("📦 [ANONYMOUS] Добавляем товары в заказ...")
+
             for item_data in order_items_data:
                 try:
                     order_item = OrderItem.objects.create(
@@ -3710,17 +3893,12 @@ def anonymous_create_order(request):
                         price=item_data['price'],
                         vat_rate=vat_rate,
                     )
-                    print(f"✅ [ANONYMOUS] Товар {item_data['product'].name} добавлен")
                 except Exception as e:
-                    print(f"⚠️ [ANONYMOUS] Ошибка добавления товара {item_data['product'].name}: {e}")
+                    return False
             
             # Очищаем корзину
             request.session['anonymous_cart'] = {}
             request.session.modified = True
-            print("🗑️ [ANONYMOUS] Корзина очищена")
-            
-            # 1. Отправляем уведомление в Telegram
-            print("📱 [ANONYMOUS] Отправляем уведомление в Telegram...")
             try:
                 telegram_data = {
                     'contact_person': order.customer_name,
@@ -3741,25 +3919,16 @@ def anonymous_create_order(request):
                         'total': str(item['total'])
                     } for item in order_items_data]
                 }
-                telegram_success = send_anonymous_order_to_telegram(telegram_data, None, None)
-                print(f"✅ [ANONYMOUS] Telegram отправка: {telegram_success}")
             except Exception as e:
-                print(f"❌ [ANONYMOUS] Ошибка отправки в Telegram: {e}")
                 telegram_success = False
-            
-            # 2. ОТПРАВЛЯЕМ СЧЕТ НА EMAIL
-            print(f"📧 [ANONYMOUS] Отправляем счет на {order.customer_email}...")
             try:
                 email_success = send_invoice_email(order)
-                print(f"✅ [ANONYMOUS] Email отправка: {email_success}")
                 
-                # Обновляем статус отправки
                 if email_success:
                     order.invoice_sent = True
                     order.invoice_sent_at = timezone.now()
                     order.save(update_fields=['invoice_sent', 'invoice_sent_at'])
             except Exception as e:
-                print(f"❌ [ANONYMOUS] Ошибка отправки email: {e}")
                 import traceback
                 traceback.print_exc()
                 email_success = False
@@ -3785,7 +3954,6 @@ def anonymous_create_order(request):
                 })
                 
         except Exception as e:
-            print(f"❌ [ANONYMOUS] КРИТИЧЕСКАЯ ОШИБКА: {e}")
             import traceback
             traceback.print_exc()
             
@@ -3795,94 +3963,6 @@ def anonymous_create_order(request):
             })
     
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
-
-def send_anonymous_order_to_telegram(order_data, attachment_info=None, attachment_file=None):
-    """Отправка анонимного заказа в Telegram"""
-    try:
-        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
-            print("⚠️ TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не настроены")
-            return False
-        
-        # Формируем список товаров
-        items_text = ""
-        for item in order_data['items']:
-            items_text += f"• {item['name']}"
-            if item['article']:
-                items_text += f" (Арт: {item['article']})"
-            items_text += f" x{item['quantity']} = {item['total']} руб.\n"
-        
-        message = f"""
-📄 <b>НОВЫЙ АНОНИМНЫЙ ЗАКАЗ ПО СЧЕТУ</b>
-
-🏢 <b>Компания:</b> {order_data['company_name']}
-📋 <b>ИНН:</b> {order_data['inn']}
-📍 <b>КПП:</b> {order_data['kpp'] or 'Не указан'}
-🏠 <b>Юр. адрес:</b> {order_data['legal_address']}
-
-👤 <b>Контактное лицо:</b> {order_data['contact_person']}
-📞 <b>Телефон:</b> {order_data['phone']}
-📧 <b>Email:</b> {order_data['email']}
-🚚 <b>Адрес доставки:</b> {order_data['delivery_address']}
-
-<b>Товары:</b>
-{items_text}
-<b>Итого к оплате:</b> {order_data['total']} руб.
-
-💡 <b>Комментарий:</b>
-{order_data['comment'] or 'Не указан'}
-
-📎 <b>Вложение:</b> {attachment_info['name'] if attachment_info else 'Нет'}
-
-⏰ <b>Время заявки:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
-
-🌐 <b>Создано через:</b> Быстрый заказ (без регистрации)
-"""
-        
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            'chat_id': settings.TELEGRAM_CHAT_ID,
-            'text': message,
-            'parse_mode': 'HTML'
-        }
-        
-        response = requests.post(url, json=payload, timeout=10)
-        
-        # Если есть файл, отправляем его отдельно
-        if attachment_file and attachment_info:
-            try:
-                # Сохраняем файл во временное место
-                import tempfile
-                import os
-                
-                with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(attachment_file.name)[1]) as tmp_file:
-                    for chunk in attachment_file.chunks():
-                        tmp_file.write(chunk)
-                    tmp_file_path = tmp_file.name
-                
-                # Отправляем файл в Telegram
-                send_result = send_file_to_telegram(
-                    file_path=tmp_file_path,
-                    file_name=attachment_file.name,
-                    caption=f"Вложение к заказу от {order_data['company_name']}"
-                )
-                
-                # Удаляем временный файл
-                try:
-                    os.unlink(tmp_file_path)
-                except:
-                    pass
-                
-                if not send_result:
-                    print(f"⚠️ Не удалось отправить вложение: {attachment_file.name}")
-                
-            except Exception as e:
-                print(f"⚠️ Ошибка отправки вложения: {e}")
-        
-        return response.status_code == 200
-        
-    except Exception as e:
-        print(f"❌ Ошибка отправки анонимного заказа: {e}")
-        return False
 
 
 def send_file_to_telegram(file_path, file_name, caption=None):
@@ -3900,12 +3980,9 @@ def send_file_to_telegram(file_path, file_name, caption=None):
             response = requests.post(url, files=files, data=data, timeout=30)
             
             if response.status_code == 200:
-                print(f"✅ Файл {file_name} отправлен в Telegram")
                 return True
             else:
-                print(f"❌ Ошибка отправки файла: {response.text}")
                 return False
                 
     except Exception as e:
-        print(f"❌ Ошибка отправки файла: {e}")
         return False
