@@ -20,3 +20,10 @@ yookassa==2.4.0
 python-magic==0.4.27
 pyotp==2.9.0
 qrcode==7.4.2
+WeasyPrint==62.3
+tinycss2==1.2.1
+cssselect2==0.7.0
+html5lib==1.1
+pydyf==0.10.0
+Pyphen==0.14.0
+fonttools==4.51.0
