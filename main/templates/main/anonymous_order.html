@@ -54,7 +54,7 @@
                             <div class="form-group">
                                 <label class="form-label">Телефон *</label>
                                 <input type="tel" name="phone" class="form-control" required 
-                                       placeholder="+7 (XXX) XXX-XX-XX">
+                                       placeholder="+7 (XXX) XXX-XX-XX" maxlength="12">
                             </div>
                             
                             <div class="form-group">
@@ -74,14 +74,17 @@
                             
                             <div class="form-group">
                                 <label class="form-label">ИНН *</label>
-                                <input type="text" name="inn" class="form-control" required 
-                                       placeholder="10 или 12 цифр" pattern="\d{10}|\d{12}">
+                                <input type="text" name="inn" class="form-control" required placeholder="10 или 12 цифр" pattern="\d{10}|\d{12}" maxlength="12" minlength="10" inputmode="numeric">
                             </div>
                             
                             <div class="form-group">
                                 <label class="form-label">КПП</label>
                                 <input type="text" name="kpp" class="form-control" 
-                                       placeholder="9 цифр" pattern="\d{9}">
+                                    placeholder="9 цифр" 
+                                    pattern="\d{9}"
+                                    maxlength="9"
+                                    minlength="9"
+                                    inputmode="numeric">
                             </div>
                         </div>
                         
@@ -133,7 +136,7 @@
                         </div>
                         
                         <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                            <input type="checkbox" class="form-check-input" id="agreeTerms" required checked>
                             <label class="form-check-label" for="agreeTerms">
                                 Я согласен с условиями <a href="{% url 'privacy' %}#data-usage" target="_blank">обработки персональных данных</a>
                             </label>

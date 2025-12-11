@@ -8,7 +8,7 @@
   "theme_color": "#2c3e50",
   "icons": [
     {
-      "src": "{% static 'images/favicon/favicon.svg' %}",
+      "src": "/var/www/www-root/data/www/tech-re.ru/techresource/main/static/images/favicon/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

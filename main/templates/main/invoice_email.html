@@ -1,304 +1,211 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Счет на оплату №{{ invoice_number }} — {{ company.name }}</title>
+<meta charset="utf-8">
+<title>Счёт №{{ invoice_number }} от {{ invoice_date }}</title>
 
 <style>
-  /* --- Общие --- */
-  :root {
-    --page-width: 210mm;
-    --page-height: 297mm;
-    --gutter: 18mm;
-    --text-color: #111;
-    --muted: #666;
-    --accent: #0b5ed7;
-    --border: #e6e9ee;
-    --font-family: "DejaVu Sans", "Arial", sans-serif;
-  }
+    body {
+        font-family: "DejaVu Sans", Arial, sans-serif;
+        color: #000;
+        background:#fff;
+        margin: 0;
+        padding: 0;
+    }
 
-  html,body {
-    height: 100%;
-    margin: 0;
-    color: var(--text-color);
-    font-family: var(--font-family);
-    background: #f3f5f7;
-  }
+    .sheet {
+        width: 210mm;
+        padding: 12mm 18mm;
+        margin: auto;
+        box-sizing: border-box;
+    }
 
-  /* Центровка контейнера для экранного просмотра — для печати будет A4 */
-  .viewport {
-    display:flex;
-    justify-content:center;
-    padding:30px;
-  }
+    h1, h2, h3, h4 {
+        margin: 0;
+        font-weight: 700;
+    }
 
-  /* Бумажный лист A4 */
-  .sheet {
-    width: calc(var(--page-width));
-    min-height: calc(var(--page-height));
-    background: white;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-    padding: 18mm;
-    box-sizing: border-box;
-    color: var(--text-color);
-  }
+    .bank-table, .items, .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
 
-  header.invoice-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-  }
+    .bank-table td, .items th, .items td, .summary-table td {
+        border: 1px solid #000;
+        padding: 4px 6px;
+        vertical-align: top;
+    }
 
-  .company-block, .meta-block {
-    width: 48%;
-  }
+    .items th {
+        font-weight: 700;
+        text-align: center;
+        background: #f9f9f9;
+    }
 
-  .company-name {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--accent);
-    margin: 0 0 6px 0;
-  }
+    .section-title {
+        font-weight: 700;
+        margin: 14px 0 6px 0;
+        font-size: 15px;
+    }
 
-  .small {
-    font-size: 12px;
-    color: var(--muted);
-  }
+    .conditions {
+        border: 1px solid #000;
+        padding: 8px;
+        margin-top: 12px;
+        font-size: 13px;
+    }
 
-  /* Блок покупателя */
-  .buyer {
-    margin-top: 14px;
-    padding: 10px;
-    border-left: 4px solid var(--accent);
-    background: #fbfdff;
-  }
+    .signatures {
+        margin-top: 28px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+    }
 
-  /* Таблица позиций */
-  table.items {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 16px;
-    font-size: 13px;
-  }
+    .sig {
+        width: 48%;
+        position: relative;
+        padding-bottom: 50px;
+    }
 
-  table.items th, table.items td {
-    padding: 8px 10px;
-    border: 1px solid var(--border);
-    vertical-align: top;
-  }
+    .sig .line {
+        margin-top: 36px;
+        border-top: 1px solid #000;
+        width: 240px;
+    }
 
-  table.items th {
-    background: #f6f8fb;
-    text-align: left;
-    font-weight: 600;
-  }
+    .sig img.stamp {
+        position: absolute;
+        width: 120px;
+        opacity: 0.8;
+        left: 120px;
+        top: 10px;
+    }
 
-  .text-right { text-align: right; }
-  .text-center { text-align: center; }
+    .sig img.sign {
+        position: absolute;
+        width: 140px;
+        left: 20px;
+        top: 0;
+    }
 
-  /* Итоговые суммы */
-  .summary {
-    margin-top: 12px;
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .summary .box {
-    width: 320px;
-    border: 1px solid var(--border);
-    padding: 10px;
-    background: #fbfbfd;
-  }
-
-  .summary .row {
-    display:flex;
-    justify-content: space-between;
-    margin: 6px 0;
-    font-size: 14px;
-  }
-
-  .summary .total {
-    font-weight: 700;
-    font-size: 16px;
-    margin-top: 8px;
-  }
-
-  /* Реквизиты банка и назначение платежа */
-  .bank {
-    margin-top: 16px;
-    padding: 12px;
-    border: 1px dashed var(--border);
-    background: #fff;
-    font-size: 13px;
-  }
-
-  /* Подписи */
-  .signatures {
-    margin-top: 22px;
-    display:flex;
-    justify-content: space-between;
-    gap: 20px;
-  }
-
-  .sig {
-    width: 48%;
-    text-align: left;
-  }
-
-  .sig .line {
-    display:block;
-    margin-top: 38px;
-    border-top: 1px solid #222;
-    width: 220px;
-  }
-
-  /* Примечание об оплате/сроках */
-  .footnote {
-    margin-top: 14px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  /* Подвал */
-  footer {
-    margin-top: 24px;
-    border-top: 1px solid var(--border);
-    padding-top: 10px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  /* Печатные настройки */
-  @page {
-    size: A4;
-    margin: 18mm;
-  }
-
-  @media print {
-    html,body { background: white; }
-    .viewport { padding: 0; }
-    .sheet { box-shadow: none; margin: 0; page-break-after: always; }
-    a[href]:after { content: ""; } /* не показывать URL в печати */
-  }
-
-  /* Адаптивность экрана */
-  @media (max-width:900px) {
-    .sheet { width: 100%; padding: 12mm; }
-    .company-block, .meta-block { width: 100%; display:block; }
-    .signatures { flex-direction: column; }
-    .sig { width:100% }
-  }
+    @page {
+        size: A4;
+        margin: 15mm;
+    }
 </style>
 </head>
 <body>
-    <div class="viewport">
-        <article class="sheet" itemscope itemtype="https://schema.org/Invoice">
-            <!-- Верх: поставщик и метаданные счета -->
-             <header class="invoice-header">
-                <section class="company-block" itemprop="provider" itemscope itemtype="https://schema.org/Organization">
-                <div class="company-name" itemprop="name">Техресурс</div>
-                <div class="small">
-                    Юридический адрес: 422527 Республика Татарстан, ул. Техническая, зд. 52, офис 226<br>
-                    ИНН/КПП: <strong>1684010655</strong> / <strong>168401001</strong><br>
-                    ОГРН: 1231600004712<br>
-                    Телефон: +7 (937) 524-68-88 | Email: Kaznacheev56@gmail.com
-                </div>
-            </section>
-                <aside class="meta-block">
-                    <div style="text-align:right;">
-                        <h2 style="margin:0;">СЧЁТ НА ОПЛАТУ</h2>
-                        <div class="small" style="margin-top:6px;">
-                            № <strong itemprop="identifier">{{ invoice_number }}</strong><br>
-                            Дата: <strong itemprop="billingPeriod">{{ invoice_date }}</strong><br>
-                            Срок оплаты: <strong>{{ due_date }}</strong>
-                        </div>
-                    </div>
-                </aside>
-            </header>
 
-            <!-- Покупатель -->
-            <section class="buyer" itemprop="customer" itemscope itemtype="https://schema.org/Organization">
-                <div><strong>Покупатель:</strong> <span itemprop="name">{{ buyer.name }}</span></div>
-                <div class="small">
-                    ИНН/КПП: {{ buyer.inn|default:"—" }} / {{ buyer.kpp|default:"—" }}<br>
-                    Адрес: {{ buyer.address|default:"—" }}<br>
-                    Контакт: {{ buyer.contact_name|default:"—" }}, {{ buyer.phone|default:"—" }}, {{ buyer.email|default:"—" }}
-                </div>
-            </section>
-            <!-- Таблица товаров/услуг -->
-            <table class="items" role="table" aria-label="Список позиций">
-                <thead>
-                    <tr>
-                        <th style="width:46px">№</th>
-                        <th>Наименование товара/услуги</th>
-                        <th style="width:90px">Кол-во</th>
-                        <th style="width:120px" class="text-right">Цена</th>
-                        <th style="width:120px" class="text-right">Сумма</th>
-                        <th style="width:110px" class="text-right">НДС</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Пример цикла шаблонизатора -->
-                     {% for item in items %}
-                     <tr>
-                        <td class="text-center">{{ forloop.counter }}</td>
-                        <td>
-                            <div><strong>{{ item.description }}</strong></div>
-                            <div class="small">Артикул: {{ item.sku|default:"—" }}</div>
-                        </td>
-                        <td class="text-center">{{ item.quantity }} {{ item.unit|default:"шт." }}</td>
-                        <td class="text-right">{{ item.unit_price | floatformat:2 }} ₽</td>
-                        <td class="text-right">{{ item.line_total | floatformat:2 }} ₽</td>
-                        <td class="text-right">{{ item.vat | floatformat:2 }} ₽ ({{ item.vat_rate }}%)</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <!-- Суммы -->
-            <div class="summary" role="note" aria-label="Итоговые суммы">
-                <div class="box" role="region" aria-label="Итог">
-                    <div class="row"><span>Сумма без НДС:</span><span class="text-right">{{ totals.net | floatformat:2 }} ₽</span></div>
-                    <div class="row"><span>НДС ({{ totals.vat_rate }}%):</span><span class="text-right">{{ totals.vat | floatformat:2 }} ₽</span></div>
-                    <div class="row total"><span>ИТОГО К ОПЛАТЕ:</span><span class="text-right">{{ totals.gross | floatformat:2 }} ₽</span></div>
-                </div>
-            </div>
-            <!-- Реквизиты банка -->
-            <section class="bank" aria-label="Реквизиты для оплаты">
-                <div><strong>Реквизиты получателя:</strong></div>
-                <div class="small">
-                    Получатель: Техресурс<br>
-                    ИНН/КПП: 1684010655 / 168401001<br>
-                    Р/с: 40702810129930004534<br>
-                    Банк: ФИЛИАЛ "НИЖЕГОРОДСКИЙ" АО "АЛЬФА-БАНК"<br>
-                    БИК: 042202824<br>
-                    Корр. счет: 30101810200000000824<br>
-                    Назначение платежа: Оплата по счету №{{ invoice_number }} от {{ invoice_date }}
-                </div>
-            </section>
-            <!-- Подписи и печать -->
-             <section class="signatures" aria-label="Подписи">
-                <div class="sig">
-                    <div class="sig">
-                        <div><strong>От поставщика:</strong></div>
-                        <span class="line" aria-hidden="true"></span>
-                        <div class="small">Генеральный директор / Казначеев Анатолий Андреевич /</div>
-                    </div>
-                    <div class="sig">
-                        <div><strong>От покупателя:</strong></div>
-                        <span class="line" aria-hidden="true"></span>
-                        <div class="small">__________________ / ______________ /</div>
-                    </div>
-                </section>
-                <div class="footnote">
-                    <strong>Внимание:</strong> Счет действителен в течение {{ invoice_validity_days }} банковских дней с даты выставления. Оплата считается произведённой с момента зачисления денежных средств на расчётный счёт поставщика.
-                </div>
-                <footer>
-                    <div>{{ company.name }} — {{ company.legal_address }} | Тел: {{ company.phone }} | Email: {{ company.email }}</div>
-                    <div style="margin-top:6px;">Документ сформирован автоматически. Для печати используйте печать браузера (Ctrl/Cmd+P) или конвертацию в PDF.</div>
-                </footer>
-            </article>
+<div class="sheet">
+
+    <!-- БАНКОВСКАЯ ШАПКА -->
+    <table class="bank-table">
+        <tr>
+            <td style="width:40%; border-right:none;">
+                Банк получателя:<br>
+                ФИЛИАЛ "НИЖЕГОРОДСКИЙ" АО "АЛЬФА-БАНК"
+            </td>
+            <td style="width:15%; text-align:center;">БИК</td>
+            <td style="width:45%; text-align:left;">042202824</td>
+        </tr>
+        <tr>
+            <td style="border-right:none;"></td>
+            <td style="text-align:center;">Корр. счёт</td>
+            <td>30101810200000000824</td>
+        </tr>
+        <tr>
+            <td style="border-right:none;">Получатель: ООО «Техресурс»</td>
+            <td style="text-align:center;">Расч. счёт</td>
+            <td>40702810129930004534</td>
+        </tr>
+    </table>
+
+    <h2 style="text-align:center; margin-top:14px;">СЧЁТ № {{ invoice_number }} от {{ invoice_date }}</h2>
+
+    <!-- ПОСТАВЩИК -->
+    <div class="section-title">Поставщик:</div>
+    ООО «Техресурс», ИНН 1684010655, КПП 168401001, ОГРН 1231600004712<br>
+    Юридический адрес: 422527, Республика Татарстан, ул. Техническая, 52, офис 226<br>
+    Тел.: +7 (937) 524-68-88, Email: Kaznacheev56@gmail.com
+
+    <!-- ПОКУПАТЕЛЬ -->
+    <div class="section-title">Покупатель:</div>
+    {{ buyer.name }}<br>
+    ИНН/КПП: {{ buyer.inn|default:"—" }} / {{ buyer.kpp|default:"—" }}<br>
+    Адрес: {{ buyer.address|default:"—" }}<br>
+    Контакт: {{ buyer.phone|default:"—" }}, {{ buyer.email|default:"—" }}
+
+    <!-- УСЛОВИЯ ПОСТАВКИ -->
+    <div class="section-title">Условия поставки:</div>
+    <div class="conditions">
+        • Бесплатная доставка до терминала «Деловые Линии» в городе покупателя.<br>
+        • Дальнейшая доставка до адреса оплачивается покупателем.<br>
+        • Обязательное уведомление о произведённой оплате.<br>
+        • Резервирование товара осуществляется после поступления денежных средств на расчётный счёт поставщика.<br>
+        • Срок действия счёта: {{ invoice_validity_days }} банковских дней.<br>
+        • Срок оплаты: до {{ due_date }}.
+    </div>
+
+    <!-- ТАБЛИЦА ТОВАРОВ -->
+    <div class="section-title">Перечень товаров / услуг:</div>
+
+    <table class="items">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Наименование товара / услуги</th>
+                <th>Ед.</th>
+                <th>Кол-во</th>
+                <th>Цена, ₽</th>
+                <th>Сумма, ₽</th>
+                <th>НДС</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in items %}
+            <tr>
+                <td style="text-align:center;">{{ forloop.counter }}</td>
+                <td>{{ item.description }}</td>
+                <td style="text-align:center;">{{ item.unit|default:"шт." }}</td>
+                <td style="text-align:center;">{{ item.quantity }}</td>
+                <td style="text-align:right;">{{ item.unit_price|floatformat:2 }}</td>
+                <td style="text-align:right;">{{ item.line_total|floatformat:2 }}</td>
+                <td style="text-align:right;">{{ item.vat|floatformat:2 }} ({{ item.vat_rate }}%)</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- ИТОГИ -->
+    <table class="summary-table" style="margin-top:14px; width:50%; margin-left:auto;">
+        <tr>
+            <td>Сумма без НДС:</td>
+            <td style="text-align:right;">{{ totals.net|floatformat:2 }} ₽</td>
+        </tr>
+        <tr>
+            <td>НДС ({{ totals.vat_rate }}%):</td>
+            <td style="text-align:right;">{{ totals.vat|floatformat:2 }} ₽</td>
+        </tr>
+        <tr>
+            <td><b>ИТОГО К ОПЛАТЕ:</b></td>
+            <td style="text-align:right;"><b>{{ totals.gross|floatformat:2 }} ₽</b></td>
+        </tr>
+    </table>
+
+    <!-- ПОДПИСИ И ПЕЧАТЬ -->
+    <div class="signatures">
+        <div class="sig">
+            Руководитель организации:<br>
+            <img src="/var/www/www-root/data/www/tech-re.ru/techresource/main/static/images/img/kaz.png" class="sign">
+            <img src="/var/www/www-root/data/www/tech-re.ru/techresource/main/static/images/img/pechat.svg" class="stamp">
+            <div class="line"></div>
+            Казначеев А.А.
         </div>
-    </body>
-    </html>
+    </div>
+
+</div>
+
+</body>
+</html>

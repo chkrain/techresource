@@ -1925,9 +1925,162 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeCookies(settings);
         showAcceptanceMessage('Настройки cookies сохранены');
     }
+
+    function initializeNecessaryCookies() {
+        if (!localStorage.getItem('user_visit_id')) {
+            const visitId = 'visit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('user_visit_id', visitId);
+        }
+        
+        try {
+            localStorage.setItem('test', 'test');
+            localStorage.removeItem('test');
+        } catch (e) {
+            console.error('LocalStorage недоступен:', e);
+            document.cookie = "localstorage_unsupported=true; path=/; max-age=3600";
+        }
+    }
+
+    function initializeAnalyticalCookies() {
+        if (typeof ym !== 'undefined') {
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('.btn, a, button')) {
+                    const targetText = e.target.textContent.trim().substring(0, 50);
+                    ym(105767211, 'reachGoal', 'button_click', { button: targetText });
+                }
+            });
+            let scrollTracked = false;
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > window.innerHeight * 0.5 && !scrollTracked) {
+                    ym(105767211, 'reachGoal', 'scroll_50_percent');
+                    scrollTracked = true;
+                }
+            });
+        }
+        if (typeof gtag !== 'undefined') {
+            gtag('config', 'GTM-MWHF4HQX');
+        }
+        let pageLoadTime = Date.now();
+        window.addEventListener('beforeunload', function() {
+            const timeSpent = Date.now() - pageLoadTime;
+            if (typeof ym !== 'undefined') {
+                ym(105767211, 'params', { time_spent: Math.round(timeSpent / 1000) });
+            }
+        });
+        const browserInfo = {
+            screen: window.screen.width + 'x' + window.screen.height,
+            language: navigator.language,
+            online: navigator.onLine,
+            userAgent: navigator.userAgent.substring(0, 100)
+        };
+        
+        localStorage.setItem('analytics_browser_info', JSON.stringify(browserInfo));
+    }
+
+    function initializeFunctionalCookies() {
+        const userSettings = getCookieSettings();
+        if (localStorage.getItem('theme')) {
+            document.documentElement.setAttribute('data-theme', localStorage.getItem('theme'));
+        }
+        const lastActiveSlide = localStorage.getItem('last_active_slide');
+        if (lastActiveSlide && window.swiper) {
+            setTimeout(() => {
+                window.swiper.slideTo(parseInt(lastActiveSlide), 0);
+            }, 100);
+        }
+        if (window.swiper) {
+            swiper.on('slideChange', function() {
+                localStorage.setItem('last_active_slide', this.activeIndex);
+            });
+        }
+        if (performance.getEntriesByType('navigation').length > 0) {
+            const navEntry = performance.getEntriesByType('navigation')[0];
+            if (navEntry.type === 'navigate') {
+                sessionStorage.setItem('last_page', window.location.pathname);
+            }
+        }
+        
+        const visitCount = parseInt(localStorage.getItem('visit_count') || '0') + 1;
+        localStorage.setItem('visit_count', visitCount.toString());
+        
+        if (visitCount > 1) {
+            const lastVisit = localStorage.getItem('last_visit');
+            const now = new Date().toISOString();
+            localStorage.setItem('last_visit', now);
+            
+            if (lastVisit) {
+                const daysSinceLastVisit = Math.floor(
+                    (new Date(now) - new Date(lastVisit)) / (1000 * 60 * 60 * 24)
+                );
+                
+                if (daysSinceLastVisit > 7) {
+                    console.log('Добро пожаловать обратно! Прошло дней:', daysSinceLastVisit);
+                    
+                    setTimeout(() => {
+                        if (window.showCartNotification) {
+                            showCartNotification('С возвращением! У нас появились новинки');
+                        }
+                    }, 3000);
+                }
+            }
+        }
+        
+        const preferredView = localStorage.getItem('preferred_view');
+        if (preferredView === 'compact') {
+            document.body.classList.add('compact-view');
+        }
+        
+        if (userSettings.functional && localStorage.getItem('form_autofill') === 'true') {
+            const savedFormData = localStorage.getItem('contact_form_data');
+            if (savedFormData && document.getElementById('contactForm')) {
+                try {
+                    const data = JSON.parse(savedFormData);
+                    if (data.name && !document.getElementById('contactName').value) {
+                        document.getElementById('contactName').value = data.name;
+                    }
+                } catch (e) {
+                    console.error('Ошибка восстановления данных формы:', e);
+                }
+            }
+            
+            const formFields = document.querySelectorAll('#contactForm input, #contactForm textarea');
+            formFields.forEach(field => {
+                field.addEventListener('input', debounce(function() {
+                    const formData = {};
+                    formFields.forEach(f => {
+                        if (f.name && f.value) {
+                            formData[f.name] = f.value;
+                        }
+                    });
+                    localStorage.setItem('contact_form_data', JSON.stringify(formData));
+                }, 1000));
+            });
+        }
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    function safeLocalStorageSet(key, value) {
+        try {
+            localStorage.setItem(key, value);
+            return true;
+        } catch (e) {
+            document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=2592000`;
+            return false;
+        }
+    }
     
     function initializeCookies(settings) {
-        console.log('Инициализация cookies с настройками:', settings);
         
         initializeNecessaryCookies();
         
@@ -2078,10 +2231,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!validateForm()) return;
             
-            if (btnText && btnLoading) {
-                btnText.style.display = 'none';
-                btnLoading.style.display = 'inline-block';
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
                 submitBtn.disabled = true;
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Отправка...';
             }
             
             try {
@@ -2120,10 +2274,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Ошибка:', error);
                 showMessage('error', 'Произошла ошибка при отправке. Попробуйте еще раз.');
             } finally {
-                if (btnText && btnLoading) {
-                    btnText.style.display = 'inline-block';
-                    btnLoading.style.display = 'none';
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn) {
                     submitBtn.disabled = false;
+                    submitBtn.textContent = 'Отправить сообщение';
                 }
             }
         });
@@ -2155,10 +2309,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.style.overflow = 'auto';
         }
     });
-
-    console.log('Страница инициализирована');
 });
 </script>
+
 
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">

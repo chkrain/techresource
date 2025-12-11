@@ -8,13 +8,11 @@
 
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon/favicon.svg' %}?v=2">
     <link rel="apple-touch-icon" href="{% static 'images/favicon/favicon.svg' %}">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Техресурс">
-    <meta name="theme-color" content="#2c3e50">
-    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="manifest" href="{% static 'manifest.json' %}?v=2">
 
     {% block meta %}
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta property="og:title" content="Контакты Техресурс | Техническая поддержка и инженерные решения">
     <meta property="og:description" content="Свяжитесь с нами по телефону +7 (937) 524-68-88, email ainurcherepanov@mail.ru. Офис в Казани, ул. Техническая, 52. Время работы Пн-Пт: 8:00-17:00.">
     <meta property="og:image" content="{% static 'images/og-contacts.jpg' %}">
@@ -1205,7 +1203,7 @@
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2025 ООО "Техресурс". Все права защищены. <a href="/privacy/" style="color: var(--accent);">Политика конфиденциальности</a></p>
+                <p>&copy; <span id="currentYear"></span> ООО "Техресурс". Все права защищены. <a href="/privacy/" style="color: var(--accent);">Политика конфиденциальности</a></p>
             </div>
         </div>
     </footer>

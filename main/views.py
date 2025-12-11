@@ -543,7 +543,6 @@ def cart_view(request):
             order.status = 'processing'
             order.save()
             
-            send_invoice_order_notification(order)
             send_invoice_email(order)
             
             messages.success(request, f'Заказ #{order.id} создан! Счет будет выставлен на вашу почту {request.user.email}.')
@@ -564,51 +563,6 @@ def cart_view(request):
         'vat_rate': vat_rate,
     }
     return render(request, 'main/cart.html', context)
-
-def send_invoice_order_notification(order):
-    """Отправка уведомления о создании заказа по счету"""
-    try:
-        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
-            return False
-    
-        message = f"""
-📄 <b>НОВЫЙ ЗАКАЗ ПО СЧЕТУ #{order.id}</b>
-
-👤 <b>Клиент:</b> {order.customer_name}
-📞 <b>Телефон:</b> {order.customer_phone}
-📧 <b>Email:</b> {order.customer_email}
-🚚 <b>Адрес доставки:</b> {order.delivery_address}
-
-<b>Финансовые данные:</b>
-💰 <b>Сумма товаров:</b> {order.total_price} руб.
-📊 <b>Без НДС:</b> {order.total_without_vat} руб.
-🏛️ <b>НДС:</b> {order.vat_amount} руб.
-
-<b>Товары:</b>
-"""
-        
-        for item in order.orderitem_set.all():
-            message += f"• {item.product.name} x{item.quantity} - {item.get_total_price()} руб."
-            if item.vat_rate:
-                message += f" (НДС {item.vat_rate}% = {item.vat_amount} руб.)"
-            message += "\n"
-        
-        message += f"\n<b>Итого:</b> {order.total_price} руб. (в т.ч. НДС {order.vat_amount} руб.)"
-        message += f"\n\n💡 <b>Доставка не включена в счет</b>"
-        message += f"\n⚡ <b>Требуется выставить счет на {order.total_price} руб.</b>"
-        
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            'chat_id': settings.TELEGRAM_CHAT_ID,
-            'text': message,
-            'parse_mode': 'HTML'
-        }
-        
-        response = requests.post(url, json=payload, timeout=10)
-        return response.status_code == 200
-        
-    except Exception as e:
-        return False
 
 @login_required
 def update_cart_item(request, item_id):
@@ -742,7 +696,6 @@ def update_order_payment_method(request, order_id):
             
             if new_payment_method == 'invoice':
                 order.status = 'processing'
-                send_invoice_order_notification(order)
                 messages.success(request, 'Заказ переведен на оплату по счету. Мы вышлем счет на вашу почту.')
             else:
                 order.status = 'pending'
@@ -3897,6 +3850,7 @@ def anonymous_create_order(request):
                     return False
             
             # Очищаем корзину
+            telegram_success = False
             request.session['anonymous_cart'] = {}
             request.session.modified = True
             try:

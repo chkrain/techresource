@@ -186,7 +186,7 @@
                             
                             <div class="form-group">
                                 <label class="form-label">ИНН организации</label>
-                                <input type="text" name="customer_inn" class="form-control" 
+                                <input type="text" name="customer_inn" class="form-control" maxlength="12" minlength="10"
                                     placeholder="10 или 12 цифр" pattern="\d{10}|\d{12}"
                                     required>
                                 <small class="form-text">Обязательно для оформления счета</small>
@@ -194,7 +194,7 @@
                             
                             <div class="form-group">
                                 <label class="form-label">КПП (для юридических лиц)</label>
-                                <input type="text" name="customer_kpp" class="form-control" 
+                                <input type="text" name="customer_kpp" class="form-control" maxlength="9"
                                     placeholder="9 цифр" pattern="\d{9}">
                                 <small class="form-text">Для ИП оставьте пустым</small>
                             </div>
@@ -275,6 +275,16 @@
 
 .payment-system-option input[type="radio"]:checked + .system-content {
     color: #0052cc;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    color: #2c3e50;
 }
 
 .system-content {
@@ -925,6 +935,7 @@ section {
 
 .form-group {
     margin-bottom: 1rem;
+    color: black;
 }
 
 .form-select {
