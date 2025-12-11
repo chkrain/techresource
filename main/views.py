@@ -506,6 +506,11 @@ def cart_view(request):
 
             customer_inn = request.POST.get('customer_inn', '')
             customer_kpp = request.POST.get('customer_kpp', '')
+
+            for cart_item in cart_items:
+                if cart_item.product.quantity < cart_item.quantity:
+                    messages.error(request, f'Недостаточно товара "{cart_item.product.name}" на складе. Доступно: {cart_item.product.quantity}')
+                    return redirect('cart')
             
             # Создаем заказ только для оплаты по счету
             order = Order.objects.create(
@@ -535,6 +540,9 @@ def cart_view(request):
                     price=cart_item.product.price,
                     vat_rate=vat_rate
                 )
+
+            cart_item.product.quantity -= cart_item.quantity
+            cart_item.product.save()
             
             # Очищаем корзину
             cart_items.delete()
@@ -1693,6 +1701,13 @@ def update_order_status(request, order_id=None):
 
             if new_status == 'paid' and old_status != 'paid':
                 order.finalize_payment()
+                if order.status != 'paid':  
+                    for item in order.orderitem_set.all():
+                        if item.product.quantity >= item.quantity:
+                            item.product.quantity -= item.quantity
+                            item.product.save()
+                        else:
+                            messages.warning(request, f'Недостаточно товара "{item.product.name}" на складе. Требуется пополнение.')
             elif new_status != 'paid' and order.is_payment_finalized:
                 order.is_payment_finalized = False
                 order.save(update_fields=['is_payment_finalized'])
@@ -2919,8 +2934,6 @@ def admin_2fa_verify(request):
         messages.error(request, f'Ошибка верификации: {str(e)}')
         return render(request, 'main/admin_2fa_verify.html')
 
-@login_required
-# Статические страницы услуг (оставляем как есть)
 def service_design(request):
     """Страница услуги - Проектирование систем"""
     navigation_tree = ServicePage.get_navigation_tree()  # Для навигации
@@ -3741,6 +3754,17 @@ def anonymous_create_order(request):
                     'error': 'Заказ пуст'
                 })
             
+            for product_id, item_data in cart.items():
+                try:
+                    product = Product.objects.get(id=int(product_id))
+                    if product.quantity < item_data['quantity']:
+                        return JsonResponse({
+                            'success': False,
+                            'error': f'Недостаточно товара "{product.name}" на складе. Доступно: {product.quantity}'
+                        })
+                except Product.DoesNotExist:
+                    continue
+
             # Проверка обязательных полей
             required_fields = ['contact_person', 'phone', 'email', 'company_name', 'inn', 
                               'legal_address', 'delivery_address']
@@ -3846,6 +3870,11 @@ def anonymous_create_order(request):
                         price=item_data['price'],
                         vat_rate=vat_rate,
                     )
+                    
+                    product = item_data['product']
+                    product.quantity -= item_data['quantity']
+                    product.save()
+                    
                 except Exception as e:
                     return False
             

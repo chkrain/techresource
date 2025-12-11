@@ -4,7 +4,7 @@
 {% block title %}Проектирование систем - Техресурс{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/services.css' %}">
+<link rel="stylesheet" href="{% static 'css/services.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -86,45 +86,6 @@
             <div class="stat-card">
                 <div class="stat-number" data-count="50">0</div>
                 <div class="stat-label">квалифицированных специалистов</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="description-section">
-    <div class="container">
-        <div class="description-grid">
-            <div class="description-content">
-                <h2>Профессиональное проектирование промышленных систем</h2>
-                <p>Мы разрабатываем комплексные проектные решения для предприятий различных отраслей промышленности. Наша команда специалистов обладает многолетним опытом в создании эффективных и надежных систем.</p>
-                
-                <div class="features-list">
-                    <div class="feature-point">
-                        <div class="point-icon">✓</div>
-                        <span>Полный цикл проектирования от ТЗ до реализации</span>
-                    </div>
-                    <div class="feature-point">
-                        <div class="point-icon">✓</div>
-                        <span>Использование современных BIM-технологий</span>
-                    </div>
-                    <div class="feature-point">
-                        <div class="point-icon">✓</div>
-                        <span>Соблюдение сроков и бюджета проекта</span>
-                    </div>
-                    <div class="feature-point">
-                        <div class="point-icon">✓</div>
-                        <span>Техническая поддержка на всех этапах</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="description-image">
-                <div class="image-placeholder">
-                    <div class="placeholder-content">
-                        <div class="placeholder-icon">🏗️</div>
-                        <p>3D визуализация проекта</p>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -240,25 +201,208 @@
     </div>
 </section>
 
-<!-- Cases Section -->
 <section class="cases-section">
     <div class="container">
         <div class="section-header">
             <h2>Примеры реализованных проектов</h2>
-            <p>Успешные кейсы из нашей практики</p>
+            <p>Успешные кейсы из нашей практики — от концепции до реализации</p>
         </div>
         
-        <h1 style="color: black;">Добавить проекты</h1>
-    </div>
-</section>
-
-<div class="modal-overlay" id="caseModal" aria-modal="true" role="dialog" aria-labelledby="modalTitle" style="display: none;">
-    <div class="modal-content">
-        <button class="modal-close" aria-label="Закрыть окно">&times;</button>
-        <div class="modal-body" id="modalBody">
+        <div class="cases-container">
+            <!-- Проект 1 -->
+            <div class="case-card">
+                <div class="case-main">
+                    <div class="case-media">
+                        <img src="{% static 'images/guide/chp.png'%}" alt="Фото проекта или объекта">
+                        <div class="media-preview">
+                            <div class="media-icon">🏭</div>
+                            <div class="media-stats">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="case-info">
+                        <div class="case-header">
+                            <h3 class="case-title">Автоматизированная линия покраски торцев фанеры</h3>
+                            <p class="case-description">Комплексная автоматизация производственной линии для покраски торцев фанеры с системой управления на базе ПЛК Siemens S7-1200. Проект включает полный цикл от проектирования до внедрения.</p>
+                        </div>
+                        
+                        <div class="case-overview">
+                            <div class="overview-item">
+                                <div class="overview-label">Заказчик</div>
+                                <div class="overview-value">ООО "Костромской механический завод"</div>
+                            </div>
+                            <div class="overview-item">
+                                <div class="overview-label">Срок реализации</div>
+                                <div class="overview-value">3 месяца</div>
+                            </div>
+                            <div class="overview-item">
+                                <div class="overview-label">Экономия бюджета</div>
+                                <div class="overview-value">18%</div>
+                            </div>
+                            <div class="overview-item">
+                                <div class="overview-label">Дата проекта</div>
+                                <div class="overview-value">2022 год</div>
+                            </div>
+                        </div>
+                        
+                        <div class="case-technologies">
+                            <div class="tech-badges">
+                                <span class="tech-badge type-electrical">Электроавтоматика</span>
+                                <span class="tech-badge">Siemens S7-1200</span>
+                                <span class="tech-badge">ПЛК</span>
+                                <span class="tech-badge">HMI Wientek</span>
+                                <span class="tech-badge">Frequency Drives</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Расширяемая часть -->
+                <div class="case-details-expanded">
+                    <div class="details-content">
+                        <!-- Документы -->
+                        <div class="project-docs">
+                            <div class="docs-header">
+                                <h4>Документация проекта</h4>
+                                <span class="doc-count">4 файла</span>
+                            </div>
+                            <div class="documents-list">
+                                <a href="{% static 'projects/Линия покраски торцев фанеры. П3.pdf' %}" 
+                                class="document-item" 
+                                download="Пояснительная записка.pdf" 
+                                target="_blank">
+                                    <div class="doc-icon">📄</div>
+                                    <div class="doc-info">
+                                        <h5>Пояснительная записка</h5>
+                                        <p>Техническое описание системы, алгоритмы работы, требования безопасности</p>
+                                        <div class="doc-meta">
+                                            <span>4.2 MB</span>
+                                            <span>PDF</span>
+                                            <span class="download-icon">📥</span>
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <a href="{% static 'projects/Линия покраски торцев фанеры. Э3.pdf' %}" 
+                                class="document-item" 
+                                download="Схема электрическая принципиальная.pdf" 
+                                target="_blank">
+                                    <div class="doc-icon">📐</div>
+                                    <div class="doc-info">
+                                        <h5>Схема электрическая принципиальная</h5>
+                                        <p>Принципиальные электрические схемы силовых цепей и управления</p>
+                                        <div class="doc-meta">
+                                            <span>5.1 MB</span>
+                                            <span>PDF</span>
+                                            <span class="download-icon">📥</span>
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <a href="{% static 'projects/linepokras.pdf' %}" 
+                                class="document-item" 
+                                download="Шкаф управления - общий вид.pdf" 
+                                target="_blank">
+                                    <div class="doc-icon">⚡</div>
+                                    <div class="doc-info">
+                                        <h5>Шкаф управления - общий вид</h5>
+                                        <p>Компоновка оборудования в шкафу управления, спецификация</p>
+                                        <div class="doc-meta">
+                                            <span>3.8 MB</span>
+                                            <span>PDF</span>
+                                            <span class="download-icon">📥</span>
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <a href="{% static 'projects/Линия покраски фанеры. Э4.pdf' %}" 
+                                class="document-item" 
+                                download="Схема электрическая монтажная.pdf" 
+                                target="_blank">
+                                    <div class="doc-icon">🔌</div>
+                                    <div class="doc-info">
+                                        <h5>Схема электрическая монтажная</h5>
+                                        <p>Монтажные схемы подключения оборудования</p>
+                                        <div class="doc-meta">
+                                            <span>2.6 MB</span>
+                                            <span>PDF</span>
+                                            <span class="download-icon">📥</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Детали проекта -->
+                        <div class="project-details">
+                            <div class="details-section">
+                                <h4>Ключевые особенности</h4>
+                                <div class="features-list">
+                                    <div class="feature-item">
+                                        <div class="feature-icon">⚡</div>
+                                        <div class="feature-text">Система управления на базе ПЛК Siemens S7-1200</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">🎛️</div>
+                                        <div class="feature-text">Два пульта управления с индикацией режимов работы</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">🛡️</div>
+                                        <div class="feature-text">Система безопасности с аварийными тросовыми выключателями</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">📈</div>
+                                        <div class="feature-text">Преобразователи частоты для плавного пуска двигателей</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">👨‍💼</div>
+                                        <div class="feature-text">Сенсорная панель оператора Wientek MT8071iE</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">🔄</div>
+                                        <div class="feature-text">Автоматический и ручной режимы работы</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="details-section">
+                                <h4>Результаты внедрения</h4>
+                                <div class="results-grid">
+                                    <div class="result-item">
+                                        <div class="result-icon">📊</div>
+                                        <div class="result-text">Увеличение производительности линии на 35%</div>
+                                    </div>
+                                    <div class="result-item">
+                                        <div class="result-icon">🎯</div>
+                                        <div class="result-text">Снижение брака на 22%</div>
+                                    </div>
+                                    <div class="result-item">
+                                        <div class="result-icon">💡</div>
+                                        <div class="result-text">Экономия электроэнергии на 15%</div>
+                                    </div>
+                                    <div class="result-item">
+                                        <div class="result-icon">⏱️</div>
+                                        <div class="result-text">Сокращение времени переналадки на 40%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Кнопка подробнее -->
+                <div class="case-toggle">
+                    <button class="toggle-btn">
+                        <span class="toggle-text">Подробнее о проекте</span>
+                        <span class="toggle-icon">▼</span>
+                    </button>
+                </div>
+            </div>
+            
         </div>
     </div>
-</div>
+</section>
 
 <section class="faq-section">
     <div class="container">
@@ -347,4 +491,5 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
 <!-- End Google Tag Manager -->
+
 {% endblock %}

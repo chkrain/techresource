@@ -1,4 +1,21 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // 1. Анимация счетчиков
+    initCounters();
+    
+    // 2. Управление FAQ
+    initFAQ();
+    
+    // 3. Управление разворачиванием проектов
+    initProjectToggles();
+    
+    // 4. Плавная прокрутка
+    initSmoothScroll();
+    
+    // 5. Показать уведомление о скачивании
+    initDownloadNotifications();
+});
+
+function initCounters() {
     if (!('IntersectionObserver' in window)) {
         document.querySelectorAll('.stat-number').forEach(counter => {
             counter.textContent = counter.getAttribute('data-count');
@@ -34,12 +51,12 @@ document.addEventListener('DOMContentLoaded', function() {
         requestAnimationFrame(updateCounter);
     }
     
-    const statsObserver = new IntersectionObserver((entries, observer) => {
+    const statsObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting && !countersAnimated) {
                 statNumbers.forEach(animateCounter);
                 countersAnimated = true;
-                observer.disconnect();
+                statsObserver.disconnect();
             }
         });
     }, {
@@ -51,157 +68,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (statsSection) {
         statsObserver.observe(statsSection);
     }
+}
 
-    const caseButtons = document.querySelectorAll('.case-more-btn');
-    const modal = document.getElementById('caseModal');
-    const modalBody = document.getElementById('modalBody');
-    const modalClose = document.querySelector('.modal-close');
-    
-    const caseData = {
-        1: {
-            title: 'Автоматизация производственной линии',
-            description: 'Проектирование системы автоматизации для пищевого производства',
-            details: {
-                'Срок': '45 дней',
-                'Бюджет': '2.5 млн ₽',
-                'Экономия': '12%',
-                'Задача': 'Автоматизация процесса упаковки продукции',
-                'Решение': 'Разработана система на базе ПЛК Siemens с интеграцией в ERP-систему',
-                'Результат': 'Увеличение производительности на 25%, снижение брака на 15%'
-            }
-        },
-        2: {
-            title: 'Электроснабжение завода',
-            description: 'Проект реконструкции системы электроснабжения промышленного предприятия',
-            details: {
-                'Срок': '60 дней',
-                'Бюджет': '4.8 млн ₽',
-                'Экономия': '15%',
-                'Задача': 'Модернизация устаревшей системы электроснабжения',
-                'Решение': 'Разработана новая схема с резервным питанием и системой мониторинга',
-                'Результат': 'Повышение надежности на 40%, снижение потерь электроэнергии'
-            }
-        },
-        3: {
-            title: 'Система микроклимата',
-            description: 'Проектирование климатических систем для фармацевтического производства',
-            details: {
-                'Срок': '30 дней',
-                'Бюджет': '1.9 млн ₽',
-                'Экономия': '18%',
-                'Задача': 'Обеспечение стабильных параметров микроклимата в чистых помещениях',
-                'Решение': 'Разработана система с многоступенчатой фильтрацией и точным контролем параметров',
-                'Результат': 'Соответствие требованиям GMP, стабильные параметры температуры и влажности'
-            }
-        }
-    };
-    
-    let focusedElementBeforeModal;
-    
-    function openModal(caseId) {
-        const data = caseData[caseId];
-        if (!data) return;
-        
-        focusedElementBeforeModal = document.activeElement;
-        
-        let modalContent = `
-            <h2 id="modalTitle">${data.title}</h2>
-            <p class="modal-description">${data.description}</p>
-            <div class="modal-details">
-        `;
-        
-        for (const [key, value] of Object.entries(data.details)) {
-            modalContent += `
-                <div class="modal-detail-item">
-                    <span class="modal-detail-label">${key}:</span>
-                    <span class="modal-detail-value">${value}</span>
-                </div>
-            `;
-        }
-        
-        modalContent += `</div>`;
-        modalBody.innerHTML = modalContent;
-        
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        modal.setAttribute('aria-hidden', 'false');
-        
-        modal.focus();
-        
-        document.addEventListener('keydown', handleModalKeydown);
-        
-        document.body.style.paddingRight = window.innerWidth - document.documentElement.clientWidth + 'px';
-        document.body.style.overflow = 'hidden';
-    }
-    
-    function closeModal() {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-        document.body.style.paddingRight = '';
-        modal.setAttribute('aria-hidden', 'true');
-        
-        if (focusedElementBeforeModal) {
-            focusedElementBeforeModal.focus();
-        }
-        
-        document.removeEventListener('keydown', handleModalKeydown);
-    }
-    
-    function handleModalKeydown(e) {
-        if (e.key === 'Escape') {
-            closeModal();
-        }
-        
-        if (e.key === 'Tab' && modal.style.display === 'flex') {
-            const focusableElements = modal.querySelectorAll(
-                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-            );
-            const firstElement = focusableElements[0];
-            const lastElement = focusableElements[focusableElements.length - 1];
-            
-            if (e.shiftKey && document.activeElement === firstElement) {
-                e.preventDefault();
-                lastElement.focus();
-            } else if (!e.shiftKey && document.activeElement === lastElement) {
-                e.preventDefault();
-                firstElement.focus();
-            }
-        }
-    }
-    
-    caseButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const caseId = this.getAttribute('data-case');
-            openModal(caseId);
-        });
-        
-        button.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                const caseId = this.getAttribute('data-case');
-                openModal(caseId);
-            }
-        });
-    });
-    
-    if (modalClose) {
-        modalClose.addEventListener('click', closeModal);
-        modalClose.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                closeModal();
-            }
-        });
-    }
-    
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-    }
-
+function initFAQ() {
     const faqItems = document.querySelectorAll('.faq-item');
     
     faqItems.forEach(item => {
@@ -220,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const isActive = item.classList.contains('active');
             
             if (!isActive) {
+                // Закрываем все остальные
                 faqItems.forEach(faqItem => {
                     const faqAnswer = faqItem.querySelector('.faq-answer');
                     const faqToggle = faqItem.querySelector('.faq-toggle');
@@ -234,12 +104,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 
+                // Открываем текущий
                 item.classList.add('active');
                 answer.style.maxHeight = answer.scrollHeight + 'px';
                 if (toggle) toggle.textContent = '−';
                 question.setAttribute('aria-expanded', 'true');
                 answer.setAttribute('aria-hidden', 'false');
             } else {
+                // Закрываем текущий
                 item.classList.remove('active');
                 answer.style.maxHeight = null;
                 if (toggle) toggle.textContent = '+';
@@ -256,13 +128,53 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+}
+
+function initProjectToggles() {
+    document.querySelectorAll('.toggle-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const caseCard = this.closest('.case-card');
+            const detailsSection = caseCard.querySelector('.case-details-expanded');
+            const toggleIcon = this.querySelector('.toggle-icon');
+            const toggleText = this.querySelector('.toggle-text');
+            
+            const isExpanded = detailsSection.classList.contains('active');
+            
+            if (isExpanded) {
+                // Сворачиваем
+                detailsSection.classList.remove('active');
+                this.classList.remove('expanded');
+                toggleText.textContent = 'Подробнее о проекте';
+                toggleIcon.textContent = '▼';
+            } else {
+                // Разворачиваем
+                detailsSection.classList.add('active');
+                this.classList.add('expanded');
+                toggleText.textContent = 'Свернуть детали';
+                toggleIcon.textContent = '▲';
+                
+                // Плавная прокрутка к деталям
+                setTimeout(() => {
+                    const topOffset = detailsSection.getBoundingClientRect().top + window.pageYOffset - 80;
+                    window.scrollTo({
+                        top: topOffset,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            }
+        });
+    });
+}
+
+function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             const targetId = this.getAttribute('href');
             
             if (targetId === '#' || targetId === '#contact') {
-                e.preventDefault();
                 return;
             }
             
@@ -270,9 +182,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (targetElement) {
                 e.preventDefault();
                 
-                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - 80;
                 const startPosition = window.pageYOffset;
-                const distance = targetPosition - startPosition - 100;
+                const distance = targetPosition - startPosition;
                 const duration = 1000;
                 let startTime = null;
                 
@@ -299,12 +211,31 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    window.addEventListener('error', function(e) {
-        console.error('Error in services.js:', e.error);
+}
+
+function initDownloadNotifications() {
+    // Можно добавить простое уведомление о начале скачивания
+    document.querySelectorAll('.document-item').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const fileName = this.download || this.href.split('/').pop();
+            console.log(`Начинается скачивание: ${fileName}`);
+            
+            // Можно добавить аналитику здесь
+            if (typeof ym !== 'undefined') {
+                ym(105767211, 'reachGoal', 'document_download', {
+                    filename: fileName
+                });
+            }
+        });
     });
-    
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        document.documentElement.style.setProperty('--transition', 'none');
-    }
+}
+
+// Глобальная обработка ошибок
+window.addEventListener('error', function(e) {
+    console.error('Error in services.js:', e.error);
 });
+
+// Отключение анимаций при prefers-reduced-motion
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.documentElement.style.setProperty('--transition', 'none');
+}

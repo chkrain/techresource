@@ -729,6 +729,21 @@ class Order(models.Model):
     def get_clean_revenue(self):
         """Возвращает чистую выручку"""
         return self.net_revenue if self.is_payment_finalized else 0
+    
+    def reduce_product_quantities(self):
+        """Уменьшает количество товаров на складе"""
+        for item in self.orderitem_set.all():
+            if item.product.quantity >= item.quantity:
+                item.product.quantity -= item.quantity
+                item.product.save()
+            else:
+                raise ValueError(f'Недостаточно товара "{item.product.name}" на складе')
+            
+    def restore_product_quantities(self):
+        """Возвращает товары на склад (при отмене)"""
+        for item in self.orderitem_set.all():
+            item.product.quantity += item.quantity
+            item.product.save()
 
     def __str__(self):
         return f"Заказ #{self.id} - {self.customer_name}"
