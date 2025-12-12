@@ -2597,7 +2597,7 @@ def get_additional_client_info(ticket):
         
         info = {
             'request_method': 'POST',  
-            'host': 'tech-re.ru',  # Заменить на реальный домен
+            'host': 'tech-re.ru',  
             'path': '/support/',
             'referer': 'Прямой заход',
             'cookies_enabled': 'Да (предположительно)',
@@ -2950,7 +2950,6 @@ def dynamic_service_page(request, service_slug, sub_slug=None, instruction_slug=
     """Универсальное представление для ДОПОЛНИТЕЛЬНЫХ динамических страниц"""
     try:
         if instruction_slug and sub_slug:
-            # Страница инструкции: /services/{service_slug}/{sub_slug}/instructions/{instruction_slug}/
             page = ServicePage.objects.get(
                 slug=instruction_slug,
                 page_type='instruction',
@@ -2959,7 +2958,6 @@ def dynamic_service_page(request, service_slug, sub_slug=None, instruction_slug=
                 is_active=True
             )
         elif sub_slug:
-            # Страница подуслуги: /services/{service_slug}/{sub_slug}/
             page = ServicePage.objects.get(
                 slug=sub_slug,
                 page_type='sub_service', 
@@ -2967,7 +2965,6 @@ def dynamic_service_page(request, service_slug, sub_slug=None, instruction_slug=
                 is_active=True
             )
         else:
-            # Основная услуга: /services/{service_slug}/
             page = ServicePage.objects.get(
                 slug=service_slug,
                 page_type='main_service',
@@ -3014,7 +3011,6 @@ def send_password_reset_email_via_mail_ru(email, code, username):
 Команда Техресурс
 """
         
-        # HTML содержимое
         html_content = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -3051,11 +3047,9 @@ def send_password_reset_email_via_mail_ru(email, code, username):
 </body>
 </html>"""
         
-        # Устанавливаем содержимое
         msg.set_content(text_content)
         msg.add_alternative(html_content, subtype='html')
         
-        # Устанавливаем заголовки ТОЧНО как у mail команды
         msg['From'] = 'noreply@tech-re.ru'
         msg['To'] = email
         msg['Subject'] = 'Код восстановления пароля - Техресурс'
@@ -3152,7 +3146,6 @@ def send_password_changed_confirmation(email, username):
         
         Дата изменения: {timezone.now().strftime('%d.%m.%Y %H:%M')}
         
-        Важная информация о безопасности:
         Если вы не изменяли пароль, немедленно свяжитесь с нашей поддержкой.
         
         Теперь вы можете войти в систему с новым паролем.
@@ -3263,18 +3256,10 @@ def send_invoice_email(order):
         
         subject = f"Счет на оплату №{invoice_number} от {order.invoice_date.strftime('%d.%m.%Y')} - Техресурс"
         
-        # 1. ПРОСТОЕ ТЕКСТОВОЕ СООБЩЕНИЕ ДЛЯ EMAIL
         plain_message = f"""
-Уважаемый(ая) {order.customer_name},
+Здравствуйте, {order.customer_name}!
 
 Во вложении вы найдете счет на оплату №{invoice_number} от {order.invoice_date.strftime('%d.%m.%Y')}.
-
-Детали счета:
-- Номер счета: {invoice_number}
-- Дата счета: {order.invoice_date.strftime('%d.%m.%Y')}
-- Сумма к оплате: {order.total_price} руб.
-- Срок оплаты: {due_date.strftime('%d.%m.%Y')}
-- Поставщик: {company_info['name']}
 
 Пожалуйста, оплатите счет в течение {5} банковских дней.
 
@@ -3284,15 +3269,16 @@ Email: {company_info['email']}
 
 С уважением,
 Команда Техресурс
+
+Это сообщение создано автоматически, не нужно отвечать на него
 """
         
-        # 2. СОЗДАЕМ EMAIL С ВЛОЖЕНИЕМ
         email = EmailMultiAlternatives(
             subject=subject,
             body=plain_message,
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[order.customer_email],
-            reply_to=['billing@techresource.ru'],
+            reply_to=['noreply@tech-re.ru'],
             headers={
                 'X-Priority': '1',
                 'X-MSMail-Priority': 'High',
@@ -3300,17 +3286,10 @@ Email: {company_info['email']}
             }
         )
         
-        # Прикрепляем PDF
         pdf_filename = f"Счет_{invoice_number}_{order.customer_name.replace(' ', '_')}.pdf"
         email.attach(pdf_filename, pdf_file.getvalue(), 'application/pdf')
-        
-        # Отправляем email
         email.send(fail_silently=False)
-        
-        # 3. ОТПРАВЛЯЕМ ОДНО СООБЩЕНИЕ В TELEGRAM С ВЛОЖЕНИЕМ И ИНФОРМАЦИЕЙ
         telegram_sent = send_invoice_to_telegram_with_info(pdf_file.getvalue(), pdf_filename, order, company_info)
-        
-        # Обновляем статусы заказа
         order.invoice_sent = True
         order.invoice_sent_at = timezone.now()
         order.invoice_pdf_sent_to_telegram = telegram_sent
@@ -3354,7 +3333,6 @@ def send_invoice_to_telegram_with_info(pdf_bytes, filename, order, company_info)
             temp_file_path = temp_file.name
         
         try:
-            # ФОРМИРУЕМ СООБЩЕНИЕ С ПОЛНОЙ ИНФОРМАЦИЕЙ О ЗАКАЗЕ
             message = f"""
 📄 <b>СЧЕТ НА ОПЛАТУ #{order.invoice_number}</b>
 
@@ -3423,7 +3401,6 @@ def send_invoice_to_telegram_with_info(pdf_bytes, filename, order, company_info)
                 
     except Exception as e:
         
-        # Логируем ошибку отправки в Telegram
         NotificationLog.objects.create(
             order=order,
             notification_type='invoice_pdf_telegram',
@@ -3438,16 +3415,12 @@ def send_invoice_to_telegram_with_info(pdf_bytes, filename, order, company_info)
 def generate_pdf_from_html(html_content, order, invoice_number):
     """Генерация PDF из HTML с использованием WeasyPrint"""
     try:
-        # Создаем временный файл для HTML
         with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False, encoding='utf-8') as html_file:
             html_file.write(html_content)
             html_file_path = html_file.name
         
         try:
-            # Генерируем PDF
             pdf_file = BytesIO()
-            
-            # Используем WeasyPrint для конвертации
             HTML(filename=html_file_path).write_pdf(
                 pdf_file,
                 stylesheets=[
@@ -3462,14 +3435,12 @@ def generate_pdf_from_html(html_content, order, invoice_number):
                             }
                         }
                         
-                        /* Улучшаем читаемость для печати */
                         body {
                             font-family: "DejaVu Sans", "Arial", sans-serif;
                             font-size: 11pt;
                             line-height: 1.4;
                         }
                         
-                        /* Убеждаемся, что таблицы не разрываются между страницами */
                         table.items {
                             page-break-inside: avoid;
                         }
@@ -3478,7 +3449,6 @@ def generate_pdf_from_html(html_content, order, invoice_number):
                             padding: 6px 8px;
                         }
                         
-                        /* Улучшаем видимость границ при печати */
                         .items {
                             border: 1px solid #000 !important;
                         }
@@ -3487,13 +3457,11 @@ def generate_pdf_from_html(html_content, order, invoice_number):
                             border: 1px solid #000 !important;
                         }
                         
-                        /* Делаем итоги более заметными */
                         .summary .total {
                             font-weight: bold;
                             font-size: 14pt;
                         }
                         
-                        /* Для печати убираем тени и фоны */
                         @media print {
                             .sheet {
                                 box-shadow: none !important;
@@ -3725,7 +3693,6 @@ def anonymous_create_order(request):
                 except Product.DoesNotExist:
                     continue
 
-            # Проверка обязательных полей
             required_fields = ['contact_person', 'phone', 'email', 'company_name', 'inn', 
                               'legal_address', 'delivery_address']
             
@@ -3741,7 +3708,6 @@ def anonymous_create_order(request):
                     'error': f'Заполните обязательные поля: {", ".join(missing_fields)}'
                 })
             
-            # Валидация ИНН
             inn = request.POST.get('inn', '').strip()
             if not inn.isdigit() or len(inn) not in [10, 12]:
                 return JsonResponse({
@@ -3749,7 +3715,6 @@ def anonymous_create_order(request):
                     'error': 'ИНН должен содержать 10 или 12 цифр'
                 })
             
-            # Валидация email
             customer_email = request.POST.get('email', '').strip()
             if not customer_email or '@' not in customer_email:
                 return JsonResponse({
@@ -3757,7 +3722,6 @@ def anonymous_create_order(request):
                     'error': 'Введите корректный email адрес'
                 })
             
-            # Подсчет суммы
             total = Decimal('0')
             order_items_data = []
             
@@ -3785,20 +3749,17 @@ def anonymous_create_order(request):
                     'error': 'Некорректная сумма заказа'
                 })
             
-            # Рассчитываем НДС
             vat_rate = Decimal('20.00')
             vat_amount = total * vat_rate / Decimal('120.00')
             price_without_vat = total - vat_amount
             
-            # Генерируем номер счета ДО создания заказа
             from datetime import datetime
             current_year = datetime.now().year
             order_count = Order.objects.filter(invoice_date__year=current_year).count()
             invoice_number = f"{datetime.now().strftime('%Y%m')}-{order_count + 1:04d}"
             
-            # Создаем заказ без поля 'notes'
             order = Order.objects.create(
-                user=None,  # Анонимный пользователь
+                user=None,  
                 total_price=total,
                 final_price=total,
                 price_without_vat=price_without_vat,
@@ -3838,7 +3799,6 @@ def anonymous_create_order(request):
                 except Exception as e:
                     return False
             
-            # Очищаем корзину
             telegram_success = False
             request.session['anonymous_cart'] = {}
             request.session.modified = True
@@ -3886,7 +3846,6 @@ def anonymous_create_order(request):
                     'invoice_number': order.invoice_number
                 })
             else:
-                # Если email не отправился, но заказ создан
                 return JsonResponse({
                     'success': True,
                     'message': f'⚠️ Заявка отправлена! Заказ #{order.id} создан. Для получения счета свяжитесь с нами по телефону.',

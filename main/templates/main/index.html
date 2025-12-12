@@ -401,24 +401,7 @@
     align-items: center;
 }
 
-.hero-section {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    z-index: 1000;
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.hero-section.hidden {
-    opacity: 0;
-    transform: translateY(-20px);
-    pointer-events: none;
-}
-
 .benefits-section {
-    margin-top: 100svh; 
     position: relative;
     z-index: 1001;
 }
@@ -446,12 +429,6 @@
     text-align: center;
     max-width: 800px;
     margin: 0 auto;
-}
-
-@media screen and (max-width: 1024px) {
-    .hero-content {
-        margin-top: 40vh;
-    }
 }
 
 .hero-title {
@@ -1535,6 +1512,15 @@ section {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    if (history.scrollRestoration) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+    window.addEventListener('load', function() {
+        setTimeout(() => {
+            window.scrollTo(0, 0);
+        }, 100);
+    });
     function getCSRFToken() {
         const name = 'csrftoken';
         let cookieValue = null;
@@ -1702,31 +1688,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    const heroSection = document.querySelector('.hero-section');
-    const benefitsSection = document.querySelector('.benefits-section');
-    
-    function handleScroll() {
-        const benefitsTop = benefitsSection.getBoundingClientRect().top;
-        const windowHeight = window.innerHeight;
+    window.addEventListener('load', function() {
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100,
+            startEvent: 'load',
+            initClassName: 'aos-init',
+            animatedClassName: 'aos-animate'
+        });
         
-        if (benefitsTop < windowHeight * 0.6) {
-            heroSection.classList.add('hidden');
-        } else {
-            heroSection.classList.remove('hidden');
-        }
-        
-        const scrolled = window.pageYOffset;
-        if (heroSection) {
-            heroSection.style.transform = `translateY(${scrolled * 0.5}px)`;
-        }
-    }
-    
-    window.addEventListener('scroll', handleScroll);
-
-    AOS.init({
-        duration: 800,
-        once: true,
-        offset: 100
+        setTimeout(() => {
+            AOS.refresh();
+        }, 100);
     });
 
     function animateNumbers() {
