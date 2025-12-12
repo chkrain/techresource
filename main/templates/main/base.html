@@ -515,7 +515,7 @@
         }
 
         .container {
-            max-width: 1440px;
+            max-width: 1240px;
             margin: 0 auto;
             padding: 0 2rem;
         }
@@ -812,9 +812,9 @@
             right: 2rem;
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            background: var(--dark);
             color: var(--white);
-            border: none;
+            border: 1px solid rgb(139, 137, 137);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -834,7 +834,7 @@
 
         .back-to-top:hover {
             transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 15px 35px rgba(0, 82, 204, 0.4);
+            box-shadow: 0 15px 35px var(--dark);
         }
 
         @keyframes fadeInUp {
