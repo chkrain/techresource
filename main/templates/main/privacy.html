@@ -21,14 +21,14 @@
             <aside class="privacy-nav" data-aos="fade-right">
                 <div class="nav-card">
                     <h3>Содержание</h3>
-                    <nav class="nav-links">
-                        <a href="#general" class="nav-link active">Общие положения</a>
-                        <a href="#data-collection" class="nav-link">Сбор данных</a>
-                        <a href="#data-usage" class="nav-link">Использование</a>
-                        <a href="#data-protection" class="nav-link">Защита</a>
-                        <a href="#cookies" class="nav-link">Cookies</a>
-                        <a href="#rights" class="nav-link">Ваши права</a>
-                        <a href="#contacts" class="nav-link">Контакты</a>
+                    <nav class="nav-linklinks">
+                        <a href="#general" class="nav-linklink active">Общие положения</a>
+                        <a href="#data-collection" class="nav-linklink">Сбор данных</a>
+                        <a href="#data-usage" class="nav-linklink">Использование</a>
+                        <a href="#data-protection" class="nav-linklink">Защита</a>
+                        <a href="#cookies" class="nav-linklink">Cookies</a>
+                        <a href="#rights" class="nav-linklink">Ваши права</a>
+                        <a href="#contacts" class="nav-linklink">Контакты</a>
                     </nav>
                 </div>
                 
@@ -340,13 +340,13 @@ section {
     font-weight: 700;
 }
 
-.nav-links {
+.nav-linklinks {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
 }
 
-.nav-link {
+.nav-linklink {
     padding: 0.75rem 1rem;
     color: #6c757d;
     text-decoration: none;
@@ -356,8 +356,8 @@ section {
     border-left: 3px solid transparent;
 }
 
-.nav-link:hover,
-.nav-link.active {
+.nav-linklink:hover,
+.nav-linklink.active {
     background: #f1f5ff;
     color: #0052cc;
     border-left-color: #0052cc;
@@ -767,55 +767,6 @@ section {
 }
 </style>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const navLinks = document.querySelectorAll('.nav-link');
-    const articles = document.querySelectorAll('.privacy-article');
-    
-    function updateActiveNav() {
-        const scrollPos = window.scrollY + 100;
-        
-        articles.forEach(article => {
-            const articleTop = article.offsetTop;
-            const articleBottom = articleTop + article.offsetHeight;
-            const articleId = article.getAttribute('id');
-            
-            if (scrollPos >= articleTop && scrollPos < articleBottom) {
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === `#${articleId}`) {
-                        link.classList.add('active');
-                    }
-                });
-            }
-        });
-    }
-    
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            
-            if (targetElement) {
-                window.scrollTo({
-                    top: targetElement.offsetTop - 80,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
-    
-    window.addEventListener('scroll', updateActiveNav);
-    updateActiveNav();
-    
-    AOS.init({
-        duration: 600,
-        once: true,
-        offset: 100
-    });
-});
-</script>
 
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
