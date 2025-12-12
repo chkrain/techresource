@@ -59,8 +59,7 @@
                     <div class="visual-decoration"></div>
                     <div class="visual-decoration"></div>
                     <div class="visual-placeholder">
-                        <div class="visual-icon">📐</div>
-                        <div class="visual-text">3D Визуализация проекта</div>
+                        <img src="{% static 'images/guide/mtr.png'%}" alt="">
                     </div>
                 </div>
             </div>
@@ -209,7 +208,7 @@
         </div>
         
         <div class="cases-container">
-            <!-- Проект 1 -->
+            <!-- Проект 1 - Линия покраски торцов фанеры -->
             <div class="case-card">
                 <div class="case-main">
                     <div class="case-media">
@@ -223,8 +222,8 @@
                     
                     <div class="case-info">
                         <div class="case-header">
-                            <h3 class="case-title">Автоматизированная линия покраски торцев фанеры</h3>
-                            <p class="case-description">Комплексная автоматизация производственной линии для покраски торцев фанеры с системой управления на базе ПЛК Siemens S7-1200. Проект включает полный цикл от проектирования до внедрения.</p>
+                            <h3 class="case-title">Линия покраски торцов фанеры</h3>
+                            <p class="case-description">Автоматизация линии покраски торцов фанеры на предприятии деревообработки. Разработан шкаф управления на базе ПЛК Siemens для управления конвейерами и покрасочной камерой. Обеспечена работа в автоматическом и ручном режимах с системой безопасности.</p>
                         </div>
                         
                         <div class="case-overview">
@@ -251,21 +250,19 @@
                                 <span class="tech-badge type-electrical">Электроавтоматика</span>
                                 <span class="tech-badge">Siemens S7-1200</span>
                                 <span class="tech-badge">ПЛК</span>
-                                <span class="tech-badge">HMI Wientek</span>
-                                <span class="tech-badge">Frequency Drives</span>
+                                <span class="tech-badge">E-Plan</span>
+                                <span class="tech-badge">Автоматизация</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Расширяемая часть -->
                 <div class="case-details-expanded">
                     <div class="details-content">
-                        <!-- Документы -->
                         <div class="project-docs">
                             <div class="docs-header">
                                 <h4>Документация проекта</h4>
-                                <span class="doc-count">4 файла</span>
+                                <span class="doc-count">4&nbsp;файла</span>
                             </div>
                             <div class="documents-list">
                                 <a href="{% static 'projects/Линия покраски торцев фанеры. П3.pdf' %}" 
@@ -283,7 +280,6 @@
                                         </div>
                                     </div>
                                 </a>
-                                
                                 <a href="{% static 'projects/Линия покраски торцев фанеры. Э3.pdf' %}" 
                                 class="document-item" 
                                 download="Схема электрическая принципиальная.pdf" 
@@ -334,7 +330,6 @@
                             </div>
                         </div>
                         
-                        <!-- Детали проекта -->
                         <div class="project-details">
                             <div class="details-section">
                                 <h4>Ключевые особенности</h4>
@@ -344,12 +339,16 @@
                                         <div class="feature-text">Система управления на базе ПЛК Siemens S7-1200</div>
                                     </div>
                                     <div class="feature-item">
-                                        <div class="feature-icon">🎛️</div>
-                                        <div class="feature-text">Два пульта управления с индикацией режимов работы</div>
+                                        <div class="feature-icon">🔄</div>
+                                        <div class="feature-text">Управление конвейерами и покрасочной камерой</div>
                                     </div>
                                     <div class="feature-item">
                                         <div class="feature-icon">🛡️</div>
-                                        <div class="feature-text">Система безопасности с аварийными тросовыми выключателями</div>
+                                        <div class="feature-text">Система безопасности с аварийными выключателями</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">🎛️</div>
+                                        <div class="feature-text">Два пульта управления с индикацией режимов работы</div>
                                     </div>
                                     <div class="feature-item">
                                         <div class="feature-icon">📈</div>
@@ -358,10 +357,6 @@
                                     <div class="feature-item">
                                         <div class="feature-icon">👨‍💼</div>
                                         <div class="feature-text">Сенсорная панель оператора Wientek MT8071iE</div>
-                                    </div>
-                                    <div class="feature-item">
-                                        <div class="feature-icon">🔄</div>
-                                        <div class="feature-text">Автоматический и ручной режимы работы</div>
                                     </div>
                                 </div>
                             </div>
@@ -399,7 +394,300 @@
                     </button>
                 </div>
             </div>
-            
+
+            <!-- Проект 2 - Автоматизация котельной -->
+            <div class="case-card">
+                <div class="case-main">
+                    <div class="case-media">
+                        <img src="{% static 'images/guide/mtr.png'%}" alt="Автоматизация котельной">
+                        <div class="media-preview">
+                            <div class="media-icon">🔥</div>
+                            <div class="media-stats">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="case-info">
+                        <div class="case-header">
+                            <h3 class="case-title">Автоматизация котельной</h3>
+                            <p class="case-description">Мини-проект по автоматизации котельной с двумя газовыми котлами, теплообменником, насосным оборудованием и КИПиА. Разработаны схемы подключения оборудования к щиту управления, размещение оборудования и монтажные схемы.</p>
+                        </div>
+                        
+                        <div class="case-overview">
+                            <div class="overview-item">
+                                <div class="overview-label">Заказчик</div>
+                                <div class="overview-value">Частное предприятие</div>
+                            </div>
+                            <div class="overview-item">
+                                <div class="overview-label">Срок реализации</div>
+                                <div class="overview-value">1 месяц</div>
+                            </div>
+                            <div class="overview-item">
+                                <div class="overview-label">Экономия бюджета</div>
+                                <div class="overview-value">12%</div>
+                            </div>
+                            <div class="overview-item">
+                                <div class="overview-label">Дата проекта</div>
+                                <div class="overview-value">2023 год</div>
+                            </div>
+                        </div>
+                        
+                        <div class="case-technologies">
+                            <div class="tech-badges">
+                                <span class="tech-badge type-electrical">Автоматизация</span>
+                                <span class="tech-badge">КИПиА</span>
+                                <span class="tech-badge">Газовые котлы</span>
+                                <span class="tech-badge">Теплообменник</span>
+                                <span class="tech-badge">Щит управления</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="case-details-expanded">
+                    <div class="details-content">
+                        <div class="project-docs">
+                            <div class="docs-header">
+                                <h4>Документация проекта</h4>
+                                <span class="doc-count">1&nbsp;файл</span>
+                            </div>
+                            <div class="documents-list">
+                                <a href="{% static 'projects/Автоматизация котельной.pdf' %}" 
+                                class="document-item" 
+                                download="Автоматизация котельной.pdf" 
+                                target="_blank">
+                                    <div class="doc-icon">📄</div>
+                                    <div class="doc-info">
+                                        <h5>Проектная документация</h5>
+                                        <p>Полный комплект документации по автоматизации котельной</p>
+                                        <div class="doc-meta">
+                                            <span>3.5 MB</span>
+                                            <span>PDF</span>
+                                            <span class="download-icon">📥</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="project-details">
+                            <div class="details-section">
+                                <h4>Ключевые особенности</h4>
+                                <div class="features-list">
+                                    <div class="feature-item">
+                                        <div class="feature-icon">🔥</div>
+                                        <div class="feature-text">Два газовых котла с автоматическим управлением</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">🌡️</div>
+                                        <div class="feature-text">Теплообменник с системой контроля температуры</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">💧</div>
+                                        <div class="feature-text">Насосное оборудование с автоматическим регулированием</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">📊</div>
+                                        <div class="feature-text">Комплекс КИПиА для мониторинга параметров</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">⚡</div>
+                                        <div class="feature-text">Централизованный щит управления</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">🛡️</div>
+                                        <div class="feature-text">Система безопасности и аварийного отключения</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="details-section">
+                                <h4>Результаты внедрения</h4>
+                                <div class="results-grid">
+                                    <div class="result-item">
+                                        <div class="result-icon">💰</div>
+                                        <div class="result-text">Экономия топлива на 18%</div>
+                                    </div>
+                                    <div class="result-item">
+                                        <div class="result-icon">⚡</div>
+                                        <div class="result-text">Снижение энергопотребления на 15%</div>
+                                    </div>
+                                    <div class="result-item">
+                                        <div class="result-icon">👨‍🔧</div>
+                                        <div class="result-text">Сокращение персонала на 1 человека</div>
+                                    </div>
+                                    <div class="result-item">
+                                        <div class="result-icon">📈</div>
+                                        <div class="result-text">Увеличение КПД котельной на 12%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Кнопка подробнее -->
+                <div class="case-toggle">
+                    <button class="toggle-btn">
+                        <span class="toggle-text">Подробнее о проекте</span>
+                        <span class="toggle-icon">▼</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Проект 3 - Шкаф управления складом цемента -->
+            <div class="case-card">
+                <div class="case-main">
+                    <div class="case-media">
+                        <img src="{% static 'images/guide/chp.png'%}" alt="Шкаф управления складом цемента">
+                        <div class="media-preview">
+                            <div class="media-icon">🏗️</div>
+                            <div class="media-stats">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="case-info">
+                        <div class="case-header">
+                            <h3 class="case-title">Шкаф управления складом цемента</h3>
+                            <p class="case-description">Разработка шкафа управления на базе программируемого реле ПР-200 Овен для работы оборудования склада цемента. Обеспечение работы в ручном и полуавтоматическом режимах для управления шнеками наполнения цементовозов и пневмовинтовыми насосами перекачки цемента.</p>
+                        </div>
+                        
+                        <div class="case-overview">
+                            <div class="overview-item">
+                                <div class="overview-label">Заказчик</div>
+                                <div class="overview-value">Промышленное предприятие</div>
+                            </div>
+                            <div class="overview-item">
+                                <div class="overview-label">Срок реализации</div>
+                                <div class="overview-value">2 месяца</div>
+                            </div>
+                            <div class="overview-item">
+                                <div class="overview-label">Экономия бюджета</div>
+                                <div class="overview-value">20%</div>
+                            </div>
+                            <div class="overview-item">
+                                <div class="overview-label">Дата проекта</div>
+                                <div class="overview-value">2024 год</div>
+                            </div>
+                        </div>
+                        
+                        <div class="case-technologies">
+                            <div class="tech-badges">
+                                <span class="tech-badge type-electrical">Электроавтоматика</span>
+                                <span class="tech-badge">Овен ПР-200</span>
+                                <span class="tech-badge">OwenLogic</span>
+                                <span class="tech-badge">Шнековые питатели</span>
+                                <span class="tech-badge">Пневмотранспорт</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="case-details-expanded">
+                    <div class="details-content">
+                        <div class="project-docs">
+                            <div class="docs-header">
+                                <h4>Документация проекта</h4>
+                                <span class="doc-count">2&nbsp;файла</span>
+                            </div>
+                            <div class="documents-list">
+                                <a href="{% static 'projects/Шкаф управления_ПЭ-2024-12-СЦ-000.0-ОВ.pdf' %}" 
+                                class="document-item" 
+                                download="Шкаф управления - общий вид.pdf" 
+                                target="_blank">
+                                    <div class="doc-icon">⚡</div>
+                                    <div class="doc-info">
+                                        <h5>Шкаф управления - общий вид</h5>
+                                        <p>Компоновка оборудования, общий вид шкафа управления</p>
+                                        <div class="doc-meta">
+                                            <span>2.8 MB</span>
+                                            <span>PDF</span>
+                                            <span class="download-icon">📥</span>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a href="{% static 'projects/Шкаф управления_ПЭ-2024-12-СЦ-000.0-СБ.pdf' %}" 
+                                class="document-item" 
+                                download="Схема электрическая.pdf" 
+                                target="_blank">
+                                    <div class="doc-icon">📐</div>
+                                    <div class="doc-info">
+                                        <h5>Схема электрическая</h5>
+                                        <p>Принципиальная схема шкафа управления</p>
+                                        <div class="doc-meta">
+                                            <span>3.2 MB</span>
+                                            <span>PDF</span>
+                                            <span class="download-icon">📥</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="project-details">
+                            <div class="details-section">
+                                <h4>Ключевые особенности</h4>
+                                <div class="features-list">
+                                    <div class="feature-item">
+                                        <div class="feature-icon">⚙️</div>
+                                        <div class="feature-text">Программируемое реле Овен ПР-200</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">🔄</div>
+                                        <div class="feature-text">Ручной и полуавтоматический режимы работы</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">🏗️</div>
+                                        <div class="feature-text">Управление шнеками наполнения цементовозов</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">💨</div>
+                                        <div class="feature-text">Управление пневмовинтовыми насосами перекачки</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">💾</div>
+                                        <div class="feature-text">Программирование в среде OwenLogic</div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">🛡️</div>
+                                        <div class="feature-text">Защита от перегрузок и аварийные отключения</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="details-section">
+                                <h4>Результаты внедрения</h4>
+                                <div class="results-grid">
+                                    <div class="result-item">
+                                        <div class="result-icon">📊</div>
+                                        <div class="result-text">Увеличение скорости наполнения на 25%</div>
+                                    </div>
+                                    <div class="result-item">
+                                        <div class="result-icon">🎯</div>
+                                        <div class="result-text">Точность дозирования цемента ±1%</div>
+                                    </div>
+                                    <div class="result-item">
+                                        <div class="result-icon">💡</div>
+                                        <div class="result-text">Снижение энергопотребления на 18%</div>
+                                    </div>
+                                    <div class="result-item">
+                                        <div class="result-icon">👨‍🔧</div>
+                                        <div class="result-text">Упрощение процесса управления оборудованием</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="case-toggle">
+                    <button class="toggle-btn">
+                        <span class="toggle-text">Подробнее о проекте</span>
+                        <span class="toggle-icon">▼</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </section>

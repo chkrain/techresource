@@ -147,19 +147,3 @@
         {% endif %}
     </div>
 </div>
-
-<script>
-function trackPackage(trackingNumber, shippingCompany) {
-    // Базовые URL для отслеживания в популярных службах доставки
-    const trackingUrls = {
-        'Почта России': `https://www.pochta.ru/tracking#${trackingNumber}`,
-        'СДЭК': `https://www.cdek.ru/ru/tracking/?order_id=${trackingNumber}`,
-        'Boxberry': `https://boxberry.ru/tracking/${trackingNumber}`,
-        'DPD': `https://dpd.ru/tracking/${trackingNumber}`,
-        'default': `https://www.pochta.ru/tracking#${trackingNumber}`
-    };
-    
-    const url = trackingUrls[shippingCompany] || trackingUrls.default;
-    window.open(url, '_blank');
-}
-</script>
