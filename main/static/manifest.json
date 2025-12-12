@@ -8,7 +8,17 @@
   "theme_color": "#2c3e50",
   "icons": [
     {
-      "src": "/var/www/www-root/data/www/tech-re.ru/techresource/main/static/images/favicon/favicon.svg",
+      "src": "/static/images/favicon/android-chrome-192x192.png", 
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/favicon/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/favicon/logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
