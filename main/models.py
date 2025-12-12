@@ -1006,7 +1006,6 @@ class ProductReview(models.Model):
     is_approved = models.BooleanField(default=False, verbose_name="Одобрен")
     is_moderated = models.BooleanField(default=False, verbose_name="Промодерирован")
     
-    # Новые поля для безопасности
     ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name="IP-адрес")
     user_agent = models.TextField(blank=True, verbose_name="User Agent")
     
@@ -1265,7 +1264,6 @@ class ServicePage(models.Model):
         """Получить дерево навигации включая статические страницы"""
         navigation = []
         
-        # Статические страницы (основные услуги)
         static_services = [
             {
                 'title': 'Проектирование систем',
@@ -1341,15 +1339,13 @@ class ServicePage(models.Model):
             }
         ]
         
-        # Динамические основные услуги (без привязки к статическим)
         dynamic_services = cls.objects.filter(
             page_type='main_service',
-            static_service='',  # Не привязаны к статическим
+            static_service='',  
             is_active=True,
             show_in_navigation=True
         ).order_by('order')
         
-        # Объединяем статические и динамические
         for static in static_services:
             nav_item = {
                 'title': static['title'],
@@ -1373,7 +1369,6 @@ class ServicePage(models.Model):
             
             navigation.append(nav_item)
         
-        # Добавляем динамические услуги
         for service in dynamic_services:
             nav_item = {
                 'title': service.title,

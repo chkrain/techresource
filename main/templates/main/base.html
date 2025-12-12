@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Техресурс - Инновационные инженерные решения{% endblock %}</title>
+    <title>{% block title %}Техресурс — Инновационные инженерные решения{% endblock %}</title>
+    <meta name="description" content="{% block description %}Инновационные инженерные решения, монтаж, разработка ПО, техподдержка.{% endblock %}">
 
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon/favicon-32x32.png.png' %}">
@@ -25,7 +26,11 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="description" content="Контактная информация компании Техресурс. Телефоны, адреса офиса и цеха, электронная почта, карты проезда, ссылки на соцсети.">
     <meta name="keywords" content="контакты Техресурс, техническая поддержка Казань, инженерные услуги контакты, промышленное оборудование телефон">
+    {% if request.path == "/" %}
     <link rel="canonical" href="https://tech-re.ru/">
+    {% else %}
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    {% endif %}
 
     <script type="application/ld+json">
     {

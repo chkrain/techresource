@@ -2429,34 +2429,6 @@ def support_view(request):
         'active_tab': 'support'
     }
     return render(request, 'main/support.html', context)
-
-def send_simple_attachment(attachment, chat_id=None):
-    """Упрощенная отправка вложения"""
-    try:
-        if chat_id is None:
-            chat_id = settings.TELEGRAM_CHAT_ID_CONTACTS
-            
-        file_path = attachment.file.path
-        
-        # Всегда отправляем как документ
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
-        
-        with open(file_path, 'rb') as file:
-            files = {'document': file}
-            data = {
-                'chat_id': chat_id,
-                'caption': f'Файл: {attachment.file_name}'
-            }
-            
-            response = requests.post(url, data=data, files=files, timeout=30)
-            
-            if response.status_code == 200:
-                return True
-            else:
-                return False
-                
-    except Exception as e:
-        return False
     
 def send_simple_attachment(attachment):
     """Упрощенная отправка вложения"""
@@ -2573,7 +2545,6 @@ def send_support_notification(ticket, attachments):
 def parse_user_agent(user_agent):
     """Парсинг User-Agent для получения информации о браузере и ОС"""
     try:
-        # Простой парсинг User-Agent
         ua = user_agent.lower()
         browser_info = {}
         
@@ -2591,7 +2562,6 @@ def parse_user_agent(user_agent):
         else:
             browser_info['browser'] = 'Неизвестный браузер'
         
-        # Определяем ОС
         if 'windows' in ua:
             browser_info['os'] = 'Windows'
         elif 'mac' in ua:
@@ -2605,7 +2575,6 @@ def parse_user_agent(user_agent):
         else:
             browser_info['os'] = 'Неизвестная ОС'
         
-        # Определяем устройство
         if 'mobile' in ua:
             browser_info['device'] = 'Мобильное'
         elif 'tablet' in ua:
@@ -2628,7 +2597,7 @@ def get_additional_client_info(ticket):
         
         info = {
             'request_method': 'POST',  
-            'host': 'techresource.ru',  # Заменить на реальный домен
+            'host': 'tech-re.ru',  # Заменить на реальный домен
             'path': '/support/',
             'referer': 'Прямой заход',
             'cookies_enabled': 'Да (предположительно)',
@@ -2656,12 +2625,11 @@ def send_attachment_with_quality(attachment, chat_id):
                 files = {'document': file}
                 data = {
                     'chat_id': chat_id,
-                    'caption': f'Зацените {attachment.file_name}'
+                    'caption': f'Файл к обращению: {attachment.file_name}'
                 }
                 
                 response = requests.post(url, data=data, files=files, timeout=30)
         else:
-            # Для остальных файлов используем стандартный подход
             url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
             
             with open(file_path, 'rb') as file:
@@ -2684,7 +2652,6 @@ def send_attachment_with_quality(attachment, chat_id):
 def send_fallback_notification(ticket, attachments):
     """Резервный метод отправки уведомления"""
     try:
-        # Определяем chat_id в зависимости от приоритета
         if ticket.priority == 'critical':
             chat_id = settings.TELEGRAM_CHAT_ID_CRITICAL
             prefix = "🚨🚨🚨 КРИТИЧЕСКАЯ ЗАЯВКА: "
@@ -2692,7 +2659,6 @@ def send_fallback_notification(ticket, attachments):
             chat_id = settings.TELEGRAM_CHAT_ID_CONTACTS
             prefix = "🆘 Новая заявка поддержки: "
         
-        # Простейшее уведомление без вложений
         message = f"{prefix}#{ticket.id}\nТема: {ticket.subject}\nПриоритет: {ticket.get_priority_display()}"
         
         url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -2716,11 +2682,9 @@ def send_attachment_to_telegram(attachment):
     try:
         file_path = attachment.file.path
         
-        # Определяем тип файла для отправки
         file_extension = attachment.file_name.lower().split('.')[-1] if attachment.file_name else 'bin'
         
         if file_extension in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
-            # Отправка как фото
             url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendPhoto"
             files = {'photo': open(file_path, 'rb')}
             data = {
@@ -2728,7 +2692,6 @@ def send_attachment_to_telegram(attachment):
                 'caption': f'📎 {attachment.file_name}'
             }
         elif file_extension in ['mp4', 'avi', 'mov', 'webm']:
-            # Отправка как видео
             url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendVideo"
             files = {'video': open(file_path, 'rb')}
             data = {
@@ -2736,7 +2699,6 @@ def send_attachment_to_telegram(attachment):
                 'caption': f'🎥 {attachment.file_name}'
             }
         else:
-            # Отправка как документ по умолчанию
             url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
             files = {'document': open(file_path, 'rb')}
             data = {
@@ -2746,7 +2708,6 @@ def send_attachment_to_telegram(attachment):
         
         response = requests.post(url, data=data, files=files, timeout=30)
         
-        # Закрываем файл
         file_key = list(files.keys())[0]
         files[file_key].close()
         
@@ -3294,7 +3255,6 @@ def send_invoice_email(order):
             'invoice_validity_days': 5,
         }
         
-        # Генерируем PDF
         html_content = render_to_string('main/invoice_email.html', context)
         pdf_file = generate_pdf_from_html(html_content, order, invoice_number)
         
@@ -3567,7 +3527,7 @@ def generate_pdf_from_html(html_content, order, invoice_number):
             HTML(string=html_content).write_pdf(pdf_file)
             pdf_file.seek(0)
             return pdf_file
-        except Exception as alt_e:
+        except Exception as alt_e:  
             return None
 
 def get_anonymous_cart(request):
