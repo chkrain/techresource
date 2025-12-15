@@ -178,6 +178,7 @@
                     {% include 'main/components/product_grid.html' %}
                 </div>
                 
+                <!-- Пагинация -->
                 {% if page_obj.has_other_pages %}
                 <div class="pagination" id="paginationContainer">
                     {% if page_obj.has_previous %}
@@ -198,6 +199,7 @@
                 </div>
                 {% endif %}
                 
+                <!-- Индикатор загрузки -->
                 <div id="loadingIndicator" class="loading-indicator" style="display: none;">
                     <div class="spinner"></div>
                     <p>Загружаем товары...</p>
@@ -207,16 +209,17 @@
     </div>
 </section>
 
-<section class="products-cta" data-aos="fade-up" data-aos-delay="50">
+<!-- CTA секция -->
+<section class="products-cta">
     <div class="container">
         <div class="cta-content">
-            <h2 data-aos="fade-up" data-aos-delay="150">Не нашли нужный товар?</h2>
-            <p data-aos="fade-up" data-aos-delay="200">Свяжитесь с нами - мы поможем подобрать оборудование под ваши задачи</p>
+            <h2>Не нашли нужный товар?</h2>
+            <p>Свяжитесь с нами - мы поможем подобрать оборудование под ваши задачи</p>
             <div class="cta-buttons">
-                <a href="/contacts/" class="btn btn-primary" data-aos="fade-up" data-aos-delay="200">
+                <a href="/contacts/" class="btn btn-primary">
                     📞 Связаться с нами
                 </a>
-                <a href="/services/" class="btn btn-secondary" data-aos="fade-up" data-aos-delay="200">
+                <a href="/services/" class="btn btn-secondary">
                     🛠️ Наши услуги
                 </a>
             </div>
