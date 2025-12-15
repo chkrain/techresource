@@ -16,61 +16,6 @@
 <div class="admin-dashboard">
     <div class="container">
         <div class="stats-grid">
-            <div class="stat-card" data-aos="fade-up">
-                <div class="stat-icon">📊</div>
-                <div class="stat-info">
-                    <h3>Всего заказов</h3>
-                    <p class="stat-number">{{ total_orders }}</p>
-                </div>
-            </div>
-            
-            <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
-                <div class="stat-icon">⏳</div>
-                <div class="stat-info">
-                    <h3>Ожидают оплаты</h3>
-                    <p class="stat-number pending">{{ pending_orders }}</p>
-                </div>
-            </div>
-            
-            <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
-                <div class="stat-icon">💰</div>
-                <div class="stat-info">
-                    <h3>Оплаченные</h3>
-                    <p class="stat-number paid">{{ paid_orders }}</p>
-                </div>
-            </div>
-            
-            <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
-                <div class="stat-icon">💵</div>
-                <div class="stat-info">
-                    <h3>Чистая выручка</h3>
-                    <p class="stat-number revenue">{{ total_revenue }} ₽</p>
-                    <small style="font-size: 0.8rem; color: #6c757d;">
-                        (без доставки и комиссий)
-                    </small>
-                </div>
-            </div>
-
-            <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
-                <div class="stat-icon">💰</div>
-                <div class="stat-info">
-                    <h3>Общая сумма</h3>
-                    <p class="stat-number">{{ total_gross }} ₽</p>
-                    <small style="font-size: 0.8rem; color: #6c757d;">
-                        (с доставкой и комиссиями)
-                    </small>
-                </div>
-            </div>
-
-            <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
-                <div class="stat-icon">💬</div>
-                <div class="stat-info">
-                    <h3>Отзывы на модерации</h3>
-                    <p class="stat-number moderation">{{ pending_reviews_count }}</p>
-                </div>
-            </div>
-        </div>
-
         <div class="moderation-section" data-aos="fade-up">
             <div class="section-header">
                 <h2>💬 Модерация отзывов</h2>

@@ -5,12 +5,11 @@
 {% block description %}Техресурс - ведущий поставщик инженерных решений и промышленного оборудования. Проектирование, монтаж, разработка ПО, поставка оборудования{% endblock %}
 
 {% block meta %}
-<meta property="og:title" content="Техресурс - Инновационные инженерные решения и оборудование">
-<meta property="og:description" content="Профессиональные инженерные решения, промышленное оборудование и услуги для цифровой трансформации вашего бизнеса. 50+ реализованных проектов.">
+{% block og_title %}Техресурс — инженерные решения и техническая поддержка{% endblock %}
+{% block og_description %}Инженерные услуги, монтаж оборудования, разработка ПО и техподдержка. Работаем по регионам России.{% endblock %}
 <meta property="og:image" content="{% static 'images/og-main.jpg' %}">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="description" content="Техресурс - ведущий поставщик инженерных решений и промышленного оборудования. Проектирование, монтаж, разработка ПО, поставка оборудования.">
 <meta name="keywords" content="инженерные решения, промышленное оборудование, проектирование, монтаж, СКАДА системы, техническая поддержка">
 <link rel="canonical" href="https://tech-re.ru/">
 <script type="application/ld+json">

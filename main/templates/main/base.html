@@ -8,7 +8,7 @@
     <meta name="description" content="{% block description %}Инновационные инженерные решения, монтаж, разработка ПО, техподдержка.{% endblock %}">
 
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon/favicon-32x32.png.png' %}" alt="фавикон">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon/favicon-32x32.png' %}" alt="фавикон">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon/favicon-16x16.png' %}" alt="фавикон">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon/apple-touch-icon.png' %}" alt="фавикон">
     <link rel="icon" type="image/png" sizes="192x192" href="{% static 'images/favicon/android-chrome-192x192.png' %}" alt="фавикон">
@@ -19,13 +19,11 @@
     {% block meta %}
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta property="og:title" content="Контакты Техресурс | Техническая поддержка и инженерные решения">
-    <meta property="og:description" content="Свяжитесь с нами по телефону +7 (937) 524-68-88, email ainurcherepanov@mail.ru. Офис в Казани, ул. Техническая, 52. Время работы Пн-Пт: 8:00-17:00.">
+    <meta property="og:title" content="{% block og_title %}Техресурс - АСУ ТП, инженерные решения{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Монтаж, разработка ПО, пусконаладка{% endblock %}">
     <meta property="og:image" content="{% static 'images/og-contacts.jpg' %}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="description" content="Контактная информация компании Техресурс. Телефоны, адреса офиса и цеха, электронная почта, карты проезда, ссылки на соцсети.">
-    <meta name="keywords" content="контакты Техресурс, техническая поддержка Казань, инженерные услуги контакты, промышленное оборудование телефон">
     {% if request.path == "/" %}
     <link rel="canonical" href="https://tech-re.ru/">
     {% else %}
@@ -62,7 +60,6 @@
     
     {% csrf_token %}
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <meta name="description" content="Профессиональные инженерные решения, оборудование и услуги для цифровой трансформации вашего бизнеса">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -221,12 +218,12 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             line-height: 1.7;
-            color: var(--dark);
-            background: linear-gradient(135deg, var(--light) 0%, var(--white) 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            background: var(--dark);
+            color: var(--white);
         }
 
         .header {

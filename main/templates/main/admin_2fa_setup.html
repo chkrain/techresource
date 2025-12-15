@@ -3,662 +3,245 @@
 
 {% block title %}Настройка 2FA - Админка{% endblock %}
 
-{% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card auth-card">
-                <div class="card-header auth-header">
-                    <h4 class="mb-0">⚙️ Настройка двухфакторной аутентификации</h4>
-                </div>
-                <div class="card-body auth-body">
-                    
-                    {% if messages %}
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
-                            <div>{{ message }}</div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                    {% endfor %}
-                    {% endif %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/2fa.css' %}">
+{% endblock %}
 
-                    {% if not admin_2fa.is_enabled %}
+{% block content %}
+<div class="admin-2fa-container">
+    <div class="admin-2fa-card">
+        <!-- Заголовок -->
+        <div class="admin-2fa-header">
+            <div class="admin-2fa-header-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="admin-2fa-header-content">
+                <h1>Двухфакторная аутентификация</h1>
+                <p>Настройка дополнительной защиты аккаунта</p>
+            </div>
+        </div>
+
+        <div class="admin-2fa-body">
+            <!-- Сообщения -->
+            {% if messages %}
+            <div class="admin-2fa-messages">
+                {% for message in messages %}
+                <div class="admin-2fa-alert admin-2fa-alert-{{ message.tags }}">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- 2FA отключена -->
+            {% if not admin_2fa.is_enabled %}
+            
+                {% if not admin_2fa.secret_key %}
+                <!-- Активация 2FA -->
+                <div class="admin-2fa-activation">
+                    <div class="admin-2fa-activation-header">
+                        <h2><i class="fas fa-lock"></i> Активировать защиту</h2>
+                        <p>Для включения двухфакторной аутентификации выполните 4 простых шага</p>
+                    </div>
                     
-                        {% if not admin_2fa.secret_key %}
-                        <div class="auth-info-section">
-                            <h5><i class="fas fa-shield-alt me-2"></i>Включение 2FA</h5>
-                            <p>Для включения двухфакторной аутентификации:</p>
-                            <div class="steps-grid">
-                                <div class="step-item">
-                                    <div class="step-number">1</div>
-                                    <p>Нажмите кнопку ниже для генерации секретного ключа</p>
-                                </div>
-                                <div class="step-item">
-                                    <div class="step-number">2</div>
-                                    <p>Введите секретный ключ в приложение аутентификации</p>
-                                </div>
-                                <div class="step-item">
-                                    <div class="step-number">3</div>
-                                    <p>Введите код из приложения для подтверждения</p>
-                                </div>
-                                <div class="step-item">
-                                    <div class="step-number">4</div>
-                                    <p>Сохраните резервные коды</p>
-                                </div>
-                            </div>
-                            
-                            <div class="text-center mt-4">
-                                <form method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="action" value="generate">
-                                    <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="fas fa-key me-2"></i>Сгенерировать секретный ключ
-                                    </button>
-                                </form>
+                    <div class="admin-2fa-steps">
+                        <div class="admin-2fa-step">
+                            <div class="admin-2fa-step-number">1</div>
+                            <div class="admin-2fa-step-content">
+                                <h3>Генерация ключа</h3>
+                                <p>Создайте уникальный секретный ключ</p>
                             </div>
                         </div>
                         
-                        {% else %}
-                        <div class="qr-section">
-                            <h6><i class="fas fa-key me-2"></i>Секретный ключ для настройки:</h6>
-                            <div class="secret-key-container">
-                                <div class="secret-key-display">
-                                    <code>{{ admin_2fa.secret_key }}</code>
-                                </div>
-                                <small class="text-muted">
-                                    Введите этот ключ вручную в приложении аутентификации (Google Authenticator, Authy и т.д.)
-                                </small>
+                        <div class="admin-2fa-step">
+                            <div class="admin-2fa-step-number">2</div>
+                            <div class="admin-2fa-step-content">
+                                <h3>Настройка приложения</h3>
+                                <p>Добавьте ключ в Google Authenticator</p>
+                            </div>
+                        </div>
+                        
+                        <div class="admin-2fa-step">
+                            <div class="admin-2fa-step-number">3</div>
+                            <div class="admin-2fa-step-content">
+                                <h3>Подтверждение</h3>
+                                <p>Введите код из приложения</p>
+                            </div>
+                        </div>
+                        
+                        <div class="admin-2fa-step">
+                            <div class="admin-2fa-step-number">4</div>
+                            <div class="admin-2fa-step-content">
+                                <h3>Сохранение кодов</h3>
+                                <p>Сохраните резервные коды</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="post" class="admin-2fa-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="generate">
+                        <button type="submit" class="admin-2fa-btn admin-2fa-btn-primary">
+                            <i class="fas fa-key"></i>
+                            Создать секретный ключ
+                        </button>
+                    </form>
+                </div>
+                
+                {% else %}
+                <!-- Настройка с секретным ключом -->
+                <div class="admin-2fa-setup">
+                    <div class="admin-2fa-secret-section">
+                        <div class="admin-2fa-section-header">
+                            <h2><i class="fas fa-key"></i> Секретный ключ</h2>
+                            <p>Добавьте этот ключ в приложение аутентификации</p>
+                        </div>
+                        
+                        <div class="admin-2fa-secret-box">
+                            <code>{{ admin_2fa.secret_key }}</code>
+                            <button class="admin-2fa-btn admin-2fa-btn-outline admin-2fa-btn-sm" 
+                                    onclick="copyToClipboard('{{ admin_2fa.secret_key }}')">
+                                <i class="fas fa-copy"></i> Копировать
+                            </button>
+                        </div>
+                        
+                        <div class="admin-2fa-instructions">
+                            <h3><i class="fas fa-info-circle"></i> Инструкция по настройке:</h3>
+                            <ol>
+                                <li>Откройте Google Authenticator или Authy</li>
+                                <li>Нажмите "Добавить аккаунт"</li>
+                                <li>Выберите "Ввести ключ вручную"</li>
+                                <li>Введите ключ выше и сохраните</li>
+                                <li>Введите 6-значный код из приложения ниже</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-2fa-verify-section">
+                        <div class="admin-2fa-section-header">
+                            <h2><i class="fas fa-check-circle"></i> Подтверждение</h2>
+                            <p>Введите код из приложения для активации защиты</p>
+                        </div>
+                        
+                        <form method="post" class="admin-2fa-verify-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="verify">
+                            
+                            <div class="admin-2fa-code-input">
+                                <input type="text" 
+                                       name="code" 
+                                       placeholder="000000" 
+                                       maxlength="6" 
+                                       required 
+                                       pattern="[0-9]{6}"
+                                       inputmode="numeric"
+                                       autocomplete="off">
+                                <div class="admin-2fa-code-hint">6 цифр из приложения</div>
                             </div>
                             
-                            <div class="mt-4">
-                                <h6><i class="fas fa-mobile-alt me-2"></i>Инструкция по настройке:</h6>
-                                <ol class="text-start">
-                                    <li>Откройте приложение аутентификации (Google Authenticator, Authy, Microsoft Authenticator)</li>
-                                    <li>Нажмите "Добавить аккаунт" или "+"</li>
-                                    <li>Выберите "Ввести ключ вручную"</li>
-                                    <li>Введите ключ выше</li>
-                                    <li>Сохраните и введите полученный 6-значный код ниже</li>
-                                </ol>
-                            </div>
-                        </div>
-
-                        <div class="verification-section">
-                            <h6><i class="fas fa-check-circle me-2"></i>Подтверждение кода</h6>
-                            <form method="post" class="verification-form">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="verify">
-                                <div class="input-group">
-                                    <input type="text" class="form-control verification-input" 
-                                           name="code" placeholder="Введите 6-значный код из приложения" 
-                                           maxlength="6" required pattern="[0-9]{6}">
-                                    <button type="submit" class="btn btn-verify">
-                                        <i class="fas fa-check me-1"></i> Подтвердить
-                                    </button>
-                                </div>
-                                <small class="form-text">Введите 6-значный код из вашего приложения аутентификации</small>
-                            </form>
-                        </div>
-                        {% endif %}
-                    
-                    {% else %}
-                    <div class="status-section enabled">
-                        <div class="status-icon">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="status-content">
-                            <h5>2FA активирована</h5>
-                            <p>Двухфакторная аутентификация включена для вашего аккаунта.</p>
-                        </div>
-                    </div>
-                    
-                    {% if backup_codes %}
-                    <div class="backup-codes-section">
-                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Резервные коды (сохраните их!):</h6>
-                        <div class="codes-grid">
-                            {% for code in backup_codes %}
-                            <div class="code-item">
-                                <span>{{ code }}</span>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        <div class="codes-warning">
-                            <small><i class="fas fa-info-circle me-1"></i>Каждый код можно использовать только один раз!</small>
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="text-center mt-4">
-                        <form method="post" class="d-inline">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="disable">
-                            <button type="submit" class="btn btn-danger" 
-                                    onclick="return confirm('Вы уверены, что хотите отключить 2FA?')">
-                                <i class="fas fa-times me-1"></i>Отключить 2FA
+                            <button type="submit" class="admin-2fa-btn admin-2fa-btn-success">
+                                <i class="fas fa-check"></i> Подтвердить и активировать
                             </button>
                         </form>
                     </div>
-                    {% endif %}
-                    
-                    <div class="auth-footer mt-4">
-                        <a href="{% url 'admin:index' %}" class="btn btn-back">
-                            <i class="fas fa-arrow-left me-1"></i> Назад в админку
-                        </a>
+                </div>
+                {% endif %}
+            
+            {% else %}
+            <!-- 2FA активирована -->
+            <div class="admin-2fa-active">
+                <div class="admin-2fa-status">
+                    <div class="admin-2fa-status-icon">
+                        <i class="fas fa-shield-check"></i>
+                    </div>
+                    <div class="admin-2fa-status-content">
+                        <h2>Защита активна</h2>
+                        <p>Двухфакторная аутентификация включена для вашего аккаунта</p>
                     </div>
                 </div>
+                
+                <!-- Резервные коды -->
+                {% if backup_codes %}
+                <div class="admin-2fa-backup-codes">
+                    <div class="admin-2fa-backup-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Резервные коды доступа</h3>
+                        <p class="admin-2fa-warning">Сохраните эти коды в безопасном месте!</p>
+                    </div>
+                    
+                    <div class="admin-2fa-codes-grid">
+                        {% for code in backup_codes %}
+                        <div class="admin-2fa-code-item">{{ code }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="admin-2fa-backup-note">
+                        <i class="fas fa-info-circle"></i>
+                        Каждый код можно использовать только один раз
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Управление -->
+                <div class="admin-2fa-actions">
+                    <form method="post" class="admin-2fa-action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="regenerate_codes">
+                        <button type="submit" class="admin-2fa-btn admin-2fa-btn-warning">
+                            <i class="fas fa-redo"></i> Новые резервные коды
+                        </button>
+                    </form>
+                    
+                    {% if request.session.2fa_verified %}
+                    <form method="post" class="admin-2fa-action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="disable">
+                        <button type="submit" 
+                                class="admin-2fa-btn admin-2fa-btn-danger"
+                                onclick="return confirm('Вы уверены, что хотите отключить двухфакторную аутентификацию?')">
+                            <i class="fas fa-times"></i> Отключить 2FA
+                        </button>
+                    </form>
+                    {% else %}
+                    <button class="admin-2fa-btn admin-2fa-btn-disabled" disabled>
+                        <i class="fas fa-times"></i> Отключить 2FA
+                    </button>
+                    <p class="admin-2fa-disabled-note">
+                        <i class="fas fa-lock"></i> Для отключения требуется подтверждение аутентификации
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Навигация -->
+            <div class="admin-2fa-footer">
+                <a href="{% url 'admin:index' %}" class="admin-2fa-btn admin-2fa-btn-back">
+                    <i class="fas fa-arrow-left"></i> Назад в админ-панель
+                </a>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-div {
-    color: black;
-}
-
-.auth-card {
-    border: none;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-.auth-title {
-    color: white !important;
-}
-
-.auth-header {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-    color: white;
-    border-bottom: none;
-    padding: 2rem;
-    text-align: center;
-}
-
-.auth-header h4 {
-    margin: 0;
-    font-weight: 700;
-    font-size: 1.5rem;
-}
-
-.auth-body {
-    padding: 2.5rem;
-}
-
-.auth-info-section {
-    background: #f8f9fa;
-    padding: 2rem;
-    border-radius: 15px;
-    margin-bottom: 2rem;
-    border-left: 4px solid #667eea;
-}
-
-.auth-info-section h5 {
-    color: #2c3e50;
-    margin-bottom: 1rem;
-    font-weight: 600;
-}
-
-.steps-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-}
-
-.step-item {
-    text-align: center;
-    padding: 1rem;
-}
-
-.step-number {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-    font-weight: 700;
-}
-
-.step-item p {
-    margin: 0;
-    color: #4a5568;
-    font-size: 0.9rem;
-}
-
-.qr-section {
-    text-align: center;
-    margin-bottom: 2rem;
-    padding: 2rem;
-    background: white;
-    border-radius: 15px;
-    border: 2px dashed #e2e8f0;
-}
-
-.qr-section h6 {
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-}
-
-.secret-key-container {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.secret-key-display {
-    background: #f7fafc;
-    padding: 1.5rem;
-    border-radius: 12px;
-    border: 2px dashed #e2e8f0;
-    margin: 1rem 0;
-}
-
-.setup-instructions {
-    background: #f8fafc;
-    padding: 1.5rem;
-    border-radius: 12px;
-    border-left: 4px solid #4299e1;
-    margin: 1.5rem 0;
-}
-
-.setup-instructions h6 {
-    color: #2d3748;
-    margin-bottom: 1rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-}
-
-.setup-instructions ol {
-    margin: 0;
-    padding-left: 1.2rem;
-}
-
-.setup-instructions li {
-    color: #4a5568;
-    margin-bottom: 0.75rem;
-    line-height: 1.5;
-    padding-left: 0.5rem;
-}
-
-.setup-instructions li:last-child {
-    margin-bottom: 0;
-}
-
-.setup-instructions li strong {
-    color: #2d3748;
-}
-
-.verification-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    margin-bottom: 2rem;
-}
-
-.verification-section h6 {
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-}
-
-.verification-form {
-    max-width: 400px;
-    margin: 0 auto;
-}
-
-.verification-form .input-group {
-    display: flex;
-    gap: 1rem;
-    align-items: stretch;
-}
-
-.verification-input {
-    flex: 1;
-    padding: 1rem 1.5rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    text-align: center;
-    letter-spacing: 0.2em;
-    font-weight: 600;
-    color: #2d3748;
-    background: #fafafa;
-    transition: all 0.3s ease;
-}
-
-.verification-input:focus {
-    border-color: #4299e1;
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
-    background: white;
-    outline: none;
-}
-
-.verification-input::placeholder {
-    color: #a0aec0;
-    letter-spacing: normal;
-    font-weight: normal;
-}
-
-.btn-verify {
-    background: linear-gradient(135deg, #48bb78, #38a169);
-    color: white;
-    border: none;
-    padding: 1rem 1.5rem;
-    border-radius: 10px;
-    font-weight: 600;
-    white-space: nowrap;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 140px;
-}
-
-.btn-verify:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
-    background: linear-gradient(135deg, #38a169, #2f855a);
-}
-
-.btn-verify:active {
-    transform: translateY(0);
-}
-
-.verification-form .form-text {
-    text-align: center;
-    margin-top: 0.75rem;
-    color: #718096;
-    font-size: 0.875rem;
-}
-
-@media (max-width: 768px) {
-    .setup-instructions {
-        padding: 1.25rem;
-    }
-    
-    .setup-instructions ol {
-        padding-left: 1rem;
-    }
-    
-    .setup-instructions li {
-        font-size: 0.9rem;
-    }
-    
-    .verification-section {
-        padding: 1.5rem;
-    }
-    
-    .verification-form .input-group {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .verification-input {
-        font-size: 1rem;
-        padding: 0.875rem 1rem;
-    }
-    
-    .btn-verify {
-        min-width: auto;
-        padding: 0.875rem 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .setup-instructions {
-        padding: 1rem;
-    }
-    
-    .verification-section {
-        padding: 1.25rem;
-    }
-    
-    .verification-input {
-        font-size: 0.95rem;
-        padding: 0.75rem;
-    }
-}
-
-.secret-key-display code {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #2d3748;
-    letter-spacing: 0.1em;
-    word-break: break-all;
-}
-
-.qr-container {
-    margin-top: 1.5rem;
-}
-
-.qr-image {
-    max-width: 200px;
-    height: auto;
-    border-radius: 8px;
-}
-
-.manual-code-section {
-    margin-top: 1.5rem;
-}
-
-.manual-code-section small {
-    color: #718096;
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-.code-display {
-    background: #f7fafc;
-    padding: 1rem;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-}
-
-.code-display code {
-    color: #2d3748;
-    font-size: 0.9rem;
-    word-break: break-all;
-}
-
-.verification-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    border: 1px solid #e2e8f0;
-    margin-bottom: 2rem;
-}
-
-.verification-section h6 {
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-}
-
-.verification-form .input-group {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-.verification-input {
-    flex: 1;
-    padding: 1rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    text-align: center;
-    letter-spacing: 0.2em;
-}
-
-.verification-input:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.btn-verify {
-    background: linear-gradient(135deg, #48bb78, #38a169);
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 10px;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.btn-verify:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
-}
-
-.status-section {
-    display: flex;
-    align-items: center;
-    padding: 2rem;
-    border-radius: 15px;
-    margin-bottom: 2rem;
-}
-
-.status-section.enabled {
-    background: linear-gradient(135deg, #f0fff4, #c6f6d5);
-    border: 1px solid #9ae6b4;
-}
-
-.status-icon {
-    font-size: 3rem;
-    color: #48bb78;
-    margin-right: 1.5rem;
-}
-
-.status-content h5 {
-    color: #22543d;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-}
-
-.status-content p {
-    color: #2d3748;
-    margin: 0;
-}
-
-.backup-codes-section {
-    background: #fffaf0;
-    padding: 2rem;
-    border-radius: 15px;
-    border: 1px solid #fed7aa;
-    margin-bottom: 2rem;
-}
-
-.backup-codes-section h6 {
-    color: #744210;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-}
-
-.codes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.code-item {
-    background: white;
-    padding: 0.75rem;
-    border-radius: 8px;
-    border: 1px dashed #ed8936;
-    text-align: center;
-    font-family: 'Courier New', monospace;
-    font-weight: 600;
-    color: #744210;
-}
-
-.codes-warning {
-    text-align: center;
-}
-
-.codes-warning small {
-    color: #c53030;
-    font-weight: 500;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border: none;
-    border-radius: 10px;
-    padding: 1rem 2rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-.btn-danger {
-    background: linear-gradient(135deg, #f56565, #e53e3e);
-    border: none;
-    border-radius: 10px;
-    padding: 1rem 2rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-danger:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(245, 101, 101, 0.4);
-}
-
-.auth-footer {
-    text-align: center;
-    padding-top: 2rem;
-    border-top: 1px solid #e2e8f0;
-}
-
-.btn-back {
-    background: #718096;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 0.75rem 1.5rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.btn-back:hover {
-    background: #4a5568;
-    color: white;
-    transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-    .auth-body {
-        padding: 1.5rem;
-    }
-    
-    .steps-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .verification-form .input-group {
-        flex-direction: column;
-    }
-    
-    .codes-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target.closest('button');
+        const original = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="fas fa-check"></i> Скопировано';
+        btn.classList.add('admin-2fa-btn-success');
+        btn.classList.remove('admin-2fa-btn-outline');
+        
+        setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('admin-2fa-btn-success');
+            btn.classList.add('admin-2fa-btn-outline');
+        }, 2000);
+    });
+}
+</script>
 {% endblock %}
