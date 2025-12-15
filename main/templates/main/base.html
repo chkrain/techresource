@@ -1075,6 +1075,7 @@
     </style>
 </head>
 <body>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
     {% if request.path == "/" %}
     <div id="page-loader">
         <div class="loader-content">

@@ -45,6 +45,7 @@
 {% endblock %}
 
 {% block content %}
+
 <div id="cookie-notification" class="cookie-notification">
     <div class="cookie-content">
         <div class="cookie-text">
@@ -272,6 +273,7 @@
 </section>
 
 {% if featured_products %}
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 <section class="products-section">
     <div class="container">
         <h2 class="section-title" data-aos="fade-up">Популярные товары</h2>
@@ -299,7 +301,21 @@
                     <p class="quantity {% if product.quantity > 0 %}in-stock{% else %}out-of-stock{% endif %}">
                         {% if product.quantity > 0 %}В наличии{% else %}Нет в наличии{% endif %}
                     </p>
-                    <button class="product-btn" data-product-id="{{ product.id }}">В&nbsp;корзину</button>
+                    {% if user.is_authenticated %}
+                        <button class="product-btn" data-product-id="{{ product.id }}">
+                            В&nbsp;корзину
+                        </button>
+                    {% else %}
+                        <button class="product-btn anonymous-quick-order" 
+                                data-product-id="{{ product.id }}"
+                                data-product-name="{{ product.name }}"
+                                data-product-price="{{ product.price }}">
+                            Быстрый&nbsp;заказ
+                        </button>
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-primary" style="width: 100%; margin-top: 8px; padding: 0.5rem;">
+                            Войти
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -1512,31 +1528,12 @@ section {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    if (history.scrollRestoration) {
-        history.scrollRestoration = 'manual';
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+    
+    if (!csrfToken) {
+        console.error('CSRF token not found!');
     }
-    window.scrollTo(0, 0);
-    window.addEventListener('load', function() {
-        setTimeout(() => {
-            window.scrollTo(0, 0);
-        }, 100);
-    });
-    function getCSRFToken() {
-        const name = 'csrftoken';
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
+    
     function updateCartCounter(quantity) {
         const cartCounters = [
             ...document.querySelectorAll('.cart-counter'),
@@ -1571,7 +1568,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Счетчики корзины не найдены. Количество:', quantity);
         }
     }
-
+    
     function showCartNotification(message, type = 'success') {
         const existingNotification = document.querySelector('.cart-notification');
         if (existingNotification) {
@@ -1602,13 +1599,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }, 3000);
     }
-
+    
     document.querySelectorAll('.product-btn').forEach(btn => {
         btn.addEventListener('click', async function(e) {
             e.preventDefault();
             e.stopPropagation();
             
             const productId = this.getAttribute('data-product-id');
+            const isAuthenticated = this.classList.contains('anonymous-quick-order') ? false : true;
             
             if (!productId) {
                 console.error('Product ID not found');
@@ -1624,27 +1622,57 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.add('loading');
                 this.disabled = true;
                 
-                const response = await fetch('/cart/add/' + productId + '/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken(),
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    credentials: 'same-origin'
-                });
+                const csrfToken = getCSRFToken();
+                
+                if (!csrfToken) {
+                    console.error('CSRF token not found');
+                    throw new Error('Ошибка безопасности. Попробуйте обновить страницу.');
+                }
+                
+                let response, data;
+                
+                if (isAuthenticated) {
+                    const formData = new FormData();
+                    formData.append('csrfmiddlewaretoken', csrfToken);
+                    formData.append('quantity', '1');
+                    
+                    response = await fetch('/cart/add/' + productId + '/', {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin',
+                        body: formData
+                    });
+                } else {
+                    const formData = new FormData();
+                    formData.append('quantity', '1');
+                    formData.append('csrfmiddlewaretoken', csrfToken);
+                    
+                    response = await fetch(`/anonymous-cart/add/${productId}/`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    });
+                }
                 
                 if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('Ошибка безопасности. Попробуйте обновить страницу.');
+                    }
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
-                const data = await response.json();
+                data = await response.json();
                 
                 if (data.success) {
-                    this.textContent = '✓ Добавлено';
+                    this.textContent = isAuthenticated ? '✓ В корзине' : '✓ В заказе';
                     this.style.background = '#28a745';
                     
-                    updateCartCounter(data.cart_count || data.total_quantity || 1);
+                    updateCartCounter(data.cart_count || data.order_count || 0);
                     
                     if (window.anime) {
                         anime({
@@ -1655,27 +1683,29 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                     }
                     
-                    showCartNotification('Товар добавлен в корзину');
+                    const message = 'Товар добавлен в корзину!'
+                    
+                    showCartNotification(message);
                     
                     setTimeout(() => {
                         this.textContent = originalText;
                         this.style.background = '';
                         this.classList.remove('loading');
                         this.disabled = false;
-                    }, 2000);
+                    }, 200);
                     
                 } else {
-                    throw new Error(data.error || 'Ошибка добавления в корзину');
+                    throw new Error(data.error || 'Ошибка добавления');
                 }
                 
             } catch (error) {
-                console.error('Ошибка добавления в корзину:', error);
+                console.error('Ошибка добавления:', error);
                 this.textContent = 'Ошибка';
                 this.style.background = '#dc3545';
                 this.classList.remove('loading');
                 
                 showCartNotification(
-                    error.message || 'Ошибка при добавлении в корзину', 
+                    error.message || 'Ошибка при добавлении', 
                     'error'
                 );
                 
@@ -1687,6 +1717,38 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    function getCSRFToken() {
+        let csrfToken = null;
+        
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfInput) {
+            csrfToken = csrfInput.value;
+        }
+        
+        if (!csrfToken) {
+            const metaToken = document.querySelector('meta[name="csrf-token"]');
+            if (metaToken) {
+                csrfToken = metaToken.getAttribute('content');
+            }
+        }
+        
+        if (!csrfToken) {
+            const name = 'csrftoken';
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        csrfToken = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return csrfToken;
+    }
 
     window.addEventListener('load', function() {
         AOS.init({
@@ -2226,7 +2288,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken()
                     },
                     body: JSON.stringify(formData)
                 });
