@@ -4,10 +4,10 @@
 {% load query_transform %}
 
 {% block title %}Товары - Техресурс{% endblock %}
-
-{% block meta %}
 {% block og_title %}Оборудование и решения — Техресурс{% endblock %}
 {% block og_description %}Каталог оборудования и технических решений для бизнеса и промышленности.{% endblock %}
+
+{% block meta %}
 <meta property="og:image" content="{% static 'images/og-products.jpg' %}">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
 <meta name="twitter:card" content="summary_large_image">

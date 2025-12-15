@@ -783,6 +783,13 @@ section {
     border-radius: 2px;
 }
 
+@media screen and (max-width: 768px) {
+    .timeline-container::before {
+        display: none;
+        position: relative;
+    }
+}
+
 .timeline-container::after {
     content: '';
     position: absolute;
@@ -1136,7 +1143,7 @@ section {
     }
     
     .timeline-container {
-        padding-left: 1rem;
+        padding-left: 3rem;
     }
     
     .timeline-container::before,

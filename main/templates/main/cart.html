@@ -794,6 +794,12 @@ section {
     transition: all 0.3s ease;
 }
 
+@media screen and (max-width: 1024px) {
+    .quantity-btn {
+        height: 0;
+    }
+}
+
 .quantity-btn:hover:not(:disabled) {
     background: #0052cc;
     color: white;
@@ -1240,7 +1246,7 @@ section {
     }
     
     .cart-item {
-        grid-template-columns: 60px 1fr;
+        grid-template-columns: 80px 1fr;
         grid-template-areas: 
             "image details"
             "quantity price"
