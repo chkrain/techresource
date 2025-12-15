@@ -19,7 +19,6 @@ import requests
 from .models import NotificationLog
 import uuid
 import time
-from .services.delivery_service import DeliveryService
 import base64
 from io import BytesIO
 from django.contrib.auth.decorators import user_passes_test
@@ -3056,7 +3055,7 @@ def send_password_reset_email_via_mail_ru(email, code, username):
         msg['X-Mailer'] = 'Django App'
         
         # Отправляем
-        with smtplib.SMTP('localhost', 25) as server:
+        with smtplib.SMTP('127.0.0.1', 25) as server:
             server.send_message(msg)
         
         return True
