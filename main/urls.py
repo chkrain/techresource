@@ -8,9 +8,16 @@ from . import views
 from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.views.generic import TemplateView
+from main.sitemap import StaticViewSitemap
+from django.contrib.sitemaps.views import sitemap
 
+sitemaps = {
+    'static' : StaticViewSitemap,
+}
 
 urlpatterns = [
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+
     path('', views.index, name='index'),
     path('about/', views.about, name='about'),
     path('contacts/', views.contacts, name='contacts'),

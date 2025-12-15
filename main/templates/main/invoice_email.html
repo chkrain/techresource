@@ -100,8 +100,6 @@
 <body>
 
 <div class="sheet">
-
-    <!-- БАНКОВСКАЯ ШАПКА -->
     <table class="bank-table">
         <tr>
             <td style="width:40%; border-right:none;">
@@ -125,20 +123,17 @@
 
     <h2 style="text-align:center; margin-top:14px;">СЧЁТ № {{ invoice_number }} от {{ invoice_date }}</h2>
 
-    <!-- ПОСТАВЩИК -->
     <div class="section-title">Поставщик:</div>
     ООО «Техресурс», ИНН 1684010655, КПП 168401001, ОГРН 1231600004712<br>
     Юридический адрес: 422527, Республика Татарстан, ул. Техническая, 52, офис 226<br>
     Тел.: +7 (937) 524-68-88, Email: Kaznacheev56@gmail.com
 
-    <!-- ПОКУПАТЕЛЬ -->
     <div class="section-title">Покупатель:</div>
     {{ buyer.name }}<br>
     ИНН/КПП: {{ buyer.inn|default:"—" }} / {{ buyer.kpp|default:"—" }}<br>
     Адрес: {{ buyer.address|default:"—" }}<br>
     Контакт: {{ buyer.phone|default:"—" }}, {{ buyer.email|default:"—" }}
 
-    <!-- УСЛОВИЯ ПОСТАВКИ -->
     <div class="section-title">Условия поставки:</div>
     <div class="conditions">
         • Бесплатная доставка до терминала «Деловые Линии» в городе покупателя.<br>
@@ -149,7 +144,6 @@
         • Срок оплаты: до {{ due_date }}.
     </div>
 
-    <!-- ТАБЛИЦА ТОВАРОВ -->
     <div class="section-title">Перечень товаров / услуг:</div>
 
     <table class="items">
@@ -179,7 +173,6 @@
         </tbody>
     </table>
 
-    <!-- ИТОГИ -->
     <table class="summary-table" style="margin-top:14px; width:50%; margin-left:auto;">
         <tr>
             <td>Сумма без НДС:</td>
@@ -195,7 +188,6 @@
         </tr>
     </table>
 
-    <!-- ПОДПИСИ И ПЕЧАТЬ -->
     <div class="signatures">
         <div class="sig">
             Руководитель организации:<br>
