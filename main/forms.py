@@ -204,16 +204,17 @@ class SMSCodeForm(forms.Form):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['phone', 'date_of_birth', 'avatar']
+        fields = ['phone', 'date_of_birth', 'avatar', 'company', 'position']
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
             'phone': forms.TextInput(attrs={'placeholder': '+7 (XXX) XXX-XX-XX'}),
+            'company': forms.TextInput(attrs={'placeholder': 'Название компании'}),
+            'position': forms.TextInput(attrs={'placeholder': 'Ваша должность'}),
         }
     
     def clean_phone(self):
         phone = self.cleaned_data.get('phone')
         if phone:
-            # Basic phone validation
             phone = ''.join(filter(str.isdigit, phone))
             if len(phone) not in [10, 11]:
                 raise forms.ValidationError("Введите корректный номер телефона")
