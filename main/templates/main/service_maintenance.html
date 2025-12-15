@@ -4,8 +4,8 @@
 {% block title %}Сервисное обслуживание - Техресурс{% endblock %}
 
 {% block meta %}
-<meta property="og:title" content="Сервисное обслуживание промышленного оборудования | Техресурс">
-<meta property="og:description" content="Комплексное техническое обслуживание и ремонт промышленного оборудования. Гарантия надежной работы ваших систем 24/7. Выезд за 2 часа.">
+{% block og_title %}Техническое обслуживание оборудования — Техресурс{% endblock %}
+{% block og_description %}Регламентное и аварийное обслуживание оборудования. Быстро, надёжно, с гарантией.{% endblock %}
 <meta property="og:image" content="{% static 'images/og-service-maintenance.jpg' %}">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
 <meta name="twitter:card" content="summary_large_image">

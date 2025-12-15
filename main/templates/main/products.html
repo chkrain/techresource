@@ -6,8 +6,8 @@
 {% block title %}Товары - Техресурс{% endblock %}
 
 {% block meta %}
-<meta property="og:title" content="Каталог промышленного оборудования | Техресурс">
-<meta property="og:description" content="Широкий ассортимент промышленного оборудования и компонентов. Автоматизация, КИПиА, электрооборудование, системы управления.">
+{% block og_title %}Оборудование и решения — Техресурс{% endblock %}
+{% block og_description %}Каталог оборудования и технических решений для бизнеса и промышленности.{% endblock %}
 <meta property="og:image" content="{% static 'images/og-products.jpg' %}">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
 <meta name="twitter:card" content="summary_large_image">
