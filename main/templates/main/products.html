@@ -35,18 +35,18 @@
 <section class="products-hero">
     <div class="container">
         <div class="hero-content">
-            <h1>Каталог товаров</h1>
-            <p class="hero-subtitle">Широкий ассортимент промышленного оборудования и компонентов</p>
+            <h1 data-aos="fade-up" data-aos-delay="100">Каталог товаров</h1>
+            <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="200">Широкий ассортимент промышленного оборудования и компонентов</p>
         </div>
     </div>
 </section>
 
-<section class="products-main-section">
+<section class="products-main-section" data-aos="fade-up" data-aos-delay="50">
     <div class="container">
         <div class="products-layout">
-            <aside class="filters-sidebar">
+            <aside class="filters-sidebar" data-aos="fade-up" data-aos-delay="200">
                 <div class="filters-header">
-                    <h3>Фильтры</h3>
+                    <h3 >Фильтры</h3>
                     <button type="button" class="clear-filters-btn" id="clearFiltersBtn">
                         Сбросить
                     </button>
@@ -107,7 +107,7 @@
                 </form>
             </aside>
             
-            <main class="products-content">
+            <main class="products-content" data-aos="fade-up" data-aos-delay="250">
                 <div class="products-header">
                     <div class="search-container">
                         <div class="search-input-wrapper">
@@ -141,7 +141,6 @@
                     </div>
                 </div>
 
-                <!-- Активные фильтры -->
                 <div class="active-filters" id="activeFilters">
                     {% if search_query %}
                     <span class="active-filter">
@@ -175,12 +174,10 @@
                     {% endif %}
                 </div>
                 
-                <!-- Сетка товаров -->
                 <div id="productsContainer">
                     {% include 'main/components/product_grid.html' %}
                 </div>
                 
-                <!-- Пагинация -->
                 {% if page_obj.has_other_pages %}
                 <div class="pagination" id="paginationContainer">
                     {% if page_obj.has_previous %}
@@ -201,7 +198,6 @@
                 </div>
                 {% endif %}
                 
-                <!-- Индикатор загрузки -->
                 <div id="loadingIndicator" class="loading-indicator" style="display: none;">
                     <div class="spinner"></div>
                     <p>Загружаем товары...</p>
@@ -211,17 +207,16 @@
     </div>
 </section>
 
-<!-- CTA секция -->
-<section class="products-cta">
+<section class="products-cta" data-aos="fade-up" data-aos-delay="50">
     <div class="container">
         <div class="cta-content">
-            <h2>Не нашли нужный товар?</h2>
-            <p>Свяжитесь с нами - мы поможем подобрать оборудование под ваши задачи</p>
+            <h2 data-aos="fade-up" data-aos-delay="150">Не нашли нужный товар?</h2>
+            <p data-aos="fade-up" data-aos-delay="200">Свяжитесь с нами - мы поможем подобрать оборудование под ваши задачи</p>
             <div class="cta-buttons">
-                <a href="/contacts/" class="btn btn-primary">
+                <a href="/contacts/" class="btn btn-primary" data-aos="fade-up" data-aos-delay="200">
                     📞 Связаться с нами
                 </a>
-                <a href="/services/" class="btn btn-secondary">
+                <a href="/services/" class="btn btn-secondary" data-aos="fade-up" data-aos-delay="200">
                     🛠️ Наши услуги
                 </a>
             </div>
@@ -238,29 +233,15 @@ section {
     border-radius: 20px;
 }
 
-.products-hero {
+.products-hero .hero-content {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
-    padding: 4rem 0;
+    padding: 120px 0 80px;
     text-align: center;
     position: relative;
     overflow: hidden;
-}
-
-.products-hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.1);
-    z-index: 1;
-}
-
-.products-hero .hero-content {
-    position: relative;
-    z-index: 2;
+    margin-top: 4%;
+    border-radius: 20px;
 }
 
 .products-hero h1 {

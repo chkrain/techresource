@@ -7,22 +7,22 @@
 <section class="cart-hero">
     <div class="container">
         <div class="hero-content">
-            <h1>Быстрый заказ</h1>
-            <p class="hero-subtitle">Оформление заказа для юридических лиц без регистрации</p>
+            <h1 data-aos="fade-up" data-aos-delay="100">Быстрый заказ</h1>
+            <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="200">Оформление заказа для юридических лиц без регистрации</p>
         </div>
     </div>
 </section>
 
-<section class="cart-section">
+<section class="cart-section" data-aos="fade-up" data-aos-delay="50">
     <div class="container">
         <div class="cart-layout">
             <div class="cart-main">
                 <div class="cart-header">
-                    <h2>Товары в заказе</h2>
-                    <span class="items-count" id="itemsCount">0 товар(ов)</span>
+                    <h2 data-aos="fade-up" data-aos-delay="100">Товары в заказе</h2>
+                    <span class="items-count" id="itemsCount" data-aos="fade-up" data-aos-delay="200">0 товар(ов)</span>
                 </div>
                 
-                <div class="cart-items" id="anonymousCartItems">
+                <div class="cart-items" id="anonymousCartItems" data-aos="fade-up" data-aos-delay="200">
                     <div class="text-center py-4">
                         <div class="spinner"></div>
                         <p>Загружаем товары...</p>
@@ -33,12 +33,12 @@
                     <a href="{% url 'products' %}" class="back-to-shopping">
                         ← Продолжить покупки
                     </a>
-                </div>
+                </div>  
             </div>
             
-            <div class="cart-sidebar">
+            <div class="cart-sidebar" data-aos="fade-up" data-aos-delay="200">
                 <div class="order-summary">
-                    <h3>Данные для счета</h3>
+                    <h3 >Данные для счета</h3>
                     
                     <form id="anonymousOrderForm" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
@@ -182,16 +182,20 @@
 .cart-hero {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
-    padding: 80px 0 40px;
+    padding: 120px 0 80px;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 4% 0;
     border-radius: 20px;
-    margin: 2% 0;
 }
 
 .cart-hero h1 {
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 800;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: 1.2;
 }
 
 .hero-subtitle {

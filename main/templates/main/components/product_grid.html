@@ -1,7 +1,7 @@
 <!-- main/templates/main/components/product_grid.html -->
 <div class="products-grid {% if view == 'list' %}list-view{% endif %}" id="productsGrid">
     {% for product in products %}
-    <div class="product-card" data-product-id="{{ product.id }}">
+    <div class="product-card" data-product-id="{{ product.id }}" data-aos="fade-up" data-aos-delay="100">
         <div class="product-badge">
             {% if product.quantity > 0 %}
                 <span class="badge in-stock-badge">✓ В наличии</span>
