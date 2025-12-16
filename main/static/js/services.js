@@ -69,52 +69,75 @@ function initFAQ() {
         const question = item.querySelector('.faq-question');
         const answer = item.querySelector('.faq-answer');
         const toggle = item.querySelector('.faq-toggle');
-        
         if (!question || !answer) return;
-        
         question.setAttribute('aria-expanded', 'false');
-        question.setAttribute('role', 'button');
-        question.setAttribute('tabindex', '0');
         answer.setAttribute('aria-hidden', 'true');
+        answer.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
         
         function toggleFAQ() {
             const isActive = item.classList.contains('active');
             
             if (!isActive) {
-                faqItems.forEach(faqItem => {
-                    const faqAnswer = faqItem.querySelector('.faq-answer');
-                    const faqToggle = faqItem.querySelector('.faq-toggle');
-                    const faqQuestion = faqItem.querySelector('.faq-question');
-                    
-                    if (faqAnswer && faqQuestion) {
-                        faqItem.classList.remove('active');
-                        faqAnswer.style.maxHeight = null;
-                        if (faqToggle) faqToggle.textContent = '+';
-                        faqQuestion.setAttribute('aria-expanded', 'false');
-                        faqAnswer.setAttribute('aria-hidden', 'true');
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item && otherItem.classList.contains('active')) {
+                        const otherAnswer = otherItem.querySelector('.faq-answer');
+                        const otherToggle = otherItem.querySelector('.faq-toggle');
+                        
+                        otherItem.classList.remove('active');
+                        otherAnswer.style.maxHeight = '0';
+                        otherAnswer.style.opacity = '0';
+                        if (otherToggle) otherToggle.textContent = '+';
+                        otherItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+                        otherAnswer.setAttribute('aria-hidden', 'true');
                     }
                 });
                 
                 item.classList.add('active');
                 answer.style.maxHeight = answer.scrollHeight + 'px';
-                if (toggle) toggle.textContent = '−';
+                answer.style.opacity = '1';
+                answer.style.paddingBottom = '20px';
+                
+                if (toggle) {
+                    toggle.style.transform = 'rotate(45deg)';
+                    toggle.textContent = '−';
+                }
+                
                 question.setAttribute('aria-expanded', 'true');
                 answer.setAttribute('aria-hidden', 'false');
+                
             } else {
                 item.classList.remove('active');
-                answer.style.maxHeight = null;
-                if (toggle) toggle.textContent = '+';
+                answer.style.maxHeight = '0';
+                answer.style.opacity = '0';
+                answer.style.paddingBottom = '0';
+                
+                if (toggle) {
+                    toggle.style.transform = 'rotate(0deg)';
+                    toggle.textContent = '+';
+                }
+                
                 question.setAttribute('aria-expanded', 'false');
                 answer.setAttribute('aria-hidden', 'true');
             }
         }
         
         question.addEventListener('click', toggleFAQ);
+        
         question.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 toggleFAQ();
             }
+        });
+        
+        question.addEventListener('mouseenter', () => {
+            if (!item.classList.contains('active')) {
+                question.style.transform = 'translateX(5px)';
+            }
+        });
+        
+        question.addEventListener('mouseleave', () => {
+            question.style.transform = 'translateX(0)';
         });
     });
 }

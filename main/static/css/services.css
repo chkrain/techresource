@@ -1101,6 +1101,7 @@ section {
     align-items: center;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    transition: transform 0.2s ease;
 }
 
 .faq-question:hover {
@@ -1126,6 +1127,8 @@ section {
     color: var(--text-gray);
     line-height: 1.6;
     display: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
 }
 
 .faq-item.active .faq-answer {
