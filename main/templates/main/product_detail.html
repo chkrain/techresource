@@ -25,7 +25,6 @@
     --shadow-xl: 0 20px 25px -5px rgba(0, 82, 204, 0.15);
 }
 
-/* Hero Section */
 .product-hero {
     background: linear-gradient(135deg, #212c36 0%, #374b5f 100%);
     color: white;
@@ -72,7 +71,6 @@
     opacity: 0.9;
 }
 
-/* Main Product Section */
 .product-main-section {
     padding: 60px 0;
     background: var(--bg-white);
@@ -87,7 +85,6 @@
     align-items: start;
 }
 
-/* Image Gallery */
 .product-gallery {
     position: sticky;
     top: 100px;
@@ -134,7 +131,6 @@
     opacity: 0.6;
 }
 
-/* Image Navigation */
 .image-navigation {
     position: absolute;
     top: 50%;
@@ -188,7 +184,6 @@
     font-weight: 600;
 }
 
-/* Thumbnails */
 .image-thumbnails {
     display: flex;
     gap: 12px;
@@ -233,7 +228,6 @@
     font-size: 1.5rem;
 }
 
-/* Product Info */
 .product-info {
     background: var(--bg-white);
     border-radius: 20px;
@@ -276,7 +270,6 @@
     font-size: 1.1rem;
 }
 
-/* Price Section */
 .price-section {
     background: linear-gradient(135deg, var(--bg-light) 0%, #e2e8f0 100%);
     border-radius: 16px;
@@ -312,7 +305,6 @@
     color: white;
 }
 
-/* Product Actions */
 .product-actions {
     display: flex;
     gap: 16px;
@@ -335,7 +327,7 @@
     font-size: 1rem;
     flex: 1;
     min-width: 200px;
-    color: var(--text-dark); /* Добавлено: черный текст для всех кнопок */
+    color: var(--text-dark); 
 }
 
 .btn-primary {
@@ -378,7 +370,6 @@
     font-size: 1.2rem;
 }
 
-/* Product Details */
 .product-details {
     margin-top: 40px;
 }
@@ -402,7 +393,6 @@
     font-size: 1.05rem;
 }
 
-/* Specifications - ИСПРАВЛЕНО: flex-direction column */
 .specs-grid {
     display: flex;
     flex-direction: column;
@@ -427,7 +417,6 @@
     font-weight: 600;
 }
 
-/* Similar Products */
 .similar-products-section {
     padding: 60px 0;
     background: var(--bg-light);
@@ -513,7 +502,6 @@
     color: var(--text-gray);
 }
 
-/* Toast Notifications - ИСПРАВЛЕНО: цвет текста и фона */
 .toast-container {
     position: fixed;
     top: 100px;
@@ -533,7 +521,7 @@
     margin-bottom: 12px;
     transform: translateX(400px);
     transition: transform 0.3s ease;
-    color: var(--text-dark); /* Добавлено: черный текст */
+    color: var(--text-dark); 
 }
 
 .toast.show {
@@ -554,7 +542,6 @@
     font-size: 1.2rem;
 }
 
-/* Loading States */
 .loading {
     opacity: 0.7;
     pointer-events: none;
@@ -693,7 +680,6 @@
     color: var(--text-gray);
 }
 
-/* Review Form */
 .add-review-section {
     background: var(--bg-light);
     padding: 30px;
@@ -841,7 +827,6 @@
     text-decoration: underline;
 }
 
-/* Pagination */
 .pagination {
     display: flex;
     justify-content: center;
@@ -871,7 +856,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
 <section class="product-hero">
     <div class="container">
         <div class="hero-breadcrumb">
@@ -889,11 +873,9 @@
     </div>
 </section>
 
-<!-- Main Product Section -->
 <section class="product-main-section">
     <div class="container">
         <div class="product-detail-grid">
-            <!-- Image Gallery -->  
             <div class="product-gallery">
                 <div class="main-image-container">
                     <div class="main-image" id="mainImageContainer">
@@ -909,19 +891,16 @@
                         {% endwith %}
                     </div>
                     
-                    <!-- Navigation -->
                     <div class="image-navigation">
                         <button class="nav-btn prev-btn" id="prevImage" disabled>‹</button>
                         <button class="nav-btn next-btn" id="nextImage" disabled>›</button>
                     </div>
                     
-                    <!-- Counter -->
                     <div class="image-counter" id="imageCounter" style="display: none;">
                         <span id="currentImage">1</span>/<span id="totalImages">1</span>
                     </div>
                 </div>
                 
-                <!-- Thumbnails -->
                 {% with images=product.get_images %}
                 {% if images.count > 0 %}
                 <div class="image-thumbnails" id="imageThumbnails">
@@ -937,7 +916,6 @@
                 {% endwith %}
             </div>
             
-            <!-- Product Info -->
             <div class="product-info">
                 <div class="product-header">
                     <h1 class="product-title">{{ product.name }}</h1>
@@ -960,7 +938,6 @@
                     </div>
                 </div>
                 
-                <!-- Price Section -->
                 <div class="price-section">
                     <div class="price">{{ product.price }} ₽</div>
                     {% if product.quantity > 0 %}
@@ -976,7 +953,6 @@
                     {% endif %}
                 </div>
                 
-                <!-- Actions -->
                 <div class="product-actions">
                     {% if product.quantity > 0 %}
                         <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{ product.id }}">
@@ -997,7 +973,6 @@
                     </button>
                 </div>
                 
-                <!-- Product Details -->
                 <div class="product-details">
                     {% if product.description %}
                     <div class="details-section">
@@ -1008,7 +983,6 @@
                     </div>
                     {% endif %}
                     
-                    <!-- Specifications -->
                     <div class="details-section">
                         <h3>Характеристики</h3>
                         <div class="specs-grid">
@@ -1038,7 +1012,6 @@
     </div>
 </section>
 
-<!-- Similar Products -->
 {% if similar_products %}
 <section class="similar-products-section">
     <div class="container">
@@ -1100,7 +1073,6 @@
             </div>
         </div>
 
-        <!-- Add Review Form -->
         {% if can_review and not user_review %}
         <div class="add-review-section">
             <h3>Оставить отзыв</h3>
@@ -1158,7 +1130,6 @@
         </div>
         {% endif %}
 
-        <!-- Reviews List -->
         <div class="reviews-list">
             {% for review in reviews %}
             <div class="review-item">
@@ -1210,280 +1181,12 @@
     </div>
 </section>  
 
-<!-- Toast Container -->
 <div id="toast-container" class="toast-container"></div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Image Gallery
-    const mainImage = document.getElementById('mainImage');
-    const mainImageContainer = document.getElementById('mainImageContainer');
-    const thumbnails = document.querySelectorAll('.thumbnail');
-    const prevBtn = document.getElementById('prevImage');
-    const nextBtn = document.getElementById('nextImage');
-    const currentImageSpan = document.getElementById('currentImage');
-    const totalImagesSpan = document.getElementById('totalImages');
-    const imageCounter = document.getElementById('imageCounter');
-    
-    let currentImageIndex = 0;
-    const totalImages = thumbnails.length;
-    
-    // Initialize gallery if there are multiple images
-    if (totalImages > 1) {
-        imageCounter.style.display = 'block';
-        totalImagesSpan.textContent = totalImages;
-        prevBtn.disabled = false;
-        nextBtn.disabled = false;
-        
-        // Thumbnail click handlers
-        thumbnails.forEach((thumbnail, index) => {
-            thumbnail.addEventListener('click', function() {
-                setActiveImage(index);
-            });
-        });
-        
-        // Navigation handlers
-        prevBtn.addEventListener('click', function() {
-            currentImageIndex = (currentImageIndex - 1 + totalImages) % totalImages;
-            setActiveImage(currentImageIndex);
-        });
-        
-        nextBtn.addEventListener('click', function() {
-            currentImageIndex = (currentImageIndex + 1) % totalImages;
-            setActiveImage(currentImageIndex);
-        });
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowLeft') {
-                prevBtn.click();
-            } else if (e.key === 'ArrowRight') {
-                nextBtn.click();
-            }
-        });
-        
-        // Swipe for mobile
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        if (mainImageContainer) {
-            mainImageContainer.addEventListener('touchstart', function(e) {
-                touchStartX = e.changedTouches[0].screenX;
-            });
-            
-            mainImageContainer.addEventListener('touchend', function(e) {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipe();
-            });
-            
-            function handleSwipe() {
-                const swipeThreshold = 50;
-                const diff = touchStartX - touchEndX;
-                
-                if (Math.abs(diff) > swipeThreshold) {
-                    if (diff > 0) {
-                        nextBtn.click();
-                    } else {
-                        prevBtn.click();
-                    }
-                }
-            }
-        }
-    }
-    
-    function setActiveImage(index) {
-        currentImageIndex = index;
-        const thumbnail = thumbnails[index];
-        const imageSrc = thumbnail.getAttribute('data-image-src');
-        
-        // Smooth image transition
-        if (mainImage) {
-            mainImage.style.opacity = '0';
-            setTimeout(() => {
-                mainImage.src = imageSrc;
-                mainImage.style.opacity = '1';
-            }, 200);
-        }
-        
-        // Update active thumbnail
-        thumbnails.forEach(thumb => {
-            thumb.classList.remove('active');
-            thumb.style.transform = 'scale(1)';
-        });
-        thumbnail.classList.add('active');
-        thumbnail.style.transform = 'scale(1.05)';
-        
-        // Update counter
-        currentImageSpan.textContent = index + 1;
-    }
-    
-    // Add to Cart functionality
-    const addToCartBtn = document.querySelector('.add-to-cart-btn');
-    if (addToCartBtn) {
-        addToCartBtn.addEventListener('click', handleAddToCart);
-    }
-    
-    // Wishlist functionality
-    const wishlistBtn = document.querySelector('.toggle-wishlist-btn');
-    if (wishlistBtn) {
-        wishlistBtn.addEventListener('click', handleWishlistToggle);
-    }
-    
-    async function handleAddToCart(e) {
-        e.preventDefault();
-        const productId = this.getAttribute('data-product-id');
-        const originalText = this.innerHTML;
-        
-        this.innerHTML = '<span class="btn-icon">⏳</span>Добавляем...';
-        this.disabled = true;
-        this.classList.add('loading');
-        
-        try {
-            const formData = new FormData();
-            const csrfToken = getCSRFToken();
-            
-            if (csrfToken) {
-                formData.append('csrfmiddlewaretoken', csrfToken);
-            }
-            
-            const response = await fetch(`/cart/add/${productId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: formData,
-                credentials: 'same-origin'
-            });
-            
-            if (!response.ok) throw new Error('Network error');
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                showToast(data.message || 'Товар добавлен в корзину!', 'success');
-                
-                this.innerHTML = '<span class="btn-icon">✅</span>Добавлено!';
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                    this.classList.remove('loading');
-                }, 1500);
-            } else {
-                throw new Error(data.error || 'Ошибка при добавлении в корзину');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showToast(error.message || 'Ошибка при добавлении в корзину', 'error');
-            
-            this.innerHTML = originalText;
-            this.disabled = false;
-            this.classList.remove('loading');
-        }
-    }
-    
-    async function handleWishlistToggle(e) {
-        e.preventDefault();
-        const productId = this.getAttribute('data-product-id');
-        const isInWishlist = this.classList.contains('active');
-        const icon = this.querySelector('.btn-icon');
-        
-        this.disabled = true;
-        this.classList.add('loading');
-        
-        try {
-            const formData = new FormData();
-            const csrfToken = getCSRFToken();
-            
-            if (csrfToken) {
-                formData.append('csrfmiddlewaretoken', csrfToken);
-            }
-            
-            const response = await fetch(`/wishlist/toggle/${productId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: formData,
-                credentials: 'same-origin'
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                showToast(data.message, 'success');
-                
-                if (data.action === 'added') {
-                    this.classList.add('active');
-                    this.innerHTML = '<span class="btn-icon">❤️</span>В избранном';
-                } else {
-                    this.classList.remove('active');
-                    this.innerHTML = '<span class="btn-icon">🤍</span>В избранное';
-                }
-                
-            } else {
-                throw new Error(data.error);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showToast(error.message || 'Ошибка при работе с избранным', 'error');
-        } finally {
-            this.disabled = false;
-            this.classList.remove('loading');
-        }
-    }
-    
-    function showToast(message, type = 'success') {
-        const toastContainer = document.getElementById('toast-container');
-        if (!toastContainer) return;
-        
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `
-            <span class="toast-icon">${type === 'success' ? '✅' : '❌'}</span>
-            <span class="toast-message">${message}</span>
-        `;
-        
-        toastContainer.appendChild(toast);
-        
-        setTimeout(() => toast.classList.add('show'), 100);
-        
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.parentNode.removeChild(toast);
-                }
-            }, 300);
-        }, 3000);
-    }
-    
-    function getCSRFToken() {
-        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
-        if (csrfInput) {
-            return csrfInput.value;
-        }
-        
-        const metaToken = document.querySelector('meta[name="csrf-token"]');
-        if (metaToken) {
-            return metaToken.getAttribute('content');
-        }
-        
-        const name = 'csrftoken';
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-});
-</script>
+<script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/product_detail.js' %}"></script>
 {% endblock %}

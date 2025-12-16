@@ -5,13 +5,69 @@
 {% block og_title %}Монтаж и обслуживание оборудования — Техресурс{% endblock %}
 {% block og_description %}Профессиональный монтаж и обслуживание промышленного оборудования. Работаем под ключ.{% endblock %}
 
+{% block meta %}
+<meta property="og:title" content="Поставка промышленного оборудования | Техресурс">
+<meta property="og:image" content="{% static 'images/img/comp.jpeg' %}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Поставка промышленного оборудования и комплектующих от ведущих производителей. Гарантия, доставка, пуско-наладка.">
+<meta name="keywords" content="поставка оборудования, промышленное оборудование, комплектующие, запчасти, доставка оборудования, пуско-наладка">
+<link rel="canonical" href="https://tech-re.ru/services/equipment/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "serviceType": "Поставка оборудования и комплектующих",
+  "provider": {
+    "@type": "LocalBusiness",
+    "name": "Техресурс"
+  },
+  "areaServed": {
+    "@type": "GeoCircle",
+    "geoMidpoint": {
+      "@type": "GeoCoordinates",
+      "latitude": 55.796391,
+      "longitude": 49.108891
+    },
+    "geoRadius": "500000"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Услуги по поставке оборудования",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Подбор оборудования"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Поставка и доставка"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Пуско-наладка"
+        }
+      }
+    ]
+  }
+}
+</script>
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/services.css' %}?v=3">
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero Section -->
 <section class="service-hero">
     <div class="container">
         <div class="hero-content">
@@ -70,7 +126,6 @@
     </div>
 </section>
 
-<!-- Stats Section -->
 <section class="stats-section" aria-live="polite" aria-atomic="true">
     <div class="container">
         <div class="stats-grid">
@@ -94,7 +149,6 @@
     </div>
 </section>
 
-<!-- Equipment Types Section -->
 <section class="services-section">
     <div class="container">
         <div class="section-header">
@@ -142,7 +196,6 @@
     </div>
 </section>
 
-<!-- Process Section -->
 <section class="process-section">
     <div class="container">
         <div class="section-header">
@@ -210,7 +263,6 @@
     </div>
 </section>
 
-<!-- Manufacturers Section -->
 <section class="tech-section">
     <div class="container">
         <div class="section-header">
@@ -258,7 +310,6 @@
     </div>
 </section>
 
-<!-- FAQ Section -->
 <section class="faq-section">
     <div class="container">
         <div class="section-header">
@@ -310,7 +361,6 @@
     </div>
 </section>
 
-<!-- CTA Section -->
 <section class="cta-section" id="contact">
     <div class="container">
         <div class="cta-content">
@@ -326,25 +376,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/services.js' %}"></script>
-<!-- Yandex.Metrika counter -->
-<script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
-
-    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-</script>
+<script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
- <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
-<!-- End Google Tag Manager -->
+<script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
+<script src="{% static 'js/services.js' %}"></script>
 {% endblock %}

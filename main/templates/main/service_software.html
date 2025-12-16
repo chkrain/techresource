@@ -5,6 +5,63 @@
 {% block og_title %}Разработка программного обеспечения — Техресурс{% endblock %}
 {% block og_description %}Разработка и внедрение ПО для автоматизации и цифровой трансформации бизнеса.{% endblock %}
 
+{% block meta %}
+<meta property="og:title" content="Программное обеспечение для оборудования | Техресурс">
+<meta property="og:image" content="{% static 'images/img/comp.jpeg' %}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Разработка, внедрение и поддержка ПО для промышленного оборудования. SCADA-системы, АСУ ТП, диагностическое программное обеспечение.">
+<meta name="keywords" content="ПО для оборудования, SCADA системы, АСУ ТП, программное обеспечение, автоматизация процессов, диагностическое ПО">
+<link rel="canonical" href="https://tech-re.ru/services/software/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "serviceType": "Программное обеспечение для оборудования",
+  "provider": {
+    "@type": "LocalBusiness",
+    "name": "Техресурс"
+  },
+  "areaServed": {
+    "@type": "GeoCircle",
+    "geoMidpoint": {
+      "@type": "GeoCoordinates",
+      "latitude": 55.796391,
+      "longitude": 49.108891
+    },
+    "geoRadius": "500000"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Услуги по программному обеспечению",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Разработка ПО"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Внедрение SCADA-систем"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Техподдержка ПО"
+        }
+      }
+    ]
+  }
+}
+</script>
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/services.css' %}?v=3">
 {% endblock %}
@@ -69,7 +126,6 @@
     </div>
 </section>
 
-<!-- Stats Section -->
 <section class="stats-section" aria-live="polite" aria-atomic="true">
     <div class="container">
         <div class="stats-grid">
@@ -93,7 +149,6 @@
     </div>
 </section>
 
-<!-- Services Section -->
 <section class="services-section">
     <div class="container">
         <div class="section-header">
@@ -148,9 +203,7 @@
             <p>Успешные кейсы из нашей практики — от концепции до реализации</p>
         </div>
         
-        <!-- Галерея проектов -->
         <div class="photo-gallery">
-            <!-- Проект 1: Grafana SCADA -->
             <div class="photo-card" data-project-id="1">
                 <img src="{% static 'images/img/grafana2sca.jpg' %}" 
                      alt="SCADA система Grafana" 
@@ -166,7 +219,6 @@
                 </div>
             </div>
             
-            <!-- Проект 2: Покраска торцов фанеры -->
             <div class="photo-card" data-project-id="2">
                 <img src="{% static 'images/img/porsca.jpg' %}" 
                      alt="SCADA для покраски фанеры" 
@@ -182,7 +234,6 @@
                 </div>
             </div>
             
-            <!-- Проект 3: Трепел -->
             <div class="photo-card" data-project-id="3">
                 <img src="{% static 'images/img/trepelsca.jpg' %}" 
                      alt="SCADA для трепела" 
@@ -198,7 +249,6 @@
                 </div>
             </div>
             
-            <!-- Проект 4: Буссер -->
             <div class="photo-card" data-project-id="4">
                 <img src="{% static 'images/img/bsusca.jpg' %}" 
                      alt="SCADA для буссера" 
@@ -214,7 +264,6 @@
                 </div>
             </div>
             
-            <!-- Проект 5: Гипс -->
             <div class="photo-card" data-project-id="5">
                 <img src="{% static 'images/img/gipsca.jpg' %}" 
                      alt="SCADA для гипса" 
@@ -230,7 +279,6 @@
                 </div>
             </div>
             
-            <!-- Проект 6: Каучук -->
             <div class="photo-card" data-project-id="6">
                 <img src="{% static 'images/img/kauchsca.jpg' %}" 
                      alt="SCADA для каучука" 
@@ -246,7 +294,6 @@
                 </div>
             </div>
             
-            <!-- Проект 7: Песок -->
             <div class="photo-card" data-project-id="7">
                 <img src="{% static 'images/img/pesoksca.jpg' %}" 
                      alt="SCADA для песка" 
@@ -262,7 +309,6 @@
                 </div>
             </div>
             
-            <!-- Проект 8: Тук -->
             <div class="photo-card" data-project-id="8">
                 <img src="{% static 'images/img/tuksca.jpg' %}" 
                      alt="SCADA для тука" 
@@ -278,7 +324,6 @@
                 </div>
             </div>
             
-            <!-- Проект 9: Удо -->
             <div class="photo-card" data-project-id="9">
                 <img src="{% static 'images/img/udosca.jpg' %}" 
                      alt="SCADA для УДО" 
@@ -294,7 +339,6 @@
                 </div>
             </div>
             
-            <!-- Проект 10: Трепел 2 -->
             <div class="photo-card" data-project-id="10">
                 <img src="{% static 'images/img/trepel2sca.jpg' %}" 
                      alt="SCADA для трепела 2" 
@@ -310,7 +354,6 @@
                 </div>
             </div>
             
-            <!-- Проект 11: Графана Трепел -->
             <div class="photo-card" data-project-id="11">
                 <img src="{% static 'images/img/grafanatrepelsca.jpg' %}" 
                      alt="Grafana для трепела" 
@@ -326,7 +369,6 @@
                 </div>
             </div>
             
-            <!-- Проект 12: Графана -->
             <div class="photo-card" data-project-id="12">
                 <img src="{% static 'images/img/grafanasca.jpg' %}" 
                      alt="SCADA Grafana общее" 
@@ -345,7 +387,6 @@
     </div>
 </section>
 
-<!-- Панель детального просмотра -->
 <div id="panelOverlay" class="panel-overlay"></div>
 
 <div id="projectDetailPanel" class="project-detail-panel">
@@ -354,7 +395,6 @@
         <h2 id="panelTitle">Название проекта</h2>
         <p id="panelSubtitle">Подзаголовок проекта</p>
         <div id="panelTechTags" class="panel-tech-tags">
-            <!-- Теги загружаются через JS -->
         </div>
     </div>
     
@@ -368,13 +408,11 @@
         </div>
         
         <div id="projectDetails" class="project-details-grid">
-            <!-- Детали загружаются через JS -->
         </div>
         
         <div class="project-features">
             <h3>Ключевые особенности</h3>
             <div id="projectFeatures" class="features-grid">
-                <!-- Особенности загружаются через JS -->
             </div>
         </div>
         
@@ -475,7 +513,6 @@
     </div>
 </section>
 
-<!-- FAQ Section -->
 <section class="faq-section">
     <div class="container">
         <div class="section-header">
@@ -527,7 +564,6 @@
     </div>
 </section>
 
-<!-- CTA Section -->
 <section class="cta-section" id="contact">
     <div class="container">
         <div class="cta-content">
@@ -543,25 +579,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/services.js' %}"></script>
-<!-- Yandex.Metrika counter -->
-<script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
-
-    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-</script>
+<script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
- <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
-<!-- End Google Tag Manager -->
+<script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
+<script src="{% static 'js/services.js' %}"></script>
 {% endblock %}

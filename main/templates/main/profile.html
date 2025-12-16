@@ -6,7 +6,6 @@
 {% block og_description %}Управление профилем, заказами и настройками аккаунта.{% endblock %}
 
 {% block content %}
-<!-- Hero секция -->
 <section class="profile-hero">
     <div class="container">
         <div class="hero-content">
@@ -19,7 +18,6 @@
 <section class="profile-section">
     <div class="container">
         <div class="profile-layout">
-            <!-- Боковое меню -->
             <div class="profile-sidebar">
                 <div class="user-card">
                     <div class="user-avatar">
@@ -57,9 +55,7 @@
                 </nav>
             </div>
             
-            <!-- Основной контент -->
             <div class="profile-content">
-                <!-- Основная информация -->
                 <div id="main-info" class="tab-content active">
                     <div class="content-card">
                         <div class="card-header">
@@ -137,7 +133,6 @@
                     </div>
                 </div>
                 
-                <!-- Адреса доставки -->
                 <div id="addresses" class="tab-content">
                     <div class="content-card">
                         <div class="card-header">
@@ -204,7 +199,6 @@
                         </div>
                         {% endif %}
                         
-                        <!-- Форма добавления адреса -->
                         <div class="add-address-section">
                             <div class="section-header">
                                 <h3>Добавить новый адрес</h3>
@@ -261,7 +255,6 @@
                                         <div class="form-error">{{ address_form.city.errors }}</div>
                                         {% endif %}
                                         <div class="form-help" id="delivery-zone-info">
-                                            <!-- Здесь будет отображаться информация о зоне доставки -->
                                         </div>
                                     </div>
                                     
@@ -308,7 +301,6 @@
                     </div>
                 </div>
                 
-                <!-- История заказов -->
                 <div id="orders" class="tab-content">
                     <div class="content-card">
                         <div class="card-header">
@@ -395,7 +387,7 @@ section {
     margin-top: 2%;
     border-radius: 20px;
 }
-/* Hero секция */
+
 .profile-hero {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
@@ -555,7 +547,6 @@ section {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Карточки контента */
 .content-card {
     background: white;
     border-radius: 20px;
@@ -586,7 +577,6 @@ section {
     font-weight: 600;
 }
 
-/* Формы */
 .profile-form,
 .address-form {
     padding: 0 2rem 2rem;
@@ -654,7 +644,6 @@ section {
     margin-top: 0.5rem;
 }
 
-/* Чекбокс */
 .checkbox-group {
     margin: 2rem 0;
 }
@@ -707,7 +696,6 @@ section {
     font-size: 1.1rem;
 }
 
-/* Кнопки */
 .form-actions {
     display: flex;
     gap: 1rem;
@@ -734,7 +722,6 @@ section {
     color: white;
 }
 
-/* Стилизация полей формы адреса */
 .address-form .form-input,
 .address-form .form-textarea {
     background: #f8f9fa;
@@ -749,7 +736,6 @@ section {
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* Стили для обязательных полей */
 .address-form [required] + .form-help::after {
     content: " *";
     color: #e53e3e;
@@ -777,7 +763,6 @@ section {
     font-size: 1.1rem;
 }
 
-/* Адреса */
 .addresses-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -880,7 +865,6 @@ section {
     line-height: 1.4;
 }
 
-/* Добавление адреса */
 .add-address-section {
     padding: 2rem;
     border-top: 2px solid #f8f9fa;
@@ -908,7 +892,6 @@ section {
     font-weight: 600;
 }
 
-/* Пустые состояния */
 .empty-state {
     text-align: center;
     padding: 4rem 2rem;
@@ -931,7 +914,6 @@ section {
     font-size: 1rem;
 }
 
-/* Стили для истории заказов */
 .orders-list {
     padding: 2rem;
 }
@@ -1021,7 +1003,6 @@ section {
     color: #2c3e50;
 }
 
-/* Стили для всех полей ввода как у имени пользователя и email */
 .profile-form input[type="text"],
 .profile-form input[type="email"],
 .profile-form input[type="tel"],
@@ -1041,7 +1022,6 @@ section {
     font-family: inherit;
 }
 
-/* Стили для disabled полей (как у имени пользователя и email) */
 .profile-form input:disabled,
 .address-form input:disabled {
     background: #f8f9fa;
@@ -1049,7 +1029,6 @@ section {
     cursor: not-allowed;
 }
 
-/* Фокус состояния для всех полей */
 .profile-form input:focus,
 .profile-form select:focus,
 .profile-form textarea:focus,
@@ -1061,25 +1040,22 @@ section {
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* Убираем специальные стили для формы адреса которые были раньше */
 .address-form .form-input,
 .address-form .form-textarea {
-    background: white; /* Убираем серый фон */
-    border: 2px solid #e9ecef; /* Стандартная граница */
+    background: white; 
+    border: 2px solid #e9ecef; 
 }
 
 .address-form .form-input:focus,
 .address-form .form-textarea:focus {
-    background: white; /* Белый фон при фокусе */
-    border-color: #667eea; /* Синяя граница при фокусе */
+    background: white;
+    border-color: #667eea; 
 }
 
-/* Убираем специальные стили для обязательных полей формы адреса */
 .address-form [required] + .form-help::after {
-    content: ""; /* Убираем звездочку */
+    content: "";
 }
 
-/* Адаптивность */
 @media (max-width: 1024px) {
     .profile-layout {
         grid-template-columns: 1fr;
@@ -1187,175 +1163,8 @@ section {
 }
 </style>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const navItems = document.querySelectorAll('.nav-item');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    navItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            navItems.forEach(nav => nav.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
-            
-            this.classList.add('active');
-            
-            const tabId = this.getAttribute('data-tab');
-            const targetTab = document.getElementById(tabId);
-            if (targetTab) {
-                targetTab.classList.add('active');
-            }
-        });
-    });
-    
-    const phoneInput = document.querySelector('input[type="tel"]');
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function(e) {
-            let value = this.value.replace(/\D/g, '');
-            
-            if (value.startsWith('7') || value.startsWith('8')) {
-                value = value.substring(1);
-            }
-            
-            let formattedValue = '+7 (';
-            
-            if (value.length > 0) {
-                formattedValue += value.substring(0, 3);
-            }
-            if (value.length > 3) {
-                formattedValue += ') ' + value.substring(3, 6);
-            }
-            if (value.length > 6) {
-                formattedValue += '-' + value.substring(6, 8);
-            }
-            if (value.length > 8) {
-                formattedValue += '-' + value.substring(8, 10);
-            }
-            
-            this.value = formattedValue;
-        });
-    }
-    
-    document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(input => {
-        input.addEventListener('focus', function() {
-            this.parentElement.classList.add('focused');
-        });
-        
-        input.addEventListener('blur', function() {
-            if (!this.value) {
-                this.parentElement.classList.remove('focused');
-            }
-        });
-    });
-    
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            if (!confirm('Вы уверены, что хотите удалить этот адрес?')) {
-                e.preventDefault();
-            } else {
-                const card = this.closest('.address-card');
-                if (card) {
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateX(-100px)';
-                    setTimeout(() => {
-                        card.remove();
-                    }, 300);
-                }
-            }
-        });
-    });
-    
-    // Валидация форм в реальном времени
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            let isValid = true;
-            const requiredFields = this.querySelectorAll('[required]');
-            
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    isValid = false;
-                    field.style.borderColor = '#e53e3e';
-                } else {
-                    field.style.borderColor = '#48bb78';
-                }
-            });
-            
-            if (!isValid) {
-                e.preventDefault();
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'form-error';
-                errorMsg.textContent = 'Пожалуйста, заполните все обязательные поля';
-                errorMsg.style.marginTop = '1rem';
-                errorMsg.style.padding = '1rem';
-                errorMsg.style.background = '#fff5f5';
-                errorMsg.style.borderRadius = '8px';
-                errorMsg.style.border = '1px solid #fed7d7';
-                
-                const existingError = this.querySelector('.submit-error');
-                if (existingError) {
-                    existingError.remove();
-                }
-                
-                errorMsg.className = 'submit-error';
-                this.appendChild(errorMsg);
-                
-                errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        });
-    });
-});
-</script>
-
-<script>
-document.addEventListener('DOMContent', function() {
-    const cityInput = document.querySelector('#id_city');
-    const zoneInfo = document.getElementById('delivery-zone-info');
-    
-    if (cityInput && zoneInfo) {
-        cityInput.addEventListener('blur', function() {
-            const city = this.value.trim();
-            if (city.length > 2) {
-                updateDeliveryZoneInfo(city);
-            }
-        });
-    }
-    
-    function updateDeliveryZoneInfo(city) {
-        const cityLower = city.toLowerCase();
-        let zone = 'центральная';
-        
-        if (cityLower.includes('владивосток') || cityLower.includes('хабаровск')) {
-            zone = 'дальневосточная';
-        } else if (cityLower.includes('новосибирск') || cityLower.includes('иркутск')) {
-            zone = 'сибирская';
-        } else if (cityLower.includes('екатеринбург') || cityLower.includes('челябинск')) {
-            zone = 'уральская';
-        }
-        
-        zoneInfo.innerHTML = `Зона доставки: ${zone} (определяется автоматически)`;
-    }
-});
-</script>
-
-<!-- Yandex.Metrika counter -->
-<script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
-
-    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-</script>
+<script type="text/javascript" src="{% static 'js/profile.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
-<!-- End Google Tag Manager -->
+<script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
 {% endblock %}

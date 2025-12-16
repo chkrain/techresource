@@ -5,6 +5,63 @@
 {% block og_title %}Электромонтажные работы — Техресурс{% endblock %}
 {% block og_description %}Электромонтаж и обслуживание электрических систем для бизнеса и промышленности.{% endblock %}
 
+{% block meta %}
+<meta property="og:title" content="Электромонтажные работы | Техресурс">
+<meta property="og:image" content="{% static 'images/img/comp.jpeg' %}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Электромонтажные работы промышленного оборудования. Монтаж электрооборудования, прокладка кабельных трасс, подключение силовых сетей.">
+<meta name="keywords" content="электромонтажные работы, монтаж электрооборудования, прокладка кабеля, силовые сети, электромонтаж, подключение оборудования">
+<link rel="canonical" href="https://tech-re.ru/services/electr  ical/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "serviceType": "Электромонтажные работы",
+  "provider": {
+    "@type": "LocalBusiness",
+    "name": "Техресурс"
+  },
+  "areaServed": {
+    "@type": "GeoCircle",
+    "geoMidpoint": {
+      "@type": "GeoCoordinates",
+      "latitude": 55.796391,
+      "longitude": 49.108891
+    },
+    "geoRadius": "500000"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Электромонтажные услуги",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Монтаж электрооборудования"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Прокладка кабельных трасс"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Подключение силовых сетей"
+        }
+      }
+    ]
+  }
+}
+</script>
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/services.css' %}?v=3">
 {% endblock %}
@@ -92,7 +149,6 @@
     </div>
 </section>
 
-<!-- Services Section -->
 <section class="services-section">
     <div class="container">
         <div class="section-header">
@@ -140,7 +196,6 @@
     </div>
 </section>
 
-<!-- Standards Section -->
 <section class="tech-section">
     <div class="container">
         <div class="section-header">
@@ -176,7 +231,6 @@
     </div>
 </section>
 
-<!-- Process Section -->
 <section class="process-section">
     <div class="container">
         <div class="section-header">
@@ -244,7 +298,6 @@
     </div>
 </section>
 
-<!-- FAQ Section -->
 <section class="faq-section">
     <div class="container">
         <div class="section-header">
@@ -296,7 +349,6 @@
     </div>
 </section>
 
-<!-- CTA Section -->
 <section class="cta-section" id="contact">
     <div class="container">
         <div class="cta-content">
@@ -312,25 +364,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/services.js' %}"></script>
-<!-- Yandex.Metrika counter -->
-<script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105767211', 'ym');
-
-    ym(105767211, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-</script>
+<script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
- <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MWHF4HQX');</script>
-<!-- End Google Tag Manager -->
+<script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
+<script src="{% static 'js/services.js' %}"></script>
 {% endblock %}
