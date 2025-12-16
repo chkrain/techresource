@@ -1,1 +1,820 @@
-document.addEventListener("DOMContentLoaded",function(){const e=document.querySelector("[name=csrfmiddlewaretoken]")?.value;function t(e,t="success"){const n=document.querySelector(".cart-notification");n&&n.remove();const o=document.createElement("div");o.className=`cart-notification ${t}`,o.innerHTML=`\n            <div class="notification-content">\n                <span class="notification-icon">${"error"===t?"❌":"✅"}</span>\n                <span class="notification-message">${e}</span>\n            </div>\n        `,document.body.appendChild(o),setTimeout(()=>{o.classList.add("show")},100),setTimeout(()=>{o.classList.remove("show"),setTimeout(()=>{o.parentNode&&o.remove()},300)},3e3)}e||console.error("CSRF token not found!"),document.querySelectorAll(".product-btn").forEach(e=>{e.addEventListener("click",async function(e){e.preventDefault(),e.stopPropagation();const n=this.getAttribute("data-product-id"),o=!this.classList.contains("anonymous-quick-order");if(!n)return console.error("Product ID not found"),void t("Ошибка: ID товара не найден","error");const a=this.textContent,s=this.style.background;try{this.textContent="Добавляем...",this.classList.add("loading"),this.disabled=!0;const e=function(){let e=null;const t=document.querySelector("[name=csrfmiddlewaretoken]");t&&(e=t.value);if(!e){const t=document.querySelector('meta[name="csrf-token"]');t&&(e=t.getAttribute("content"))}if(!e){const t="csrftoken";if(document.cookie&&""!==document.cookie){const n=document.cookie.split(";");for(let o=0;o<n.length;o++){const a=n[o].trim();if(a.substring(0,t.length+1)===t+"="){e=decodeURIComponent(a.substring(t.length+1));break}}}}return e}();if(!e)throw console.error("CSRF token not found"),new Error("Ошибка безопасности. Попробуйте обновить страницу.");let s,c;if(o){const t=new FormData;t.append("csrfmiddlewaretoken",e),t.append("quantity","1"),s=await fetch("/cart/add/"+n+"/",{method:"POST",headers:{"X-Requested-With":"XMLHttpRequest"},credentials:"same-origin",body:t})}else{const t=new FormData;t.append("quantity","1"),t.append("csrfmiddlewaretoken",e),s=await fetch(`/anonymous-cart/add/${n}/`,{method:"POST",body:t,headers:{"X-Requested-With":"XMLHttpRequest"},credentials:"same-origin"})}if(!s.ok){if(403===s.status)throw new Error("Ошибка безопасности. Попробуйте обновить страницу.");throw new Error(`HTTP error! status: ${s.status}`)}if(c=await s.json(),!c.success)throw new Error(c.error||"Ошибка добавления");this.textContent=o?"✓ В корзине":"✓ В заказе",this.style.background="#28a745",function(e){const t=[...document.querySelectorAll(".cart-counter"),...document.querySelectorAll(".cart-count"),...document.querySelectorAll("[data-cart-count]"),...document.querySelectorAll(".badge")].filter(e=>e.textContent.match(/\d+/));t.forEach(t=>{const n=parseInt(t.textContent)||0,o=void 0!==e?e:n+1;t.textContent=o,t.style.display=o>0?"inline-block":"none",window.anime&&anime({targets:t,scale:[1,1.3,1],duration:300,easing:"easeInOutQuad"})}),0===t.length&&console.log("Счетчики корзины не найдены. Количество:",e)}(c.cart_count||c.order_count||0),window.anime&&anime({targets:this,scale:[1,1.1,1],duration:300,easing:"easeInOutQuad"});t("Товар добавлен в корзину!"),setTimeout(()=>{this.textContent=a,this.style.background="",this.classList.remove("loading"),this.disabled=!1},200)}catch(e){console.error("Ошибка добавления:",e),this.textContent="Ошибка",this.style.background="#dc3545",this.classList.remove("loading"),t(e.message||"Ошибка при добавлении","error"),setTimeout(()=>{this.textContent=a,this.style.background=s,this.disabled=!1},3e3)}})}),window.addEventListener("load",function(){AOS.init({duration:800,once:!0,offset:100,startEvent:"load",initClassName:"aos-init",animatedClassName:"aos-animate"}),setTimeout(()=>{AOS.refresh()},100)});const n=new IntersectionObserver(e=>{e.forEach(e=>{e.isIntersecting&&(document.querySelectorAll(".stat-number").forEach(e=>{const t=+e.getAttribute("data-count"),n=t/125;let o=0;const a=setInterval(()=>{o+=n,o>=t?(e.textContent=t,clearInterval(a)):e.textContent=Math.floor(o)},16)}),n.unobserve(e.target))})}),o=document.querySelector(".hero-stats");o&&n.observe(o);const a=document.createElement("style");a.textContent="\n        @keyframes float {\n            0% { transform: translateY(0) rotate(0deg); opacity: 1; }\n            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }\n        }\n    ",document.head.appendChild(a),function(){const e=document.getElementById("hero-particles");if(e)for(let t=0;t<50;t++){const t=document.createElement("div");t.style.cssText=`\n                position: absolute;\n                width: 2px;\n                height: 2px;\n                background: rgba(255,255,255,0.5);\n                border-radius: 50%;\n                left: ${100*Math.random()}%;\n                top: ${100*Math.random()}%;\n                animation: float ${5+10*Math.random()}s linear infinite;\n            `,e.appendChild(t)}}();const s=new Swiper(".swiper",{loop:!0,slidesPerView:1,spaceBetween:25,centeredSlides:!0,speed:800,autoplay:{delay:5e3,disableOnInteraction:!1,pauseOnMouseEnter:!0},pagination:{el:".swiper-pagination",clickable:!0,dynamicBullets:!0},navigation:{nextEl:".swiper-button-next",prevEl:".swiper-button-prev"},breakpoints:{640:{slidesPerView:1,spaceBetween:20},768:{slidesPerView:2,spaceBetween:25,centeredSlides:!1},1024:{slidesPerView:3,spaceBetween:30,centeredSlides:!0},1280:{slidesPerView:4,spaceBetween:30,centeredSlides:!1}},on:{init:function(){c(this)},slideChange:function(){c(this)}}});function c(e){const t=document.querySelector(".swiper-progress"),n=e.slides.length-(e.params.loop?2:0),o=(e.realIndex+1)/n*100;t.style.width=o+"%"}document.querySelectorAll(".service-card").forEach(e=>{e.addEventListener("click",function(){const e=this.querySelector("h3").textContent;anime({targets:this,scale:[1,.95,1],duration:300,easing:"easeInOutQuad"}),console.log(`Переход к услуге: ${e}`)})});const i=document.getElementById("cookie-notification"),r=document.getElementById("accept-cookies"),l=document.getElementById("settings-cookies"),d=document.getElementById("cookie-settings"),u=document.getElementById("close-settings"),m=document.getElementById("save-settings"),g="cookiesAccepted",y="cookieSettings";function f(){return"true"===localStorage.getItem(g)}function p(){const e=localStorage.getItem(y);return e?JSON.parse(e):{necessary:!0,analytical:!0,functional:!0}}function h(){const e=p();localStorage.getItem("theme")&&document.documentElement.setAttribute("data-theme",localStorage.getItem("theme"));const n=localStorage.getItem("last_active_slide");if(n&&window.swiper&&setTimeout(()=>{window.swiper.slideTo(parseInt(n),0)},100),window.swiper&&s.on("slideChange",function(){localStorage.setItem("last_active_slide",this.activeIndex)}),performance.getEntriesByType("navigation").length>0){"navigate"===performance.getEntriesByType("navigation")[0].type&&sessionStorage.setItem("last_page",window.location.pathname)}const o=parseInt(localStorage.getItem("visit_count")||"0")+1;if(localStorage.setItem("visit_count",o.toString()),o>1){const e=localStorage.getItem("last_visit"),n=(new Date).toISOString();if(localStorage.setItem("last_visit",n),e){const o=Math.floor((new Date(n)-new Date(e))/864e5);o>7&&(console.log("Добро пожаловать обратно! Прошло дней:",o),setTimeout(()=>{window.showCartNotification&&t("С возвращением! У нас появились новинки")},3e3))}}if("compact"===localStorage.getItem("preferred_view")&&document.body.classList.add("compact-view"),e.functional&&"true"===localStorage.getItem("form_autofill")){const e=localStorage.getItem("contact_form_data");if(e&&document.getElementById("contactForm"))try{const t=JSON.parse(e);t.name&&!document.getElementById("contactName").value&&(document.getElementById("contactName").value=t.name)}catch(e){console.error("Ошибка восстановления данных формы:",e)}const t=document.querySelectorAll("#contactForm input, #contactForm textarea");t.forEach(e=>{e.addEventListener("input",function(e,t){let n;return function(...o){const a=()=>{clearTimeout(n),e(...o)};clearTimeout(n),n=setTimeout(a,t)}}(function(){const e={};t.forEach(t=>{t.name&&t.value&&(e[t.name]=t.value)}),localStorage.setItem("contact_form_data",JSON.stringify(e))},1e3))})}}function w(e){!function(){if(!localStorage.getItem("user_visit_id")){const e="visit_"+Date.now()+"_"+Math.random().toString(36).substr(2,9);localStorage.setItem("user_visit_id",e)}try{localStorage.setItem("test","test"),localStorage.removeItem("test")}catch(e){console.error("LocalStorage недоступен:",e),document.cookie="localstorage_unsupported=true; path=/; max-age=3600"}}(),e.analytical&&function(){if("undefined"!=typeof ym){document.addEventListener("click",function(e){if(e.target.matches(".btn, a, button")){const t=e.target.textContent.trim().substring(0,50);ym(105767211,"reachGoal","button_click",{button:t})}});let e=!1;window.addEventListener("scroll",function(){window.scrollY>.5*window.innerHeight&&!e&&(ym(105767211,"reachGoal","scroll_50_percent"),e=!0)})}"undefined"!=typeof gtag&&gtag("config","GTM-MWHF4HQX");let e=Date.now();window.addEventListener("beforeunload",function(){const t=Date.now()-e;"undefined"!=typeof ym&&ym(105767211,"params",{time_spent:Math.round(t/1e3)})});const t={screen:window.screen.width+"x"+window.screen.height,language:navigator.language,online:navigator.onLine,userAgent:navigator.userAgent.substring(0,100)};localStorage.setItem("analytics_browser_info",JSON.stringify(t))}(),e.functional&&h()}function v(e){console.log("✅ "+e)}if(r&&r.addEventListener("click",function(){const e={necessary:!0,analytical:!0,functional:!0};localStorage.setItem(g,"true"),localStorage.setItem(y,JSON.stringify(e)),i.classList.remove("show"),w(e),v("Все cookies приняты")}),l&&l.addEventListener("click",function(){!function(){const e=p();document.querySelector('input[name="analytical"]').checked=e.analytical,document.querySelector('input[name="functional"]').checked=e.functional}(),d.classList.add("show")}),u&&u.addEventListener("click",function(){d.classList.remove("show")}),m&&m.addEventListener("click",function(){const e={necessary:!0,analytical:document.querySelector('input[name="analytical"]').checked,functional:document.querySelector('input[name="functional"]').checked};localStorage.setItem(g,"true"),localStorage.setItem(y,JSON.stringify(e)),i.classList.remove("show"),d.classList.remove("show"),w(e),v("Настройки cookies сохранены")}),f()||setTimeout(()=>{i.classList.add("show")},2e3),f()){w(p())}const E=document.getElementById("contactModal"),S=document.querySelector(".close-modal"),b=document.getElementById("contactForm"),I=document.getElementById("submitBtn"),k=(I&&I.querySelector(".btn-text"),I&&I.querySelector(".btn-loading"),document.querySelector(".cta-buttons .btn-secondary"));if(k)k.addEventListener("click",function(e){e.preventDefault(),E&&(E.style.display="block",document.body.style.overflow="hidden")});else{console.log('Кнопка "Написать нам" не найдена');document.querySelectorAll(".btn").forEach(e=>{e.textContent.includes("Написать нам")&&e.addEventListener("click",function(e){e.preventDefault(),E&&(E.style.display="block",document.body.style.overflow="hidden")})})}function B(e,t){document.querySelectorAll(".success-message, .error-message-global").forEach(e=>e.remove());const n=document.createElement("div");n.className="success"===e?"success-message":"error-message-global",n.textContent=t,n.style.display="block",b&&b.insertBefore(n,b.firstChild),"success"===e&&setTimeout(()=>{n.remove()},5e3)}S&&S.addEventListener("click",function(){E&&(E.style.display="none",document.body.style.overflow="auto")}),window.addEventListener("click",function(e){e.target===E&&(E.style.display="none",document.body.style.overflow="auto")}),b&&b.addEventListener("submit",async function(e){if(e.preventDefault(),!function(){let e=!0;const t=document.getElementById("contactName").value.trim(),n=document.getElementById("contactEmail").value.trim(),o=document.getElementById("contactPhone").value.trim(),a=document.getElementById("contactMessage").value.trim();return document.querySelectorAll(".error-message").forEach(e=>{e.style.display="none"}),t||(document.getElementById("nameError").textContent="Введите ваше имя",document.getElementById("nameError").style.display="block",e=!1),n||o||(document.getElementById("emailError").textContent="Укажите email или телефон",document.getElementById("emailError").style.display="block",document.getElementById("phoneError").textContent="Укажите email или телефон",document.getElementById("phoneError").style.display="block",e=!1),n&&!function(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}(n)&&(document.getElementById("emailError").textContent="Введите корректный email",document.getElementById("emailError").style.display="block",e=!1),a||(document.getElementById("messageError").textContent="Введите ваше сообщение",document.getElementById("messageError").style.display="block",e=!1),e}())return;const t=document.getElementById("submitBtn");if(t){t.disabled=!0;t.textContent;t.textContent="Отправка..."}try{const e={name:document.getElementById("contactName").value.trim(),email:document.getElementById("contactEmail").value.trim(),phone:document.getElementById("contactPhone").value.trim(),message:document.getElementById("contactMessage").value.trim()},t=await fetch("/contact/submit/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)}),n=await t.json();n.success?(B("success",n.message),b.reset(),setTimeout(()=>{E&&(E.style.display="none",document.body.style.overflow="auto")},2e3)):B("error",n.error)}catch(e){console.error("Ошибка:",e),B("error","Произошла ошибка при отправке. Попробуйте еще раз.")}finally{const e=document.getElementById("submitBtn");e&&(e.disabled=!1,e.textContent="Отправить сообщение")}}),document.addEventListener("keydown",function(e){"Escape"===e.key&&E&&"block"===E.style.display&&(E.style.display="none",document.body.style.overflow="auto")})});
+document.addEventListener('DOMContentLoaded', function() {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+    
+    if (!csrfToken) {
+        console.error('CSRF token not found!');
+    }
+    
+    function updateCartCounter(quantity) {
+        const cartCounters = [
+            ...document.querySelectorAll('.cart-counter'),
+            ...document.querySelectorAll('.cart-count'),
+            ...document.querySelectorAll('[data-cart-count]'),
+            ...document.querySelectorAll('.badge')
+        ].filter(el => el.textContent.match(/\d+/)); 
+        
+        cartCounters.forEach(counter => {
+            const oldValue = parseInt(counter.textContent) || 0;
+            const newValue = quantity !== undefined ? quantity : oldValue + 1;
+            
+            counter.textContent = newValue;
+            
+            if (newValue > 0) {
+                counter.style.display = 'inline-block';
+            } else {
+                counter.style.display = 'none';
+            }
+            
+            if (window.anime) {
+                anime({
+                    targets: counter,
+                    scale: [1, 1.3, 1],
+                    duration: 300,
+                    easing: 'easeInOutQuad'
+                });
+            }
+        });
+        
+        if (cartCounters.length === 0) {
+            console.log('Счетчики корзины не найдены. Количество:', quantity);
+        }
+    }
+    
+    function showCartNotification(message, type = 'success') {
+        const existingNotification = document.querySelector('.cart-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        const notification = document.createElement('div');
+        notification.className = `cart-notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-icon">${type === 'error' ? '❌' : '✅'}</span>
+                <span class="notification-message">${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
+        }, 3000);
+    }
+    
+    document.querySelectorAll('.product-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const productId = this.getAttribute('data-product-id');
+            const isAuthenticated = this.classList.contains('anonymous-quick-order') ? false : true;
+            
+            if (!productId) {
+                console.error('Product ID not found');
+                showCartNotification('Ошибка: ID товара не найден', 'error');
+                return;
+            }
+            
+            const originalText = this.textContent;
+            const originalBackground = this.style.background;
+            
+            try {
+                this.textContent = 'Добавляем...';
+                this.classList.add('loading');
+                this.disabled = true;
+                
+                const csrfToken = getCSRFToken();
+                
+                if (!csrfToken) {
+                    console.error('CSRF token not found');
+                    throw new Error('Ошибка безопасности. Попробуйте обновить страницу.');
+                }
+                
+                let response, data;
+                
+                if (isAuthenticated) {
+                    const formData = new FormData();
+                    formData.append('csrfmiddlewaretoken', csrfToken);
+                    formData.append('quantity', '1');
+                    
+                    response = await fetch('/cart/add/' + productId + '/', {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin',
+                        body: formData
+                    });
+                } else {
+                    const formData = new FormData();
+                    formData.append('quantity', '1');
+                    formData.append('csrfmiddlewaretoken', csrfToken);
+                    
+                    response = await fetch(`/anonymous-cart/add/${productId}/`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    });
+                }
+                
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('Ошибка безопасности. Попробуйте обновить страницу.');
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                data = await response.json();
+                
+                if (data.success) {
+                    this.textContent = isAuthenticated ? '✓ В корзине' : '✓ В заказе';
+                    this.style.background = '#28a745';
+                    
+                    updateCartCounter(data.cart_count || data.order_count || 0);
+                    
+                    if (window.anime) {
+                        anime({
+                            targets: this,
+                            scale: [1, 1.1, 1],
+                            duration: 300,
+                            easing: 'easeInOutQuad'
+                        });
+                    }
+                    
+                    const message = 'Товар добавлен в корзину!'
+                    
+                    showCartNotification(message);
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.background = '';
+                        this.classList.remove('loading');
+                        this.disabled = false;
+                    }, 200);
+                    
+                } else {
+                    throw new Error(data.error || 'Ошибка добавления');
+                }
+                
+            } catch (error) {
+                console.error('Ошибка добавления:', error);
+                this.textContent = 'Ошибка';
+                this.style.background = '#dc3545';
+                this.classList.remove('loading');
+                
+                showCartNotification(
+                    error.message || 'Ошибка при добавлении', 
+                    'error'
+                );
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.style.background = originalBackground;
+                    this.disabled = false;
+                }, 3000);
+            }
+        });
+    });
+
+    function getCSRFToken() {
+        let csrfToken = null;
+        
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfInput) {
+            csrfToken = csrfInput.value;
+        }
+        
+        if (!csrfToken) {
+            const metaToken = document.querySelector('meta[name="csrf-token"]');
+            if (metaToken) {
+                csrfToken = metaToken.getAttribute('content');
+            }
+        }
+        
+        if (!csrfToken) {
+            const name = 'csrftoken';
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        csrfToken = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return csrfToken;
+    }
+
+    window.addEventListener('load', function() {
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100,
+            startEvent: 'load',
+            initClassName: 'aos-init',
+            animatedClassName: 'aos-animate'
+        });
+        
+        setTimeout(() => {
+            AOS.refresh();
+        }, 100);
+    });
+
+    function animateNumbers() {
+        const counters = document.querySelectorAll('.stat-number');
+        counters.forEach(counter => {
+            const target = +counter.getAttribute('data-count');
+            const duration = 2000;
+            const step = target / (duration / 16);
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    counter.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.floor(current);
+                }
+            }, 16);
+        });
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateNumbers();
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+
+    const statsSection = document.querySelector('.hero-stats');
+    if (statsSection) {
+        observer.observe(statsSection);
+    }
+
+    function createParticles() {
+        const container = document.getElementById('hero-particles');
+        if (!container) return;
+        
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: 2px;
+                height: 2px;
+                background: rgba(255,255,255,0.5);
+                border-radius: 50%;
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                animation: float ${5 + Math.random() * 10}s linear infinite;
+            `;
+            container.appendChild(particle);
+        }
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    createParticles();
+
+    const swiper = new Swiper('.swiper', {
+        loop: true,
+        slidesPerView: 1,
+        spaceBetween: 25,
+        centeredSlides: true,
+        speed: 800,
+        autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+            dynamicBullets: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        breakpoints: {
+            640: {
+                slidesPerView: 1,
+                spaceBetween: 20,
+            },
+            768: {
+                slidesPerView: 2,
+                spaceBetween: 25,
+                centeredSlides: false,
+            },
+            1024: {
+                slidesPerView: 3,
+                spaceBetween: 30,
+                centeredSlides: true,
+            },
+            1280: {
+                slidesPerView: 4,
+                spaceBetween: 30,
+                centeredSlides: false,
+            }
+        },
+        on: {
+            init: function() {
+                updateProgressBar(this);
+            },
+            slideChange: function() {
+                updateProgressBar(this);
+            },
+        }
+    });
+
+    function updateProgressBar(swiper) {
+        const progress = document.querySelector('.swiper-progress');
+        const total = swiper.slides.length - (swiper.params.loop ? 2 : 0);
+        const current = swiper.realIndex;
+        const progressWidth = ((current + 1) / total) * 100;
+        progress.style.width = progressWidth + '%';
+    }
+
+    document.querySelectorAll('.service-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const serviceName = this.querySelector('h3').textContent;
+            anime({
+                targets: this,
+                scale: [1, 0.95, 1],
+                duration: 300,
+                easing: 'easeInOutQuad'
+            });
+            console.log(`Переход к услуге: ${serviceName}`);
+        });
+    });
+
+    const cookieNotification = document.getElementById('cookie-notification');
+    const acceptCookiesBtn = document.getElementById('accept-cookies');
+    const settingsCookiesBtn = document.getElementById('settings-cookies');
+    const cookieSettings = document.getElementById('cookie-settings');
+    const closeSettingsBtn = document.getElementById('close-settings');
+    const saveSettingsBtn = document.getElementById('save-settings');
+    
+    const COOKIES_ACCEPTED = 'cookiesAccepted';
+    const COOKIE_SETTINGS = 'cookieSettings';
+    
+    function checkCookiesAccepted() {
+        return localStorage.getItem(COOKIES_ACCEPTED) === 'true';
+    }
+    
+    function getCookieSettings() {
+        const settings = localStorage.getItem(COOKIE_SETTINGS);
+        return settings ? JSON.parse(settings) : {
+            necessary: true,
+            analytical: true,
+            functional: true
+        };
+    }
+    
+    function showCookieNotification() {
+        if (!checkCookiesAccepted()) {
+            setTimeout(() => {
+                cookieNotification.classList.add('show');
+            }, 2000); 
+        }
+    }
+    
+    function acceptAllCookies() {
+        const settings = {
+            necessary: true,
+            analytical: true,
+            functional: true
+        };
+        
+        localStorage.setItem(COOKIES_ACCEPTED, 'true');
+        localStorage.setItem(COOKIE_SETTINGS, JSON.stringify(settings));
+        cookieNotification.classList.remove('show');
+        
+        initializeCookies(settings);
+        showAcceptanceMessage('Все cookies приняты');
+    }
+    
+    function saveCookieSettings() {
+        const settings = {
+            necessary: true,
+            analytical: document.querySelector('input[name="analytical"]').checked,
+            functional: document.querySelector('input[name="functional"]').checked
+        };
+        
+        localStorage.setItem(COOKIES_ACCEPTED, 'true');
+        localStorage.setItem(COOKIE_SETTINGS, JSON.stringify(settings));
+        cookieNotification.classList.remove('show');
+        cookieSettings.classList.remove('show');
+        
+        initializeCookies(settings);
+        showAcceptanceMessage('Настройки cookies сохранены');
+    }
+
+    function initializeNecessaryCookies() {
+        if (!localStorage.getItem('user_visit_id')) {
+            const visitId = 'visit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('user_visit_id', visitId);
+        }
+        
+        try {
+            localStorage.setItem('test', 'test');
+            localStorage.removeItem('test');
+        } catch (e) {
+            console.error('LocalStorage недоступен:', e);
+            document.cookie = "localstorage_unsupported=true; path=/; max-age=3600";
+        }
+    }
+
+    function initializeAnalyticalCookies() {
+        if (typeof ym !== 'undefined') {
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('.btn, a, button')) {
+                    const targetText = e.target.textContent.trim().substring(0, 50);
+                    ym(105767211, 'reachGoal', 'button_click', { button: targetText });
+                }
+            });
+            let scrollTracked = false;
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > window.innerHeight * 0.5 && !scrollTracked) {
+                    ym(105767211, 'reachGoal', 'scroll_50_percent');
+                    scrollTracked = true;
+                }
+            });
+        }
+        if (typeof gtag !== 'undefined') {
+            gtag('config', 'GTM-MWHF4HQX');
+        }
+        let pageLoadTime = Date.now();
+        window.addEventListener('beforeunload', function() {
+            const timeSpent = Date.now() - pageLoadTime;
+            if (typeof ym !== 'undefined') {
+                ym(105767211, 'params', { time_spent: Math.round(timeSpent / 1000) });
+            }
+        });
+        const browserInfo = {
+            screen: window.screen.width + 'x' + window.screen.height,
+            language: navigator.language,
+            online: navigator.onLine,
+            userAgent: navigator.userAgent.substring(0, 100)
+        };
+        
+        localStorage.setItem('analytics_browser_info', JSON.stringify(browserInfo));
+    }
+
+    function initializeFunctionalCookies() {
+        const userSettings = getCookieSettings();
+        if (localStorage.getItem('theme')) {
+            document.documentElement.setAttribute('data-theme', localStorage.getItem('theme'));
+        }
+        const lastActiveSlide = localStorage.getItem('last_active_slide');
+        if (lastActiveSlide && window.swiper) {
+            setTimeout(() => {
+                window.swiper.slideTo(parseInt(lastActiveSlide), 0);
+            }, 100);
+        }
+        if (window.swiper) {
+            swiper.on('slideChange', function() {
+                localStorage.setItem('last_active_slide', this.activeIndex);
+            });
+        }
+        if (performance.getEntriesByType('navigation').length > 0) {
+            const navEntry = performance.getEntriesByType('navigation')[0];
+            if (navEntry.type === 'navigate') {
+                sessionStorage.setItem('last_page', window.location.pathname);
+            }
+        }
+        
+        const visitCount = parseInt(localStorage.getItem('visit_count') || '0') + 1;
+        localStorage.setItem('visit_count', visitCount.toString());
+        
+        if (visitCount > 1) {
+            const lastVisit = localStorage.getItem('last_visit');
+            const now = new Date().toISOString();
+            localStorage.setItem('last_visit', now);
+            
+            if (lastVisit) {
+                const daysSinceLastVisit = Math.floor(
+                    (new Date(now) - new Date(lastVisit)) / (1000 * 60 * 60 * 24)
+                );
+                
+                if (daysSinceLastVisit > 7) {
+                    console.log('Добро пожаловать обратно! Прошло дней:', daysSinceLastVisit);
+                    
+                    setTimeout(() => {
+                        if (window.showCartNotification) {
+                            showCartNotification('С возвращением! У нас появились новинки');
+                        }
+                    }, 3000);
+                }
+            }
+        }
+        
+        const preferredView = localStorage.getItem('preferred_view');
+        if (preferredView === 'compact') {
+            document.body.classList.add('compact-view');
+        }
+        
+        if (userSettings.functional && localStorage.getItem('form_autofill') === 'true') {
+            const savedFormData = localStorage.getItem('contact_form_data');
+            if (savedFormData && document.getElementById('contactForm')) {
+                try {
+                    const data = JSON.parse(savedFormData);
+                    if (data.name && !document.getElementById('contactName').value) {
+                        document.getElementById('contactName').value = data.name;
+                    }
+                } catch (e) {
+                    console.error('Ошибка восстановления данных формы:', e);
+                }
+            }
+            
+            const formFields = document.querySelectorAll('#contactForm input, #contactForm textarea');
+            formFields.forEach(field => {
+                field.addEventListener('input', debounce(function() {
+                    const formData = {};
+                    formFields.forEach(f => {
+                        if (f.name && f.value) {
+                            formData[f.name] = f.value;
+                        }
+                    });
+                    localStorage.setItem('contact_form_data', JSON.stringify(formData));
+                }, 1000));
+            });
+        }
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    function safeLocalStorageSet(key, value) {
+        try {
+            localStorage.setItem(key, value);
+            return true;
+        } catch (e) {
+            document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=2592000`;
+            return false;
+        }
+    }
+    
+    function initializeCookies(settings) {
+        
+        initializeNecessaryCookies();
+        
+        if (settings.analytical) {
+            initializeAnalyticalCookies();
+        }
+        
+        if (settings.functional) {
+            initializeFunctionalCookies();
+        }
+    }
+    
+    function showAcceptanceMessage(message) {
+        console.log('✅ ' + message);
+    }
+    
+    function loadSettingsToForm() {
+        const settings = getCookieSettings();
+        document.querySelector('input[name="analytical"]').checked = settings.analytical;
+        document.querySelector('input[name="functional"]').checked = settings.functional;
+    }
+    
+    if (acceptCookiesBtn) {
+        acceptCookiesBtn.addEventListener('click', acceptAllCookies);
+    }
+    
+    if (settingsCookiesBtn) {
+        settingsCookiesBtn.addEventListener('click', function() {
+            loadSettingsToForm();
+            cookieSettings.classList.add('show');
+        });
+    }
+    
+    if (closeSettingsBtn) {
+        closeSettingsBtn.addEventListener('click', function() {
+            cookieSettings.classList.remove('show');
+        });
+    }
+    
+    if (saveSettingsBtn) {
+        saveSettingsBtn.addEventListener('click', saveCookieSettings);
+    }
+    
+    showCookieNotification();
+    
+    if (checkCookiesAccepted()) {
+        const settings = getCookieSettings();
+        initializeCookies(settings);
+    }
+
+    const contactModal = document.getElementById('contactModal');
+    const closeModal = document.querySelector('.close-modal');
+    const contactForm = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
+    const btnLoading = submitBtn ? submitBtn.querySelector('.btn-loading') : null;
+    
+    const writeUsBtn = document.querySelector('.cta-buttons .btn-secondary');
+    
+    if (writeUsBtn) {
+        writeUsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (contactModal) {
+                contactModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    } else {
+        console.log('Кнопка "Написать нам" не найдена');
+        const allButtons = document.querySelectorAll('.btn');
+        allButtons.forEach(btn => {
+            if (btn.textContent.includes('Написать нам')) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (contactModal) {
+                        contactModal.style.display = 'block';
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+            }
+        });
+    }
+    
+    if (closeModal) {
+        closeModal.addEventListener('click', function() {
+            if (contactModal) {
+                contactModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
+    
+    window.addEventListener('click', function(e) {
+        if (e.target === contactModal) {
+            contactModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+    
+    function validateForm() {
+        let isValid = true;
+        const name = document.getElementById('contactName').value.trim();
+        const email = document.getElementById('contactEmail').value.trim();
+        const phone = document.getElementById('contactPhone').value.trim();
+        const message = document.getElementById('contactMessage').value.trim();
+        
+        document.querySelectorAll('.error-message').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        if (!name) {
+            document.getElementById('nameError').textContent = 'Введите ваше имя';
+            document.getElementById('nameError').style.display = 'block';
+            isValid = false;
+        }
+        
+        if (!email && !phone) {
+            document.getElementById('emailError').textContent = 'Укажите email или телефон';
+            document.getElementById('emailError').style.display = 'block';
+            document.getElementById('phoneError').textContent = 'Укажите email или телефон';
+            document.getElementById('phoneError').style.display = 'block';
+            isValid = false;
+        }
+        
+        if (email && !isValidEmail(email)) {
+            document.getElementById('emailError').textContent = 'Введите корректный email';
+            document.getElementById('emailError').style.display = 'block';
+            isValid = false;
+        }
+        
+        if (!message) {
+            document.getElementById('messageError').textContent = 'Введите ваше сообщение';
+            document.getElementById('messageError').style.display = 'block';
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+    
+    function isValidEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) return;
+            
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Отправка...';
+            }
+            
+            try {
+                const formData = {
+                    name: document.getElementById('contactName').value.trim(),
+                    email: document.getElementById('contactEmail').value.trim(),
+                    phone: document.getElementById('contactPhone').value.trim(),
+                    message: document.getElementById('contactMessage').value.trim()
+                };
+                
+                const response = await fetch('/contact/submit/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('success', data.message);
+                    contactForm.reset();
+                    setTimeout(() => {
+                        if (contactModal) {
+                            contactModal.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                        }
+                    }, 2000);
+                } else {
+                    showMessage('error', data.error);
+                }
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showMessage('error', 'Произошла ошибка при отправке. Попробуйте еще раз.');
+            } finally {
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Отправить сообщение';
+                }
+            }
+        });
+    }
+    
+    function showMessage(type, text) {
+        const oldMessages = document.querySelectorAll('.success-message, .error-message-global');
+        oldMessages.forEach(msg => msg.remove());
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = type === 'success' ? 'success-message' : 'error-message-global';
+        messageDiv.textContent = text;
+        messageDiv.style.display = 'block';
+        
+        if (contactForm) {
+            contactForm.insertBefore(messageDiv, contactForm.firstChild);
+        }
+        
+        if (type === 'success') {
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+    }
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && contactModal && contactModal.style.display === 'block') {
+            contactModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+});
