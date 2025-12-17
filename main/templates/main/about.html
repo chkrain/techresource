@@ -153,26 +153,42 @@
         </p>
         
         <div class="team-grid">
-            <div class="team-member" data-aos="zoom-in" data-aos-delay="100">
-                <div class="member-avatar">👨‍💼</div>
+            <div class="team-member" data-aos="zoom-in" data-aos-delay="100" loading="lazy"
+                style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                        url('{% static 'images/img/project.jpg' %}'); 
+                        background-size: cover; 
+                        background-position: center;">
+                <div class="member-avatar"><br></div>
                 <h3>Инженеры-проектировщики</h3>
                 <p>Специалисты, сертифицированные по международным стандартам</p>
             </div>
             
-            <div class="team-member" data-aos="zoom-in" data-aos-delay="200">
-                <div class="member-avatar">👩‍🔧</div>
+            <div class="team-member" data-aos="zoom-in" data-aos-delay="100" 
+                style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                        url('{% static 'images/img/suprt.jpg' %}'); 
+                        background-size: cover; 
+                        background-position: center;">
+                <div class="member-avatar"><br></div>
                 <h3>Технические специалисты</h3>
                 <p>Эксперты по монтажу, наладке и обслуживанию промышленного оборудования</p>
             </div>
             
-            <div class="team-member" data-aos="zoom-in" data-aos-delay="300">
-                <div class="member-avatar">👨‍💻</div>
+            <div class="team-member" data-aos="zoom-in" data-aos-delay="100" 
+                style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                        url('{% static 'images/img/podevel.jpg' %}'); 
+                        background-size: cover; 
+                        background-position: center;">
+                <div class="member-avatar"><br></div>
                 <h3>Разработчики ПО</h3>
                 <p>Создают SCADA системы и программное обеспечение для автоматизации процессов</p>
             </div>
             
-            <div class="team-member" data-aos="zoom-in" data-aos-delay="400">
-                <div class="member-avatar">👩‍🎓</div>
+            <div class="team-member" data-aos="zoom-in" data-aos-delay="100" 
+                style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                        url('{% static 'images/img/techcon.jpg' %}'); 
+                        background-size: cover; 
+                        background-position: center;">
+                <div class="member-avatar"><br></div>
                 <h3>Технические консультанты</h3>
                 <p>Помогают подобрать оптимальные решения под конкретные задачи бизнеса</p>
             </div>
@@ -220,7 +236,7 @@
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<link rel="stylesheet" href="{% static 'css/about.css' %}?v=4">
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
