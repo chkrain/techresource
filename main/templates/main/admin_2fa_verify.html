@@ -4,13 +4,12 @@
 {% block title %}Проверка 2FA - Админка{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/2fa.css' %}">
+<link rel="stylesheet" href="{% static 'css/2fa.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
 <div class="admin-2fa-verify-container">
     <div class="admin-2fa-verify-card">
-        <!-- Заголовок -->
         <div class="admin-2fa-verify-header">
             <div class="admin-2fa-verify-icon">
                 <i class="fas fa-shield-alt"></i>
@@ -19,7 +18,6 @@
             <p>Введите код из приложения аутентификации</p>
         </div>
         
-        <!-- Информация о пользователе -->
         <div class="admin-2fa-user-info">
             <div class="admin-2fa-user-avatar">
                 <i class="fas fa-user"></i>
@@ -33,7 +31,6 @@
             </div>
         </div>
         
-        <!-- Сообщения -->
         {% if messages %}
         <div class="admin-2fa-verify-messages">
             {% for message in messages %}
@@ -45,7 +42,6 @@
         </div>
         {% endif %}
         
-        <!-- Форма ввода кода -->
         <form method="post" class="admin-2fa-verify-form">
             {% csrf_token %}
             
@@ -83,7 +79,6 @@
             </div>
         </form>
         
-        <!-- Помощь -->
         <div class="admin-2fa-help">
             <details class="admin-2fa-help-details">
                 <summary>
@@ -91,23 +86,22 @@
                 </summary>
                 <div class="admin-2fa-help-content">
                     <p><strong>Где взять код?</strong></p>
-                    <p>Откройте Google Authenticator, Authy или Microsoft Authenticator на вашем устройстве.</p>
+                    <p>Google Authenticator, Authy или Microsoft Authenticator на устройстве.</p>
                     
                     <p><strong>Нет доступа к приложению?</strong></p>
-                    <p>Используйте резервный код, который вы сохранили при настройке 2FA.</p>
+                    <p>Резервный код, который вы сохранили при настройке 2FA.</p>
                     
                     <p><strong>Потеряли доступ?</strong></p>
-                    <p>Свяжитесь с суперадминистратором системы.</p>
+                    <p>Скорее всего все коды сейчас у меня</p>
                 </div>
             </details>
         </div>
         
-        <!-- Предупреждение -->
         <div class="admin-2fa-warning-box">
             <i class="fas fa-exclamation-triangle"></i>
             <div>
                 <strong>Безопасность аккаунта</strong>
-                <p>Если вы не настраивали двухфакторную аутентификацию, немедленно свяжитесь с администратором.</p>
+                <p>Если двухфакторка не настроена нужно срочно настроить</p>
             </div>
         </div>
     </div>
@@ -119,18 +113,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     const codeInput = document.getElementById('code');
     
-    // Автофокус и выделение
     codeInput.focus();
     codeInput.select();
     
-    // Автоматический переход при вводе 6 цифр
     codeInput.addEventListener('input', function(e) {
         if (this.value.length === 6) {
             this.form.querySelector('button[type="submit"]').focus();
         }
     });
     
-    // Валидация в реальном времени
     codeInput.addEventListener('blur', function() {
         if (this.value.length === 6 && /^\d{6}$/.test(this.value)) {
             this.classList.add('admin-2fa-code-valid');

@@ -4,13 +4,12 @@
 {% block title %}Настройка 2FA - Админка{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/2fa.css' %}">
+<link rel="stylesheet" href="{% static 'css/2fa.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
 <div class="admin-2fa-container">
     <div class="admin-2fa-card">
-        <!-- Заголовок -->
         <div class="admin-2fa-header">
             <div class="admin-2fa-header-icon">
                 <i class="fas fa-shield-alt"></i>
@@ -22,7 +21,6 @@
         </div>
 
         <div class="admin-2fa-body">
-            <!-- Сообщения -->
             {% if messages %}
             <div class="admin-2fa-messages">
                 {% for message in messages %}
@@ -34,11 +32,9 @@
             </div>
             {% endif %}
 
-            <!-- 2FA отключена -->
             {% if not admin_2fa.is_enabled %}
             
                 {% if not admin_2fa.secret_key %}
-                <!-- Активация 2FA -->
                 <div class="admin-2fa-activation">
                     <div class="admin-2fa-activation-header">
                         <h2><i class="fas fa-lock"></i> Активировать защиту</h2>
@@ -90,7 +86,6 @@
                 </div>
                 
                 {% else %}
-                <!-- Настройка с секретным ключом -->
                 <div class="admin-2fa-setup">
                     <div class="admin-2fa-secret-section">
                         <div class="admin-2fa-section-header">
@@ -149,7 +144,6 @@
                 {% endif %}
             
             {% else %}
-            <!-- 2FA активирована -->
             <div class="admin-2fa-active">
                 <div class="admin-2fa-status">
                     <div class="admin-2fa-status-icon">
@@ -182,7 +176,6 @@
                 </div>
                 {% endif %}
                 
-                <!-- Управление -->
                 <div class="admin-2fa-actions">
                     <form method="post" class="admin-2fa-action-form">
                         {% csrf_token %}
@@ -214,7 +207,6 @@
             </div>
             {% endif %}
             
-            <!-- Навигация -->
             <div class="admin-2fa-footer">
                 <a href="{% url 'admin:index' %}" class="admin-2fa-btn admin-2fa-btn-back">
                     <i class="fas fa-arrow-left"></i> Назад в админ-панель
