@@ -1,113 +1,152 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<title>Счёт №{{ invoice_number }} от {{ invoice_date }}</title>
+    <meta charset="utf-8">
+    <title>Счёт-оферта №{{ invoice_number }} от {{ invoice_date }}</title>
 
-<style>
-    body {
-        font-family: "DejaVu Sans", Arial, sans-serif;
-        color: #000;
-        background:#fff;
-        margin: 0;
-        padding: 0;
-    }
+    <style>
+        body {
+            font-family: "DejaVu Sans", Arial, sans-serif;
+            font-size: 13px;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
 
-    .sheet {
-        width: 210mm;
-        padding: 12mm 18mm;
-        margin: auto;
-        box-sizing: border-box;
-    }
+        @page {
+            size: A4;
+            margin: 110px 18mm 20mm 18mm;
+        }
 
-    h1, h2, h3, h4 {
-        margin: 0;
-        font-weight: 700;
-    }
+        .header {
+            position: fixed;
+            top: -90px;
+            left: 0;
+            right: 0;
+            height: 90px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+        }
 
-    .bank-table, .items, .summary-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 13px;
-    }
+        .header-logo img {
+            height: 60px;
+        }
 
-    .bank-table td, .items th, .items td, .summary-table td {
-        border: 1px solid #000;
-        padding: 4px 6px;
-        vertical-align: top;
-    }
+        .header-info {
+            margin-left: auto;
+            text-align: right;
+            font-size: 12.5px;
+            line-height: 1.4;
+        }
 
-    .items th {
-        font-weight: 700;
-        text-align: center;
-        background: #f9f9f9;
-    }
+        h2 {
+            margin: 10px 0;
+            text-align: center;
+            font-weight: 700;
+        }
 
-    .section-title {
-        font-weight: 700;
-        margin: 14px 0 6px 0;
-        font-size: 15px;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-    .conditions {
-        border: 1px solid #000;
-        padding: 8px;
-        margin-top: 12px;
-        font-size: 13px;
-    }
+        td, th {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            vertical-align: top;
+        }
 
-    .signatures {
-        margin-top: 28px;
-        display: flex;
-        justify-content: space-between;
-        font-size: 13px;
-    }
+        th {
+            background: #f9f9f9;
+            text-align: center;
+        }
 
-    .sig {
-        width: 48%;
-        position: relative;
-        padding-bottom: 50px;
-    }
+        .section-title {
+            font-weight: 700;
+            margin: 14px 0 6px 0;
+            page-break-after: avoid;
+        }
 
-    .sig .line {
-        margin-top: 36px;
-        border-top: 1px solid #000;
-        width: 240px;
-    }
+        .conditions {
+            border: 1px solid #000;
+            padding: 8px;
+            font-size: 12.5px;
+            line-height: 1.4;
+            page-break-inside: avoid;
+        }
 
-    .sig img.stamp {
-        position: absolute;
-        width: 120px;
-        opacity: 0.8;
-        left: 120px;
-        top: 10px;
-    }
+        tr,
+        .signatures,
+        .sig {
+            page-break-inside: avoid;
+        }
 
-    .sig img.sign {
-        position: absolute;
-        width: 140px;
-        left: 20px;
-        top: 0;
-        transform: translateY(-20px);
-    }
+        .summary-table {
+            width: 50%;
+            margin-left: auto;
+            margin-top: 14px;
+        }
 
-    @page {
-        size: A4;
-        margin: 15mm;
-    }
-</style>
+        .signatures {
+            margin-top: 30px;
+        }
+
+        .sig {
+            width: 50%;
+            position: relative;
+            padding-bottom: 50px;
+        }
+
+        .sig .line {
+            margin-top: 36px;
+            border-top: 1px solid #000;
+            width: 240px;
+        }
+
+        .sig img.sign,
+        .sig img.stamp {
+            filter: hue-rotate(200deg) saturate(1.4);
+            opacity: 0.75;
+        }
+
+        .sig img.sign {
+            position: absolute;
+            width: 140px;
+            left: 20px;
+            top: -20px;
+        }
+
+        .sig img.stamp {
+            position: absolute;
+            width: 120px;
+            left: 120px;
+            top: 10px;
+        }
+    </style>
 </head>
-<body>
 
-<div class="sheet">
-    <table class="bank-table">
+<body>
+    <div class="header">
+        <div class="header-logo">
+            <img src="/var/www/www-root/data/www/tech-re.ru/techresource/main/static/images/favicon/inv.svg">
+        </div>
+        <div class="header-info">
+            Тел.: +7 (937) 524-68-88<br>
+            г. Казань, ул. Техническая, 52<br>
+            www.tech-re.ru
+        </div>
+    </div>
+
+
+    <table>
         <tr>
             <td style="width:40%; border-right:none;">
                 Банк получателя:<br>
                 ФИЛИАЛ "НИЖЕГОРОДСКИЙ" АО "АЛЬФА-БАНК"
             </td>
             <td style="width:15%; text-align:center;">БИК</td>
-            <td style="width:45%; text-align:left;">042202824</td>
+            <td style="width:45%;">042202824</td>
         </tr>
         <tr>
             <td style="border-right:none;"></td>
@@ -121,36 +160,31 @@
         </tr>
     </table>
 
-    <h2 style="text-align:center; margin-top:14px;">СЧЁТ № {{ invoice_number }} от {{ invoice_date }}</h2>
+    <h2>СЧЁТ-ОФЕРТА № {{ invoice_number }} от {{ invoice_date }}</h2>
 
     <div class="section-title">Поставщик:</div>
     ООО «Техресурс», ИНН 1684010655, КПП 168401001, ОГРН 1231600004712<br>
-    Юридический адрес: 422527, Республика Татарстан, ул. Техническая, 52, офис 226<br>
+    Юридический адрес: 422527, Республика Татарстан, г. Казань, ул. Техническая, 52, офис 226<br>
     Тел.: +7 (937) 524-68-88, Email: Kaznacheev56@gmail.com
 
     <div class="section-title">Покупатель:</div>
     {{ buyer.name }}<br>
     ИНН/КПП: {{ buyer.inn|default:"—" }} / {{ buyer.kpp|default:"—" }}<br>
-    Адрес: {{ buyer.address|default:"—" }}<br>
-    Контакт: {{ buyer.phone|default:"—" }}, {{ buyer.email|default:"—" }}
+    Адрес: {{ buyer.address|default:"—" }}
 
     <div class="section-title">Условия поставки:</div>
     <div class="conditions">
-        • Бесплатная доставка до терминала «Деловые Линии» в городе покупателя.<br>
-        • Дальнейшая доставка до адреса оплачивается покупателем.<br>
-        • Обязательное уведомление о произведённой оплате.<br>
-        • Резервирование товара осуществляется после поступления денежных средств на расчётный счёт поставщика.<br>
-        • Срок действия счёта: {{ invoice_validity_days }} банковских дней.<br>
+        • Резервирование товара осуществляется после поступления 100% предоплаты.<br>
+        • Срок действия счёта: {{ invoice_validity_days }} календарных дней.<br>
         • Срок оплаты: до {{ due_date }}.
     </div>
 
-    <div class="section-title">Перечень товаров / услуг:</div>
-
-    <table class="items">
+    <div class="section-title">Перечень товаров:</div>
+    <table>
         <thead>
             <tr>
                 <th>№</th>
-                <th>Наименование товара / услуги</th>
+                <th>Наименование</th>
                 <th>Ед.</th>
                 <th>Кол-во</th>
                 <th>Цена, ₽</th>
@@ -158,28 +192,32 @@
                 <th>НДС</th>
             </tr>
         </thead>
-        <tbody>
-        {% for item in items %}
-            <tr>
-                <td style="text-align:center;">{{ forloop.counter }}</td>
-                <td>{{ item.description }}</td>
-                <td style="text-align:center;">{{ item.unit|default:"шт." }}</td>
-                <td style="text-align:center;">{{ item.quantity }}</td>
-                <td style="text-align:right;">{{ item.unit_price|floatformat:2 }}</td>
-                <td style="text-align:right;">{{ item.line_total|floatformat:2 }}</td>
-                <td style="text-align:right;">{{ item.vat|floatformat:2 }} ({{ item.vat_rate }}%)</td>
-            </tr>
-        {% endfor %}
-        </tbody>
+    <tbody>
+    {% for item in items %}
+    <tr><td style="text-align:center;">{{ forloop.counter }}</td>
+        <td>
+            {{ item.description }}
+            {% if item.article %}
+                <div style="font-size:12px;">Артикул: {{ item.article }}</div>
+            {% endif %}
+        </td>
+        <td style="text-align:center;">{{ item.unit|default:"шт." }}</td>
+        <td style="text-align:center;">{{ item.quantity }}</td>
+        <td style="text-align:right;">{{ item.unit_price|floatformat:2 }}</td>
+        <td style="text-align:right;">{{ item.line_total|floatformat:2 }}</td>
+        <td style="text-align:right;">{{ item.vat|floatformat:2 }} (20%)</td>
+    </tr>
+    {% endfor %}
+    </tbody>
     </table>
 
-    <table class="summary-table" style="margin-top:14px; width:50%; margin-left:auto;">
+    <table class="summary-table">
         <tr>
             <td>Сумма без НДС:</td>
             <td style="text-align:right;">{{ totals.net|floatformat:2 }} ₽</td>
         </tr>
         <tr>
-            <td>НДС ({{ totals.vat_rate }}%):</td>
+            <td>НДС (20%):</td>
             <td style="text-align:right;">{{ totals.vat|floatformat:2 }} ₽</td>
         </tr>
         <tr>
@@ -187,6 +225,24 @@
             <td style="text-align:right;"><b>{{ totals.gross|floatformat:2 }} ₽</b></td>
         </tr>
     </table>
+
+    <div class="section-title">ОФЕРТА</div>
+    <div class="conditions">
+        Настоящий Счёт-оферта является письменным предложением Поставщика заключить договор поставки
+        в соответствии со ст.ст. 432–444 ГК РФ и направляется Покупателю посредством электронной почты.<br><br>
+
+        Договор считается заключённым с момента акцепта оферты Покупателем путём полной (100%) оплаты
+        настоящего Счёта, что признаётся надлежащим акцептом (п.3 ст.438 ГК РФ) и подтверждает соблюдение
+        письменной формы договора (п.3 ст.434 ГК РФ). Отдельный договор не заключается.<br><br>
+
+        1. Предметом договора является поставка товара, указанного в Счёте.<br>
+        2. Счёт действителен {{ invoice_validity_days }} календарных дней.<br>
+        3. Срок поставки — не позднее 10 рабочих дней с момента поступления 100% оплаты.<br>
+        4. Доставка осуществляется транспортной компанией за счёт Покупателя.<br>
+        5. Осмотр товара производится при получении. Претензии принимаются в течение 10 календарных дней.<br>
+        6. Документооборот допускается в электронной форме.<br>
+        7. Споры подлежат рассмотрению в арбитражном суде по месту нахождения Поставщика.
+    </div>
 
     <div class="signatures">
         <div class="sig">
@@ -197,8 +253,6 @@
             Казначеев А.А.
         </div>
     </div>
-
-</div>
 
 </body>
 </html>
