@@ -123,6 +123,12 @@
             left: 120px;
             top: 10px;
         }
+
+        .qr-section {
+            width: 10%;
+            margin-left: auto;
+            margin-top: 14px;
+        }
     </style>
 </head>
 
@@ -226,6 +232,21 @@
         </tr>
     </table>
 
+    <table style="width:100%; margin-top:15px; border:none;">
+        <tr>
+            <td style="width:65%; border:none;"></td>
+            <td style="width:35%; border:none; text-align:right;">
+                {% if qr_code.qr_image %}
+                    <div style="font-size:12px; margin-bottom:6px;">
+                        Оплата по реквизитам
+                    </div>
+                    <img src="{{ qr_code.qr_image }}"
+                        style="width:120px; height:120px;">
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+    
     <div class="section-title">ОФЕРТА</div>
     <div class="conditions">
         Настоящий Счёт-оферта является письменным предложением Поставщика заключить договор поставки

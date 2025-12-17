@@ -6,20 +6,15 @@ from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.contrib.admin.views.decorators import staff_member_required
-import datetime
 import json
-import hashlib
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Min, Max
 import secrets
 from django.views.decorators.csrf import ensure_csrf_cookie
-import hmac
 from decimal import Decimal
 import requests
 from .models import NotificationLog
 import uuid
-import time
-import base64
 from io import BytesIO
 from django.contrib.auth.decorators import user_passes_test
 import logging
@@ -28,11 +23,10 @@ from hashlib import sha256
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 import random
-from datetime import timedelta, datetime
-from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from datetime import timedelta
+from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -46,23 +40,23 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth import get_user_model
 import os
 from django.http import Http404
-import magic
 from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
 from weasyprint import HTML, CSS
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from .models import SupportTicket, SupportAttachment
+from .models import SupportAttachment
 from .forms import SupportTicketForm
 import tempfile
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm
-
 from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm
-
-
 from django.db.models import Sum
+import qrcode
+import qrcode.image.svg
+import base64
+from PIL import Image
+
 
 User = get_user_model()
 
@@ -90,25 +84,20 @@ def admin_dashboard(request):
     if not request.user.is_staff:
         return redirect('index')
     
-    # Получаем заказы с фильтрами
     orders = Order.objects.all().order_by('-created_at')
     
-    # Фильтрация по статусу
     status_filter = request.GET.get('status')
     if status_filter:
         orders = orders.filter(status=status_filter)
     
-    # Фильтрация по дате
     date_filter = request.GET.get('date')
     if date_filter:
         orders = orders.filter(created_at__date=date_filter)
     
-    # Статистика
     total_orders = Order.objects.count()
     pending_orders = Order.objects.filter(status='pending').count()
     paid_orders = Order.objects.filter(is_payment_finalized=True).count()
     
-    # Выручка (только оплаченные заказы)
     total_revenue = Order.objects.filter(status='paid').aggregate(
         total=Sum('final_price')
     )['total'] or 0
@@ -117,7 +106,6 @@ def admin_dashboard(request):
         total=Sum('paid_amount')
     )['total'] or 0
 
-    # Отзывы на модерации
     pending_reviews = ProductReview.objects.filter(
         is_moderated=False
     ).select_related('user', 'product').order_by('-created_at')
@@ -164,7 +152,6 @@ def moderate_review(request, review_id):
 
 @ensure_csrf_cookie
 def products(request):
-    # Параметры поиска
     search_query = request.GET.get('search', '')
     category_filter = request.GET.get('category', '')
     brand_filter = request.GET.get('brand', '')
@@ -173,10 +160,8 @@ def products(request):
     in_stock = request.GET.get('in_stock', '')
     sort_by = request.GET.get('sort_by', 'name')
     
-    # Получаем товары
     products_list = Product.objects.filter(is_active=True)
     
-    # Применяем фильтры
     if search_query:
         products_list = products_list.filter(
             Q(name__icontains=search_query) |
@@ -219,22 +204,18 @@ def products(request):
     }
     products_list = products_list.order_by(sort_options.get(sort_by, 'name'))
     
-    # Пагинация
     paginator = Paginator(products_list, 12)  # 12 товаров на страницу
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
-    # Получаем доступные фильтры
     categories = Product.objects.filter(is_active=True).values_list('category', flat=True).distinct()
     brands = Product.objects.filter(is_active=True).values_list('brand', flat=True).distinct()
     
-    # Получаем минимальную и максимальную цены
     price_range = products_list.aggregate(
         min_price=Min('price'),
         max_price=Max('price')
     )
     
-    # Добавляем информацию об избранном
     if request.user.is_authenticated:
         try:
             wishlist = Wishlist.objects.get(user=request.user)
@@ -251,7 +232,6 @@ def products(request):
         for product in page_obj:
             product.in_wishlist = False
     
-    # Похожие товары
     similar_products = None
     if search_query:
         found_categories = products_list.values_list('category', flat=True).distinct()
@@ -280,11 +260,9 @@ def products(request):
         'filter_params': request.GET.copy(),
     }
     
-    # Если AJAX запрос, возвращаем JSON
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         from django.template.loader import render_to_string
         
-        # Создаем контекст для рендеринга товаров
         product_context = {
             'products': page_obj,
             'page_obj': page_obj,
@@ -474,7 +452,6 @@ def cart_view(request):
         'city', 'postal_code', 'is_default'
     )
 
-    # Расчет НДС
     vat_total = Decimal('0')
     total_without_vat = Decimal('0')
     vat_rate = Decimal('20.00')
@@ -511,7 +488,6 @@ def cart_view(request):
                     messages.error(request, f'Недостаточно товара "{cart_item.product.name}" на складе. Доступно: {cart_item.product.quantity}')
                     return redirect('cart')
             
-            # Создаем заказ только для оплаты по счету
             order = Order.objects.create(
                 user=request.user,
                 total_price=subtotal,
@@ -530,7 +506,6 @@ def cart_view(request):
                 customer_kpp=customer_kpp,
             )
             
-            # Добавляем товары в заказ
             for cart_item in cart_items:
                 OrderItem.objects.create(
                     order=order,
@@ -542,11 +517,7 @@ def cart_view(request):
 
             cart_item.product.quantity -= cart_item.quantity
             cart_item.product.save()
-            
-            # Очищаем корзину
             cart_items.delete()
-            
-            # Статус заказа
             order.status = 'processing'
             order.save()
             
@@ -579,7 +550,6 @@ def update_cart_item(request, item_id):
         
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
         
-        # Сохраняем старое количество для расчета НДС
         old_quantity = cart_item.quantity
         
         if action == 'increase':
@@ -626,13 +596,11 @@ def update_cart_item(request, item_id):
             success = False
             message = 'Неизвестное действие'
 
-        # Получаем обновленные данные корзины
         cart = Cart.objects.get(user=request.user)
         cart_items = cart.cartitem_set.all()
         cart_total = cart.get_total_price()
         item_count = cart.get_items_count()
         
-        # Рассчитываем НДС
         vat_rate = Decimal('20.00')
         vat_total = Decimal('0')
         
@@ -691,44 +659,10 @@ def resend_invoice(request, order_id):
     return redirect('orders')
 
 @login_required
-def update_order_payment_method(request, order_id):
-    """Смена способа оплаты заказа"""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    
-    if request.method == 'POST':
-        new_payment_method = request.POST.get('payment_method')
-        
-        if new_payment_method in ['card', 'invoice']:
-            order.payment_method = new_payment_method
-            
-            if new_payment_method == 'invoice':
-                order.status = 'processing'
-                messages.success(request, 'Заказ переведен на оплату по счету. Мы вышлем счет на вашу почту.')
-            else:
-                order.status = 'pending'
-                messages.success(request, 'Способ оплаты изменен на банковскую карту.')
-            
-            order.save()
-            
-            # Логируем изменение
-            OrderStatusLog.objects.create(
-                order=order,
-                old_status=order.status,
-                new_status=order.status,
-                changed_by=request.user,
-                notes=f"Изменен способ оплаты на {order.get_payment_method_display()}"
-            )
-        else:
-            messages.error(request, 'Неверный способ оплаты.')
-    
-    return redirect('orders')
-
-@login_required
 @require_http_methods(["POST"])
 def cancel_order(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     
-    # Проверяем, является ли запрос AJAX
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
     try:
@@ -738,12 +672,10 @@ def cancel_order(request, order_id):
             order.cancelled_at = timezone.now()
             order.save()
             
-            # Возвращаем товары на склад
             for item in order.orderitem_set.all():
                 item.product.quantity += item.quantity
                 item.product.save()
             
-            # Создаем лог изменения статуса
             OrderStatusLog.objects.create(
                 order=order,
                 old_status=old_status,
@@ -752,10 +684,8 @@ def cancel_order(request, order_id):
                 notes="Отменен пользователем через сайт"
             )
             
-            # Отправляем уведомление об отмене в Telegram
             send_cancellation_notification(order)
             
-            # Логируем уведомление
             NotificationLog.objects.create(
                 order=order,
                 notification_type='order_cancelled',
@@ -803,86 +733,6 @@ def cancel_order(request, order_id):
 def orders_view(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'main/orders.html', {'orders': orders})
-
-# Функции для уведомлений
-def send_order_notification(order):
-    """Отправка уведомления в Telegram о новом заказе"""
-    try:
-        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
-            
-            # Логируем отсутствие настроек
-            NotificationLog.objects.create(
-                order=order,
-                notification_type='telegram_sent',
-                message='Настройки Telegram не настроены',
-                success=False,
-                error_message='TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не настроены'
-            )
-            return False
-            
-        message = f"""
-🛒 <b>НОВЫЙ ОПЛАЧЕННЫЙ ЗАКАЗ #{order.id}</b>
-
-👤 <b>Клиент:</b> {order.customer_name}
-📞 <b>Телефон:</b> {order.customer_phone}
-📧 <b>Email:</b> {order.customer_email}
-💰 <b>Сумма:</b> {order.total_price} руб.
-🚚 <b>Адрес:</b> {order.delivery_address}
-💳 <b>Оплата:</b> {order.get_payment_method_display()}
-⏰ <b>Время оплаты:</b> {order.paid_at.strftime('%d.%m.%Y %H:%M') if order.paid_at else 'Не указано'}
-
-<b>Товары:</b>
-"""
-        
-        for item in order.orderitem_set.all():
-            message += f"• {item.product.name} x{item.quantity} - {item.get_total_price()} руб.\n"
-        
-        message += f"\n<b>Итого:</b> {order.total_price} руб."
-        
-        # Отправка в Telegram
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            'chat_id': settings.TELEGRAM_CHAT_ID,
-            'text': message,
-            'parse_mode': 'HTML'
-        }
-        
-        response = requests.post(url, json=payload, timeout=10)
-        
-        if response.status_code == 200:
-            # Логируем успешную отправку
-            NotificationLog.objects.create(
-                order=order,
-                notification_type='telegram_sent',
-                message='Уведомление отправлено в Telegram',
-                sent_to=f"Telegram chat: {settings.TELEGRAM_CHAT_ID}",
-                success=True
-            )
-            return True
-        else:
-            # Логируем ошибку
-            NotificationLog.objects.create(
-                order=order,
-                notification_type='telegram_sent',
-                message=f'Ошибка отправки в Telegram: {response.status_code}',
-                sent_to=f"Telegram chat: {settings.TELEGRAM_CHAT_ID}",
-                success=False,
-                error_message=response.text
-            )
-            return False
-        
-    except Exception as e:
-        error_msg = f"❌ Ошибка отправки в Telegram: {e}"
-        
-        # Логируем исключение
-        NotificationLog.objects.create(
-            order=order,
-            notification_type='telegram_sent',
-            message='Исключение при отправке в Telegram',
-            success=False,
-            error_message=str(e)
-        )
-        return False
     
 def password_reset_request(request):
     """Обработка запроса на восстановление пароля"""
@@ -895,7 +745,6 @@ def password_reset_request(request):
                 'error': 'Пожалуйста, введите email адрес'
             })
         
-        # Проверяем валидность email
         if not is_valid_email(email):
             return JsonResponse({
                 'success': False,
@@ -908,24 +757,19 @@ def password_reset_request(request):
                 'error': 'Слишком много запросов. Попробуйте через 5 минут.'
             })
         
-        # Ищем пользователя по email
         try:
             user = User.objects.get(email=email)
             
-            # Генерируем код
             reset_code = str(random.randint(100000, 999999))
             
-            # Сохраняем код в профиль
             profile, created = UserProfile.objects.get_or_create(user=user)
             profile.sms_code = reset_code
             profile.sms_code_expires = timezone.now() + timedelta(minutes=10)
             profile.save()
             
-            # Отправляем email с кодом
             email_sent = send_password_reset_email_via_mail_ru(email, reset_code, user.username)
             
             if email_sent:
-                # Логируем отправку
                 NotificationLog.objects.create(
                     notification_type='email_sent',
                     message=f'Код восстановления отправлен на {email}',
@@ -940,7 +784,6 @@ def password_reset_request(request):
                     'next_step': 'verify_code'
                 })
             else:
-                # Логируем ошибку
                 NotificationLog.objects.create(
                     notification_type='email_sent',
                     message=f'Ошибка отправки кода на {email}',
@@ -955,7 +798,6 @@ def password_reset_request(request):
                 })
                 
         except User.DoesNotExist:
-            # Для безопасности не сообщаем, что email не найден
             return JsonResponse({
                 'success': True,
                 'message': 'Если email зарегистрирован, код будет отправлен'
@@ -1036,7 +878,6 @@ def send_cancellation_notification(order):
     except Exception as e:
         return False
 
-# API для обновления количества через AJAX
 def update_quantity_ajax(request, product_id):
     if request.method == 'POST' and request.user.is_authenticated:
         try:
@@ -1078,17 +919,14 @@ def set_new_password(request):
                 reset_token_expires__gt=timezone.now()
             )
             
-            # Устанавливаем новый пароль
             user = profile.user
             user.set_password(new_password)
             user.save()
             
-            # Очищаем токен
             profile.reset_token = None
             profile.reset_token_expires = None
             profile.save()
             
-            # Отправляем подтверждение смены пароля
             send_password_changed_confirmation(user.email, user.username)
             
             return JsonResponse({
@@ -1199,12 +1037,10 @@ def verify_reset_code(request):
             user = User.objects.get(email=email)
             profile = UserProfile.objects.get(user=user)
             
-            # Проверяем код и его срок действия
             if (profile.sms_code == code and 
                 profile.sms_code_expires and 
                 profile.sms_code_expires > timezone.now()):
                 
-                # Код верный, генерируем временный токен
                 reset_token = str(uuid.uuid4())
                 profile.sms_code = None
                 profile.sms_code_expires = None
@@ -1212,7 +1048,6 @@ def verify_reset_code(request):
                 profile.reset_token_expires = timezone.now() + timedelta(hours=1)
                 profile.save()
                 
-                # Логируем успешную проверку
                 NotificationLog.objects.create(
                     notification_type='email_sent',
                     message=f'Код подтвержден для {email}',
@@ -1267,7 +1102,6 @@ def log_security_event(user, action, ip_address, user_agent, success=True):
         success=success
     )
 
-
 @csrf_protect
 @require_http_methods(["GET", "POST"])
 def secure_register(request):
@@ -1294,7 +1128,6 @@ def secure_register(request):
             )
             return redirect('profile')
         else:
-            # Логируем неудачную попытку регистрации
             if hasattr(form, 'cleaned_data') and 'username' in form.cleaned_data:
                 try:
                     user = User.objects.get(username=form.cleaned_data['username'])
@@ -1335,7 +1168,6 @@ def secure_login(request):
         ip_address = get_client_ip(request)
         user_agent = request.META.get('HTTP_USER_AGENT', '')
         
-        # Логируем попытку входа
         LoginAttempt.objects.create(
             username=request.POST.get('username', ''),
             ip_address=ip_address,
@@ -1350,8 +1182,6 @@ def secure_login(request):
             
             if user is not None:
                 login(request, user)
-                
-                # Обновляем попытку входа как успешную
                 attempt = LoginAttempt.objects.filter(
                     username=username, 
                     ip_address=ip_address
@@ -1360,17 +1190,14 @@ def secure_login(request):
                     attempt.success = True
                     attempt.save()
                 
-                # Логируем успешный вход
                 log_security_event(user, 'login', ip_address, user_agent, True)
                 
-                # Очищаем сессию от неудачных попыток
                 if 'login_attempts' in request.session:
                     del request.session['login_attempts']
                 
                 messages.success(request, 'Вход выполнен успешно!')
                 return redirect('profile')
         
-        # Логируем неудачную попытку входа
         if form.cleaned_data.get('username'):
             try:
                 user = User.objects.get(username=form.cleaned_data['username'])
@@ -1399,7 +1226,6 @@ def secure_password_reset(request):
             try:
                 user = User.objects.get(email=email, is_active=True)
                 
-                # Создаем токен сброса пароля
                 token = secrets.token_urlsafe(32)
                 expires_at = timezone.now() + timedelta(hours=1)
                 
@@ -1410,16 +1236,13 @@ def secure_password_reset(request):
                     ip_address=ip_address
                 )
                 
-                # Отправляем email
                 send_password_reset_email(user, token, request)
                 
-                # Логируем запрос сброса пароля
                 log_security_event(user, 'password_reset_request', ip_address, user_agent, True)
                 
             except User.DoesNotExist:
                 pass
             
-            # Всегда показываем одинаковое сообщение для безопасности
             messages.success(
                 request, 
                 'Если email зарегистрирован, инструкции по сбросу пароля будут отправлены.'
@@ -1469,21 +1292,14 @@ def secure_password_reset_confirm(request, token):
         user_agent = request.META.get('HTTP_USER_AGENT', '')
         
         if form.is_valid():
-            # Устанавливаем новый пароль
             user = reset_token.user
             user.set_password(form.cleaned_data['password1'])
             user.save()
             
-            # Помечаем токен как использованный
             reset_token.used = True
             reset_token.save()
-            
-            # Логируем смену пароля
             log_security_event(user, 'password_reset_success', ip_address, user_agent, True)
-            
-            # Отправляем уведомление о смене пароля
             send_password_change_notification(user, request)
-            
             messages.success(request, 'Пароль успешно изменен! Теперь вы можете войти.')
             return redirect('login')
     
@@ -1524,29 +1340,19 @@ def secure_change_password(request):
         user_agent = request.META.get('HTTP_USER_AGENT', '')
         
         if form.is_valid():
-            # Проверяем текущий пароль
             current_password = request.POST.get('current_password')
             if not request.user.check_password(current_password):
                 messages.error(request, 'Текущий пароль неверен.')
                 log_security_event(request.user, 'password_change_failed', ip_address, user_agent, False)
             else:
-                # Устанавливаем новый пароль
                 request.user.set_password(form.cleaned_data['password1'])
                 request.user.save()
-                
-                # Обновляем сессию
                 from django.contrib.auth import update_session_auth_hash
                 update_session_auth_hash(request, request.user)
-                
-                # Логируем смену пароля
                 log_security_event(request.user, 'password_change', ip_address, user_agent, True)
-                
-                # Отправляем уведомление
                 send_password_change_notification(request.user, request)
-                
                 messages.success(request, 'Пароль успешно изменен!')
                 return redirect('profile')
-    
     else:
         form = SecureSetPasswordForm()
     
@@ -1559,7 +1365,6 @@ def verify_email(request, token):
             verification_token_created__gt=timezone.now()-timedelta(hours=24)
         )
         
-        # Проверяем наличие полей перед установкой
         if hasattr(user, 'email_verified'):
             user.email_verified = True
         user.is_active = True
@@ -1616,7 +1421,6 @@ def contact_form_submit(request):
             phone = data.get('phone', '').strip()
             message = data.get('message', '').strip()
             
-            # Валидация
             if not name or not message:
                 return JsonResponse({
                     'success': False,
@@ -1629,14 +1433,11 @@ def contact_form_submit(request):
                     'error': 'Пожалуйста, укажите email или телефон для связи'
                 })
             
-            # Получаем IP-адрес
             ip_address = get_client_ip(request)
             
-            # Отправляем в Telegram
             success = send_contact_message(name, email, phone, message, ip_address)
             
             if success:
-                # Логируем успешную отправку
                 NotificationLog.objects.create(
                     notification_type='email_sent',
                     message=f'Сообщение обратной связи от {name}',
@@ -1649,7 +1450,6 @@ def contact_form_submit(request):
                     'message': 'Сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.'
                 })
             else:
-                # Логируем ошибку
                 NotificationLog.objects.create(
                     notification_type='email_sent',
                     message=f'Ошибка отправки сообщения от {name}',
@@ -1674,7 +1474,6 @@ def contact_form_submit(request):
 @staff_member_required
 def update_order_status(request, order_id=None):
     """Обновление статуса заказа (для админов)"""
-    # Если order_id не передан в URL, берем из POST данных
     if not order_id:
         order_id = request.POST.get('order_id')
     
@@ -1719,7 +1518,6 @@ def update_order_status(request, order_id=None):
                 notes=notes
             )
             
-            # Обновляем заказ
             order.status = new_status
             order.status_changed_at = timezone.now()
             
@@ -1729,7 +1527,6 @@ def update_order_status(request, order_id=None):
                 order.shipping_company = shipping_company
             if estimated_delivery:
                 try:
-                    # ИСПРАВЛЕНИЕ: используем правильный импорт datetime
                     from datetime import datetime
                     order.estimated_delivery = datetime.strptime(estimated_delivery, '%Y-%m-%d').date()
                 except ValueError:
@@ -1737,7 +1534,6 @@ def update_order_status(request, order_id=None):
                 
             order.save()
             
-            # Отправляем уведомление
             send_order_status_notification(order, old_status, new_status)
             
             messages.success(request, f'Статус заказа #{order.id} обновлен на "{order.get_status_display()}"')
@@ -1869,12 +1665,10 @@ def request_order_refund(request, order_id):
     if request.method == 'POST':
         reason = request.POST.get('reason', '')
         
-        # Можно добавить дополнительные проверки
         if order.status in ['paid', 'completed']:
             order.status = 'refunded'
             order.save()
             
-            # Логируем запрос возврата
             OrderStatusLog.objects.create(
                 order=order,
                 old_status=order.status,
@@ -1882,7 +1676,6 @@ def request_order_refund(request, order_id):
                 notes=f"Запрос возврата: {reason}"
             )
             
-            # Уведомление админов
             send_refund_request_notification(order, reason)
             
             messages.success(request, 'Запрос на возврат отправлен. Мы свяжемся с вами для уточнения деталей.')
@@ -1959,24 +1752,20 @@ def toggle_wishlist(request, product_id):
             product = Product.objects.get(id=product_id, is_active=True)
             wishlist, created = Wishlist.objects.get_or_create(user=request.user)
             
-            # Проверяем, есть ли уже товар в избранном
             wishlist_item = WishlistItem.objects.filter(
                 wishlist=wishlist, 
                 product=product
             ).first()
             
             if wishlist_item:
-                # Удаляем из избранного
                 wishlist_item.delete()
                 action = 'removed'
                 message = 'Товар удален из избранного'
             else:
-                # Добавляем в избранное
                 WishlistItem.objects.create(wishlist=wishlist, product=product)
                 action = 'added'
                 message = 'Товар добавлен в избранное'
             
-            # Получаем обновленное количество
             wishlist_count = wishlist.get_items_count()
             
             return JsonResponse({
@@ -2019,19 +1808,14 @@ def wishlist_to_cart(request, product_id):
         try:
             product = Product.objects.get(id=product_id, is_active=True)
             wishlist = Wishlist.objects.get(user=request.user)
-            
-            # Удаляем из избранного
             WishlistItem.objects.filter(wishlist=wishlist, product=product).delete()
-            
-            # Добавляем в корзину
             cart, created = Cart.objects.get_or_create(user=request.user)
             cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
             
             if not created:
                 cart_item.quantity += 1
                 cart_item.save()
-            
-            # Получаем обновленные данные
+    
             cart_count = cart.cartitem_set.count()
             wishlist_count = wishlist.get_items_count()
             
@@ -2064,7 +1848,6 @@ def remove_from_wishlist(request, product_id):
             product = Product.objects.get(id=product_id)
             wishlist = Wishlist.objects.get(user=request.user)
             
-            # Удаляем из избранного
             deleted_count = WishlistItem.objects.filter(
                 wishlist=wishlist, 
                 product=product
@@ -2119,43 +1902,11 @@ def clear_wishlist(request):
     
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
 
-# main/views.py
-def product_detail(request, product_id):
-    """Детальная страница товара"""
-    product = get_object_or_404(Product, id=product_id, is_active=True)
-    
-    # Получаем похожие товары
-    similar_products = Product.objects.filter(
-        category=product.category,
-        is_active=True
-    ).exclude(id=product.id)[:4]
-    
-    # Проверяем, есть ли товар в избранном у текущего пользователя
-    in_wishlist = False
-    if request.user.is_authenticated:
-        try:
-            wishlist = Wishlist.objects.get(user=request.user)
-            in_wishlist = WishlistItem.objects.filter(
-                wishlist=wishlist, 
-                product=product
-            ).exists()
-        except Wishlist.DoesNotExist:
-            pass
-    
-    context = {
-        'product': product,
-        'similar_products': similar_products,
-        'in_wishlist': in_wishlist,
-    }
-    
-    return render(request, 'main/product_detail.html', context)
-
 @login_required
 def add_review(request, product_id):
     """Добавление отзыва к товару"""
     product = get_object_or_404(Product, id=product_id, is_active=True)
     
-    # Проверяем, может ли пользователь оставить отзыв
     if not ProductReview.can_user_review(request.user, product):
         messages.error(request, 'Вы не можете оставить отзыв на этот товар.')
         return redirect('product_detail', product_id=product_id)
@@ -2189,7 +1940,6 @@ def edit_review(request, review_id):
     if request.method == 'POST':
         form = ProductReviewForm(request.POST, instance=review)
         if form.is_valid():
-            # Сбрасываем модерацию при редактировании
             review = form.save(commit=False)
             review.is_moderated = False
             review.is_approved = False
@@ -2220,20 +1970,17 @@ def delete_review(request, review_id):
     
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
 
-# Обновим функцию product_detail для включения отзывов
 def product_detail(request, product_id):
     """Детальная страница товара"""
     product = get_object_or_404(Product, id=product_id, is_active=True)
 
     product_images = product.get_images()
     
-    # Получаем похожие товары
     similar_products = Product.objects.filter(
         category=product.category,
         is_active=True
     ).exclude(id=product.id)[:4]
     
-    # Проверяем, есть ли товар в избранном у текущего пользователя
     in_wishlist = False
     if request.user.is_authenticated:
         try:
@@ -2245,9 +1992,8 @@ def product_detail(request, product_id):
         except Wishlist.DoesNotExist:
             pass
     
-    # Получаем отзывы с пагинацией
     reviews_list = ProductReview.get_approved_reviews(product)
-    paginator = Paginator(reviews_list, 5)  # 5 отзывов на страницу
+    paginator = Paginator(reviews_list, 5) 
     page = request.GET.get('page')
     
     try:
@@ -2257,10 +2003,8 @@ def product_detail(request, product_id):
     except EmptyPage:
         reviews = paginator.page(paginator.num_pages)
     
-    # Средний рейтинг
     average_rating = ProductReview.get_average_rating(product)
     
-    # Может ли пользователь оставить отзыв
     can_review = False
     user_review = None
     if request.user.is_authenticated:
@@ -2270,7 +2014,6 @@ def product_detail(request, product_id):
             product=product
         ).first()
     
-    # Форма для отзыва (если нужно)
     review_form = ProductReviewForm() if can_review else None
     
     context = {
@@ -2307,7 +2050,6 @@ def reorder_order(request, order_id):
             else:
                 cart_item.quantity += order_item.quantity
             
-            # Проверяем доступное количество
             if cart_item.quantity > cart_item.product.quantity:
                 cart_item.quantity = cart_item.product.quantity
             
@@ -2333,11 +2075,8 @@ def reorder_order(request, order_id):
 def order_details(request, order_id):
     """Детальная информация о заказе"""
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    
-    # Получаем полную историю статусов
     status_logs = OrderStatusLog.objects.filter(order=order).order_by('-changed_at')
     
-    # Получаем дополнительные данные
     context = {
         'order': order,
         'status_logs': status_logs,
@@ -2360,49 +2099,29 @@ def contacts(request):
     """Страница контактов"""
     return render(request, 'main/contacts.html')
 
-def test_email_sending(request):
-    """Тестовая функция для проверки отправки email"""
-    try:
-        send_mail(
-            'Тест отправки email с локальной машины',
-            'Поздравляю! Ваш Django успешно отправляет письма! 🎉',
-            settings.DEFAULT_FROM_EMAIL,
-            ['your_test_email@mail.ru'],  # ваш email для теста
-            fail_silently=False,
-        )
-        return JsonResponse({'success': True, 'message': 'Email отправлен успешно!'})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
-    
-
 def support_view(request):
     if request.method == 'POST':
         form = SupportTicketForm(request.POST, request.FILES)
         
         if form.is_valid():
             try:
-                # Создаем заявку
                 ticket = form.save(commit=False)
                 
-                # Добавляем информацию о пользователе
                 if request.user.is_authenticated:
                     ticket.user = request.user
                 
-                # Добавляем техническую информацию
                 ticket.ip_address = get_client_ip(request)
                 ticket.user_agent = request.META.get('HTTP_USER_AGENT', '')
                 
                 ticket.save()
                 
-                # Обрабатываем файл
                 attachment_file = request.FILES.get('attachments')
                 if attachment_file:
                     try:
-                        # Создаем запись вложения в базе данных
                         support_attachment = SupportAttachment(
                             ticket=ticket,
                             file=attachment_file,
-                            file_name=attachment_file.name,  # Используем .name вместо .file_name
+                            file_name=attachment_file.name,  
                             file_size=attachment_file.size
                         )
                         support_attachment.save()
@@ -2509,7 +2228,6 @@ def send_support_notification(ticket, attachments):
 {ticket.description}
 """
         
-        # Отправка основного сообщения
         url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
         payload = {
             'chat_id': chat_id,
@@ -2521,14 +2239,12 @@ def send_support_notification(ticket, attachments):
         if response.status_code != 200:
             return send_fallback_notification(ticket, attachments)
             
-        # Отправка вложений если есть
         for attachment in attachments:
             try:
                 send_attachment_with_quality(attachment, chat_id)
             except Exception as e:
                 return False
         
-        # Логируем отправку
         NotificationLog.objects.create(
             notification_type='support_ticket',
             message=f'Заявка поддержки #{ticket.id} отправлена в Telegram ({ "CRITICAL" if ticket.priority == "critical" else "NORMAL" })',
@@ -2547,7 +2263,6 @@ def parse_user_agent(user_agent):
         ua = user_agent.lower()
         browser_info = {}
         
-        # Определяем браузер
         if 'chrome' in ua:
             browser_info['browser'] = 'Chrome'
         elif 'firefox' in ua:
@@ -2616,7 +2331,6 @@ def send_attachment_with_quality(attachment, chat_id):
         file_path = attachment.file.path
         file_name = attachment.file_name.lower()
         
-        # Определяем тип файла
         if any(ext in file_name for ext in ['.jpg', '.jpeg', '.png', '.webp']):
             url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
             
@@ -2717,33 +2431,6 @@ def send_attachment_to_telegram(attachment):
         
     except Exception as e:
         return False
-    
-class PaymentSecurityService:
-    @staticmethod
-    def verify_payment_amount(order, payment_data):
-        """Проверка суммы платежа"""
-        expected_amount = float(order.total_price)
-        actual_amount = float(payment_data.get('amount', {}).get('value', 0))
-        
-        return abs(expected_amount - actual_amount) < 0.01
-
-    @staticmethod
-    def is_webhook_duplicate(payment_id, event_type):
-        """Проверка на дублирование webhook"""
-        cache_key = f"webhook_{payment_id}_{event_type}"
-        if cache.get(cache_key):
-            return True
-        cache.set(cache_key, True, 86400)
-        return False
-
-    @staticmethod
-    def create_webhook_signature(payload, secret):
-        """Создание подписи для webhook"""
-        return hmac.new(
-            secret.encode(),
-            json.dumps(payload, sort_keys=True).encode(),
-            sha256
-        ).hexdigest()
     
 class RateLimiter:
     @staticmethod
@@ -2971,7 +2658,6 @@ def dynamic_service_page(request, service_slug, sub_slug=None, instruction_slug=
             )
         
     except ServicePage.DoesNotExist:
-        # Если страница не найдена, показываем 404
         raise Http404("Страница не найдена")
     
     navigation_tree = ServicePage.get_navigation_tree()
@@ -3200,6 +2886,8 @@ def send_invoice_email(order):
             'phone': '+7 (937) 524-68-88',
             'email': 'Kaznacheev56@gmail.com',
         }
+
+        qr_code_data = generate_payment_qr_code(order, company_info)
         
         buyer_info = {
             'name': order.customer_name,
@@ -3242,9 +2930,10 @@ def send_invoice_email(order):
             'due_date': due_date.strftime('%d.%m.%Y'),
             'company': company_info,
             'buyer': buyer_info,
-            'items': items_data,
             'totals': totals,
+            'items': items_data,
             'invoice_validity_days': 5,
+            'qr_code': qr_code_data,
         }
         
         html_content = render_to_string('main/invoice_email.html', context)
@@ -3609,7 +3298,6 @@ def anonymous_update_cart(request):
                 quantity = cart[product_id]['quantity'] + delta
             
             if quantity < 1:
-                # Удаляем товар
                 del cart[product_id]
             else:
                 if quantity > product.quantity:
@@ -3887,3 +3575,46 @@ def send_file_to_telegram(file_path, file_name, caption=None):
                 
     except Exception as e:
         return False
+    
+def generate_payment_qr_code(order, company_info):
+    """
+    Платёжный QR по ГОСТ Р 56042-2014 (ST00012)
+    Работает без СБП и без API банка
+    """
+
+    amount_kopecks = int(order.total_price * 100)
+
+    qr_text = (
+        "ST00012|"
+        f"Name={company_info['name']}|"
+        f"PersonalAcc={company_info['bank_account']}|"
+        f"BankName={company_info['bank_name']}|"
+        f"BIC={company_info['bik']}|"
+        f"CorrespAcc={company_info['correspondent_account']}|"
+        f"PayeeINN={company_info['inn']}|"
+        f"Purpose=Оплата счета №{order.invoice_number} от "
+        f"{order.invoice_date.strftime('%d.%m.%Y')}|"
+        f"Sum={amount_kopecks}"
+    )
+
+    qr = qrcode.QRCode(
+        version=5,
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=6,
+        border=1,
+    )
+
+    qr.add_data(qr_text)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+
+    img_base64 = base64.b64encode(buffer.getvalue()).decode()
+
+    return {
+        'qr_image': f"data:image/png;base64,{img_base64}",
+        'qr_text': qr_text
+    }
