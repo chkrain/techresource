@@ -232,35 +232,81 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'article', 'price', 'quantity', 'category', 'is_active', 'created_at']
+    list_display = ['article', 'name', 'category', 'price', 'quantity', 'is_active', 'get_article_date']
     list_filter = ['category', 'is_active', 'created_at']
     search_fields = ['name', 'article', 'description']
     list_editable = ['price', 'quantity', 'is_active']
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ['article', 'slug', 'seo_title', 'seo_description', 'seo_keywords', 'created_at', 'updated_at', 'get_article_date']
     inlines = [ProductImageInline]
     
     fieldsets = (
         ('Основная информация', {
-            'fields': ('name', 'article', 'description', 'category', 'brand')
+            'fields': ('name', 'category', 'brand', 'description', 'article', 'get_article_date', 'slug')
         }),
         ('Цена и наличие', {
             'fields': ('price', 'quantity', 'is_active')
         }),
         ('Технические характеристики', {
-            'fields': ('material', 'specifications'),
+            'fields': ('material', 'weight', 'dimensions', 'warranty', 'specifications'),
             'classes': ('collapse',)
+        }),
+        ('SEO настройки (автозаполняются)', {
+            'fields': ('seo_title', 'seo_description', 'seo_keywords'),
+            'classes': ('collapse',),
+            'description': 'Эти поля заполняются автоматически на основе названия и описания.'
         }),
         ('Даты', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
+
+    def get_fieldsets(self, request, obj=None):
+        """Показываем разные наборы полей для создания и редактирования"""
+        if obj is None:
+            return (
+                ('Основная информация*', {
+                    'fields': ('name', 'category', 'brand'),
+                    'description': 'Заполните эти три поля. Остальные заполнятся автоматически.'
+                }),
+                ('Описание (рекомендуется)', {
+                    'fields': ('description',),
+                    'classes': ('collapse',)
+                }),
+                ('Цена и наличие*', {
+                    'fields': ('price', 'quantity', 'is_active')
+                }),
+            )
+        else:
+            return super().get_fieldsets(request, obj)
     
+    def get_article_date(self, obj):
+        """Отображение даты из артикула в списке"""
+        return obj.get_article_date()
+    get_article_date.short_description = 'Дата добавления'
+    get_article_date.admin_order_field = 'created_at'
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  
+            return ['article', 'slug', 'seo_title', 'seo_description', 'seo_keywords', 'created_at', 'updated_at', 'get_article_date']
+        else:  
+            return ['article', 'slug', 'seo_title', 'seo_description', 'seo_keywords', 'created_at', 'updated_at', 'get_article_date']
+
     def save_model(self, request, obj, form, change):
         """Логирование изменений товаров"""
-        if change:
-            logger.info(f"Admin {request.user} modified product {obj.name} (ID: {obj.id})")
+        if not change:  
+            logger.info(f"Admin {request.user} создал товар '{obj.name}' с артикулом {obj.article}")
+        else:
+            logger.info(f"Admin {request.user} изменил товар '{obj.name}' (арт: {obj.article})")
+        
         super().save_model(request, obj, form, change)
+
+    def add_view(self, request, form_url='', extra_context=None):
+        """Кастомное отображение для добавления товара"""
+        extra_context = extra_context or {}
+        extra_context['show_save_and_add_another'] = True
+        extra_context['show_save_and_continue'] = False
+        return super().add_view(request, form_url, extra_context)
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):

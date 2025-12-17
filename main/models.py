@@ -8,13 +8,16 @@ from django.utils import timezone
 import secrets
 import hashlib
 import time
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.conf import settings
-import json
 import hmac
 import base64
 from decimal import Decimal
 import struct
+from django.db.models.signals import pre_save
+from django.utils.text import slugify
+import re
+
 
 class UserProfile(models.Model):
     ACCOUNT_TYPE_CHOICES = [
@@ -390,9 +393,13 @@ class Product(models.Model):
     description = models.TextField(verbose_name="Описание", blank=True)
     quantity = models.IntegerField(default=0, verbose_name="Остаток")
     category = models.CharField(max_length=100, verbose_name="Категория", blank=True)
-    article = models.CharField(max_length=50, verbose_name="Артикул", blank=True)
+    article = models.CharField(max_length=15, verbose_name="Артикул", blank=True, unique=True, editable=False, help_text="Автоматически генерируется при создании")
     image = models.ImageField(upload_to='products/', verbose_name="Изображение", blank=True, null=True)
     is_active = models.BooleanField(default=True, verbose_name="Активный")
+    seo_title = models.CharField(max_length=200, verbose_name="SEO Title",blank=True,help_text="Автоматически генерируется")
+    seo_description = models.TextField(verbose_name="SEO Description", max_length=160,blank=True,help_text="Автоматически генерируется")
+    seo_keywords = models.TextField(verbose_name="SEO Keywords",blank=True,help_text="Автоматически генерируется")
+    slug = models.SlugField(max_length=200,unique=True,blank=True,verbose_name="URL",help_text="Автоматически генерируется из названия")
     
     brand = models.CharField(max_length=100, verbose_name="Бренд", blank=True)
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0, verbose_name="Рейтинг")
@@ -424,7 +431,6 @@ class Product(models.Model):
     requires_special_delivery = models.BooleanField(default=False, verbose_name="Требует спецдоставки")
 
     
-    # Новые поля для безопасности
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
     last_restock = models.DateTimeField(null=True, blank=True, verbose_name="Последнее пополнение")
 
@@ -434,10 +440,26 @@ class Product(models.Model):
         if self.price and self.vat_rate:
             hundred = Decimal('100')
             self.price_without_vat = self.price / (1 + self.vat_rate / hundred)
+
+        is_new = not self.pk
+
+        if is_new or not self.article or self.article == '':
+            self.article = self.generate_article()
+
+        if is_new or not self.seo_title or not self.seo_description:
+            self.generate_seo_fields()
+
+        if is_new or not self.slug or self.slug == '':
+            if self.name:
+                base_slug = slugify(self.name)[:50]
+                self.slug = f"{base_slug}-{self.article}"
+
+        self.updated_at = datetime.now()
+
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} (арт: {self.article})"
     
     def get_main_image(self):
         """Возвращает основное изображение товара"""
@@ -456,6 +478,138 @@ class Product(models.Model):
     def get_images(self):
         """Возвращает все изображения товара в правильном порядке"""
         return self.images.all().order_by('order', 'created_at')
+    
+    def generate_article(self):
+        """
+        Генерация артикула по формату: ДДММГГПП
+        Где:
+          ДД - день месяца (01-31)
+          ММ - месяц (01-12)
+          ГГ - две последние цифры года (24 для 2024)
+          ПП - порядковый номер товара за этот день (01-99)
+        """
+        now = datetime.now()
+        
+        day_str = f"{now.day:02d}"       
+        month_str = f"{now.month:02d}"   
+        year_str = f"{now.year % 100:02d}"  
+        
+        date_part = f"{day_str}{month_str}{year_str}"
+        
+        today = date.today()
+        today_products = Product.objects.filter(
+            created_at__date=today
+        )
+        
+        if today_products.exists():
+            max_order = 0
+            for product in today_products:
+                if product.article:
+                    try:
+                        current_order = int(product.article[-2:])
+                        if current_order > max_order:
+                            max_order = current_order
+                    except (ValueError, IndexError):
+                        continue
+            
+            next_order = max_order + 1
+            
+            if next_order > 99:
+                tomorrow = now.replace(day=now.day + 1)
+                day_str = f"{tomorrow.day:02d}"
+                month_str = f"{tomorrow.month:02d}"
+                year_str = f"{tomorrow.year % 100:02d}"
+                date_part = f"{day_str}{month_str}{year_str}"
+                next_order = 1
+        else:
+            next_order = 1
+        
+        order_str = f"{next_order:02d}"  
+        
+        return f"{date_part}{order_str}"
+    
+    def generate_seo_fields(self):
+        """Автоматическая генерация SEO полей"""
+        if self.name:
+            base_title = f"{self.name}"
+            if self.brand:
+                base_title = f"{self.brand} {self.name}"
+            
+            if self.category:
+                seo_title = f"{base_title} - купить в {self.category} | Техресурс"
+            else:
+                seo_title = f"{base_title} | Техресурс"
+            
+            self.seo_title = seo_title[:200]
+        
+        if self.description:
+            clean_desc = re.sub(r'<[^>]+>', '', self.description) 
+            words = clean_desc.split()[:25]  
+            seo_desc = ' '.join(words)
+            
+            if self.price:
+                seo_desc += f" Цена: {self.price} руб."
+            
+            if self.brand:
+                seo_desc += f" Бренд: {self.brand}"
+            
+            if self.article:
+                seo_desc += f" Артикул: {self.article}"
+            
+            self.seo_description = seo_desc[:160]
+        else:
+            if self.name and self.price:
+                desc_text = f"{self.name}. Купить по цене {self.price} руб."
+                if self.article:
+                    desc_text += f" Артикул: {self.article}"
+                desc_text += " | Техресурс"
+                self.seo_description = desc_text[:160]
+        
+        keywords = []
+        if self.category:
+            category_lower = self.category.lower()
+            keywords.append(category_lower)
+            keywords.append(f"купить {category_lower}")
+            keywords.append(f"{category_lower} цена")
+        
+        if self.brand:
+            brand_lower = self.brand.lower()
+            keywords.append(brand_lower)
+            keywords.append(f"{brand_lower} купить")
+            keywords.append(f"{brand_lower} цена")
+        
+        if self.material:
+            material_lower = self.material.lower()
+            keywords.append(material_lower)
+            keywords.append(f"{material_lower} товары")
+        
+        if self.name:
+            name_words = self.name.lower().split()[:5]
+            keywords.extend(name_words)
+            keywords.append(f"{' '.join(name_words)} купить")
+        
+        general_keywords = [
+            "промышленное оборудование", 
+            "техническое оборудование",
+            "производственное оборудование",
+            "инструменты и оборудование",
+            "купить оборудование",
+            "оборудование цена",
+            "техника для производства"
+        ]
+        keywords.extend(general_keywords)
+        
+        unique_keywords = list(dict.fromkeys(keywords))[:15]
+        self.seo_keywords = ', '.join(unique_keywords)
+        
+        if self.name:
+            base_slug = slugify(self.name)[:50]  
+            
+            if self.article:
+                self.slug = f"{base_slug}-{self.article}"
+            else:
+                temp_article = self.generate_article()
+                self.slug = f"{base_slug}-{temp_article}"
     
     def get_display_image(self):
         """Возвращает изображение для отображения в каталоге и корзине"""
@@ -476,13 +630,27 @@ class Product(models.Model):
             return display_image.url
         return None
     
+    def get_article_date(self):
+        """Получить дату из артикула для отображения"""
+        if len(self.article) == 8:
+            try:
+                day = int(self.article[0:2])
+                month = int(self.article[2:4])
+                year = 2000 + int(self.article[4:6])  # 20 + ГГ
+                return f"{day:02d}.{month:02d}.{year}"
+            except (ValueError, IndexError):
+                return "Дата неизвестна"
+        return "Дата неизвестна"
+
     class Meta:
         verbose_name = "Товар"
         verbose_name_plural = "Товары"
-        ordering = ['name']
+        ordering = ['-created_at']
         indexes = [
+            models.Index(fields=['article']),
             models.Index(fields=['is_active', 'category']),
             models.Index(fields=['price', 'is_active']),
+            models.Index(fields=['slug']),
         ]
 
 class ProductImage(models.Model):
