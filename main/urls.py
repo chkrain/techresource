@@ -17,6 +17,7 @@ sitemaps = {
 
 urlpatterns = [
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('yandex_8820f023c5e740e9.html', views.yandex_8820f023c5e740e9, name='yandex_8820f023c5e740e9'),
 
     path('', views.index, name='index'),
     path('about/', views.about, name='about'),
@@ -118,5 +119,4 @@ urlpatterns = [
 
     path('manifest.json', TemplateView.as_view(template_name='manifest.json',content_type='application/json'), name='manifest'),
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
-    path('sitemap.xml', TemplateView.as_view(template_name="sitemap.xml", content_type="application/xml")),
 ]

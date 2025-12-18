@@ -69,6 +69,9 @@ def index(request):
 def about(request):
     return render(request, 'main/about.html')
 
+def yandex_8820f023c5e740e9(request):
+    return render(request, 'main/yandex_8820f023c5e740e9.html')
+    
 def services(request):
     return render(request, 'main/services.html')
 
