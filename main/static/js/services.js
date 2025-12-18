@@ -1,17 +1,20 @@
-window.addEventListener('load', function() {
-    AOS.init({
-        duration: 800,
-        once: true,
-        offset: 100,
-        startEvent: 'load',
-        initClassName: 'aos-init',
-        animatedClassName: 'aos-animate'
-    });
-    
-    setTimeout(() => {
-        AOS.refresh();
-    }, 100);
-});
+function toggleMenu() {
+    const nav = document.getElementById("main-nav");
+    if (nav) {
+        const isActive = nav.classList.contains('active');
+        console.log('Toggle menu. Current state:', isActive ? 'open' : 'closed');
+        nav.classList.toggle('active');
+        console.log('New state:', nav.classList.contains('active') ? 'open' : 'closed');
+        
+        if (!nav.classList.contains('active')) {
+            nav.style.display = 'none';
+        } else {
+            nav.style.display = 'flex';
+        }
+    } else {
+        console.error('Menu element #main-nav not found!');
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     initCounters();
