@@ -108,22 +108,51 @@
                 
                 <div class="product-actions">
                     {% if product.quantity > 0 %}
-                        <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{ product.id }}">
-                            <span class="btn-icon">🛒</span>
-                            Добавить в корзину
-                        </button>
+                        {% if request.user.is_authenticated %}
+                            <button type="button" 
+                                    class="btn btn-primary add-to-cart-btn" 
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name }}"
+                                    data-product-price="{{ product.price }}"
+                                    data-product-image="{% with main_image=product.get_main_image %}{% if main_image %}{{ main_image.image.url }}{% endif %}{% endwith %}"
+                                    data-product-url="{% url 'product_detail' product.id %}">
+                                <span class="btn-icon">🛒</span>
+                                Добавить в корзину
+                            </button>
+                        {% else %}
+                            <button type="button" 
+                                    class="btn btn-primary anonymous-quick-order" 
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name }}">
+                                Быстрый заказ
+                            </button>
+                            <div class="quick-order-info" style="margin-top: 10px; font-size: 0.85rem; color: #666; text-align: center;">
+                                <p>⚡ <strong>Быстрый заказ:</strong> Добавьте товар в заказ, и мы вышлем вам счет на оплату</p>
+                            </div>
+                        {% endif %}
                     {% else %}
                         <button class="btn btn-primary" disabled>
-                            <span class="btn-icon">⏸️</span>
                             Нет в наличии
                         </button>
                     {% endif %}
                     
-                    <button type="button" class="btn btn-secondary toggle-wishlist-btn {% if in_wishlist %}active{% endif %}" 
-                            data-product-id="{{ product.id }}">
-                        <span class="btn-icon">{{ in_wishlist|yesno:"❤️,🤍" }}</span>
-                        {{ in_wishlist|yesno:"В избранном,В избранное" }}
-                    </button>
+                    {% if request.user.is_authenticated %}
+                        <button type="button" 
+                                class="btn btn-secondary toggle-wishlist-btn {% if in_wishlist %}active{% endif %}" 
+                                data-product-id="{{ product.id }}">
+                            <span class="btn-icon">{{ in_wishlist|yesno:"❤️,🤍" }}</span>
+                            {{ in_wishlist|yesno:"В избранном,В избранное" }}
+                        </button>
+                    {% else %}
+                        <a href="{% url 'login' %}?next={{ request.path }}" 
+                           class="btn btn-secondary">
+                            <span class="btn-icon">🤍</span>
+                            В избранное
+                        </a>
+                        <div class="login-prompt-favorite" style="color: black !important;">
+                            Чтобы добавлять товары в избранное, <a href="{% url 'login' %}">войдите в аккаунт</a>
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div class="product-details">

@@ -178,7 +178,6 @@
                     {% include 'main/components/product_grid.html' %}
                 </div>
                 
-                <!-- Пагинация -->
                 {% if page_obj.has_other_pages %}
                 <div class="pagination" id="paginationContainer">
                     {% if page_obj.has_previous %}
@@ -199,7 +198,6 @@
                 </div>
                 {% endif %}
                 
-                <!-- Индикатор загрузки -->
                 <div id="loadingIndicator" class="loading-indicator" style="display: none;">
                     <div class="spinner"></div>
                     <p>Загружаем товары...</p>
@@ -209,7 +207,6 @@
     </div>
 </section>
 
-<!-- CTA секция -->
 <section class="products-cta">
     <div class="container">
         <div class="cta-content">
@@ -227,7 +224,6 @@
     </div>
 </section>
 
-<!-- Toast уведомления -->
 <div id="toast-container" class="toast-container"></div>
 
 <link rel="stylesheet" href="{% static 'css/products.css' %}">
