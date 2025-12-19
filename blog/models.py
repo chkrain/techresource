@@ -186,7 +186,7 @@ class BlogComment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")
+    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес", null=True)
     user_agent = models.TextField(blank=True, verbose_name="User Agent")
     
     likes = models.PositiveIntegerField(default=0, verbose_name="Лайки")
