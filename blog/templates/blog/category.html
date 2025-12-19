@@ -1,0 +1,13 @@
+{% extends "blog/base.html" %}
+
+{% block blog_content %}
+<section class="category-header">
+    <h1 class="category-title">{{ category.name }}</h1>
+    {% if category.description %}
+    <p class="category-description">{{ category.description }}</p>
+    {% endif %}
+    <p class="category-count">{{ articles|length }} статей</p>
+</section>
+
+{% include "blog/home.html" with articles=articles %}
+{% endblock %}

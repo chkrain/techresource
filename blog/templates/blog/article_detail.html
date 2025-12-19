@@ -1,0 +1,194 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% load blog_filters %}  
+
+{% block blog_content %}
+<article class="article-detail">
+    <nav class="breadcrumbs">
+        <a href="{% url 'blog:blog_home' %}">Блог</a>
+        <i class="fas fa-chevron-right"></i>
+        <a href="{{ article.category.get_absolute_url }}">{{ article.category.name }}</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>{{ article.title|truncatechars:30 }}</span>
+    </nav>
+
+    <header class="article-header">
+        <div class="article-categories">
+            <h1 class="article-title">{{ article.title }}</h1>
+            <a href="{{ article.category.get_absolute_url }}" class="category-badge">
+                {{ article.category.name }}
+            </a>
+            {% if article.is_featured %}
+            <span class="featured-badge">
+                <i class="fas fa-star"></i> Рекомендуем
+            </span>
+            {% endif %}
+        </div>
+        
+        <div class="article-meta">
+            <div class="author-info">
+                <div class="author-avatar">
+                    {{ article.author.username|first|upper }}
+                </div>
+                <div class="author-details">
+                    <div class="author-name">{{ article.author.get_full_name|default:article.author.username }}</div>
+                    <div class="article-date">
+                        <i class="far fa-calendar"></i> 
+                        Опубликовано: {{ article.published_at|date:"d.m.Y H:i" }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="article-stats">
+                <span class="stat-item">
+                    <i class="far fa-eye"></i> {{ article.views }} просмотров
+                </span>
+                <span class="stat-item">
+                    <i class="far fa-comment"></i> {{ article.comments.count }} комментариев
+                </span>
+                <span class="stat-item">
+                    <i class="far fa-clock"></i> 
+                    {{ reading_time }}
+                </span>
+                <span class="stat-item reading-time">
+                    <i class="far fa-clock"></i> 
+                    {{ article.content|reading_time }}  
+                </span>
+            </div>
+        </div>
+    </header>
+
+    {% if article.featured_image %}
+    <div class="article-featured-image">
+        <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" loading="lazy">
+        {% if article.featured_image_caption %}
+        <div class="image-caption">{{ article.featured_image_caption }}</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="article-content">
+        <div class="article-excerpt">
+            <p><strong>{{ article.excerpt }}</strong></p>
+        </div>
+        
+        <div class="article-body">
+            {{ article.content|safe }}
+        </div>
+    </div>
+
+    {% if article.get_tags_list %}
+    <div class="article-tags-section">
+        <h3><i class="fas fa-tags"></i> Теги:</h3>
+        <div class="tags-list">
+            {% for tag in article.get_tags_list %}
+            <a href="{% url 'blog:blog_search' %}?q={{ tag|urlencode }}" class="tag">{{ tag }}</a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <nav class="article-navigation">
+        {% if previous_article %}
+        <a href="{{ previous_article.get_absolute_url }}" class="nav-link prev-article">
+            <i class="fas fa-arrow-left"></i>
+            <div class="nav-content">
+                <span class="nav-label">Предыдущая</span>
+                <span class="nav-title">{{ previous_article.title|truncatechars:40 }}</span>
+            </div>
+        </a>
+        {% endif %}
+        
+        {% if next_article %}
+        <a href="{{ next_article.get_absolute_url }}" class="nav-link next-article">
+            <div class="nav-content">
+                <span class="nav-label">Следующая</span>
+                <span class="nav-title">{{ next_article.title|truncatechars:40 }}</span>
+            </div>
+            <i class="fas fa-arrow-right"></i>
+        </a>
+        {% endif %}
+    </nav>
+
+    <section class="comments-section" id="comments">
+        <div class="comments-header">
+            <h2><i class="far fa-comments"></i> Комментарии ({{ article.comments.count }})</h2>
+            
+            {% if article.allow_comments %}
+                {% if user.is_authenticated %}
+                    <a href="{% url 'blog:add_comment' article.slug %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Добавить комментарий
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Войдите, чтобы комментировать
+                    </a>
+                {% endif %}
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Комментарии к этой статье закрыты.
+            </div>
+            {% endif %}
+        </div>
+
+        {% if article.comments.exists %}
+        <div class="comments-list">
+            {% for comment in article.comments.all %}
+                {% if comment.status == 'approved' %}
+                <div class="comment-item {% if comment.is_highlighted %}highlighted{% endif %}">
+                    <div class="comment-header">
+                        <div class="comment-author">
+                            <div class="author-avatar">
+                                {{ comment.user.username|first|upper }}
+                            </div>
+                            <div class="author-info">
+                                <div class="author-name">{{ comment.user.username }}</div>
+                                <div class="comment-date">
+                                    {{ comment.created_at|date:"d.m.Y H:i" }}
+                                    {% if comment.is_edited %}
+                                    <span class="edited-badge" title="Отредактировано {{ comment.edited_at|date:'d.m.Y H:i' }}">
+                                        (ред.)
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if comment.user == user or user.is_superuser %}
+                        <div class="comment-actions">
+                            {% if comment.can_edit %}
+                            <a href="{% url 'blog:edit_comment' comment.pk %}" class="action-link">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'blog:delete_comment' comment.pk %}" class="action-link text-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="comment-content">
+                        {{ comment.content|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-comments">
+            <i class="far fa-comment-dots fa-3x"></i>
+            <p>Пока нет комментариев. Будьте первым!</p>
+        </div>
+        {% endif %}
+    </section>
+</article>
+
+<style>
+.reading-time {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+</style>
+{% endblock %}

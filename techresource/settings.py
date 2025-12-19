@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'django_user_agents',
     'main',
+    'blog',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +58,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'main.middleware.Admin2FAMiddleware',
     'main.middleware.AdminSecurityMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
 ]
 
 ROOT_URLCONF = 'techresource.urls'
@@ -76,6 +79,21 @@ TEMPLATES = [
         },
     },
 ]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+BLOG_SETTINGS = {
+    'DISABLE_RATE_LIMIT': False,
+    'DISABLE_CACHE': False,
+    'DISABLE_VIEW_TRACKING': False,
+    'COMMENT_MODERATION': True,
+    'ALLOW_ANONYMOUS_COMMENTS': False,
+}
 
 WSGI_APPLICATION = 'techresource.wsgi.application'
 
@@ -144,8 +162,8 @@ SECURE_HSTS_PRELOAD = True
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'ru'
+TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 

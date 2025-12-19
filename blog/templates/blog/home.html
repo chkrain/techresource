@@ -1,0 +1,227 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block blog_content %}
+    <section class="blog-hero">
+        <div class="blog-hero-content">
+            <h1 class="blog-hero-title">Технический блог</h1>
+            <p class="blog-hero-subtitle">Статьи об инженерных решениях, монтаже, разработке ПО и техподдержке</p>
+        </div>
+    </section>
+
+    {% if featured_articles %}
+    <section class="featured-section">
+        <h2 class="section-title"><i class="fas fa-star"></i> Рекомендуемые статьи</h2>
+        <div class="featured-grid">
+            {% for article in featured_articles %}
+            <div class="featured-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'100' }}">
+                {% if article.featured_image %}
+                <div class="featured-image">
+                    <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" loading="lazy">
+                </div>
+                {% endif %}
+                <div class="featured-content">
+                    <span class="article-category">{{ article.category.name }}</span>
+                    <h3 class="featured-title">
+                        <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                    </h3>
+                    <p class="featured-excerpt">{{ article.excerpt|truncatechars:150 }}</p>
+                    <div class="article-meta">
+                        <span class="meta-item">
+                            <i class="far fa-user"></i> {{ article.author.username }}
+                        </span>
+                        <span class="meta-item">
+                            <i class="far fa-calendar"></i> {{ article.published_at|date:"d.m.Y" }}
+                        </span>
+                        <span class="meta-item">
+                            <i class="far fa-eye"></i> {{ article.views }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <div class="blog-layout">
+        <main class="blog-main">
+            <section class="articles-section">
+                <h2 class="section-title"><i class="fas fa-newspaper"></i> Последние статьи</h2>
+                
+                {% if articles %}
+                <div class="articles-grid">
+                    {% for article in articles %}
+                    <article class="article-card" data-aos="fade-up">
+                        {% if article.thumbnail %}
+                        <div class="article-thumbnail">
+                            <img src="{{ article.thumbnail.url }}" alt="{{ article.title }}" loading="lazy">
+                        </div>
+                        {% endif %}
+                        <div class="article-content article-content-margin">
+                            <div class="article-header">
+                                <span class="article-category">{{ article.category.name }}</span>
+                                {% if article.is_featured %}
+                                <span class="featured-badge">
+                                    <i class="fas fa-star"></i> Рекомендуем
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <h3 class="article-title">
+                                <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                            </h3>
+                            
+                            <p class="article-excerpt">{{ article.excerpt|truncatechars:200 }}</p>
+                            
+                            <div class="article-meta">
+                                <div class="meta-left">
+                                    <span class="meta-item">
+                                        <i class="far fa-user"></i> {{ article.author.username }}
+                                    </span>
+                                    <span class="meta-item">
+                                        <i class="far fa-calendar"></i> {{ article.published_at|date:"d.m.Y" }}
+                                    </span>
+                                </div>
+                                <div class="meta-right">
+                                    <span class="meta-item">
+                                        <i class="far fa-eye"></i> {{ article.views }}
+                                    </span>
+                                    <span class="meta-item">
+                                        <i class="far fa-comment"></i> {{ article.comments.count }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="article-footer">
+                                <a href="{{ article.get_absolute_url }}" class="read-more">
+                                    Читать далее <i class="fas fa-arrow-right"></i>
+                                </a>
+                                <div class="article-tags">
+                                    {% for tag in article.get_tags_list|slice:":3" %}
+                                    <span class="tag">{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+
+                {% if is_paginated %}
+                <nav class="pagination">
+                    <ul class="pagination-list">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a href="?page={{ page_obj.previous_page_number }}" class="page-link">
+                                <i class="fas fa-chevron-left"></i> Назад
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a href="?page={{ page_obj.next_page_number }}" class="page-link">
+                                Далее <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-newspaper fa-3x"></i>
+                    <h3>Статей пока нет</h3>
+                    <p>Скоро здесь появятся интересные материалы</p>
+                </div>
+                {% endif %}
+            </section>
+        </main>
+
+        <aside class="blog-sidebar">
+            <div class="sidebar-widget">
+                <h3 class="widget-title">
+                    <i class="fas fa-folder"></i> Категории
+                </h3>
+                <ul class="categories-list">
+                    {% for category in categories %}
+                    <li class="category-item">
+                        <a href="{% url 'blog:blog_category' category.slug %}" class="category-link">
+                            <span class="category-name">{{ category.name }}</span>
+                            <span class="category-count">{{ category.get_article_count }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3 class="widget-title">
+                    <i class="fas fa-fire"></i> Популярные
+                </h3>
+                <div class="popular-posts">
+                    {% for article in articles|slice:":5" %}
+                    <div class="popular-post">
+                        {% if article.thumbnail %}
+                        <div class="popular-image">
+                            <img src="{{ article.thumbnail.url }}" alt="{{ article.title }}" loading="lazy">
+                        </div>
+                        {% endif %}
+                        <div class="popular-content">
+                            <h4>
+                                <a href="{{ article.get_absolute_url }}">{{ article.title|truncatechars:50 }}</a>
+                            </h4>
+                            <div class="popular-meta">
+                                <span><i class="far fa-eye"></i> {{ article.views }}</span>
+                                <span>{{ article.published_at|date:"d.m" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if articles %}
+            <div class="sidebar-widget">
+                <h3 class="widget-title">
+                    <i class="fas fa-tags"></i> Теги
+                </h3>
+                <div class="tags-cloud">
+                    {% for article in articles|slice:":10" %}
+                        {% for tag in article.get_tags_list|slice:":2" %}
+                        <a href="{% url 'blog:blog_search' %}?q={{ tag|urlencode }}" class="tag">{{ tag }}</a>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="sidebar-widget">
+                <h3 class="widget-title">
+                    <i class="fas fa-search"></i> Поиск
+                </h3>
+                <form method="GET" action="{% url 'blog:blog_search' %}" class="search-widget">
+                    <input type="text" name="q" placeholder="Поиск статей..." 
+                           value="{{ query|default:'' }}" class="search-input">
+                    <button type="submit" class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </aside>
+    </div>
+{% endblock %}

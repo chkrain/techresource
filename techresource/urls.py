@@ -17,6 +17,7 @@ urlpatterns = [
     path('admin-2fa/verify/', views.admin_2fa_verify, name='admin_2fa_verify'),  
     path('admin-2fa/setup/', views.admin_2fa_setup, name='admin_2fa_setup'),
     path('', include('main.urls')),
+    path('blog/', include('blog.urls')),
 ]
 
 # Только для разработки!

@@ -1,0 +1,135 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block blog_content %}
+<div class="comment-form-container">
+    <nav class="breadcrumbs">
+        <a href="{% url 'blog:blog_home' %}">Блог</a>
+        <i class="fas fa-chevron-right"></i>
+        <a href="{{ article.get_absolute_url }}">{{ article.title|truncatechars:30 }}</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>{% if edit %}Редактирование{% else %}Новый комментарий{% endif %}</span>
+    </nav>
+
+    <div class="comment-form-card">
+        <h2 class="form-title">
+            <i class="fas fa-{% if edit %}edit{% else %}comment{% endif %}"></i>
+            {% if edit %}Редактирование комментария{% else %}Добавление комментария{% endif %}
+        </h2>
+        
+        <form method="post" class="comment-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.content.id_for_label }}">
+                    <i class="fas fa-pen"></i> Комментарий *
+                </label>
+                {{ form.content }}
+                {% if form.content.errors %}
+                <div class="error-message">{{ form.content.errors }}</div>
+                {% endif %}
+                <div class="form-help">
+                    Минимум 10 символов, максимум 2000. HTML теги не поддерживаются.
+                </div>
+            </div>
+            
+            <div class="form-info">
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <strong>Лимит редактирования:</strong> 30 минут после создания
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <strong>Модерация:</strong> Комментарии проверяются перед публикацией
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <a href="{{ article.get_absolute_url }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Отмена
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-{% if edit %}save{% else %}paper-plane{% endif %}"></i>
+                    {% if edit %}Сохранить{% else %}Отправить{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.comment-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 0;
+}
+
+.comment-form-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    margin-top: 1.5rem;
+}
+
+.form-title {
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.form-group textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.form-help {
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.form-info {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.info-item i {
+    color: var(--primary);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+</style>
+{% endblock %}

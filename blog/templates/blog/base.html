@@ -1,0 +1,24 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if article %}{{ article.title }} | Блог{% elif category %}{{ category.name }} | Блог{% else %}Блог | Техресурс{% endif %}
+{% endblock %}
+
+{% block description %}
+    {% if article %}{{ article.excerpt|truncatechars:150 }}{% elif category %}{{ category.description|truncatechars:150 }}{% else %}Статьи об инженерных решениях, монтаже, разработке ПО и техподдержке{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'blog/css/blog.css' %}?v=4.7">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'blog/js/blog.js' %}?v=1"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="blog-container">
+        {% block blog_content %}{% endblock %}
+    </div>
+{% endblock %}

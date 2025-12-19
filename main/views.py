@@ -48,7 +48,7 @@ from django.utils.html import strip_tags
 from .models import SupportAttachment
 from .forms import SupportTicketForm
 import tempfile
-from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm
+from blog.models import BlogComment 
 from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm
 from django.db.models import Sum
@@ -114,6 +114,12 @@ def admin_dashboard(request):
     ).select_related('user', 'product').order_by('-created_at')
     
     pending_reviews_count = pending_reviews.count()
+
+    pending_comments = BlogComment.objects.filter(
+        status='pending'
+    ).select_related('user', 'article').order_by('-created_at')
+    
+    pending_comments_count = pending_comments.count()
     
     context = {
         'orders': orders,
@@ -127,9 +133,156 @@ def admin_dashboard(request):
         'selected_date': date_filter,
         'pending_reviews': pending_reviews,
         'pending_reviews_count': pending_reviews_count,
+        'pending_comments': pending_comments,
+        'pending_comments_count': pending_comments_count,
     }
     
     return render(request, 'main/admin_dashboard.html', context)
+
+@staff_member_required
+def moderate_comment(request, comment_id):
+    """Модерация комментария блога"""
+    comment = get_object_or_404(BlogComment, id=comment_id)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        # Используем значение из формы
+        if action == 'approved':  # ✅ Теперь проверяем 'approved'
+            comment.status = 'approved'
+            comment.moderated_by = request.user
+            comment.moderated_at = timezone.now()
+            comment.save()
+            
+            SecurityLog.objects.create(
+                user=request.user,
+                action='comment_moderated',
+                ip_address=request.META.get('REMOTE_ADDR'),
+                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                details={
+                    'comment_id': comment.id,
+                    'article_id': comment.article.id,
+                    'action': 'approved',
+                    'user_id': comment.user.id if comment.user else None,
+                },
+                success=True,
+                risk_level='low'
+            )
+            
+            messages.success(request, f'Комментарий #{comment.id} одобрен')
+            
+        elif action == 'rejected':  # ✅ Проверяем 'rejected'
+            comment.status = 'rejected'
+            comment.moderated_by = request.user
+            comment.moderated_at = timezone.now()
+            comment.save()
+            
+            SecurityLog.objects.create(
+                user=request.user,
+                action='comment_moderated',
+                ip_address=request.META.get('REMOTE_ADDR'),
+                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                details={
+                    'comment_id': comment.id,
+                    'article_id': comment.article.id,
+                    'action': 'rejected',
+                    'user_id': comment.user.id if comment.user else None,
+                },
+                success=True,
+                risk_level='low'
+            )
+            
+            messages.success(request, f'Комментарий #{comment.id} отклонен')
+        
+        elif action == 'spam':  # ✅ Оставляем 'spam'
+            comment.status = 'spam'
+            comment.moderated_by = request.user
+            comment.moderated_at = timezone.now()
+            comment.save()
+            
+            SecurityLog.objects.create(
+                user=request.user,
+                action='comment_moderated',
+                ip_address=request.META.get('REMOTE_ADDR'),
+                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                details={
+                    'comment_id': comment.id,
+                    'article_id': comment.article.id,
+                    'action': 'marked_as_spam',
+                    'user_id': comment.user.id if comment.user else None,
+                },
+                success=True,
+                risk_level='medium'
+            )
+            
+            messages.warning(request, f'Комментарий #{comment.id} помечен как спам')
+        
+        else:
+            messages.error(request, f'Неизвестное действие: {action}')
+    
+    return redirect('admin_dashboard')
+
+@staff_member_required
+def moderate_all_comments(request):
+    """Массовая модерация комментариев"""
+    if request.method != 'POST':
+        messages.error(request, 'Неверный метод запроса')
+        return redirect('admin_dashboard')
+    
+    action = request.POST.get('action')
+    comment_ids = request.POST.getlist('comment_ids')
+    
+    if not comment_ids:
+        messages.error(request, 'Не выбраны комментарии для модерации')
+        return redirect('admin_dashboard')
+    
+    if not action:
+        messages.error(request, 'Не указано действие')
+        return redirect('admin_dashboard')
+    
+    comments = BlogComment.objects.filter(id__in=comment_ids)
+    updated = 0
+    
+    if action == 'approve_all':
+        updated = comments.update(status='approved')
+        messages.success(request, f'{updated} комментариев одобрено')
+        
+    elif action == 'reject_all':
+        updated = comments.update(status='deleted')
+        messages.success(request, f'{updated} комментариев отклонено (помечено как удаленные)')
+        
+    elif action == 'spam_all':
+        updated = comments.update(status='spam')
+        messages.warning(request, f'{updated} комментариев помечено как спам')
+    
+    elif action == 'pending_all':
+        updated = comments.update(status='pending')
+        messages.info(request, f'{updated} комментариев возвращено на модерацию')
+    
+    else:
+        messages.error(request, f'Неизвестное действие: {action}')
+        return redirect('admin_dashboard')
+    
+    # Логирование
+    try:
+        SecurityLog.objects.create(
+            user=request.user,
+            action='bulk_comment_moderation',
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', ''),
+            details={
+                'action': action,
+                'count': updated,
+                'comment_ids': comment_ids,
+            },
+            success=True,
+            risk_level='low'
+        )
+    except Exception as e:
+        # Просто пропускаем ошибку логирования, не прерывая основной процесс
+        print(f"Ошибка при логировании: {e}")
+    
+    return redirect('admin_dashboard')
 
 @staff_member_required
 def moderate_review(request, review_id):

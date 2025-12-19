@@ -58,8 +58,9 @@
                     <div class="moderation-actions">
                         <form method="post" action="{% url 'moderate_review' review.id %}" class="moderation-form">
                             {% csrf_token %}
-                            <input type="hidden" name="action" value="approve">
-                            <button type="submit" class="btn btn-success btn-sm">
+                            <input type="hidden" name="action" value="approved">
+                            <button type="submit" class="btn btn-success btn-sm"
+                                    onclick="return confirm('Одобрить этот отзыв?')">
                                 <span class="btn-icon">✅</span>
                                 Одобрить
                             </button>
@@ -89,6 +90,127 @@
                 <div class="empty-icon">🎉</div>
                 <h3>Нет отзывов для модерации</h3>
                 <p>Все отзывы проверены и обработаны</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="moderation-section" data-aos="fade-up">
+            <div class="section-header">
+                <h2>💬 Модерация комментариев блога</h2>
+                <div class="section-badge">{{ pending_comments_count }} на проверке</div>
+            </div>
+            
+            {% if pending_comments %}
+            <form method="post" action="{% url 'moderate_all_comments' %}" class="bulk-moderate-form">
+                {% csrf_token %}
+                <div class="bulk-actions">
+                    <select name="action" class="form-select">
+                        <option value="">Выберите действие</option>
+                        <option value="approve_all">Одобрить все</option>
+                        <option value="reject_all">Отклонить все</option>
+                        <option value="spam_all">Пометить как спам</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        Применить к выбранным
+                    </button>
+                </div>
+                
+                <div class="comments-grid">
+                    {% for comment in pending_comments %}
+                    <div class="comment-card moderation-card">
+                        <div class="comment-checkbox">
+                            <input type="checkbox" name="comment_ids" value="{{ comment.id }}" 
+                                class="comment-select" id="comment_{{ comment.id }}">
+                            <label for="comment_{{ comment.id }}"></label>
+                        </div>
+                        
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <div class="commenter-info">
+                                    <span class="commenter-name">
+                                        {% if comment.user %}
+                                            {{ comment.user.username }}
+                                        {% else %}
+                                            Аноним
+                                        {% endif %}
+                                    </span>
+                                    <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+                                </div>
+                                
+                                <div class="article-info">
+                                    <strong>Статья:</strong>
+                                    <a href="{% url 'blog:blog_article' comment.article.slug %}" target="_blank">
+                                        {{ comment.article.title|truncatechars:50 }}
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="comment-text">
+                                <strong>Комментарий:</strong>
+                                <p>{{ comment.content|linebreaks|truncatechars:300 }}</p>
+                            </div>
+                            
+                            <div class="comment-meta">
+                                <div class="meta-item">
+                                    <span class="meta-label">IP:</span>
+                                    <span class="meta-value">{{ comment.ip_address|default:"Неизвестно" }}</span>
+                                </div>
+                                {% if comment.user_agent %}
+                                <div class="meta-item">
+                                    <span class="meta-label">Браузер:</span>
+                                    <span class="meta-value">{{ comment.user_agent|truncatechars:50 }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="moderation-actions">
+                                <form style="display: none;" method="post" action="{% url 'moderate_comment' comment.id %}" class="moderation-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="approved">
+                                </form>
+
+                                <form method="post" action="{% url 'moderate_comment' comment.id %}" class="moderation-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="approved">
+                                    <button type="submit" class="btn btn-success btn-sm" 
+                                            onclick="return confirm('Одобрить этот комментарий?')">
+                                        Одобрить
+                                    </button>
+                                </form>
+                                
+                                <form method="post" action="{% url 'moderate_comment' comment.id %}" class="moderation-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="reject">
+                                    <button type="submit" class="btn btn-danger btn-sm" 
+                                            onclick="return confirm('Отклонить этот комментарий?')">
+                                        Отклонить
+                                    </button>
+                                </form>
+                                
+                                <form method="post" action="{% url 'moderate_comment' comment.id %}" class="moderation-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="spam">
+                                    <button type="submit" class="btn btn-warning btn-sm" 
+                                            onclick="return confirm('Пометить как спам?')">
+                                        Спам
+                                    </button>
+                                </form>
+                                
+                                <a href="{% url 'blog:blog_article' comment.article.slug %}" 
+                                class="btn btn-secondary btn-sm" target="_blank">
+                                    К статье
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </form>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">🎉</div>
+                <h3>Нет комментариев для модерации</h3>
+                <p>Все комментарии проверены и обработаны</p>
             </div>
             {% endif %}
         </div>
@@ -556,8 +678,8 @@ section, .admin-dashboard {
 }
 
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 1.5rem;
     margin-bottom: 3rem;
 }
@@ -1114,6 +1236,179 @@ section, .admin-dashboard {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.25rem;
+    }
+}
+
+.comments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.comment-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    display: flex;
+    gap: 1rem;
+}
+
+.comment-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    border-color: #e9ecef;
+}
+
+.comment-checkbox {
+    flex-shrink: 0;
+}
+
+.comment-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.comment-content {
+    flex: 1;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.commenter-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.commenter-name {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.comment-date {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.article-info {
+    background: #f8f9fa;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border-left: 3px solid #667eea;
+}
+
+.article-info a {
+    color: #0052cc;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.article-info a:hover {
+    text-decoration: underline;
+}
+
+.comment-text {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+.comment-text strong {
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.comment-text p {
+    margin: 0;
+    line-height: 1.5;
+    color: #495057;
+}
+
+.comment-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.meta-label {
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.meta-value {
+    color: #2c3e50;
+    font-family: monospace;
+    background: #f1f3f5;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.bulk-moderate-form {
+    margin-bottom: 1.5rem;
+}
+
+.bulk-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.btn-warning {
+    background: #e53e3e;
+    color: white;
+    border: none;
+}
+
+.btn-warning:hover {
+    background: #c53030;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .comments-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .comment-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .bulk-actions {
+        flex-direction: column;
+    }
+    
+    .bulk-actions .form-select,
+    .bulk-actions .btn {
+        width: 100%;
     }
 }
 

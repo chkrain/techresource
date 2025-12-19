@@ -1,0 +1,44 @@
+{% extends "blog/base.html" %}
+
+{% block blog_content %}
+<section class="search-results">
+    <h1 class="search-title">
+        <i class="fas fa-search"></i> Результаты поиска
+    </h1>
+    
+    {% if query %}
+    <p class="search-query">По запросу: "<strong>{{ query }}</strong>"</p>
+    {% endif %}
+    
+    {% if articles %}
+    <div class="search-count">
+        Найдено {{ articles|length }} статей
+    </div>
+    
+    {% include "blog/home.html" with articles=articles %}
+    
+        {% else %}
+    <div class="search-empty">
+        <div class="empty-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <h3>Ничего не найдено</h3>
+        <p>Попробуйте изменить поисковый запрос</p>
+        
+        <div class="empty-suggestions">
+            <span>Попробуйте:</span>
+            <ul>
+                <li>Использовать другие ключевые слова</li>
+                <li>Проверить орфографию</li>
+                <li>Искать более общие термины</li>
+            </ul>
+        </div>
+        
+        <a href="{% url 'blog:blog_home' %}" class="back-to-blog-btn">
+            <i class="fas fa-arrow-left"></i>
+            Вернуться в блог
+        </a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

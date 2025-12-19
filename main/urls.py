@@ -105,6 +105,8 @@ urlpatterns = [
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-dashboard/order/<int:order_id>/update-status/', views.update_order_status, name='update_order_status'),
     path('moderate-review/<int:review_id>/', views.moderate_review, name='moderate_review'),
+    path('moderate-comment/<int:comment_id>/', views.moderate_comment, name='moderate_comment'),
+    path('moderate-all-comments/', views.moderate_all_comments, name='moderate_all_comments'),
     
     # API
     path('api/search-suggestions/', views.search_suggestions, name='search_suggestions'),

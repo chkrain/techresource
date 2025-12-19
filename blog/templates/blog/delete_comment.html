@@ -1,0 +1,29 @@
+{% extends "blog/base.html" %}
+
+{% block blog_content %}
+<div class="delete-confirm">
+    <div class="delete-card">
+        <h2><i class="fas fa-trash-alt text-danger"></i> Удаление комментария</h2>
+        
+        <div class="delete-content">
+            <p>Вы действительно хотите удалить этот комментарий?</p>
+            <div class="comment-preview">
+                {{ object.content|truncatechars:200 }}
+            </div>
+            <p class="text-danger"><strong>Это действие нельзя отменить.</strong></p>
+        </div>
+        
+        <form method="post" class="delete-form">
+            {% csrf_token %}
+            <div class="form-actions">
+                <a href="{{ object.article.get_absolute_url }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Отмена
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}  
