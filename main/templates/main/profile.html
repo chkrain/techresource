@@ -322,21 +322,6 @@
                                             <span class="order-total">💰 {{ order.total_price }} ₽</span>
                                         </div>
                                     </div>
-                                    <div class="order-actions">
-                                        {% if order.status == 'pending' %}
-                                        <a href="{% url 'create_payment' order.id %}" class="btn btn-primary btn-sm">
-                                            <span class="btn-icon">💳</span>
-                                            Оплатить
-                                        </a>
-                                        {% endif %}
-                                        {% if order.can_be_cancelled %}
-                                        <a href="{% url 'cancel_order' order.id %}" class="btn btn-secondary btn-sm" 
-                                        onclick="return confirm('Вы уверены, что хотите отменить заказ?')">
-                                            <span class="btn-icon">❌</span>
-                                            Отменить
-                                        </a>
-                                        {% endif %}
-                                    </div>
                                 </div>
                                 
                                 <div class="order-items">

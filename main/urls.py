@@ -114,7 +114,7 @@ urlpatterns = [
     path('api/update-quantity/<int:product_id>/', views.update_quantity_ajax, name='update_quantity_ajax'),
     
     # Favicon
-    path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'images/favicon/favicon.svg')),
+    path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'images/favicon/favicon.ico')),
     
     # Для .well-known
     re_path(r'^\.well-known/.*$', lambda request: HttpResponseNotFound()),
