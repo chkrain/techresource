@@ -66,6 +66,10 @@
                                 <span class="checkbox-text">Запомнить меня</span>
                             </label>
                         </div>
+
+                         <div class="captcha-container">
+                            {{ form.captcha }}
+                        </div>
                         
                         <button type="submit" class="login-btn">
                             <span class="btn-icon">🚀</span>
@@ -236,4 +240,5 @@
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 {% endblock %}

@@ -83,6 +83,10 @@
                         {% endif %}
                         <div class="help-text">{{ form.comment.help_text }}</div>
                     </div>
+
+                     <div class="captcha-container">
+                        {{ form.captcha }}
+                    </div>
                     
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
@@ -99,7 +103,7 @@
 </section>
 
 <link rel="stylesheet" href="{% static 'css/add_review.css' %}">
-
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const commentTextarea = document.querySelector('textarea[name="comment"]');
