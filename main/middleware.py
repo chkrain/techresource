@@ -28,10 +28,9 @@ class AdminSecurityMiddleware(MiddlewareMixin):
                 if not self.is_ip_allowed(client_ip, allowed_ips):
                     logger.warning(f"Admin access denied for IP: {client_ip}")
                     from django.contrib import messages
-                    messages.error(request, 'Доступ к админке с вашего IP-адреса запрещен.')
+                    messages.error(request, 'Доступ к админке запрещен, обратиться к разработчику')
                     return HttpResponseRedirect(reverse('index'))
             
-            # Логирование доступа к админке
             if request.user.is_authenticated and request.user.is_staff:
                 logger.info(f"Admin access: {request.user.username} from {self.get_client_ip(request)} to {request.path}")
     
@@ -51,7 +50,6 @@ class Admin2FAMiddleware(MiddlewareMixin):
         if not request.path.startswith('/admin/'):
             return None
             
-        print(f"🔐 2FA Middleware triggered for: {request.path}")
         
         excluded_paths = [
             '/admin/login/',
@@ -65,29 +63,23 @@ class Admin2FAMiddleware(MiddlewareMixin):
         ]
         
         if any(request.path.startswith(excluded) for excluded in excluded_paths):
-            print(f"✅ Path {request.path} excluded from 2FA")
             return None
         
         if request.user.is_authenticated and request.user.is_staff:
-            print(f"👤 User {request.user.username} is staff, checking 2FA...")
             
             try:
                 from .models import Admin2FA
                 admin_2fa = Admin2FA.objects.get(user=request.user)
                 
                 if not admin_2fa.is_enabled:
-                    print("⚙️ 2FA not enabled - access granted")
                     return None
                 
                 if not request.session.get('admin_2fa_verified'):
-                    print("🚨 2FA enabled but not verified - REDIRECTING to verify")
                     return HttpResponseRedirect(reverse('admin_2fa_verify'))
                 
-                print("✅ 2FA verified - access granted")
                 return None  
                     
             except Admin2FA.DoesNotExist:
-                print("🆕 No 2FA record - creating and allowing access")
                 Admin2FA.objects.create(user=request.user)
                 return None
         
