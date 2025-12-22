@@ -169,7 +169,6 @@
                 </div>
             </div>
 
-            <!-- Пароли -->
             <div class="form-group" data-aos="fade-up" data-aos-delay="450">
                 <label class="form-label">
                     <span class="label-text">Пароль*</span>
@@ -220,6 +219,19 @@
                 {% endif %}
             </div>
 
+            <div class="form-group" data-aos="fade-up" data-aos-delay="600">
+                <div class="captcha-container">
+                    {{ form.captcha }}
+                </div>
+                {% if form.captcha.errors %}
+                <div class="error-message">
+                    {% for error in form.captcha.errors %}
+                    <span class="error-icon">⚠</span> {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
             <button type="submit" class="auth-btn">
                 <span class="btn-text">Создать аккаунт</span>
                 <span class="btn-icon">🚀</span>
@@ -233,7 +245,7 @@
 </div>
 
 <link rel="stylesheet" href="{% static 'css/register.css' %}">
-
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>

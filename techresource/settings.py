@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'django_user_agents',
+    'django_recaptcha',
     'main',
     'blog',
 ]
@@ -258,3 +259,8 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '')
 TELEGRAM_CHAT_ID_CONTACTS = os.getenv('TELEGRAM_CHAT_ID_CONTACTS', '')
 TELEGRAM_CHAT_ID_CRITICAL = os.getenv('TELEGRAM_CHAT_ID_CRITICAL', '')
 
+RECAPTCHA_PUBLIC_KEY = '6LcFZDMsAAAAAAZwxosQ1CM9bSGgjpoAyENYyilO'
+RECAPTCHA_PRIVATE_KEY = '6LcFZDMsAAAAAI7NQGzx3DYDPUVryw-xtfs8cL_j'
+RECAPTCHA_DEFAULT_ACTION = 'generic'
+RECAPTCHA_SCORE_THRESHOLD = 0.5
+RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'

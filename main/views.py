@@ -1262,7 +1262,7 @@ def log_security_event(user, action, ip_address, user_agent, success=True):
 @require_http_methods(["GET", "POST"])
 def secure_register(request):
     if request.method == 'POST':
-        form = SecureUserCreationForm(request.POST)
+        form = UserRegisterForm(request.POST)
         
         ip_address = get_client_ip(request)
         user_agent = request.META.get('HTTP_USER_AGENT', '')

@@ -13,9 +13,31 @@ from django.core.exceptions import ValidationError
 from .models import LoginAttempt, ProductReview
 import os
 User = get_user_model()
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV2Checkbox
 from .models import SupportTicket
 
+class ReCaptchaFieldV2(ReCaptchaField):
+    widget = ReCaptchaV2Checkbox
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.widget.attrs.update({
+            'data-theme': 'light',
+            'data-size': 'normal',
+        })
+
 class UserRegisterForm(forms.ModelForm):
+    captcha = ReCaptchaField(
+        widget=ReCaptchaV2Checkbox(
+            attrs={
+                'data-theme': 'light',
+                'data-size': 'normal',
+            }
+        ),
+        label='',
+        error_messages={'required': 'Пожалуйста, подтвердите, что вы не робот'}
+    )
     ACCOUNT_TYPE_CHOICES = [
         ('individual', 'Физическое лицо'),
         ('legal', 'Юридическое лицо'),
@@ -241,6 +263,16 @@ class AddressForm(forms.ModelForm):
         return phone
     
 class SecureUserCreationForm(UserCreationForm):
+    captcha = ReCaptchaField(
+        widget=ReCaptchaV2Checkbox(
+            attrs={
+                'data-theme': 'light',
+                'data-size': 'normal',
+            }
+        ),
+        label='',
+        error_messages={'required': 'Пожалуйста, подтвердите, что вы не робот'}
+    )
     email = forms.EmailField(required=True)
     agree_terms = forms.BooleanField(required=True)
     
@@ -280,6 +312,16 @@ class SecureUserCreationForm(UserCreationForm):
         return password1
     
 class SecureAuthenticationForm(AuthenticationForm):
+    captcha = ReCaptchaField(
+        widget=ReCaptchaV2Checkbox(
+            attrs={
+                'data-theme': 'light',
+                'data-size': 'normal',
+            }
+        ),
+        label='',
+        error_messages={'required': 'Пожалуйста, подтвердите, что вы не робот'}
+    )
     username = forms.CharField(
         label='Имя пользователя или Email',
         widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Введите имя пользователя или email'})
@@ -329,10 +371,20 @@ class SecureAuthenticationForm(AuthenticationForm):
 class SecurePasswordResetForm(forms.Form):
     email = forms.EmailField()
     
+    captcha = ReCaptchaField(
+        widget=ReCaptchaV2Checkbox(
+            attrs={
+                'data-theme': 'light',
+                'data-size': 'normal',
+            }
+        ),
+        label='',
+        error_messages={'required': 'Пожалуйста, подтвердите, что вы не робот'}
+    )
+
     def clean_email(self):
         email = self.cleaned_data['email']
         if not User.objects.filter(email=email, is_active=True).exists():
-            # Для безопасности не сообщаем, что email не найден
             pass
         return email
 
@@ -341,7 +393,6 @@ class SecureSetPasswordForm(forms.Form):
     password2 = forms.CharField(widget=forms.PasswordInput)
     
     def clean_password1(self):
-        # Та же логика проверки пароля, что и в SecureUserCreationForm
         password1 = self.cleaned_data.get('password1')
         
         if len(password1) < 6:
@@ -407,6 +458,16 @@ class ProductReviewForm(forms.ModelForm):
         return review
     
 class SupportTicketForm(forms.ModelForm):
+    captcha = ReCaptchaField(
+        widget=ReCaptchaV2Checkbox(
+            attrs={
+                'data-theme': 'light',
+                'data-size': 'normal',
+            }
+        ),
+        label='',
+        error_messages={'required': 'Пожалуйста, подтвердите, что вы не робот'}
+    )
     attachments = forms.FileField(
         required=False,
         widget=forms.ClearableFileInput(),
