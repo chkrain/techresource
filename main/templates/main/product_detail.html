@@ -5,7 +5,7 @@
 {% block title %}{{ product.name }} - Техресурс{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/product_detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/product_detail.css' %}?v=2.0">
 {% endblock %}
 
 {% block content %}
@@ -296,11 +296,11 @@
                 <p class="review-comment">{{ user_review.comment }}</p>
                 <div class="review-status">
                     {% if user_review.is_approved %}
-                        <span class="status-approved">✅ Одобрен</span>
+                        <span class="status-approved">Одобрен</span>
                     {% elif user_review.is_moderated %}
-                        <span class="status-rejected">❌ Отклонен</span>
+                        <span class="status-rejected">Отклонен</span>
                     {% else %}
-                        <span class="status-pending">⏳ На модерации</span>
+                        <span class="status-pending">На модерации</span>
                     {% endif %}
                     <a href="{% url 'edit_review' user_review.id %}" class="edit-review-link">Редактировать</a>
                 </div>

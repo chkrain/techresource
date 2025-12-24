@@ -58,7 +58,7 @@
                     <div class="moderation-actions">
                         <form method="post" action="{% url 'moderate_review' review.id %}" class="moderation-form">
                             {% csrf_token %}
-                            <input type="hidden" name="action" value="approved">
+                            <input type="hidden" name="action" value="approvedd">
                             <button type="submit" class="btn btn-success btn-sm"
                                     onclick="return confirm('Одобрить этот отзыв?')">
                                 <span class="btn-icon">✅</span>

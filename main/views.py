@@ -48,13 +48,14 @@ from django.utils.html import strip_tags
 from .models import SupportAttachment
 from .forms import SupportTicketForm
 import tempfile
-from blog.models import BlogComment 
+from blog.models import BlogComment, BlogArticle
 from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage
-from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm
+from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm, AdminProfileTagsForm
 from django.db.models import Sum
 import qrcode
 import qrcode.image.svg
 import base64
+from django.urls import reverse
 from PIL import Image
 
 
@@ -147,18 +148,19 @@ def moderate_comment(request, comment_id):
     if request.method == 'POST':
         action = request.POST.get('action')
         
-        # Используем значение из формы
-        if action == 'approved':  # ✅ Теперь проверяем 'approved'
+        if action == 'approved': 
             comment.status = 'approved'
             comment.moderated_by = request.user
             comment.moderated_at = timezone.now()
             comment.save()
             
+            ip_address = request.META.get('REMOTE_ADDR', 'unknown')
+
             SecurityLog.objects.create(
                 user=request.user,
                 action='comment_moderated',
-                ip_address=request.META.get('REMOTE_ADDR'),
-                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                ip_address=ip_address,
+                    user_agent=request.META.get('HTTP_USER_AGENT', ''),
                 details={
                     'comment_id': comment.id,
                     'article_id': comment.article.id,
@@ -171,16 +173,18 @@ def moderate_comment(request, comment_id):
             
             messages.success(request, f'Комментарий #{comment.id} одобрен')
             
-        elif action == 'rejected':  # ✅ Проверяем 'rejected'
+        elif action == 'rejected':  
             comment.status = 'rejected'
             comment.moderated_by = request.user
             comment.moderated_at = timezone.now()
             comment.save()
             
+            ip_address = request.META.get('REMOTE_ADDR', 'unknown')
+
             SecurityLog.objects.create(
                 user=request.user,
                 action='comment_moderated',
-                ip_address=request.META.get('REMOTE_ADDR'),
+                ip_address=ip_address,
                 user_agent=request.META.get('HTTP_USER_AGENT', ''),
                 details={
                     'comment_id': comment.id,
@@ -194,16 +198,18 @@ def moderate_comment(request, comment_id):
             
             messages.success(request, f'Комментарий #{comment.id} отклонен')
         
-        elif action == 'spam':  # ✅ Оставляем 'spam'
+        elif action == 'spam': 
             comment.status = 'spam'
             comment.moderated_by = request.user
             comment.moderated_at = timezone.now()
             comment.save()
+
+            ip_address = request.META.get('REMOTE_ADDR', 'unknown')
             
             SecurityLog.objects.create(
                 user=request.user,
                 action='comment_moderated',
-                ip_address=request.META.get('REMOTE_ADDR'),
+                ip_address=ip_address,
                 user_agent=request.META.get('HTTP_USER_AGENT', ''),
                 details={
                     'comment_id': comment.id,
@@ -265,11 +271,13 @@ def moderate_all_comments(request):
     
     # Логирование
     try:
+        ip_address = get_client_ip(request)
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
         SecurityLog.objects.create(
             user=request.user,
             action='bulk_comment_moderation',
-            ip_address=request.META.get('REMOTE_ADDR'),
-            user_agent=request.META.get('HTTP_USER_AGENT', ''),
+            ip_address=ip_address,
+            user_agent=user_agent,
             details={
                 'action': action,
                 'count': updated,
@@ -279,8 +287,7 @@ def moderate_all_comments(request):
             risk_level='low'
         )
     except Exception as e:
-        # Просто пропускаем ошибку логирования, не прерывая основной процесс
-        print(f"Ошибка при логировании: {e}")
+        pass
     
     return redirect('admin_dashboard')
 
@@ -292,7 +299,7 @@ def moderate_review(request, review_id):
     if request.method == 'POST':
         action = request.POST.get('action')
         
-        if action == 'approve':
+        if action == 'approvedd':
             review.is_approved = True
             review.is_moderated = True
             review.save()
@@ -531,6 +538,17 @@ def profile(request):
                 messages.success(request, 'Профиль обновлен')
                 return redirect('profile')
             else:
+                public_profile_form = UserProfileForm(instance=user_profile)
+                address_form = AddressForm()
+                
+        elif 'update_public_profile' in request.POST:
+            public_profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
+            if public_profile_form.is_valid():
+                public_profile_form.save()
+                messages.success(request, 'Настройки публичного профиля обновлены')
+                return redirect('profile')
+            else:
+                profile_form = UserProfileForm(instance=user_profile)
                 address_form = AddressForm()
                 
         elif 'add_address' in request.POST:
@@ -543,20 +561,23 @@ def profile(request):
                 return redirect('profile')
             else:
                 profile_form = UserProfileForm(instance=user_profile)
+                public_profile_form = UserProfileForm(instance=user_profile)
     
     else:
         profile_form = UserProfileForm(instance=user_profile)
+        public_profile_form = UserProfileForm(instance=user_profile)
         address_form = AddressForm()
     
     context = {
         'user_profile': user_profile,  
         'profile_form': profile_form,
+        'public_profile_form': public_profile_form,
         'address_form': address_form,
         'addresses': addresses,
         'orders': orders, 
     }
     return render(request, 'main/profile.html', context)
-
+    
 @login_required
 def delete_address(request, address_id):
     address = get_object_or_404(Address, id=address_id, user=request.user)
@@ -1246,10 +1267,16 @@ def get_client_ip(request):
     if x_forwarded_for:
         ip = x_forwarded_for.split(',')[0]
     else:
-        ip = request.META.get('REMOTE_ADDR')
+        ip = request.META.get('REMOTE_ADDR', 'unknown')
+    if not ip or ip == '':
+        ip = 'unknown'
+    
     return ip
 
 def log_security_event(user, action, ip_address, user_agent, success=True):
+    if ip_address is None:
+        ip_address = 'unknown'
+
     SecurityLog.objects.create(
         user=user,
         action=action,
@@ -3774,3 +3801,268 @@ def generate_payment_qr_code(order, company_info):
         'qr_image': f"data:image/png;base64,{img_base64}",
         'qr_text': qr_text
     }
+
+@login_required
+def profile_settings(request):
+    """Настройки профиля пользователя"""
+    try:
+        profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=request.user)
+    
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Настройки профиля сохранены')
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Настройки сохранены',
+                    'avatar_url': profile.avatar.url if profile.avatar else None
+                })
+            
+            return redirect('profile_settings')
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'errors': form.errors
+                })
+    else:
+        form = UserProfileForm(instance=profile)
+    
+    context = {
+        'form': form,
+        'profile': profile,
+        'active_tab': 'settings'
+    }
+    return render(request, 'main/profile_settings.html', context)
+
+def public_profile(request, slug_or_id):
+    """Публичный профиль пользователя"""
+    try:
+        if slug_or_id.isdigit():
+            profile = get_object_or_404(UserProfile, user_id=int(slug_or_id))
+        else:
+            profile = get_object_or_404(UserProfile, profile_slug=slug_or_id)
+    except (ValueError, UserProfile.DoesNotExist):
+        raise Http404("Профиль не найден")
+    
+    if not profile.can_view_profile(request.user):
+        raise Http404("Профиль недоступен")
+    
+    visible_fields = profile.get_visible_fields(request.user)
+    
+    recent_activity = []
+    
+    if profile.can_view_field(request.user, 'activity'):
+        recent_articles = BlogArticle.objects.filter(
+            author=profile.user,
+            status='published'
+        ).select_related('category').order_by('-published_at')[:5]
+        
+        recent_comments = BlogComment.objects.filter(
+            user=profile.user,
+            status='approved'
+        ).select_related('article').order_by('-created_at')[:5]
+        
+        recent_reviews = ProductReview.objects.filter(
+            user=profile.user,
+            is_approved=True
+        ).select_related('product').order_by('-created_at')[:5]
+        
+        for article in recent_articles:
+            recent_activity.append({
+                'type': 'article',
+                'title': article.title,
+                'description': article.excerpt[:100] + '...' if len(article.excerpt) > 100 else article.excerpt,
+                'date': article.published_at,
+                'url': article.get_absolute_url()
+            })
+        
+        for comment in recent_comments:
+            recent_activity.append({
+                'type': 'comment',
+                'title': f'Комментарий к "{comment.article.title}"',
+                'description': comment.content[:100] + '...' if len(comment.content) > 100 else comment.content,
+                'date': comment.created_at,
+                'url': comment.article.get_absolute_url() + '#comment-' + str(comment.id)
+            })
+        
+        for review in recent_reviews:
+            recent_activity.append({
+                'type': 'review',
+                'title': f'Отзыв на "{review.product.name}"',
+                'description': f'Оценка: {review.rating}/5',
+                'date': review.created_at,
+                'url': reverse('product_detail', kwargs={'product_id': review.product.id}) + '#reviews'
+            })
+        
+        recent_activity.sort(key=lambda x: x['date'], reverse=True)
+        recent_activity = recent_activity[:10]  
+    
+    context = {
+        'profile_user': profile.user,
+        'profile': profile,
+        'visible_fields': visible_fields,
+        'recent_activity': recent_activity,
+        'is_owner': request.user == profile.user,
+        'can_edit': request.user.is_staff or request.user == profile.user,
+    }
+    
+    return render(request, 'main/public_profile.html', context)
+
+@staff_member_required
+def admin_profile_manage(request, user_id):
+    """Управление профилем пользователя (админка)"""
+    profile = get_object_or_404(UserProfile, user_id=user_id)
+    
+    if request.method == 'POST':
+        form = AdminProfileTagsForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Теги профиля для {profile.user.username} обновлены')
+            return redirect('admin_profile_manage', user_id=user_id)
+    else:
+        form = AdminProfileTagsForm(instance=profile)
+    
+    context = {
+        'profile': profile,
+        'form': form,
+        'user': profile.user
+    }
+    return render(request, 'main/admin_profile_manage.html', context)
+
+@login_required
+def profile_preview(request):
+    """Превью профиля (как его видят другие)"""
+    try:
+        profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=request.user)
+    
+    class PreviewUser:
+        def __init__(self, user):
+            self.username = user.username
+            self.first_name = user.first_name
+            self.last_name = user.last_name
+            self.email = user.email
+            self.date_joined = user.date_joined
+            self.is_staff = user.is_staff
+    
+    preview_user = PreviewUser(request.user)
+    
+    context = {
+        'profile_user': preview_user,
+        'profile': profile,
+        'skills': profile.get_skills_list(),
+        'tags': profile.get_public_tags(),
+        'is_preview': True,
+        'privacy_mode': profile.privacy_mode,
+    }
+    
+    return render(request, 'main/public_profile.html', context)
+
+@login_required
+def update_profile_field(request):
+    """AJAX обновление отдельного поля профиля"""
+    if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': False, 'error': 'Invalid request'})
+    
+    try:
+        data = json.loads(request.body)
+        field = data.get('field')
+        value = data.get('value')
+        
+        if not field or value is None:
+            return JsonResponse({'success': False, 'error': 'Missing field or value'})
+        
+        profile = UserProfile.objects.get(user=request.user)
+        
+        allowed_fields = [
+            'public_bio', 'public_skills', 'profile_theme',
+            'show_statistics', 'show_recent_activity'
+        ]
+        
+        if field not in allowed_fields:
+            return JsonResponse({'success': False, 'error': 'Field not allowed'})
+        
+        if field == 'public_bio' and len(value) > 1000:
+            return JsonResponse({'success': False, 'error': 'Bio too long'})
+        
+        if field == 'public_skills':
+            skills_list = [s.strip() for s in value.split(',') if s.strip()]
+            if len(skills_list) > 20:
+                return JsonResponse({'success': False, 'error': 'Too many skills'})
+        
+        setattr(profile, field, value)
+        profile.save(update_fields=[field, 'last_profile_update'])
+        
+        return JsonResponse({'success': True, 'message': 'Updated'})
+    
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'})
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Profile not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+def profile_card(request, user_id):
+    """Виджет профиля для вставки в блог/комментарии"""
+    try:
+        profile = UserProfile.objects.get(user_id=user_id)
+        
+        if not profile.can_view_profile(request.user):
+            return JsonResponse({'success': False, 'error': 'Profile not available'})
+        
+        context = {
+            'profile_user': profile.user,
+            'profile': profile,
+            'is_card': True
+        }
+        
+        from django.template.loader import render_to_string
+        html = render_to_string('main/components/profile_card.html', context)
+        
+        return JsonResponse({
+            'success': True,
+            'html': html,
+            'username': profile.user.username,
+            'avatar_url': profile.avatar_small.url if profile.avatar_small else None
+        })
+    
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Profile not found'})
+
+@login_required
+def upload_avatar(request):
+    """Отдельная загрузка аватара"""
+    if request.method == 'POST' and request.FILES.get('avatar'):
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+            
+            from .validators import validate_avatar
+            avatar = request.FILES['avatar']
+            
+            try:
+                validate_avatar(avatar)
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': str(e)})
+            
+            profile.avatar = avatar
+            profile.save()
+            
+            return JsonResponse({
+                'success': True,
+                'avatar_url': profile.avatar.url,
+                'avatar_small_url': profile.avatar_small.url if profile.avatar_small else None,
+                'avatar_medium_url': profile.avatar_medium.url if profile.avatar_medium else None,
+                'avatar_large_url': profile.avatar_large.url if profile.avatar_large else None,
+            })
+        
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'})

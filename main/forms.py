@@ -15,7 +15,8 @@ import os
 User = get_user_model()
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
-from .models import SupportTicket
+from .models import SupportTicket, UserProfile
+from .validators import validate_avatar, validate_profile_background
 
 class ReCaptchaFieldV2(ReCaptchaField):
     widget = ReCaptchaV2Checkbox
@@ -224,23 +225,197 @@ class SMSCodeForm(forms.Form):
     )
 
 class UserProfileForm(forms.ModelForm):
+    """Расширенная форма профиля"""
+    
+    first_name = forms.CharField(
+        max_length=30,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Имя'
+        })
+    )
+    
+    last_name = forms.CharField(
+        max_length=30,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Фамилия'
+        })
+    )
+    
+    avatar = forms.ImageField(
+        required=False,
+        validators=[validate_avatar],
+        widget=forms.FileInput(attrs={
+            'class': 'form-input',
+            'accept': 'image/*'
+        }),
+        help_text='JPEG, PNG, GIF, WebP (макс. 5MB, мин. 100x100px)'
+    )
+    
+    remove_avatar = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-checkbox'
+        }),
+        label='Удалить аватар'
+    )
+    
+    public_bio = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-textarea',
+            'rows': 4,
+            'placeholder': 'Расскажите о себе...',
+            'maxlength': '1000'
+        }),
+        help_text='Максимум 1000 символов'
+    )
+    
+    public_skills = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Навыки через запятую'
+        })
+    )
+    
+    privacy_mode = forms.ChoiceField(
+        choices=UserProfile.PRIVACY_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'form-select'
+        }),
+        help_text='Кто может видеть ваш профиль'
+    )
+    
+    profile_theme = forms.ChoiceField(
+        choices=[
+            ('default', 'По умолчанию'),
+            ('dark', 'Темная'),
+            ('light', 'Светлая'),
+            ('blue', 'Синяя'),
+            ('green', 'Зеленая'),
+        ],
+        widget=forms.Select(attrs={
+            'class': 'form-select'
+        })
+    )
+    
+    profile_background = forms.ImageField(
+        required=False,
+        validators=[validate_profile_background],
+        widget=forms.FileInput(attrs={
+            'class': 'form-input',
+            'accept': 'image/*'
+        }),
+        help_text='JPEG, PNG, WebP (макс. 10MB, мин. 800x400px)'
+    )
+    
+    remove_background = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-checkbox'
+        }),
+        label='Удалить фон'
+    )
+    
     class Meta:
         model = UserProfile
-        fields = ['phone', 'date_of_birth', 'avatar', 'company', 'position']
+        fields = [
+            'first_name', 'last_name', 'phone', 'company', 'position',
+            'avatar', 'remove_avatar', 'profile_background', 'remove_background',
+            'public_bio', 'public_skills', 'privacy_mode', 'profile_theme',
+            'show_statistics', 'show_recent_activity' 
+        ]
         widgets = {
-            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
-            'phone': forms.TextInput(attrs={'placeholder': '+7 (XXX) XXX-XX-XX'}),
-            'company': forms.TextInput(attrs={'placeholder': 'Название компании'}),
-            'position': forms.TextInput(attrs={'placeholder': 'Ваша должность'}),
+            'public_bio': forms.Textarea(attrs={
+                'class': 'form-textarea',
+                'rows': 4,
+                'maxlength': '1000'
+            }),
+            'public_skills': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Навыки через запятую'
+            }),
+            'privacy_mode': forms.Select(attrs={'class': 'form-select'}),
+            'profile_theme': forms.Select(attrs={'class': 'form-select'}),
+            'avatar': forms.FileInput(attrs={
+                'class': 'form-input',
+                'accept': 'image/*'
+            }),
+            'profile_background': forms.FileInput(attrs={
+                'class': 'form-input', 
+                'accept': 'image/*'
+            }),
         }
     
-    def clean_phone(self):
-        phone = self.cleaned_data.get('phone')
-        if phone:
-            phone = ''.join(filter(str.isdigit, phone))
-            if len(phone) not in [10, 11]:
-                raise forms.ValidationError("Введите корректный номер телефона")
-        return phone
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.user:
+            self.fields['first_name'].initial = self.instance.user.first_name
+            self.fields['last_name'].initial = self.instance.user.last_name
+    
+    def clean_public_bio(self):
+        """Очистка публичной биографии"""
+        bio = self.cleaned_data.get('public_bio', '')
+        
+        from django.utils.html import strip_tags
+        clean_bio = strip_tags(bio)
+        
+        if len(clean_bio) > 1000:
+            raise forms.ValidationError('Биография не должна превышать 1000 символов')
+        
+        return clean_bio
+    
+    def clean_public_skills(self):
+        """Очистка навыков"""
+        skills = self.cleaned_data.get('public_skills', '')
+        
+        skills_list = [skill.strip() for skill in skills.split(',') if skill.strip()]
+        
+        if len(skills_list) > 20:
+            raise forms.ValidationError('Максимум 20 навыков')
+        
+        for skill in skills_list:
+            if len(skill) > 50:
+                raise forms.ValidationError(f'Навык "{skill[:20]}..." слишком длинный (макс. 50 символов)')
+        
+        return ', '.join(skills_list)
+    
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        
+        if 'first_name' in self.cleaned_data:
+            profile.user.first_name = self.cleaned_data['first_name']
+        if 'last_name' in self.cleaned_data:
+            profile.user.last_name = self.cleaned_data['last_name']
+        
+        if self.cleaned_data.get('remove_avatar'):
+            if profile.avatar:
+                profile.avatar.delete(save=False)
+                profile.avatar = None
+            if profile.avatar_small:
+                profile.avatar_small.delete(save=False)
+                profile.avatar_small = None
+            if profile.avatar_medium:
+                profile.avatar_medium.delete(save=False)
+                profile.avatar_medium = None
+            if profile.avatar_large:
+                profile.avatar_large.delete(save=False)
+                profile.avatar_large = None
+        
+        if self.cleaned_data.get('remove_background') and profile.profile_background:
+            profile.profile_background.delete(save=False)
+            profile.profile_background = None
+        
+        if commit:
+            profile.user.save()
+            profile.save()
+        
+        return profile
+
     
 class AddressForm(forms.ModelForm):
     class Meta:
@@ -477,3 +652,39 @@ class SupportTicketForm(forms.ModelForm):
     class Meta:
         model = SupportTicket
         fields = ['subject', 'description', 'priority']
+
+class AdminProfileTagsForm(forms.ModelForm):
+    """Форма для админов - управление тегами профиля"""
+    
+    class Meta:
+        model = UserProfile
+        fields = ['profile_tags', 'is_verified', 'verification_badge']
+        widgets = {
+            'profile_tags': forms.CheckboxSelectMultiple(
+                choices=UserProfile.PROFILE_TAGS
+            ),
+            'verification_badge': forms.Select(choices=[
+                ('', 'Нет бейджа'),
+                ('premium', '⭐ Премиум'),
+                ('trusted', '✅ Проверенный'),
+                ('expert', '👨‍💼 Эксперт'),
+                ('founder', '🚀 Основатель'),
+            ])
+        }
+
+class PrivacySettingsForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = [
+            'privacy_mode',
+            'email_visibility',
+            'phone_visibility',
+            'company_visibility',
+            'position_visibility',
+            'skills_visibility',
+            'activity_visibility',
+        ]
+        widgets = {
+            field: forms.RadioSelect(attrs={'class': 'privacy-radio'})
+            for field in fields
+        }

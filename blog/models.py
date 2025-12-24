@@ -161,6 +161,18 @@ class BlogArticle(models.Model):
                 if len(tag) > 50:
                     raise ValidationError(f'Тег "{tag}" слишком длинный')
 
+    def get_author_profile_url(self):
+        """Получить URL профиля автора"""
+        if hasattr(self.author, 'userprofile'):
+            return self.author.userprofile.get_absolute_url()
+        return None
+    
+    def get_author_avatar(self):
+        """Получить аватар автора"""
+        if hasattr(self.author, 'userprofile') and self.author.userprofile.avatar_small:
+            return self.author.userprofile.avatar_small.url
+        return None
+
 class BlogComment(models.Model):
     """Комментарии к статьям блога"""
     STATUS_CHOICES = [
@@ -225,3 +237,15 @@ class BlogComment(models.Model):
     
     def __str__(self):
         return f"Комментарий от {self.user.username} к {self.article.title}"
+
+    def get_user_profile_url(self):
+        """Получить URL профиля пользователя"""
+        if hasattr(self.user, 'userprofile'):
+            return self.user.userprofile.get_absolute_url()
+        return None
+    
+    def get_user_avatar(self):
+        """Получить аватар пользователя"""
+        if hasattr(self.user, 'userprofile') and self.user.userprofile.avatar_small:
+            return self.user.userprofile.avatar_small.url
+        return None

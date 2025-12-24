@@ -69,7 +69,7 @@
     <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=2.2">
 </head>
 <body>
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
@@ -119,14 +119,14 @@
                 </a>
                 
                 {% if user.is_authenticated %}
-                    <!-- Существующий код для авторизованных пользователей -->
                     <div class="user-menu">
                         <div class="user-dropdown">
                             <button class="user-trigger">
                                 <div class="user-avatar">
-                                    {{ user.username|first|upper }}
-                                    {% if cart_count and cart_count > 0 %}
-                                        <span class="avatar-badge">{{ cart_count }}</span>
+                                    {% if user.userprofile.avatar_medium %}
+                                        <img src="{{ user.userprofile.avatar_medium.url }}" alt="{{ user.username }}" class="avatar-img-medium">
+                                    {% else %}
+                                        {{ user.username|first|upper }}
                                     {% endif %}
                                 </div>
                                 <i class="fas fa-chevron-down dropdown-arrow"></i>
@@ -135,7 +135,11 @@
                             <div class="dropdown-menu">
                                 <div class="dropdown-header">
                                     <div class="user-avatar">
-                                        {{ user.username|first|upper }}
+                                        {% if user.userprofile.avatar_medium %}
+                                            <img src="{{ user.userprofile.avatar_medium.url }}" alt="{{ user.username }}" class="avatar-img-medium">
+                                        {% else %}
+                                            {{ user.username|first|upper }}
+                                        {% endif %}
                                     </div>
                                     <div class="user-info">
                                         <div class="user-name">{{ user.username }}</div>

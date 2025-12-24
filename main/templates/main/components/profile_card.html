@@ -1,0 +1,93 @@
+<div class="profile-card-widget">
+    <a href="{{ profile.get_absolute_url }}" class="profile-card-link">
+        <div class="profile-card-avatar">
+            {% if profile.avatar_small %}
+            <img src="{{ profile.avatar_small.url }}" alt="{{ profile_user.username }}">
+            {% else %}
+            <div class="avatar-default">{{ profile_user.username|first|upper }}</div>
+            {% endif %}
+        </div>
+        <div class="profile-card-info">
+            <strong>{{ profile_user.username }}</strong>
+            {% if profile.is_verified %}
+            <span class="verified-badge" title="Верифицированный">✓</span>
+            {% endif %}
+            {% if profile.profile_tags %}
+            <div class="profile-card-tags">
+                {% for tag in tags|slice:":2" %}
+                <span class="tag-mini">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </a>
+</div>
+
+<style>
+.profile-card-widget {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 5px;
+}
+
+.profile-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    background: #f7fafc;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #4a5568;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.profile-card-link:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+}
+
+.profile-card-avatar {
+    width: 24px;
+    height: 24px;
+}
+
+.profile-card-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-default {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #667eea;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.verified-badge {
+    color: #48bb78;
+    font-size: 0.9em;
+    margin-left: 3px;
+}
+
+.profile-card-tags {
+    display: flex;
+    gap: 3px;
+    margin-left: 5px;
+}
+
+.tag-mini {
+    font-size: 0.7rem;
+    opacity: 0.7;
+}
+</style>

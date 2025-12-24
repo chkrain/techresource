@@ -101,12 +101,18 @@ urlpatterns = [
     path('support/', views.support_view, name='support'),
     path('contact/submit/', views.contact_form_submit, name='contact_submit'),
     
+    path('profile/preview/', views.profile_preview, name='profile_preview'),
+    path('profile/<str:slug_or_id>/', views.public_profile, name='public_profile'),
+    path('profile/update-field/', views.update_profile_field, name='update_profile_field'),
+    path('profile/upload-avatar/', views.upload_avatar, name='upload_avatar'),
+    path('profile/card/<int:user_id>/', views.profile_card, name='profile_card'),
     # Админка
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-dashboard/order/<int:order_id>/update-status/', views.update_order_status, name='update_order_status'),
     path('moderate-review/<int:review_id>/', views.moderate_review, name='moderate_review'),
     path('moderate-comment/<int:comment_id>/', views.moderate_comment, name='moderate_comment'),
     path('moderate-all-comments/', views.moderate_all_comments, name='moderate_all_comments'),
+    path('admin/profile/manage/<int:user_id>/', views.admin_profile_manage, name='admin_profile_manage'),
     
     # API
     path('api/search-suggestions/', views.search_suggestions, name='search_suggestions'),

@@ -17,7 +17,11 @@ import struct
 from django.db.models.signals import pre_save
 from django.utils.text import slugify
 import re
-
+from PIL import Image
+import os
+from django.core.exceptions import ValidationError
+from django.utils.html import escape
+from .validators import validate_avatar, validate_profile_background
 
 class UserProfile(models.Model):
     ACCOUNT_TYPE_CHOICES = [
@@ -34,7 +38,6 @@ class UserProfile(models.Model):
     company = models.CharField(max_length=100, blank=True, verbose_name='Компания', null=True)
     position = models.CharField(max_length=100, blank=True, verbose_name='Должность', null=True)
     date_of_birth = models.DateField(blank=True, null=True, verbose_name='Дата рождения')
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name='Аватар')
 
     company_name = models.CharField(max_length=255, blank=True, null=True)
     inn = models.CharField(max_length=12, blank=True, null=True)
@@ -46,20 +49,576 @@ class UserProfile(models.Model):
     settlement_account = models.CharField(max_length=20, blank=True, null=True)
     correspondent_account = models.CharField(max_length=20, blank=True, null=True)
     
-    # Поля для восстановления пароля
     phone_verified = models.BooleanField(default=False, verbose_name='Телефон подтвержден')
     sms_code = models.CharField(max_length=6, blank=True, null=True, verbose_name='Код из SMS')
     sms_code_expires = models.DateTimeField(blank=True, null=True, verbose_name='Код действует до')
     reset_token = models.CharField(max_length=100, blank=True, null=True, verbose_name='Токен сброса')
     reset_token_expires = models.DateTimeField(blank=True, null=True, verbose_name='Токен действует до')
     
-    # Новые поля для безопасности
     password_changed_at = models.DateTimeField(default=timezone.now, verbose_name='Дата смены пароля')
     email_verified = models.BooleanField(default=False, verbose_name='Email подтвержден')
     verification_token = models.CharField(max_length=100, blank=True, null=True)
     verification_token_created = models.DateTimeField(blank=True, null=True)
     last_security_notification = models.DateTimeField(blank=True, null=True)
     
+    PRIVACY_CHOICES = [
+        ('public', 'Публично'),
+        ('private', 'Только мне'),
+        ('friends', 'Друзьям'),
+        ('registered', 'Зарегистрированным'),
+    ]
+    
+    privacy_mode = models.CharField(
+        max_length=10,
+        choices=PRIVACY_CHOICES,
+        default='public',
+        verbose_name='Режим приватности'
+    )
+    
+    public_bio = models.TextField(
+        blank=True,
+        verbose_name='Публичная биография',
+        max_length=1000,
+        help_text='Будет видна другим пользователям'
+    )
+    
+    public_skills = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name='Публичные навыки',
+        help_text='Навыки через запятую'
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='Активен',
+        help_text='Активен ли профиль'
+    )
+    
+    public_links = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name='Публичные ссылки',
+        help_text='Список ссылок в формате [{"name": "GitHub", "url": "https://..."}]'
+    )
+    
+    private_notes = models.TextField(
+        blank=True,
+        verbose_name='Личные заметки',
+        help_text='Только для вашего просмотра'
+    )
+
+    email_visibility = models.CharField(
+        max_length=20,
+        choices=PRIVACY_CHOICES,
+        default='private',
+        verbose_name='Видимость email'
+    )
+    
+    phone_visibility = models.CharField(
+        max_length=20,
+        choices=PRIVACY_CHOICES,
+        default='private',
+        verbose_name='Видимость телефона'
+    )
+    
+    company_visibility = models.CharField(
+        max_length=20,
+        choices=PRIVACY_CHOICES,
+        default='public',
+        verbose_name='Видимость компании'
+    )
+    
+    position_visibility = models.CharField(
+        max_length=20,
+        choices=PRIVACY_CHOICES,
+        default='public',
+        verbose_name='Видимость должности'
+    )
+    
+    skills_visibility = models.CharField(
+        max_length=20,
+        choices=PRIVACY_CHOICES,
+        default='public',
+        verbose_name='Видимость навыков'
+    )
+    
+    activity_visibility = models.CharField(
+        max_length=20,
+        choices=PRIVACY_CHOICES,
+        default='public',
+        verbose_name='Видимость активности'
+    )
+    
+    PROFILE_TAGS = [
+        ('customer', 'Клиент'),
+        ('partner', 'Партнер'),
+        ('developer', 'Разработчик'),
+        ('supplier', 'Поставщик'),
+        ('carrier', 'Перевозчик'),
+        ('contractor', 'Подрядчик'),
+        ('investor', 'Инвестор'),
+        ('employee', 'Сотрудник'),
+        ('vip', 'VIP клиент'),
+    ]
+    
+    profile_tags = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name='Теги профиля',
+        help_text='Теги назначаются администратором'
+    )
+    
+    profile_theme = models.CharField(
+        max_length=50,
+        default='default',
+        verbose_name='Тема профиля',
+        help_text='Цветовая тема профиля'
+    )
+    
+    profile_background = models.ImageField(
+        upload_to='profile_backgrounds/%Y/%m/',
+        blank=True,
+        null=True,
+        verbose_name='Фон профиля',
+        validators=[validate_profile_background]
+    )
+    
+    show_statistics = models.BooleanField(
+        default=True,
+        verbose_name='Показывать статистику'
+    )
+    
+    show_recent_activity = models.BooleanField(
+        default=True,
+        verbose_name='Показывать активность'
+    )
+    
+    avatar = models.ImageField(
+        upload_to='avatars/%Y/%m/',
+        blank=True,
+        null=True,
+        verbose_name='Аватар',
+        validators=[validate_avatar]
+    )
+    
+    avatar_small = models.ImageField(
+        upload_to='avatars/small/%Y/%m/',
+        blank=True,
+        null=True,
+        verbose_name='Маленький аватар (50x50)',
+        editable=False
+    )
+    
+    avatar_medium = models.ImageField(
+        upload_to='avatars/medium/%Y/%m/',
+        blank=True,
+        null=True,
+        verbose_name='Средний аватар (100x100)',
+        editable=False
+    )
+    
+    avatar_large = models.ImageField(
+        upload_to='avatars/large/%Y/%m/',
+        blank=True,
+        null=True,
+        verbose_name='Большой аватар (200x200)',
+        editable=False
+    )
+    
+    profile_slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name='URL профиля',
+        help_text='Используется для публичных ссылок на профиль'
+    )
+    
+    profile_meta_title = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Meta Title профиля'
+    )
+    
+    profile_meta_description = models.TextField(
+        blank=True,
+        verbose_name='Meta Description профиля',
+        max_length=300
+    )
+    
+    profile_views = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Просмотры профиля'
+    )
+    
+    last_profile_update = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Последнее обновление профиля'
+    )
+    
+    is_verified = models.BooleanField(
+        default=False,
+        verbose_name='Верифицированный профиль'
+    )
+    
+    verification_badge = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name='Бейдж верификации'
+    )
+    
+    def save(self, *args, **kwargs):
+        if not self.profile_slug and self.user:
+            base_slug = slugify(self.user.username)
+            slug = base_slug
+            counter = 1
+            while UserProfile.objects.filter(profile_slug=slug).exclude(user=self.user).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.profile_slug = slug
+        
+        if self.public_bio:
+            self.public_bio = escape(self.public_bio)
+        
+        original_avatar = self.avatar
+        
+        if self.avatar:
+            try:
+                self.process_avatar()
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f'Ошибка обработки аватара для пользователя {self.user.username}: {str(e)}')
+                if original_avatar:
+                    self.avatar = original_avatar
+        
+        if self.profile_background:
+            try:
+                self.process_background()
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(f'Ошибка обработки фона для пользователя {self.user.username}: {str(e)}')
+        
+        if not self.profile_meta_title and self.user:
+            self.profile_meta_title = f"Профиль {self.user.username} | Техресурс"
+        
+        if not self.profile_meta_description and self.public_bio:
+            clean_bio = self.public_bio[:200]
+            self.profile_meta_description = f"{clean_bio}..."
+        
+        super().save(*args, **kwargs)
+        
+    def process_avatar(self):
+        """Безопасная обработка и создание ресайзов аватара"""
+        if not self.avatar:
+            return
+        
+        try:
+            if not hasattr(self.avatar, 'file') or not self.avatar.file:
+                return 
+                
+            from io import BytesIO
+            from django.core.files.base import ContentFile
+            from PIL import Image as PILImage
+            import os
+            
+            try:
+                img = PILImage.open(self.avatar.file)
+            except (FileNotFoundError, OSError) as e:
+                logger = logging.getLogger(__name__)
+                logger.error(f'Ошибка открытия аватара: {str(e)}')
+                return 
+            
+            if img.mode in ('RGBA', 'LA', 'P'):
+                background = PILImage.new('RGB', img.size, (255, 255, 255))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                if img.mode == 'RGBA':
+                    background.paste(img, mask=img.split()[-1])
+                    img = background
+                elif img.mode == 'LA':
+                    background.paste(img, mask=img.split()[-1])
+                    img = background
+            
+            sizes = {
+                'small': (50, 50),
+                'medium': (100, 100),
+                'large': (200, 200)
+            }
+            
+            for size_name, dimensions in sizes.items():
+                try:
+                    img_copy = img.copy()
+                    img_copy.thumbnail(dimensions, PILImage.Resampling.LANCZOS)
+                    
+                    square_img = PILImage.new('RGB', dimensions, (255, 255, 255))
+                    offset = (
+                        (dimensions[0] - img_copy.size[0]) // 2,
+                        (dimensions[1] - img_copy.size[1]) // 2
+                    )
+                    square_img.paste(img_copy, offset)
+                    
+                    buffer = BytesIO()
+                    square_img.save(buffer, format='JPEG', quality=85, optimize=True)
+                    buffer.seek(0)
+                    
+                    field_name = f'avatar_{size_name}'
+                    filename = f"{self.user.username}_{size_name}.jpg"
+                    
+                    getattr(self, field_name).save(
+                        filename,
+                        ContentFile(buffer.read()),
+                        save=False
+                    )
+                    buffer.close()
+                except Exception as e:
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f'Ошибка создания ресайза {size_name}: {str(e)}')
+                    continue
+            
+            if img.size[0] > 800 or img.size[1] > 800:
+                img.thumbnail((800, 800), PILImage.Resampling.LANCZOS)
+            
+            buffer = BytesIO()
+            img.save(buffer, format='JPEG', quality=85, optimize=True)
+            buffer.seek(0)
+            
+            self.avatar.save(
+                f"{self.user.username}_original.jpg",
+                ContentFile(buffer.read()),
+                save=False
+            )
+            buffer.close()
+            
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f'Критическая ошибка обработки аватара: {str(e)}')
+            
+    def process_background(self):
+        """Безопасная обработка фона профиля"""
+        if not self.profile_background:
+            return
+        
+        try:
+            if not self.profile_background or not self.profile_background.name:
+                return
+            
+            from io import BytesIO
+            from django.core.files.base import ContentFile
+            from PIL import Image as PILImage
+            
+            original_background = self.profile_background
+            
+            try:
+                img = PILImage.open(self.profile_background)
+                
+                if img.mode in ('RGBA', 'LA', 'P'):
+                    background = PILImage.new('RGB', img.size, (255, 255, 255))
+                    if img.mode == 'P':
+                        img = img.convert('RGBA')
+                    if img.mode == 'RGBA':
+                        background.paste(img, mask=img.split()[-1])
+                        img = background
+                    elif img.mode == 'LA':
+                        background.paste(img, mask=img.split()[-1])
+                        img = background
+                elif img.mode != 'RGB':
+                    img = img.convert('RGB')
+                
+                if img.size[0] > 1920 or img.size[1] > 1080:
+                    img.thumbnail((1920, 1080), PILImage.Resampling.LANCZOS)
+                
+                buffer = BytesIO()
+                img.save(buffer, format='JPEG', quality=80, optimize=True)
+                buffer.seek(0)
+                
+                self.profile_background.save(
+                    f"{self.user.username}_background_{int(time.time())}.jpg",
+                    ContentFile(buffer.read()),
+                    save=False
+                )
+                buffer.close()
+                
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(f'Ошибка обработки фона: {str(e)}')
+                self.profile_background = original_background
+                
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f'Критическая ошибка обработки фона: {str(e)}')
+    
+    def get_public_tags(self):
+        """Получить публичные теги для отображения"""
+        if not self.profile_tags:
+            return []
+        
+        display_names = {
+            'customer': '👤 Клиент',
+            'partner': '🤝 Партнер',
+            'developer': '💻 Разработчик',
+            'supplier': '🚚 Поставщик',
+            'carrier': '📦 Перевозчик',
+            'contractor': '🔧 Подрядчик',
+            'investor': '💰 Инвестор',
+            'employee': '👨‍💼 Сотрудник',
+            'vip': '⭐ VIP клиент',
+        }
+        
+        return [display_names.get(tag, tag) for tag in self.profile_tags]
+    
+    def get_absolute_url(self):
+        """URL публичного профиля"""
+        if self.profile_slug:
+            return f"/profile/{self.profile_slug}/"
+        return f"/profile/{self.user.id}/"
+    
+    def can_view_profile(self, request_user):
+        """Проверка прав на просмотр профиля"""
+        if not self.user.is_active:
+            return False
+        
+        if request_user.is_superuser:
+            return True
+        
+        if self.privacy_mode == 'hidden':
+            return request_user == self.user or request_user.is_staff
+        
+        if self.privacy_mode == 'private':
+            return request_user == self.user or request_user.is_staff
+        
+        return True
+    
+    def increment_views(self):
+        """Увеличить счетчик просмотров"""
+        self.profile_views += 1
+        self.save(update_fields=['profile_views'])
+    
+    def get_skills_list(self):
+        """Получить список навыков"""
+        if not self.public_skills:
+            return []
+        return [skill.strip() for skill in self.public_skills.split(',')]
+
+    def get_avatar_url(self, size='small'):
+        """Безопасное получение URL аватара нужного размера"""
+        import os
+        
+        try:
+            if size == 'small' and self.avatar_small and self.avatar_small.name:
+                if os.path.exists(self.avatar_small.path):
+                    return self.avatar_small.url
+            elif size == 'medium' and self.avatar_medium and self.avatar_medium.name:
+                if os.path.exists(self.avatar_medium.path):
+                    return self.avatar_medium.url
+            elif size == 'large' and self.avatar_large and self.avatar_large.name:
+                if os.path.exists(self.avatar_large.path):
+                    return self.avatar_large.url
+            elif self.avatar and self.avatar.name:
+                if os.path.exists(self.avatar.path):
+                    return self.avatar.url
+        except (ValueError, FileNotFoundError, OSError):
+            pass
+        
+        return None
+
+    def has_avatar(self):
+        """Проверить, есть ли рабочий аватар"""
+        import os
+        try:
+            return bool(self.avatar and self.avatar.name and os.path.exists(self.avatar.path))
+        except (ValueError, FileNotFoundError, OSError):
+            return False
+    
+    def has_background(self):
+        """Проверить, есть ли рабочий фон"""
+        if not self.profile_background or not self.profile_background.name:
+            return False
+        
+        try:
+            import os
+            return os.path.exists(self.profile_background.path)
+        except (ValueError, FileNotFoundError, OSError):
+            return False
+
+    def get_background_url(self):
+        """Безопасное получение URL фона"""
+        if self.has_background():
+            return self.profile_background.url
+        return None
+
+    def can_view_field(self, viewer, field_name):
+        """
+        Проверяет, может ли viewer просматривать поле field_name
+        """
+        if not viewer.is_authenticated:
+            return False
+        
+        if viewer == self.user:
+            return True
+        
+        if viewer.is_staff or viewer.is_superuser:
+            return True
+        
+        if not self.can_view_profile(viewer):
+            return False
+        
+        visibility_field = f'{field_name}_visibility'
+        if hasattr(self, visibility_field):
+            visibility = getattr(self, visibility_field)
+        else:
+            return self.privacy_mode == 'public'
+        
+        if visibility == 'public':
+            return True
+        elif visibility == 'registered':
+            return viewer.is_authenticated
+        elif visibility == 'friends':
+            return viewer.is_authenticated
+        elif visibility == 'private':
+            return False
+        
+        return False
+
+    def get_visible_fields(self, viewer):
+        """
+        Возвращает словарь с видимыми полями для viewer
+        """
+        visible = {}
+        
+        if self.can_view_profile(viewer):
+            visible['username'] = self.user.username
+            visible['name'] = f"{self.user.first_name} {self.user.last_name}".strip()
+            visible['date_joined'] = self.user.date_joined
+            
+            fields_to_check = [
+                ('email', self.user.email),
+                ('phone', self.phone),
+                ('company', self.company),
+                ('position', self.position),
+                ('public_bio', self.public_bio),
+                ('public_skills', self.get_skills_list() if self.public_skills else []),
+            ]
+            
+            for field_name, value in fields_to_check:
+                if self.can_view_field(viewer, field_name):
+                    visible[field_name] = value
+        
+        return visible
+
+    class Meta:
+        verbose_name = "Профиль пользователя"
+        verbose_name_plural = "Профили пользователей"
+        indexes = [
+            models.Index(fields=['profile_slug']),
+            models.Index(fields=['privacy_mode', 'is_active']),
+        ]
+
     def __str__(self):
         return f"Профиль {self.user.username}"
     
@@ -68,10 +627,6 @@ class UserProfile(models.Model):
             today = date.today()
             return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
         return None
-    
-    class Meta:
-        verbose_name = "Профиль пользователя"
-        verbose_name_plural = "Профили пользователей"
 
 class Admin2FA(models.Model):
     """2FA для администраторов (упрощенная версия без pyotp)"""
@@ -194,7 +749,7 @@ class SecurityLog(models.Model):
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Пользователь")
     action = models.CharField(max_length=50, choices=ACTION_CHOICES, verbose_name="Действие")
-    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")
+    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес", null=True)
     user_agent = models.TextField(verbose_name="User Agent", blank=True)
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Время")
     success = models.BooleanField(default=True, verbose_name="Успешно")

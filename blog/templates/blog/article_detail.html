@@ -28,7 +28,11 @@
         <div class="article-meta">
             <div class="author-info">
                 <div class="author-avatar">
-                    {{ article.author.username|first|upper }}
+                    {% if article.author.userprofile.has_avatar %}
+                        <img src="{{ article.author.userprofile.get_avatar_url }}" alt="{{ article.author.username }}" class="avatar-img-small">
+                    {% else %}
+                        {{ article.author.username|first|upper }}
+                    {% endif %}
                 </div>
                 <div class="author-details">
                     <div class="author-name">{{ article.author.get_full_name|default:article.author.username }}</div>
@@ -139,10 +143,14 @@
                     <div class="comment-header">
                         <div class="comment-author">
                             <div class="author-avatar">
-                                {{ comment.user.username|first|upper }}
+                                {% if comment.user.userprofile.has_avatar %}
+                                    <img src="{{ comment.user.userprofile.get_avatar_url }}" alt="{{ comment.user.username }}" class="avatar-img-small">
+                                {% else %}
+                                    {{ comment.user.username|first|upper }}
+                                {% endif %}
                             </div>
                             <div class="author-info">
-                                <div class="author-name">{{ comment.user.username }}</div>
+                                <div class="author-name">{% include 'main/components/profile_card.html' with profile_user=comment.user profile=comment.user.userprofile %}</div>
                                 <div class="comment-date">
                                     {{ comment.created_at|date:"d.m.Y H:i" }}
                                     {% if comment.is_edited %}

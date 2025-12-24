@@ -1,0 +1,192 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}{{ profile.profile_meta_title|default:"Профиль пользователя" }}{% endblock %}
+{% block meta_description %}{{ profile.profile_meta_description }}{% endblock %}
+
+{% block content %}
+<div class="profile-container {% if profile.profile_theme != 'default' %}theme-{{ profile.profile_theme }}{% endif %}">
+    
+    <div class="profile-banner">
+        {% if profile.profile_background %}
+        <div class="profile-background" style="background-image: url('{{ profile.profile_background.url }}') !important;"></div>
+        {% endif %}
+        
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {% if profile.avatar_large %}
+                    <img src="{{ profile.avatar_large.url }}" alt="{{ visible_fields.username }}" class="avatar-img-large">
+                {% else %}
+                    {{ visible_fields.username|first|upper }}
+                {% endif %}
+                
+                {% if profile.is_verified %}
+                <span class="verification-badge" title="Верифицированный профиль">
+                    {% if profile.verification_badge == 'premium' %}⭐
+                    {% elif profile.verification_badge == 'trusted' %}✅
+                    {% elif profile.verification_badge == 'expert' %}👨‍💼
+                    {% elif profile.verification_badge == 'founder' %}🚀
+                    {% else %}✓{% endif %}
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="profile-info">
+                <h1>{{ visible_fields.name|default:visible_fields.username }}</h1>
+                <p class="profile-username">@{{ visible_fields.username }}</p>
+                
+                {% if profile.profile_tags %}
+                <div class="profile-tags">
+                    {% for tag in profile.get_public_tags %}
+                    <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <div class="profile-stats">
+                    <span class="stat">
+                        <strong>{{ profile.profile_views }}</strong>
+                        <small>просмотров</small>
+                    </span>
+                    
+                    {% if visible_fields.articles_count %}
+                    <span class="stat">
+                        <strong>{{ visible_fields.articles_count }}</strong>
+                        <small>статей</small>
+                    </span>
+                    {% endif %}
+                    
+                    {% if visible_fields.comments_count %}
+                    <span class="stat">
+                        <strong>{{ visible_fields.comments_count }}</strong>
+                        <small>комментариев</small>
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="profile-content">
+        <div class="profile-sidebar">
+            {% if visible_fields.public_bio %}
+            <div class="card">
+                <h3>О себе</h3>
+                <div class="bio-content">{{ visible_fields.public_bio|linebreaks }}</div>
+            </div>
+            {% endif %}
+            
+            {% if visible_fields.public_skills %}
+            <div class="card">
+                <h3>Навыки</h3>
+                <div class="skills">
+                    {% for skill in visible_fields.public_skills %}
+                    <span class="skill-tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card">
+                <h3>Контактная информация</h3>
+                <ul class="info-list">
+                    {% if visible_fields.email %}
+                    <li>
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ visible_fields.email }}</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% if visible_fields.phone %}
+                    <li>
+                        <span class="info-label">Телефон:</span>
+                        <span class="info-value">{{ visible_fields.phone }}</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% if visible_fields.company %}
+                    <li>
+                        <span class="info-label">Компания:</span>
+                        <span class="info-value">{{ visible_fields.company }}</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% if visible_fields.position %}
+                    <li>
+                        <span class="info-label">Должность:</span>
+                        <span class="info-value">{{ visible_fields.position }}</span>
+                    </li>
+                    {% endif %}
+                    
+                    <li>
+                        <span class="info-label">Зарегистрирован:</span>
+                        <span class="info-value">{{ visible_fields.date_joined|date:"d.m.Y" }}</span>
+                    </li>
+                    
+                    {% if profile_user.is_staff %}
+                    <li>
+                        <span class="info-label">Статус:</span>
+                        <span class="info-value staff">Сотрудник</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        
+        <div class="profile-main">
+            {% if recent_activity %}
+            <div class="card">
+                <h3>Последние действия</h3>
+                <div class="activity-timeline">
+                    {% for activity in recent_activity %}
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            {% if activity.type == 'article' %}📝
+                            {% elif activity.type == 'comment' %}💬
+                            {% elif activity.type == 'review' %}⭐
+                            {% elif activity.type == 'order' %}🛒
+                            {% endif %}
+                        </div>
+                        <div class="activity-content">
+                            <h4>
+                                <a href="{{ activity.url }}">{{ activity.title }}</a>
+                            </h4>
+                            <p>{{ activity.description }}</p>
+                            <small class="activity-date">
+                                {{ activity.date|date:"d.m.Y H:i" }}
+                            </small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">Нет недавних действий</p>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if is_owner %}
+            <div class="card">
+                <h3>Статистика профиля</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <h4>Просмотры профиля</h4>
+                            <p class="stat-number">{{ profile.profile_views }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <h4>Последнее обновление</h4>
+                            <p class="stat-number">{{ profile.last_profile_update|date:"d.m.Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'css/profiles.css' %}?v=1.4">
+
+{% endblock %}

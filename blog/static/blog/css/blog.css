@@ -64,7 +64,7 @@
   margin-bottom: 2rem;
   max-width: 100%;
   min-width: 200px;
-  width: 80%;
+  width: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -544,13 +544,11 @@
   gap: 0.5rem;
 }
 .article-featured-image {
-  margin: 2rem 0 3rem;
   border-radius: var(--blog-radius);
   overflow: hidden;
   box-shadow: var(--blog-shadow);
   object-fit: cover;
-  width: 50%;
-  margin-left: 25%;
+  max-height: 50svh;
 }
 .article-featured-image img {
   width: 100%;
@@ -891,6 +889,10 @@
   .article-stats {
     width: 100%;
     justify-content: space-between;
+    align-items: flex-start;
+  }
+  .article-date {
+    margin-top: 8px;
   }
   .comments-header {
     flex-direction: column;

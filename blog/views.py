@@ -115,7 +115,7 @@ class AddCommentView(LoginRequiredMixin, CreateView):
             created_at__gte=last_hour
         ).count()
         
-        if recent_comments >= 5:
+        if recent_comments >= 4:
             messages.error(self.request, 'Слишком много комментариев за последний час.')
             return redirect(self.article.get_absolute_url())
         
@@ -136,7 +136,7 @@ class AddCommentView(LoginRequiredMixin, CreateView):
         
         clean_content = ' '.join(filtered_words)
         
-        if len(clean_content) < 10:
+        if len(clean_content) < 5:
             messages.error(self.request, 'Комментарий слишком короткий.')
             return self.form_invalid(form)
         
@@ -149,7 +149,6 @@ class AddCommentView(LoginRequiredMixin, CreateView):
         else:
             status = 'pending'
         
-        # Простая анти-спам проверка
         content_lower = clean_content.lower()
         spam_indicators = ['http://', 'https://', 'www.', '.ru', 'купить', 'цена', 'дешево']
         spam_score = sum(1 for indicator in spam_indicators if indicator in content_lower)
@@ -157,11 +156,15 @@ class AddCommentView(LoginRequiredMixin, CreateView):
         if spam_score > 2 or len(clean_content.split()) < 3:
             status = 'spam'
             messages.warning(self.request, 'Ваш комментарий помечен как спам.')
+
+        ip_address = self.request.META.get('REMOTE_ADDR')
+        if not ip_address:
+            ip_address = 'unknown'
         
         comment = form.save(commit=False)
         comment.article = self.article
         comment.user = self.request.user
-        comment.ip_address = self.request.META.get('REMOTE_ADDR')
+        comment.ip_address = ip_address
         comment.user_agent = self.request.META.get('HTTP_USER_AGENT', '')
         comment.status = status
         comment.content = clean_content
@@ -174,7 +177,7 @@ class AddCommentView(LoginRequiredMixin, CreateView):
         SecurityLog.objects.create(
             user=self.request.user,
             action='comment_added',
-            ip_address=comment.ip_address,
+            ip_address=ip_address,
             user_agent=comment.user_agent,
             details={
                 'article_id': self.article.id,
