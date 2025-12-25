@@ -22,7 +22,7 @@
             <div class="profile-sidebar">
                 <div class="user-card">
                     <div class="user-avatar">
-                        {% if user_profile.avatar %}
+                        {% if user_profile.avatar_small %}
                             <img src="{{ user_profile.avatar_small.url|default:user_profile.avatar.url }}" alt="{{ user.username }}" class="avatar-img">
                         {% else %}
                             <span class="avatar-icon">👤</span>
@@ -757,7 +757,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=1.5">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=1.6">
 
 <script type="text/javascript" src="{% static 'js/profile.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>

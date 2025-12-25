@@ -46,7 +46,6 @@
     align-items: center;
     gap: 30px;
     z-index: 2;
-    padding-right: 2rem
 }
 
 .profile-avatar {
@@ -172,7 +171,8 @@
     display: grid;
     grid-template-columns: 300px 1fr;
     gap: 30px;
-    margin-bottom: 50px
+    margin-bottom: 50px;
+    color: black;
 }
 
 .card {

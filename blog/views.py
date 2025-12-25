@@ -159,7 +159,7 @@ class AddCommentView(LoginRequiredMixin, CreateView):
 
         ip_address = self.request.META.get('REMOTE_ADDR')
         if not ip_address:
-            ip_address = 'unknown'
+            ip_address = None
         
         comment = form.save(commit=False)
         comment.article = self.article

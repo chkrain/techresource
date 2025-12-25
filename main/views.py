@@ -154,7 +154,7 @@ def moderate_comment(request, comment_id):
             comment.moderated_at = timezone.now()
             comment.save()
             
-            ip_address = request.META.get('REMOTE_ADDR', 'unknown')
+            ip_address = get_client_ip(request)
 
             SecurityLog.objects.create(
                 user=request.user,
@@ -179,7 +179,7 @@ def moderate_comment(request, comment_id):
             comment.moderated_at = timezone.now()
             comment.save()
             
-            ip_address = request.META.get('REMOTE_ADDR', 'unknown')
+            ip_address = get_client_ip(request)
 
             SecurityLog.objects.create(
                 user=request.user,
@@ -204,7 +204,7 @@ def moderate_comment(request, comment_id):
             comment.moderated_at = timezone.now()
             comment.save()
 
-            ip_address = request.META.get('REMOTE_ADDR', 'unknown')
+            ip_address = get_client_ip(request)
             
             SecurityLog.objects.create(
                 user=request.user,
@@ -1267,15 +1267,15 @@ def get_client_ip(request):
     if x_forwarded_for:
         ip = x_forwarded_for.split(',')[0]
     else:
-        ip = request.META.get('REMOTE_ADDR', 'unknown')
+        ip = get_client_ip(request)
     if not ip or ip == '':
-        ip = 'unknown'
+        ip = get_client_ip(request)
     
     return ip
 
 def log_security_event(user, action, ip_address, user_agent, success=True):
     if ip_address is None:
-        ip_address = 'unknown'
+        ip_address = None
 
     SecurityLog.objects.create(
         user=user,
@@ -1284,6 +1284,24 @@ def log_security_event(user, action, ip_address, user_agent, success=True):
         user_agent=user_agent,
         success=success
     )
+
+def get_client_ip(request):
+    """
+    Получение IP-адреса клиента.
+    Возвращает IP или None, если адрес не определен.
+    """
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0].strip()
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    
+    if ip and ip != '' and ip != 'unknown':
+        if '.' in ip or ':' in ip: 
+            return ip
+    
+    return None
 
 @csrf_protect
 @require_http_methods(["GET", "POST"])

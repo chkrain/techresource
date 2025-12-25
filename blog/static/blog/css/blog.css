@@ -659,9 +659,11 @@
 }
 .prev-article {
   text-align: left;
+  justify-content: flex-start !important;
 }
 .next-article {
   text-align: right;
+  justify-content: flex-end !important;
 }
 .next-article .nav-content {
   order: -1;
@@ -896,13 +898,16 @@
   }
   .comments-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
   }
   .form-actions {
     flex-direction: column;
   }
   .form-actions .btn {
     width: 100%;
+  }
+  .nav-link {
+    justify-content: center;
   }
 }
 @keyframes fadeIn {
