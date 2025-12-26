@@ -112,7 +112,6 @@ class SecurityLogAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
 
-# Payment Audit Log Admin
 @admin.register(PaymentAuditLog)
 class PaymentAuditLogAdmin(admin.ModelAdmin):
     list_display = ['order', 'action', 'user', 'ip_address', 'created_at']
@@ -127,7 +126,6 @@ class PaymentAuditLogAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         return False
 
-# Rate Limit Log Admin
 @admin.register(RateLimitLog)
 class RateLimitLogAdmin(admin.ModelAdmin):
     list_display = ['key', 'ip_address', 'user', 'action', 'attempts', 'window_start']
@@ -141,7 +139,6 @@ class RateLimitLogAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         return False
 
-# Fraud Detection Log Admin
 @admin.register(FraudDetectionLog)
 class FraudDetectionLogAdmin(admin.ModelAdmin):
     list_display = ['user', 'order', 'ip_address', 'severity', 'detected_at', 'resolved']
@@ -159,7 +156,6 @@ class FraudDetectionLogAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
-# CSP Violation Report Admin
 @admin.register(CSPViolationReport)
 class CSPViolationReportAdmin(admin.ModelAdmin):
     list_display = ['violated_directive', 'document_uri', 'ip_address', 'created_at']
@@ -175,7 +171,6 @@ class CSPViolationReportAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         return False
 
-# Login Attempt Admin
 @admin.register(LoginAttempt)
 class LoginAttemptAdmin(admin.ModelAdmin):
     list_display = ['username', 'ip_address', 'success', 'timestamp']
@@ -241,14 +236,26 @@ class ProductAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Основная информация', {
-            'fields': ('name', 'category', 'brand', 'description', 'article', 'get_article_date', 'slug')
+            'fields': ('name', 'category', 'brand', 'description', 'article', 'get_article_date', 'slug'),
+            'description': 'Обязательные поля: название, категория, цена и количество. Бренд и описание - рекомендуются.'
         }),
         ('Цена и наличие', {
-            'fields': ('price', 'quantity', 'is_active')
+            'fields': ('price', 'quantity', 'is_active'),
+            'description': 'Цена в рублях. Количество должно быть неотрицательным.'
         }),
         ('Технические характеристики', {
             'fields': ('material', 'weight', 'dimensions', 'warranty', 'specifications'),
-            'classes': ('collapse',)
+            'classes': ('collapse',),
+            'description': '''
+                <strong>Инструкция по заполнению:</strong><br>
+                1. <strong>Материал</strong> - основной материал изделия (пластик, металл и т.д.)<br>
+                2. <strong>Вес</strong> - в килограммах, с точностью до сотых (2.50)<br>
+                3. <strong>Габариты</strong> - формат: Длина×Ширина×Высота в см (10×20×5)<br>
+                4. <strong>Гарантия</strong> - срок в месяцах, по умолчанию 12<br>
+                5. <strong>Характеристики (JSON)</strong> - дополнительные параметры в формате ключ: значение<br>
+                &nbsp;&nbsp;&nbsp;Пример: {"Мощность": "100W", "Напряжение": "220V", "Цвет": "черный"}<br>
+                <em>Все эти поля необязательны, но помогают покупателям найти товар</em>
+            '''
         }),
         ('SEO настройки (автозаполняются)', {
             'fields': ('seo_title', 'seo_description', 'seo_keywords'),

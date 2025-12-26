@@ -186,6 +186,43 @@
                                 <span class="spec-label">Наличие:</span>
                                 <span class="spec-value">{{ product.quantity }} шт.</span>
                             </div>
+                            
+                            {% if product.material %}
+                            <div class="spec-item">
+                                <span class="spec-label">Материал:</span>
+                                <span class="spec-value">{{ product.material }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if product.weight %}
+                            <div class="spec-item">
+                                <span class="spec-label">Вес:</span>
+                                <span class="spec-value">{{ product.weight }} кг</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if product.dimensions %}
+                            <div class="spec-item">
+                                <span class="spec-label">Габариты:</span>
+                                <span class="spec-value">{{ product.dimensions }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if product.warranty %}
+                            <div class="spec-item">
+                                <span class="spec-label">Гарантия:</span>
+                                <span class="spec-value">{{ product.warranty }} мес.</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if product.specifications %}
+                                {% for key, value in product.specifications.items %}
+                                <div class="spec-item">
+                                    <span class="spec-label">{{ key|title }}:</span>
+                                    <span class="spec-value">{{ value }}</span>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
                         </div>
                     </div>
                 </div>

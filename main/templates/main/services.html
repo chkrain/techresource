@@ -85,28 +85,30 @@
                 <div class="services-grid">
                     {% for service in navigation_tree %}
                     <div class="service-item" data-aos="fade-up">
-                        <div class="service-content">
-                            <div class="service-icon">
-                                {% if service.slug == 'design' %}📐
-                                {% elif service.slug == 'electrical' %}⚡
-                                {% elif service.slug == 'software' %}💻
-                                {% elif service.slug == 'equipment' %}🚚
-                                {% elif service.slug == 'support' %}🛠️
-                                {% elif service.slug == 'maintenance' %}🔧
-                                {% else %}📄{% endif %}
+                        <a href="{{ service.url }}" style="text-decoration: none;">
+                            <div class="service-content">
+                                <div class="service-icon">
+                                    {% if service.slug == 'design' %}📐
+                                    {% elif service.slug == 'electrical' %}⚡
+                                    {% elif service.slug == 'software' %}💻
+                                    {% elif service.slug == 'equipment' %}🚚
+                                    {% elif service.slug == 'support' %}🛠️
+                                    {% elif service.slug == 'maintenance' %}🔧
+                                    {% else %}📄{% endif %}
+                                </div>
+                                <h3>{{ service.title }}</h3>
+                                <p>{% if service.static %}Основная услуга{% else %}Дополнительная услуга{% endif %}</p>
+                                
+                                {% if service.children %}
+                                <ul class="service-features">
+                                    {% for child in service.children %}
+                                    <li>{{ child.title }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
                             </div>
-                            <h3>{{ service.title }}</h3>
-                            <p>{% if service.static %}Основная услуга{% else %}Дополнительная услуга{% endif %}</p>
-                            
-                            {% if service.children %}
-                            <ul class="service-features">
-                                {% for child in service.children %}
-                                <li>{{ child.title }}</li>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
-                        </div>
-                        <a href="{{ service.url }}" class="service-btn">Подробнее</a>
+                            <a href="{{ service.url }}" class="service-btn">Подробнее</a>
+                        </a>
                     </div>
                     {% empty %}
                     <div class="no-services">

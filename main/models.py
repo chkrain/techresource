@@ -956,26 +956,15 @@ class Product(models.Model):
     seo_keywords = models.TextField(verbose_name="SEO Keywords",blank=True,help_text="Автоматически генерируется")
     slug = models.SlugField(max_length=200,unique=True,blank=True,verbose_name="URL",help_text="Автоматически генерируется из названия")
     
-    brand = models.CharField(max_length=100, verbose_name="Бренд", blank=True)
+    brand = models.CharField(max_length=100, verbose_name="Бренд", blank=True, help_text="Например: ABB, Schneider Electric, Siemens")
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0, verbose_name="Рейтинг")
     popularity = models.IntegerField(default=0, verbose_name="Популярность")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
-    weight = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, verbose_name="Вес")
-    dimensions = models.CharField(max_length=50, blank=True, verbose_name="Габариты")
-    material = models.CharField(max_length=100, blank=True, verbose_name="Материал")
-    warranty = models.IntegerField(default=12, verbose_name="Гарантия (мес)")
+    weight = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, verbose_name="Вес", help_text="Вес в килограммах. Пример: 2.5")
+    dimensions = models.CharField(max_length=50, blank=True, verbose_name="Габариты", help_text="Формат: Длина×Ширина×Высота в см. Пример: 10×20×5")
+    material = models.CharField(max_length=100, blank=True, verbose_name="Материал", help_text="Например: пластик, сталь, алюминий, комбинированный")
+    warranty = models.IntegerField(default=12, verbose_name="Гарантия (мес)", help_text="Срок гарантии в месяцах. Стандартно 12 месяцев")
 
-    weight = models.DecimalField(
-        max_digits=8, 
-        decimal_places=2, 
-        default=0.1,
-        verbose_name="Вес (кг)"
-    )
-    dimensions = models.CharField(
-        max_length=50, 
-        blank=True, 
-        verbose_name="Габариты (Д×Ш×В см)"
-    )
     vat_rate = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
@@ -989,7 +978,7 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
     last_restock = models.DateTimeField(null=True, blank=True, verbose_name="Последнее пополнение")
 
-    specifications = models.JSONField(default=dict, blank=True, verbose_name="Характеристики")
+    specifications = models.JSONField(default=dict, blank=True, verbose_name="Характеристики", help_text="Дополнительные характеристики в формате JSON. Пример: {'Мощность': '100W', 'Напряжение': '220V'}")
     
     def save(self, *args, **kwargs):
         if self.price and self.vat_rate:
