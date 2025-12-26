@@ -142,8 +142,18 @@ class BlogArticle(models.Model):
         return []
     
     def increment_views(self):
-        self.views += 1
-        self.save(update_fields=['views'])
+        """Увеличивает счетчик просмотров и обновляет кэш"""
+        from django.db.models import F
+        BlogArticle.objects.filter(pk=self.pk).update(views=F('views') + 1)
+        self.refresh_from_db()
+
+    def get_approved_comments_count(self):
+        """Получить количество одобренных комментариев"""
+        return self.comments.filter(status='approved').count()
+    
+    def get_pending_comments_count(self):
+        """Получить количество комментариев на модерации"""
+        return self.comments.filter(status='pending').count()
 
     def clean(self):
         """Валидация перед сохранением"""
@@ -249,3 +259,54 @@ class BlogComment(models.Model):
         if hasattr(self.user, 'userprofile') and self.user.userprofile.avatar_small:
             return self.user.userprofile.avatar_small.url
         return None
+
+class ArticleContentBlock(models.Model):
+    """Блоки контента статьи (только текст и изображения)"""
+    BLOCK_TYPES = [
+        ('text', 'Текст'),
+        ('image', 'Изображение'),
+    ]
+    
+    article = models.ForeignKey(BlogArticle, on_delete=models.CASCADE, 
+                               related_name='content_blocks', verbose_name="Статья")
+    block_type = models.CharField(max_length=20, choices=BLOCK_TYPES, 
+                                 default='text', verbose_name="Тип блока")
+    order = models.IntegerField(default=0, verbose_name="Порядок")
+    
+    title = models.CharField(max_length=200, blank=True, verbose_name="Заголовок")
+    caption = models.TextField(blank=True, verbose_name="Подпись")
+    
+    text_content = models.TextField(blank=True, verbose_name="Текстовое содержимое")
+    
+    image = models.ImageField(upload_to='blog/blocks/%Y/%m/', blank=True, null=True,
+                             verbose_name="Изображение")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = "Блок контента"
+        verbose_name_plural = "Блоки контента"
+        indexes = [
+            models.Index(fields=['article', 'order']),
+        ]
+    
+    def __str__(self):
+        return f"{self.get_block_type_display()} - Порядок: {self.order}"
+    
+    def clean(self):
+        """Валидация данных"""
+        if self.block_type == 'text' and not self.text_content.strip():
+            raise ValidationError('Текстовый блок не может быть пустым')
+        
+        if self.block_type == 'image' and not self.image:
+            raise ValidationError('Для блока изображения необходимо загрузить файл')
+    
+    def save(self, *args, **kwargs):
+        if self.block_type == 'text':
+            self.image = None
+        elif self.block_type == 'image':
+            self.text_content = ''
+        
+        super().save(*args, **kwargs)

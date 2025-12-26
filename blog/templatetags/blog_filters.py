@@ -1,4 +1,5 @@
 from django import template
+from urllib.parse import urlparse
 
 register = template.Library()
 
@@ -11,11 +12,14 @@ def divide(value, arg):
         return 0
 
 @register.filter
-def reading_time(value):
-    """Рассчитывает время чтения статьи"""
-    try:
-        words = len(value.split())
-        minutes = max(1, words // 120)  # 120 слов в минуту
-        return f"{minutes} мин. чтения"
-    except:
-        return "1 мин. чтения"
+def replace(value, arg):
+    """Замена строки в строке"""
+    old, new = arg.split(',')
+    return value.replace(old, new)
+
+@register.filter
+def reading_time(text):
+    """Вычисление времени чтения"""
+    words = len(text.split())
+    minutes = max(1, words // 100)
+    return f"{minutes} мин. чтения"

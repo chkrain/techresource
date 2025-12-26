@@ -1,8 +1,48 @@
 from django.contrib import admin
-from .models import BlogCategory, BlogArticle, BlogComment
+from .models import BlogCategory, BlogArticle, BlogComment, ArticleContentBlock
 from django.utils.html import format_html
 from django.utils.text import Truncator
 from datetime import timezone
+
+class ArticleContentBlockInline(admin.TabularInline):
+    """Упрощенный inline для блоков контента"""
+    model = ArticleContentBlock
+    extra = 1
+    
+    fieldsets = (
+        (None, {
+            'fields': ('order', 'block_type')
+        }),
+        ('Контент', {
+            'fields': ('title', 'text_content', 'image', 'caption'),
+            'classes': ('wide',),
+        }),
+    )
+    
+    def get_fieldsets(self, request, obj=None):
+        """Всегда возвращаем одинаковый fieldset"""
+        return (
+            (None, {
+                'fields': ('order', 'block_type')
+            }),
+            ('Контент', {
+                'fields': ('title', 'text_content', 'image', 'caption'),
+                'classes': ('wide',),
+            }),
+        )
+    
+    class Media:
+        """Добавляем JavaScript для динамического отображения полей"""
+        js = (
+            'admin/js/blog_content_blocks.js',
+        )
+
+    def get_formset(self, request, obj=None, **kwargs):
+        """Устанавливаем необязательные поля"""
+        formset = super().get_formset(request, obj, **kwargs)
+        formset.form.base_fields['text_content'].required = False
+        formset.form.base_fields['image'].required = False
+        return formset
 
 @admin.register(BlogCategory)
 class BlogCategoryAdmin(admin.ModelAdmin):
@@ -26,14 +66,13 @@ class BlogArticleAdmin(admin.ModelAdmin):
     list_editable = ['status', 'is_featured']
     readonly_fields = ['views', 'likes', 'created_at', 'updated_at', 'thumbnail_preview']
     date_hierarchy = 'published_at'
-    filter_horizontal = []
     
     fieldsets = (
         ('Основная информация', {
             'fields': ('title', 'slug', 'author', 'category', 'tags')
         }),
-        ('Контент', {
-            'fields': ('excerpt', 'content', 'featured_image', 'thumbnail')
+        ('Аннотация и миниатюра', {
+            'fields': ('excerpt', 'featured_image', 'thumbnail')
         }),
         ('SEO', {
             'fields': ('meta_title', 'meta_description', 'meta_keywords')
@@ -50,7 +89,19 @@ class BlogArticleAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if 'content' in form.base_fields:
+            form.base_fields['content'].widget = forms.HiddenInput()
+        return form
+
+    inlines = [ArticleContentBlockInline]
     
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        return fieldsets
+
     def thumbnail_preview(self, obj):
         if obj.thumbnail:
             return format_html(
@@ -150,3 +201,4 @@ class BlogCommentAdmin(admin.ModelAdmin):
         count = spam_comments.count()
         spam_comments.delete()
         self.message_user(request, f'{count} спам-комментариев удалено.')
+

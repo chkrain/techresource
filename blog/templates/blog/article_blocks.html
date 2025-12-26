@@ -1,0 +1,273 @@
+{% load static %}
+
+<div class="article-content">
+    {% if article.excerpt %}
+    <div class="article-excerpt">
+        <p class="lead">{{ article.excerpt }}</p>
+    </div>
+    <hr class="divider">
+    {% endif %}
+    
+    <div class="article-body-blocks">
+        {% for block in content_blocks %}
+        <div class="content-block content-block-{{ block.block_type }} block-{{ forloop.counter0 }} 
+                    {% if forloop.counter0|divisibleby:2 %}even-block{% else %}odd-block{% endif %}"
+             data-block-type="{{ block.block_type }}">
+            
+            {% if block.block_type == 'text' %}
+            <!-- Текстовый блок -->
+            <div class="text-block">
+                {% if block.title %}
+                <h3 class="block-title text-title">{{ block.title }}</h3>
+                {% endif %}
+                
+                <div class="block-text-content">
+                    {{ block.text_content|linebreaks }}
+                </div>
+                
+                {% if block.caption %}
+                <div class="text-caption">
+                    <em>{{ block.caption }}</em>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% elif block.block_type == 'image' %}
+            <!-- Блок изображения - проверяем наличие файла -->
+            {% if block.image and block.image.url %}
+            <div class="image-block">
+                <div class="block-image-container">
+                    <img src="{{ block.image.url }}" 
+                         alt="{{ block.title|default:block.caption|default:article.title }}"
+                         loading="lazy"
+                         class="block-image">
+                    
+                    {% if block.title %}
+                    <div class="image-title-overlay">
+                        <h4>{{ block.title }}</h4>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if block.caption %}
+                <div class="image-caption">
+                    <p>{{ block.caption }}</p>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <!-- Если изображение отсутствует, показываем заглушку -->
+            <div class="image-block image-missing">
+                <div class="block-image-container missing-image">
+                    <div class="missing-image-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <p>Изображение отсутствует</p>
+                </div>
+                
+                {% if block.title or block.caption %}
+                <div class="image-caption">
+                    {% if block.title %}<strong>{{ block.title }}</strong><br>{% endif %}
+                    {% if block.caption %}{{ block.caption }}{% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            {% endif %}
+        </div>
+        
+        {% if not forloop.last and block.block_type == 'text' and content_blocks|length > forloop.counter %}
+            {% with next_block=content_blocks|slice:forloop.counter|first %}
+                {% if next_block.block_type == 'text' %}
+                    <hr class="text-divider">
+                {% endif %}
+            {% endwith %}
+        {% endif %}
+        
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.article-body-blocks {
+    margin: 2.5rem 0;
+}
+
+.content-block {
+    margin-bottom: 2.5rem;
+    animation: fadeInUp 0.6s ease forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.text-block {
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.block-title {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary);
+}
+
+.text-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+
+.block-text-content {
+    margin-bottom: 1rem;
+}
+
+.block-text-content p {
+    margin-bottom: 1rem;
+}
+
+.text-caption {
+    margin-top: 1rem;
+    padding-left: 1.5rem;
+    border-left: 3px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.image-block {
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.image-block.image-missing {
+    background: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+}
+
+.block-image-container {
+    position: relative;
+    overflow: hidden;
+    min-height: 200px;
+}
+
+.block-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.block-image:hover {
+    transform: scale(1.02);
+}
+
+.missing-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.missing-image-icon {
+    font-size: 3rem;
+    color: var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.image-title-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: white;
+    padding: 1.5rem;
+}
+
+.image-title-overlay h4 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+
+.image-caption {
+    padding: 1rem 1.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.image-missing .image-caption {
+    border-top: none;
+    background: transparent;
+}
+
+.divider {
+    margin: 2.5rem 0;
+    border: none;
+    border-top: 2px solid var(--border-color);
+}
+
+.text-divider {
+    margin: 2rem 0;
+    border: none;
+    border-top: 1px dashed var(--border-color);
+    opacity: 0.6;
+}
+
+.content-block:nth-child(1) { animation-delay: 0.1s; }
+.content-block:nth-child(2) { animation-delay: 0.2s; }
+.content-block:nth-child(3) { animation-delay: 0.3s; }
+.content-block:nth-child(4) { animation-delay: 0.4s; }
+.content-block:nth-child(5) { animation-delay: 0.5s; }
+.content-block:nth-child(6) { animation-delay: 0.6s; }
+.content-block:nth-child(7) { animation-delay: 0.7s; }
+.content-block:nth-child(8) { animation-delay: 0.8s; }
+.content-block:nth-child(9) { animation-delay: 0.9s; }
+.content-block:nth-child(10) { animation-delay: 1s; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if ('IntersectionObserver' in window) {
+        const imageBlocks = document.querySelectorAll('.image-block img.block-image');
+        
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                    }
+                    imageObserver.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: '100px'
+        });
+        
+        imageBlocks.forEach(img => {
+            img.dataset.src = img.src;
+            img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIyMDAiIHZpZXdCb3g9IjAgMCAxIDIiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmMmYyZjIiLz48L3N2Zz4=';
+            imageObserver.observe(img);
+        });
+    }
+});
+</script>

@@ -47,10 +47,16 @@ class ArticleDetailView(DetailView):
         return BlogArticle.objects.filter(
             status='published',
             published_at__lte=timezone.now()
-        ).select_related('author', 'category')
+        ).select_related('author', 'category').prefetch_related(
+            'content_blocks'
+        )
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        self.object.increment_views()
+        
+        context['content_blocks'] = self.object.content_blocks.all().order_by('order')
         
         context['categories'] = BlogCategory.objects.filter(is_active=True)
         
@@ -66,9 +72,15 @@ class ArticleDetailView(DetailView):
             published_at__lte=timezone.now()
         ).order_by('published_at').first()
         
-        word_count = len(self.object.content.split())
-        reading_minutes = max(1, word_count // 200) 
+        word_count = len(self.object.excerpt.split())
+        for block in context['content_blocks']:
+            if block.block_type == 'text' and block.text_content:
+                word_count += len(block.text_content.split())
+        
+        reading_minutes = max(1, word_count // 100) 
         context['reading_time'] = f"{reading_minutes} мин. чтения"
+        
+        context['approved_comments_count'] = self.object.comments.filter(status='approved').count()
         
         return context
 

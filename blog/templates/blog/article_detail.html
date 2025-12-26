@@ -48,8 +48,13 @@
                     <i class="far fa-eye"></i> {{ article.views }} просмотров
                 </span>
                 <span class="stat-item">
-                    <i class="far fa-comment"></i> {{ article.comments.count }} комментариев
+                    <i class="far fa-comment"></i> {{ article.get_approved_comments_count }} комментариев
                 </span>
+                {% if article.get_pending_comments_count > 0 and user.is_staff %}
+                <span class="stat-item text-warning">
+                    <i class="fas fa-clock"></i> {{ article.get_pending_comments_count }} на модерации
+                </span>
+                {% endif %}
                 <span class="stat-item">
                     <i class="far fa-clock"></i> 
                     {{ reading_time }}
@@ -71,15 +76,19 @@
     </div>
     {% endif %}
 
-    <div class="article-content">
-        <div class="article-excerpt">
-            <p><strong>{{ article.excerpt }}</strong></p>
+    {% if article.content_blocks.exists %}
+        {% include "blog/article_blocks.html" %}
+    {% else %}
+        <div class="article-content">
+            <div class="article-excerpt">
+                <p><strong>{{ article.excerpt }}</strong></p>
+            </div>
+            
+            <div class="article-body">
+                {{ article.content|safe }}
+            </div>
         </div>
-        
-        <div class="article-body">
-            {{ article.content|safe }}
-        </div>
-    </div>
+    {% endif %}
 
     {% if article.get_tags_list %}
     <div class="article-tags-section">
@@ -116,7 +125,12 @@
 
     <section class="comments-section" id="comments">
         <div class="comments-header">
-            <h2><i class="far fa-comments"></i> Комментарии ({{ article.comments.count }})</h2>
+            <h2><i class="far fa-comments"></i>
+                Комментарии ({{ article.get_approved_comments_count }})
+                {% if article.get_pending_comments_count > 0 and user.is_staff %}
+                <small class="text-muted">+{{ article.get_pending_comments_count }} на модерации</small>
+                {% endif %}
+            </h2>
             
             {% if article.allow_comments %}
                 {% if user.is_authenticated %}
