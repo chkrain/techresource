@@ -968,7 +968,7 @@ class Product(models.Model):
     vat_rate = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
-        default=Decimal('20.00'),  # Используем Decimal
+        default=Decimal('22.00'),  
         verbose_name="Ставка НДС (%)"
     )
     is_fragile = models.BooleanField(default=False, verbose_name="Хрупкий товар")
@@ -1287,7 +1287,7 @@ class Order(models.Model):
     customer_email = models.EmailField(verbose_name="Email")
     delivery_address = models.TextField(verbose_name="Адрес доставки")
 
-    vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=20.00,  verbose_name="Ставка НДС (%)")
+    vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=22.00,  verbose_name="Ставка НДС (%)")
     price_without_vat = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена без НДС", help_text="Рассчитывается автоматически")
     
     # Новые поля для отслеживания
@@ -1433,7 +1433,7 @@ class Order(models.Model):
         """Фиксирует оплату при смене статуса на 'paid'"""
         if self.status == 'paid' and not self.is_payment_finalized:
             self.paid_amount = self.final_price
-            self.net_revenue = self.total_price  # Только стоимость товаров
+            self.net_revenue = self.total_price  
             self.is_payment_finalized = True
             self.paid_at = timezone.now()
             self.save()
@@ -1564,7 +1564,7 @@ class OrderItem(models.Model):
     vat_rate = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
-        default=Decimal('20.00'),  # Используем Decimal
+        default=Decimal('22.00'),  # Используем Decimal
         verbose_name="Ставка НДС (%)"
     )
     vat_amount = models.DecimalField(

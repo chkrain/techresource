@@ -631,7 +631,7 @@ def cart_view(request):
 
     vat_total = Decimal('0')
     total_without_vat = Decimal('0')
-    vat_rate = Decimal('20.00')
+    vat_rate = Decimal('22.00')
     
     for item in cart_items:
         item_total = item.get_total_price()
@@ -778,7 +778,7 @@ def update_cart_item(request, item_id):
         cart_total = cart.get_total_price()
         item_count = cart.get_items_count()
         
-        vat_rate = Decimal('20.00')
+        vat_rate = Decimal('22.00')
         vat_total = Decimal('0')
         
         for item in cart_items:
@@ -3238,8 +3238,8 @@ def send_invoice_to_telegram_with_info(pdf_bytes, filename, order, company_info)
 <b>📞 Телефон:</b> {order.customer_phone}
 
 <b>💰 Сумма:</b> {order.total_price} руб.
-<b>🏛️ Без НДС:</b> {order.price_without_vat} руб.
-<b>📊 НДС ({order.vat_rate}%):</b> {order.vat_amount} руб.
+<b>🏛️ Без НДС:</b> {int(order.price_without_vat)} руб.
+<b>📊 НДС ({order.vat_rate}%):</b> {int(order.vat_amount)} руб.
 
 <b>🚚 Адрес доставки:</b>
 {order.delivery_address}
@@ -3637,8 +3637,8 @@ def anonymous_create_order(request):
                     'error': 'Некорректная сумма заказа'
                 })
             
-            vat_rate = Decimal('20.00')
-            vat_amount = total * vat_rate / Decimal('120.00')
+            vat_rate = Decimal('22.00')
+            vat_amount = total * vat_rate / Decimal('122.00')
             price_without_vat = total - vat_amount
             
             from datetime import datetime

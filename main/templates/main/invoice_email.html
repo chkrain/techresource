@@ -211,7 +211,7 @@
         <td style="text-align:center;">{{ item.quantity }}</td>
         <td style="text-align:right;">{{ item.unit_price|floatformat:2 }}</td>
         <td style="text-align:right;">{{ item.line_total|floatformat:2 }}</td>
-        <td style="text-align:right;">{{ item.vat|floatformat:2 }} (20%)</td>
+        <td style="text-align:right;">{{ item.vat|floatformat:2 }} (22%)</td>
     </tr>
     {% endfor %}
     </tbody>
@@ -223,7 +223,7 @@
             <td style="text-align:right;">{{ totals.net|floatformat:2 }} ₽</td>
         </tr>
         <tr>
-            <td>НДС (20%):</td>
+            <td>НДС (22%):</td>
             <td style="text-align:right;">{{ totals.vat|floatformat:2 }} ₽</td>
         </tr>
         <tr>
