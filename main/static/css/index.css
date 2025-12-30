@@ -946,6 +946,9 @@ section {
     max-width: none;
   }
 }
+.product-actions {
+  margin: 1rem;
+}
 .benefits-section {
   padding: 80px 0;
   background: linear-gradient(135deg, #f8f9fa 0%, #eef2f7 100%);
@@ -969,7 +972,6 @@ section {
   min-height: 300px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   cursor: pointer;
 }
 .benefit-card::before {
@@ -994,14 +996,15 @@ section {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 .benefit-icon {
   font-size: 60px;
   margin-bottom: 20px;
   text-align: center;
-  transition: all 0.6s ease;
+  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  position: relative;
+  z-index: 2;
 }
 .benefit-card h3 {
   color: #2c3e50;
@@ -1009,7 +1012,9 @@ section {
   font-weight: 700;
   margin-bottom: 15px;
   text-align: center;
-  transition: color 0.6s ease;
+  transition: all 0.4s ease;
+  position: relative;
+  z-index: 1;
 }
 .benefit-preview {
   color: #5d6d7e;
@@ -1017,15 +1022,22 @@ section {
   line-height: 1.6;
   text-align: center;
   margin-bottom: 20px;
-  transition: all 0.6s ease;
+  transition: all 0.4s ease;
   font-weight: 500;
+  position: relative;
+  z-index: 1;
 }
 .benefit-hover-content {
-  max-height: 0;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  padding: 0 30px;
   opacity: 0;
-  overflow: hidden;
-  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  transform: translateY(20px);
+  transform: translateY(100%);
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 1;
+  pointer-events: none;
 }
 .benefit-hover-content p {
   color: white;
@@ -1062,22 +1074,25 @@ section {
   background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
 }
 .benefit-card:hover .benefit-icon {
-  transform: scale(1.1) rotate(5deg);
-  color: #3498db;
+  transform: translateY(-150%) scale(0.8);
+  opacity: 0;
+}
+.benefit-card:hover .benifit-prev {
+  transform: translateY(-150%) scale(0.8);
+  opacity: 0;
 }
 .benefit-card:hover h3 {
   color: white;
+  transform: translateY(-15px);
 }
 .benefit-card:hover .benefit-preview {
   opacity: 0;
-  max-height: 0;
-  margin: 0;
+  transform: translateY(10px);
 }
 .benefit-card:hover .benefit-hover-content {
-  max-height: 500px;
   opacity: 1;
-  transform: translateY(0);
-  transition-delay: 0.1s;
+  transform: translateY(-50%);
+  pointer-events: all;
 }
 @keyframes gentle-bounce {
   0%,
@@ -1161,23 +1176,6 @@ section {
   }
 }
 .benefit-card * {
-  will-change: transform, opacity, max-height, color;
+  will-change: transform, opacity;
   backface-visibility: hidden;
-}
-.benefit-card.active {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-}
-.benefit-card.active .benefit-preview {
-  opacity: 0;
-  max-height: 0;
-  margin: 0;
-}
-.benefit-card.active .benefit-hover-content {
-  max-height: 500px;
-  opacity: 1;
-  transform: translateY(0);
-}
-.product-actions {
-  margin: 1rem;
 }

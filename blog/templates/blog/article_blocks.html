@@ -15,7 +15,6 @@
              data-block-type="{{ block.block_type }}">
             
             {% if block.block_type == 'text' %}
-            <!-- Текстовый блок -->
             <div class="text-block">
                 {% if block.title %}
                 <h3 class="block-title text-title">{{ block.title }}</h3>
@@ -33,7 +32,6 @@
             </div>
             
             {% elif block.block_type == 'image' %}
-            <!-- Блок изображения - проверяем наличие файла -->
             {% if block.image and block.image.url %}
             <div class="image-block">
                 <div class="block-image-container">
@@ -56,7 +54,6 @@
                 {% endif %}
             </div>
             {% else %}
-            <!-- Если изображение отсутствует, показываем заглушку -->
             <div class="image-block image-missing">
                 <div class="block-image-container missing-image">
                     <div class="missing-image-icon">

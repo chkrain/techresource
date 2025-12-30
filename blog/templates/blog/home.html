@@ -54,9 +54,11 @@
                     {% for article in articles %}
                     <article class="article-card" data-aos="fade-up">
                         {% if article.thumbnail %}
-                        <div class="article-thumbnail">
-                            <img src="{{ article.thumbnail.url }}" alt="{{ article.title }}" loading="lazy">
-                        </div>
+                        <a href="{{ article.get_absolute_url }}" style="text-decoration: none;">
+                            <div class="article-thumbnail">
+                                <img src="{{ article.thumbnail.url }}" alt="{{ article.title }}" loading="lazy">
+                            </div>
+                        </a>
                         {% endif %}
                         <div class="article-content article-content-margin">
                             <div class="article-header">
@@ -72,7 +74,9 @@
                                 <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
                             </h3>
                             
-                            <p class="article-excerpt">{{ article.excerpt|truncatechars:200 }}</p>
+                            <a href="{{ article.get_absolute_url }}" style="text-decoration: none;">
+                                <p class="article-excerpt">{{ article.excerpt|truncatechars:200 }}</p>
+                            </a>
                             
                             <div class="article-meta">
                                 <div class="meta-left">
@@ -88,7 +92,7 @@
                                         <i class="far fa-eye"></i> {{ article.views }}
                                     </span>
                                     <span class="meta-item">
-                                        <i class="far fa-comment"></i> {{ article.comments.count }}
+                                        <i class="far fa-comment"></i> {{ article.get_approved_comments_count }}
                                     </span>
                                 </div>
                             </div>
