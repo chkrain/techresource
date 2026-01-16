@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Техресурс — Инновационные инженерные решения{% endblock %}</title>
+    <title>{% block title %}Техресурс — Инженерные решения{% endblock %}</title>
     <meta name="description" content="{% block description %}Инновационные инженерные решения, монтаж, разработка ПО, техподдержка.{% endblock %}">
 
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="{% static 'favicon.ico' %}" />
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon/favicon-32x32.png' %}" alt="фавикон">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon/favicon-16x16.png' %}" alt="фавикон">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon/apple-touch-icon.png' %}" alt="фавикон">
@@ -20,7 +20,7 @@
     {% block meta %}
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta property="og:title" content="{% block og_title %}Техресурс - АСУ ТП, инженерные решения{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}Техресурс - АСУТП, инженерия{% endblock %}">
     <meta property="og:description" content="{% block og_description %}Монтаж, разработка ПО, пусконаладка{% endblock %}">
     <meta property="og:image" content="{% static 'images/og-contacts.jpg' %}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
@@ -244,7 +244,7 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>Техресурс</h3>
-                    <p>Ведущий поставщик инновационных инженерных решений и высокотехнологичного оборудования для промышленности и бизнеса.</p>
+                    <p>Инженерный подход на всех этапах создания автоматизированных систем управления технологическими процессами</p>
                     <div class="social-links">
                         <a href="https://vk.ru/techres" target="_blank" class="social-link" aria-label="VKontakte">
                             <i class="fab fa-vk"></i>
