@@ -362,10 +362,10 @@ section,
 .service-item h3 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #2c3e50;
+  color: white;
 }
 .service-item p {
-  color: #6c757d;
+  color: white;
   line-height: 1.6;
   margin-bottom: 1.5rem;
 }

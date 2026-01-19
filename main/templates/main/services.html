@@ -84,18 +84,27 @@
                 
                 <div class="services-grid">
                     {% for service in navigation_tree %}
-                    <div class="service-item" data-aos="fade-up">
+                    <div class="service-item" data-aos="fade-up" 
+                        {% if service.slug == 'design' %}
+                        style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/design.jpg' %}'); background-size: cover; background-position: center; border: none;"
+                        {% endif %}
+                        {% if service.slug == 'electrical' %}
+                        style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/mont-ob.jpg' %}'); background-size: cover; background-position: center; border: none;"
+                        {% endif %}
+                        {% if service.slug == 'software' %}
+                        style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/razrabpo.jpg' %}'); background-size: cover; background-position: center; border: none;"
+                        {% endif %}
+                        {% if service.slug == 'equipment' %}
+                        style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/postavkaob.jpg' %}'); background-size: cover; background-position: center; border: none;"
+                        {% endif %}
+                        {% if service.slug == 'support' %}
+                        style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/tp.jpg' %}'); background-size: cover; background-position: center; border: none;"
+                        {% endif %}
+                        {% if service.slug == 'maintenance' %}
+                        style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/serv-obs.jpg' %}'); background-size: cover; background-position: center; border: none;"
+                        {% endif %}>
                         <a href="{{ service.url }}" style="text-decoration: none;">
                             <div class="service-content">
-                                <div class="service-icon">
-                                    {% if service.slug == 'design' %}📐
-                                    {% elif service.slug == 'electrical' %}⚡
-                                    {% elif service.slug == 'software' %}💻
-                                    {% elif service.slug == 'equipment' %}🚚
-                                    {% elif service.slug == 'support' %}🛠️
-                                    {% elif service.slug == 'maintenance' %}🔧
-                                    {% else %}📄{% endif %}
-                                </div>
                                 <h3>{{ service.title }}</h3>
                                 <p>{% if service.static %}Основная услуга{% else %}Дополнительная услуга{% endif %}</p>
                                 
@@ -116,7 +125,6 @@
                     </div>
                     {% endfor %}
                 </div>
-
             </div>
         </section>
 
@@ -295,6 +303,6 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <script type="text/javascript" src="{% static 'js/service.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/service.css' %}?v=3">
+    <script type="text/javascript" src="{% static 'js/service.js' %}?v=1.2"></script>
+    <link rel="stylesheet" href="{% static 'css/service.css' %}?v=3.2">
     {% endblock %}
