@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import BlogCategory, BlogArticle, BlogComment, ArticleContentBlock
 from django.utils.html import format_html
 from django.utils.text import Truncator
-from datetime import timezone
+from django.utils import timezone
 
 class ArticleContentBlockInline(admin.TabularInline):
     """Упрощенный inline для блоков контента"""
