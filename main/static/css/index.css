@@ -240,13 +240,14 @@ section {
   margin: 0 0 1rem 0;
   font-size: 1.4rem;
   font-weight: 700;
-  color: #2d3748;
+  color: white;
 }
 .service-card p {
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.5;
-  color: #718096;
+  color: white;
+  margin-top: 30%;
   font-weight: 400;
 }
 .service-overlay {

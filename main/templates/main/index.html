@@ -207,8 +207,7 @@
             <div class="swiper-wrapper">
                 <div class="swiper-slide">
                     <a href="{% url 'service_design' %}" class="service-link">
-                        <div class="service-card" data-color="blue">
-                            <div class="service-icon">📐</div>
+                        <div class="service-card" data-color="blue" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/design.jpg' %}'); background-size: cover; background-position: center; border: none;">
                             <h3>Проектирование</h3>
                             <p>Разработка технической документации и проектных решений</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -217,8 +216,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'service_electrical' %}" class="service-link">
-                        <div class="service-card" data-color="green">
-                            <div class="service-icon">⚡</div>
+                        <div class="service-card" data-color="green" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/mont-ob.jpg' %}'); background-size: cover; background-position: center; border: none;">
                             <h3>Монтаж</h3>
                             <p>Электромонтаж оборудования и пусконаладочные работы</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -227,8 +225,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'service_software' %}" class="service-link">
-                        <div class="service-card" data-color="purple">
-                            <div class="service-icon">💻</div>
+                        <div class="service-card" data-color="purple" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/razrabpo.jpg' %}'); background-size: cover; background-position: center; border: none;">
                             <h3>Разработка ПО</h3>
                             <p>Создание систем дистанционного доступа и ПО</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -237,8 +234,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'service_equipment' %}" class="service-link">
-                        <div class="service-card" data-color="orange">
-                            <div class="service-icon">🚚</div>
+                        <div class="service-card" data-color="orange" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/postavkaob.jpg' %}'); background-size: cover; background-position: center; border: none;">
                             <h3>Поставка оборудования</h3>
                             <p>Качественное оборудование от проверенных производителей</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -247,8 +243,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'service_support' %}" class="service-link">
-                        <div class="service-card" data-color="red">
-                            <div class="service-icon">🛠️</div>
+                        <div class="service-card" data-color="red" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/tp.jpg' %}'); background-size: cover; background-position: center; border: none;">
                             <h3>Поддержка</h3>
                             <p>Постоянная поддержка и консультации</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -257,8 +252,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'service_maintenance' %}" class="service-link">
-                        <div class="service-card" data-color="teal">
-                            <div class="service-icon">🔧</div>
+                        <div class="service-card" data-color="teal" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/serv-obs.jpg' %}'); background-size: cover; background-position: center; border: none;">
                             <h3>Регулярное обслуживание</h3>
                             <p>Плановое обслуживание объектов</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -267,8 +261,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'services' %}" class="service-link">
-                        <div class="service-card" data-color="indigo">
-                            <div class="service-icon">📊</div>
+                        <div class="service-card" data-color="indigo" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/suprt.jpg' %}'); background-size: cover; background-position: center; border: none;">
                             <h3>Аудит и консалтинг</h3>
                             <p>Технический аудит и консультации по оптимизации</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -277,8 +270,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'services' %}" class="service-link">
-                        <div class="service-card" data-color="pink">
-                            <div class="service-icon">🎯</div>
+                        <div class="service-card" data-color="pink" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/comp.jpeg' %}'); background-size: cover; background-position: center; border: none;">
                             <h3>Обучение</h3>
                             <p>Обучение и помощь на всех этапах работы</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -431,7 +423,7 @@
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
-<link rel="stylesheet" href="{% static 'css/index.css' %}?v=8.8">
+<link rel="stylesheet" href="{% static 'css/index.css' %}?v=9.1">
 
 <script type="text/javascript" src="{% static 'js/index.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
