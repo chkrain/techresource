@@ -281,8 +281,6 @@ class UserProfile(models.Model):
         if self.public_bio:
             self.public_bio = escape(self.public_bio)
         
-        original_avatar = self.avatar
-        
         if self.avatar:
             try:
                 self.process_avatar()
@@ -290,16 +288,37 @@ class UserProfile(models.Model):
                 import logging
                 logger = logging.getLogger(__name__)
                 logger.error(f'Ошибка обработки аватара для пользователя {self.user.username}: {str(e)}')
-                if original_avatar:
-                    self.avatar = original_avatar
         
-        if self.profile_background:
+        original_background = None
+        if not hasattr(self, '_background_processed') and self.profile_background:
             try:
+                if self.profile_background and hasattr(self.profile_background, 'file'):
+                    self.process_background()
+                    self._background_processed = True
+                elif self.profile_background and self.profile_background.name:
+                    import os
+                    from django.conf import settings
+                    
+                    file_path = os.path.join(settings.MEDIA_ROOT, self.profile_background.name)
+                    if os.path.exists(file_path):
+                        self._background_processed = True
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(f'Фон не удалось обработать: {str(e)}')
+        if hasattr(self, '_background_processed'):
+            pass
+        elif self.profile_background:
+            try:
+                original_background = self.profile_background
                 self.process_background()
+                self._background_processed = True
             except Exception as e:
                 import logging
                 logger = logging.getLogger(__name__)
                 logger.warning(f'Ошибка обработки фона для пользователя {self.user.username}: {str(e)}')
+                if original_background:
+                    self.profile_background = original_background
         
         if not self.profile_meta_title and self.user:
             self.profile_meta_title = f"Профиль {self.user.username} | Техресурс"
@@ -309,7 +328,7 @@ class UserProfile(models.Model):
             self.profile_meta_description = f"{clean_bio}..."
         
         super().save(*args, **kwargs)
-        
+
     def process_avatar(self):
         """Безопасная обработка и создание ресайзов аватара"""
         if not self.avatar:
@@ -403,56 +422,63 @@ class UserProfile(models.Model):
             return
         
         try:
-            if not self.profile_background or not self.profile_background.name:
-                return
-            
-            from io import BytesIO
-            from django.core.files.base import ContentFile
-            from PIL import Image as PILImage
-            
-            original_background = self.profile_background
-            
-            try:
-                img = PILImage.open(self.profile_background)
-                
-                if img.mode in ('RGBA', 'LA', 'P'):
-                    background = PILImage.new('RGB', img.size, (255, 255, 255))
-                    if img.mode == 'P':
-                        img = img.convert('RGBA')
-                    if img.mode == 'RGBA':
-                        background.paste(img, mask=img.split()[-1])
-                        img = background
-                    elif img.mode == 'LA':
-                        background.paste(img, mask=img.split()[-1])
-                        img = background
-                elif img.mode != 'RGB':
-                    img = img.convert('RGB')
-                
-                if img.size[0] > 1920 or img.size[1] > 1080:
-                    img.thumbnail((1920, 1080), PILImage.Resampling.LANCZOS)
-                
-                buffer = BytesIO()
-                img.save(buffer, format='JPEG', quality=80, optimize=True)
-                buffer.seek(0)
-                
-                self.profile_background.save(
-                    f"{self.user.username}_background_{int(time.time())}.jpg",
-                    ContentFile(buffer.read()),
-                    save=False
-                )
-                buffer.close()
-                
-            except Exception as e:
-                import logging
-                logger = logging.getLogger(__name__)
-                logger.warning(f'Ошибка обработки фона: {str(e)}')
-                self.profile_background = original_background
+            if hasattr(self.profile_background, 'file') and self.profile_background.file:
+                try:
+                    from io import BytesIO
+                    from django.core.files.base import ContentFile
+                    from PIL import Image as PILImage
+                    import time
+                    import re
+                    
+                    self.profile_background.file.seek(0)
+                    img = PILImage.open(self.profile_background.file)
+                    
+                    if img.mode in ('RGBA', 'LA', 'P'):
+                        background = PILImage.new('RGB', img.size, (255, 255, 255))
+                        if img.mode == 'P':
+                            img = img.convert('RGBA')
+                        if img.mode == 'RGBA':
+                            background.paste(img, mask=img.split()[-1])
+                            img = background
+                        elif img.mode == 'LA':
+                            background.paste(img, mask=img.split()[-1])
+                            img = background
+                    elif img.mode != 'RGB':
+                        img = img.convert('RGB')
+                    
+                    if img.size[0] > 1920 or img.size[1] > 1080:
+                        img.thumbnail((1920, 1080), PILImage.Resampling.LANCZOS)
+                    
+                    buffer = BytesIO()
+                    img.save(buffer, format='JPEG', quality=80, optimize=True)
+                    buffer.seek(0)
+                    
+                    timestamp = int(time.time())
+                    username_clean = re.sub(r'[^\w.-]', '_', self.user.username)
+                    filename = f"{username_clean}_background_{timestamp}.jpg"
+                    
+                    self.profile_background.save(
+                        filename,
+                        ContentFile(buffer.read()),
+                        save=False
+                    )
+                    buffer.close()
+                    
+                except Exception as e:
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f'Ошибка обработки фона для пользователя {self.user.username}: {str(e)}')
+                    self.profile_background = None
+                    
+            elif hasattr(self.profile_background, 'name') and self.profile_background.name:
+                pass
                 
         except Exception as e:
             import logging
             logger = logging.getLogger(__name__)
-            logger.error(f'Критическая ошибка обработки фона: {str(e)}')
-    
+            logger.error(f'Критическая ошибка обработки фона для пользователя {self.user.username}: {str(e)}')
+            self.profile_background = None
+
     def get_public_tags(self):
         """Получить публичные теги для отображения"""
         if not self.profile_tags:
@@ -534,22 +560,32 @@ class UserProfile(models.Model):
             return bool(self.avatar and self.avatar.name and os.path.exists(self.avatar.path))
         except (ValueError, FileNotFoundError, OSError):
             return False
-    
+        
     def has_background(self):
-        """Проверить, есть ли рабочий фон"""
+        """Проверяет, есть ли рабочий фон"""
         if not self.profile_background or not self.profile_background.name:
             return False
         
         try:
-            import os
-            return os.path.exists(self.profile_background.path)
-        except (ValueError, FileNotFoundError, OSError):
+            if hasattr(self.profile_background, 'path'):
+                import os
+                return os.path.exists(self.profile_background.path)
+            
+            if hasattr(self.profile_background, 'file') and self.profile_background.file:
+                return True
+                
+            return False
+            
+        except (ValueError, FileNotFoundError, OSError, AttributeError):
             return False
 
     def get_background_url(self):
         """Безопасное получение URL фона"""
-        if self.has_background():
-            return self.profile_background.url
+        try:
+            if self.has_background() and self.profile_background and self.profile_background.name:
+                return self.profile_background.url
+        except (ValueError, AttributeError):
+            pass
         return None
 
     def can_view_field(self, viewer, field_name):

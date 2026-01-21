@@ -527,29 +527,47 @@ def profile(request):
     except UserProfile.DoesNotExist:
         user_profile = UserProfile.objects.create(user=request.user)
     
+    if user_profile.profile_background and not user_profile.has_background():
+        user_profile.profile_background = None
+        user_profile.save(update_fields=['profile_background'])
+        messages.info(request, 'Недействительный фон профиля был удален')
+    
     addresses = Address.objects.filter(user=request.user)
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    
+    profile_form = UserProfileForm(instance=user_profile)
+    public_profile_form = UserProfileForm(instance=user_profile)
+    address_form = AddressForm()
     
     if request.method == 'POST':
         if 'update_profile' in request.POST:
             profile_form = UserProfileForm(request.POST, instance=user_profile)
             if profile_form.is_valid():
-                profile_form.save()
-                messages.success(request, 'Профиль обновлен')
-                return redirect('profile')
-            else:
-                public_profile_form = UserProfileForm(instance=user_profile)
-                address_form = AddressForm()
-                
+                try:
+                    profile_form.save()
+                    messages.success(request, 'Профиль обновлен')
+                    return redirect('profile')
+                except Exception as e:
+                    messages.error(request, f'Ошибка при сохранении: {str(e)}')
+        
         elif 'update_public_profile' in request.POST:
             public_profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
             if public_profile_form.is_valid():
-                public_profile_form.save()
-                messages.success(request, 'Настройки публичного профиля обновлены')
-                return redirect('profile')
-            else:
-                profile_form = UserProfileForm(instance=user_profile)
-                address_form = AddressForm()
+                try:
+                    if 'profile_background' in request.FILES:
+                        background_file = request.FILES['profile_background']
+                        if background_file.size > 10 * 1024 * 1024:  
+                            messages.error(request, 'Файл фона слишком большой (макс. 10MB)')
+                        else:
+                            public_profile_form.save()
+                            messages.success(request, 'Настройки публичного профиля обновлены')
+                            return redirect('profile')
+                    else:
+                        public_profile_form.save()
+                        messages.success(request, 'Настройки публичного профиля обновлены')
+                        return redirect('profile')
+                except Exception as e:
+                    messages.error(request, f'Ошибка при сохранении фона: {str(e)}')
                 
         elif 'add_address' in request.POST:
             address_form = AddressForm(request.POST)
@@ -559,14 +577,6 @@ def profile(request):
                 address.save()
                 messages.success(request, 'Адрес добавлен')
                 return redirect('profile')
-            else:
-                profile_form = UserProfileForm(instance=user_profile)
-                public_profile_form = UserProfileForm(instance=user_profile)
-    
-    else:
-        profile_form = UserProfileForm(instance=user_profile)
-        public_profile_form = UserProfileForm(instance=user_profile)
-        address_form = AddressForm()
     
     context = {
         'user_profile': user_profile,  

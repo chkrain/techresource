@@ -210,12 +210,21 @@
                                         <span class="label-icon">🖼️</span>
                                         Фон профиля
                                     </label>
+                                    
+                                    {% if user_profile.has_background and user_profile.profile_background.url %}
+                                    <div class="current-background-preview">
+                                        <img src="{{ user_profile.profile_background.url }}" alt="Текущий фон" style="max-width: 200px; max-height: 100px; object-fit: cover; border-radius: 5px; margin-bottom: 10px;">
+                                        <p class="form-help">Текущий фон</p>
+                                    </div>
+                                    {% endif %}
+                                    
                                     {{ public_profile_form.profile_background }}
                                     <div class="form-help">JPEG, PNG, WebP (макс. 10MB, мин. 800x400px)</div>
                                     {% if public_profile_form.profile_background.errors %}
                                     <div class="form-error">{{ public_profile_form.profile_background.errors }}</div>
                                     {% endif %}
-                                    {% if user_profile.profile_background %}
+                                    
+                                    {% if user_profile.has_background %}
                                     <div class="form-checkbox">
                                         {{ public_profile_form.remove_background }}
                                         <label for="{{ public_profile_form.remove_background.id_for_label }}">
