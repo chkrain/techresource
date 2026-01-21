@@ -277,15 +277,15 @@
             <h2>Отзывы о товаре</h2>
             <div class="rating-overview">
                 <div class="average-rating">
-                    <span class="rating-stars">
-                        {% for i in "12345" %}
-                            {% if forloop.counter <= average_rating|floatformat:0 %}
-                                ★
-                            {% else %}
-                                ☆
-                            {% endif %}
-                        {% endfor %}
-                    </span>
+                    <div class="stars-container" style="display: inline-block; position: relative;">
+                        <div class="stars-background" style="color: #ddd; font-size: 1.2em;">
+                            ☆☆☆☆☆
+                        </div>
+                        <div class="stars-filled" 
+                            style="position: absolute; top: 0; left: 0; color: #ffd700; font-size: 1.2em; overflow: hidden; width: {% widthratio average_rating 5 100 %}%;">
+                            ★★★★★
+                        </div>
+                    </div>
                     <span class="rating-value">{{ average_rating|floatformat:1 }}</span>
                     <span class="reviews-count">({{ reviews.paginator.count }} отзывов)</span>
                 </div>
@@ -381,7 +381,6 @@
             {% endfor %}
         </div>
 
-        <!-- Pagination -->
         {% if reviews.has_other_pages %}
         <div class="pagination">
             {% if reviews.has_previous %}
@@ -408,4 +407,35 @@
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/product_detail.js' %}"></script>
+<script>
+    function toggleMenu() {
+    const navMain = document.querySelector('.nav-main'); 
+    const burgerBtn = document.querySelector('.burger-menu');
+    const body = document.body;
+    
+    console.log('toggleMenu вызвана');
+    console.log('Найден nav-main:', navMain);
+    console.log('Найден burger-btn:', burgerBtn);
+    
+    if (navMain) {
+        navMain.classList.toggle('active');
+        console.log('Класс active переключен. Новые классы:', navMain.className);
+        
+        if (burgerBtn) {
+            burgerBtn.classList.toggle('active');
+            console.log('Кнопка бургера переключена. Новые классы:', burgerBtn.className);
+        }
+        
+        if (navMain.classList.contains('active')) {
+            body.style.overflow = 'hidden';
+            console.log('Скролл заблокирован');
+        } else {
+            body.style.overflow = '';
+            console.log('Скролл разблокирован');
+        }
+    } else {
+        console.error('Элемент .nav-main не найден!');
+    }
+}
+</script>
 {% endblock %}

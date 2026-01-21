@@ -64,7 +64,7 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/support.css' %}">
+<link rel="stylesheet" href="{% static 'css/support.css' %}?v=1.1">
 {% endblock %}
 
 {% block content %}
@@ -78,7 +78,7 @@
         </div>
 
         <div class="support-content">
-            <div class="support-form-container" data-aos="fade-right">
+            <div class="support-form-container" data-aos="fade-up">
                 <form id="supportForm" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     
@@ -171,7 +171,7 @@
                 </form>
             </div>
 
-            <div class="support-info" data-aos="fade-left">
+            <div class="support-info" data-aos="fade-up">
                 <div class="info-section">
                     <h3 class="info-title">
                         <i class="fas fa-info-circle"></i> Как мы поможем?
@@ -242,4 +242,35 @@
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/support.js' %}"></script>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+    function toggleMenu() {
+    const navMain = document.querySelector('.nav-main'); 
+    const burgerBtn = document.querySelector('.burger-menu');
+    const body = document.body;
+    
+    console.log('toggleMenu вызвана');
+    console.log('Найден nav-main:', navMain);
+    console.log('Найден burger-btn:', burgerBtn);
+    
+    if (navMain) {
+        navMain.classList.toggle('active');
+        console.log('Класс active переключен. Новые классы:', navMain.className);
+        
+        if (burgerBtn) {
+            burgerBtn.classList.toggle('active');
+            console.log('Кнопка бургера переключена. Новые классы:', burgerBtn.className);
+        }
+        
+        if (navMain.classList.contains('active')) {
+            body.style.overflow = 'hidden';
+            console.log('Скролл заблокирован');
+        } else {
+            body.style.overflow = '';
+            console.log('Скролл разблокирован');
+        }
+    } else {
+        console.error('Элемент .nav-main не найден!');
+    }
+}
+</script>
 {% endblock %}
