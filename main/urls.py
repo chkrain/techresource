@@ -67,8 +67,6 @@ urlpatterns = [
     # Заказы
     path('orders/', views.orders_view, name='orders'),
     path('order/<int:order_id>/', views.order_details, name='order_details'),
-    path('order/<int:order_id>/cancel/', views.cancel_order, name='cancel_order'),
-    path('order/<int:order_id>/reorder/', views.reorder_order, name='reorder_order'),
     path('order/<int:order_id>/request-refund/', views.request_order_refund, name='request_order_refund'),
     path('order/<int:order_id>/timeline/', views.get_order_timeline, name='get_order_timeline'),
     path('reorder/<int:order_id>/', views.reorder_order, name='reorder_order'),
