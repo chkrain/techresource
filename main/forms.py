@@ -643,15 +643,51 @@ class SupportTicketForm(forms.ModelForm):
         label='',
         error_messages={'required': 'Пожалуйста, подтвердите, что вы не робот'}
     )
+    
     attachments = forms.FileField(
         required=False,
         widget=forms.ClearableFileInput(),
-        label='Прикрепить файл'
+        label='Прикрепить файл',
+        help_text="Максимальный размер файла: 25MB"
     )
     
     class Meta:
         model = SupportTicket
         fields = ['subject', 'description', 'priority']
+        
+        widgets = {
+            'subject': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Кратко опишите суть проблемы...'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Опишите проблему максимально подробно...',
+                'rows': 6
+            }),
+            'priority': forms.Select(attrs={'class': 'form-control'}),
+        }
+    
+    def clean_attachments(self):
+        """Валидация вложений"""
+        attachments = self.cleaned_data.get('attachments')
+        
+        if attachments:
+            if attachments.size > 25 * 1024 * 1024:  # 25MB
+                raise forms.ValidationError('Размер файла не должен превышать 25MB')
+            
+            allowed_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp',
+                                 '.pdf', '.doc', '.docx', '.txt',
+                                 '.mp4', '.avi', '.mov', '.webm',
+                                 '.zip', '.rar']
+            import os
+            ext = os.path.splitext(attachments.name)[1].lower()
+            if ext not in allowed_extensions:
+                raise forms.ValidationError(
+                    f'Недопустимый формат файла. Разрешены: {", ".join(allowed_extensions)}'
+                )
+        
+        return attachments
 
 class AdminProfileTagsForm(forms.ModelForm):
     """Форма для админов - управление тегами профиля"""
@@ -688,3 +724,4 @@ class PrivacySettingsForm(forms.ModelForm):
             field: forms.RadioSelect(attrs={'class': 'privacy-radio'})
             for field in fields
         }
+        

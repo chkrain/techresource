@@ -50,7 +50,7 @@ from .forms import SupportTicketForm
 import tempfile
 from blog.models import BlogComment, BlogArticle
 from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage
-from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm, AdminProfileTagsForm
+from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm, AdminProfileTagsForm, SupportTicketForm
 from django.db.models import Sum
 import qrcode
 import qrcode.image.svg
@@ -64,7 +64,7 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 def index(request):
-    featured_products = Product.objects.filter(is_active=True, quantity__gt=0)[:6]  
+    featured_products = Product.objects.filter(is_active=True, quantity__gt=0)[:6]
     return render(request, 'main/index.html', {'featured_products': featured_products})
 
 def about(request):
@@ -2313,7 +2313,9 @@ def contacts(request):
 def support_view(request):
     if request.method == 'POST':
         form = SupportTicketForm(request.POST, request.FILES)
-        
+        if not form.is_valid():
+            print("DEBUG: Ошибки формы:", form.errors.as_json())
+            
         if form.is_valid():
             try:
                 ticket = form.save(commit=False)
@@ -2338,7 +2340,7 @@ def support_view(request):
                         support_attachment.save()
                         
                     except Exception as e:
-                        return False
+                        messages.error(request, f'Ошибка сохранения вложения')
                 
                 ticket_attachments = SupportAttachment.objects.filter(ticket=ticket)
                 send_support_notification(ticket, list(ticket_attachments))
@@ -2347,9 +2349,17 @@ def support_view(request):
                 return redirect('support')
                 
             except Exception as e:
-                messages.error(request, '❌ Произошла ошибка при отправке обращения. Пожалуйста, попробуйте еще раз.')
+                messages.error(request, f'❌ Произошла ошибка при отправке обращения: {str(e)}')
         else:
-            messages.error(request, '❌ Пожалуйста, исправьте ошибки в форме.')
+            error_messages = []
+            for field, errors in form.errors.items():
+                for error in errors:
+                    error_messages.append(f"{field}: {error}")
+            
+            if error_messages:
+                messages.error(request, f'❌ Ошибки: {" | ".join(error_messages)}')
+            else:
+                messages.error(request, '❌ Пожалуйста, исправьте ошибки в форме.')
     else:
         form = SupportTicketForm()
     

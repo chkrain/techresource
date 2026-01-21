@@ -400,8 +400,13 @@
                     <div class="error-message" id="messageError"></div>
                 </div>
 
-                 <div class="captcha-container">
+                <div class="form-group captcha-container">
                     {{ form.captcha }}
+                    {% if form.captcha.errors %}
+                    <div class="error-message" style="color: red; margin-top: 5px;">
+                        {{ form.captcha.errors|striptags }}
+                    </div>
+                    {% endif %}
                 </div>
                 
                 <div class="form-footer">
