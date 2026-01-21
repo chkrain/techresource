@@ -71,6 +71,8 @@ urlpatterns = [
     path('order/<int:order_id>/reorder/', views.reorder_order, name='reorder_order'),
     path('order/<int:order_id>/request-refund/', views.request_order_refund, name='request_order_refund'),
     path('order/<int:order_id>/timeline/', views.get_order_timeline, name='get_order_timeline'),
+    path('reorder/<int:order_id>/', views.reorder_order, name='reorder_order'),
+    path('orders/cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
     
     # Избранное
     path('wishlist/', views.wishlist_view, name='wishlist'),

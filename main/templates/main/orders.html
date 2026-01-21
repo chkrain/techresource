@@ -1,209 +1,503 @@
 {% extends 'main/base.html' %}
-{% load static %} 
+{% load static %}
 {% block title %}Мои заказы - Техресурс{% endblock %}
 
 {% block meta %}
-<meta name="robots" content="noindex, nofollow">
-<meta name="description" content="Личный кабинет - история заказов Техресурс. Отслеживание статусов, детали заказов, повторение заказов.">
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Личный кабинет - история заказов Техресурс. Отслеживание статусов, детали заказов, повторение заказов." />
 {% endblock %}
 
 {% block content %}
 <section class="orders-hero">
-    <div class="container">
-        <div class="hero-content">
-            <h1 class="hero-title">Мои заказы</h1>
-            <p class="hero-subtitle">История ваших заказов и их текущий статус</p>
-        </div>
+  <div class="container">
+    <div class="hero-content">
+      <h1 class="hero-title">Мои заказы</h1>
+      <p class="hero-subtitle">История ваших заказов и их текущий статус</p>
     </div>
+  </div>
 </section>
 
 <section class="orders-section">
-    <div class="container">
-        {% if orders %}
-        <div class="orders-header">
-            <h2 class="section-title">История заказов</h2>
-            <div class="orders-stats">
-                <div class="stat-card">
-                    <div class="stat-number">{{ orders|length }}</div>
-                    <div class="stat-label">Всего заказов</div>
-                </div>
-            </div>
+  <div class="container">
+    {% if orders %}
+    <div class="orders-header">
+      <h2 class="section-title">История заказов</h2>
+      <div class="orders-stats">
+        <div class="stat-card">
+          <div class="stat-number">{{ orders|length }}</div>
+          <div class="stat-label">Всего заказов</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="orders-container">
+      {% for order in orders %}
+      <div class="order-card" id="order-{{ order.id }}">
+        <div class="order-header">
+          <div class="order-info">
+            <h3 class="order-number">Заказ #{{ order.id }}</h3>
+            <span class="order-date">{{ order.created_at|date:"d.m.Y H:i" }}</span>
+            <span class="order-status {{ order.status }}">
+              <span class="status-dot"></span>
+              {{ order.get_status_display }}
+            </span>
+          </div>
         </div>
 
-        <div class="orders-container">
-            {% for order in orders %}
-            <div class="order-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:100 }}">
-                <div class="order-header">
-                    <div class="order-info">
-                        <h3 class="order-number">Заказ #{{ order.id }}</h3>
-                        <span class="order-date">{{ order.created_at|date:"d.m.Y H:i" }}</span>
-                    </div>
-                    <div class="order-status-wrapper">
-                        <span class="order-status {{ order.status }}">
-                            <span class="status-dot"></span>
-                            {{ order.get_status_display }}
-                        </span>
-                        <button class="timeline-toggle" data-order-id="{{ order.id }}">
-                            <span class="toggle-icon">▼</span>
-                            Статус заказа
-                        </button>
-                    </div>
+        <div class="order-content">
+          <div class="order-details">
+            <div class="detail-group">
+              <h4>Контактная информация</h4>
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <span class="detail-label">Имя:</span>
+                  <span class="detail-value">{{ order.customer_name }}</span>
                 </div>
-                
-                <div class="order-content">
-                    <div class="order-details">
-                        <div class="detail-group">
-                            <h4>Контактная информация</h4>
-                            <div class="detail-grid">
-                                <div class="detail-item">
-                                    <span class="detail-label">Имя:</span>
-                                    <span class="detail-value">{{ order.customer_name }}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Телефон:</span>
-                                    <span class="detail-value">{{ order.customer_phone }}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Email:</span>
-                                    <span class="detail-value">{{ order.customer_email }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="detail-group">
-                            <h4>Адрес доставки</h4>
-                            <p class="address-text">{{ order.delivery_address }}</p>
-                        </div>
-                    </div>
-                    
-                    
-                    <div class="order-summary">
-                        <div class="summary-header">
-                            <h4>Состав заказа</h4>
-                            <span class="total-amount">{{ order.total_price }} ₽</span>
-                        </div>
-                        
-                        <div class="order-items">
-                            {% for item in order.orderitem_set.all %}
-                            <div class="order-item">
-                                <div class="item-info">
-                                    <span class="item-name">{{ item.product.name }}</span>
-                                    <span class="item-article">Артикул: {{ item.product.article }}</span>
-                                </div>
-                                <div class="item-quantity">×{{ item.quantity }}</div>
-                                <div class="item-price">{{ item.get_total_price }} ₽</div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
+                <div class="detail-item">
+                  <span class="detail-label">Телефон:</span>
+                  <span class="detail-value">{{ order.customer_phone }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Email:</span>
+                  <span class="detail-value">{{ order.customer_email }}</span>
+                </div>
+              </div>
+            </div>
 
-                    <div class="detail-group">
-                        <h4>Стоимость заказа</h4>
-                        <div class="price-breakdown">
-                            <div class="price-row">
-                                <span class="price-label">Сумма товаров:</span>
-                                <span class="price-value">{{ order.total_price }} ₽</span>
-                            </div>
-                            <div class="price-row">
-                                <span class="price-label">Доставка:</span>
-                                <span class="price-value">{{ order.delivery_cost }} ₽</span>
-                            </div>
-                            {% if order.payment_fee %}
-                            <div class="price-row">
-                                <span class="price-label">Комиссия платежной системы:</span>
-                                <span class="price-value">{{ order.payment_fee }} ₽</span>
-                            </div>
-                            {% endif %}
-                            <div class="price-row total">
-                                <span class="price-label">Итого к оплате:</span>
-                                <span class="price-value">{{ order.get_final_price_with_fees }} ₽</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="detail-group">
+              <h4>Адрес доставки</h4>
+              <p class="address-text">{{ order.delivery_address }}</p>
+            </div>
+          </div>
 
-                <!-- Временная шкала статуса (скрыта по умолчанию) -->
-                <div class="order-timeline" id="timeline-{{ order.id }}" style="display: none;">
-                    <h4>📊 Статус заказа</h4>
-                    <div class="timeline-container">
-                        {% for step_key, step in order.get_current_timeline.items %}
-                        <div class="timeline-step {% if step.completed %}completed{% endif %} {% if step.current %}current{% endif %}">
-                            <div class="step-icon">{{ step.icon }}</div>
-                            <div class="step-content">
-                                <div class="step-title">{{ step.title }}</div>
-                                <div class="step-description">{{ step.description }}</div>
-                                {% if step_key == 'shipped' and order.tracking_number %}
-                                <div class="tracking-info">
-                                    <strong>Трек-номер:</strong> {{ order.tracking_number }}
-                                    {% if order.shipping_company %}
-                                    <br><strong>Служба доставки:</strong> {{ order.shipping_company }}
-                                    {% endif %}
-                                    {% if order.estimated_delivery %}
-                                    <br><strong>Примерная доставка:</strong> {{ order.estimated_delivery|date:"d.m.Y" }}
-                                    {% endif %}
-                                </div>
-                                {% endif %}
-                            </div>
-                            <div class="step-number">{{ step.order }}</div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
+          <div class="order-summary">
+            <div class="summary-header">
+              <h4>Состав заказа</h4>
+              <span class="total-amount">{{ order.total_price }} ₽</span>
+            </div>
 
-                <div class="order-actions">
-                    <button class="action-btn reorder-btn" data-order-id="{{ order.id }}">
-                        📋 Повторить заказ
-                    </button>
-                    <button class="action-btn details-btn" data-order-id="{{ order.id }}">
-                        📄 Детали
-                    </button>
-                    
-                    {% if order.status == 'pending' or order.status == 'processing' or order.status == 'paid' %}
-                        {% if order.can_be_cancelled %}
-                            <button class="action-btn cancel-btn" data-order-id="{{ order.id }}" data-order-number="#{{ order.id }}">
-                                ❌ Отменить заказ
-                            </button>
-                        {% else %}
-                            <button class="action-btn cancel-btn disabled" disabled title="Отмена недоступна - заказ уже обрабатывается или прошло слишком мого времени">
-                                ❌ Отмена недоступна
-                            </button>
-                        {% endif %}
-                    {% endif %}
-                    
-                    {% if order.status == 'shipped' and order.tracking_number %}
-                        <a href="#" class="action-btn track-btn" data-tracking="{{ order.tracking_number }}">
-                            🚚 Отследить посылку
-                        </a>
-                    {% endif %}
+            <div class="order-items">
+              {% for item in order.orderitem_set.all %}
+              <div class="order-item">
+                <div class="item-info">
+                  <span class="item-name">{{ item.product.name }}</span>
+                  <span class="item-article">Артикул: {{ item.product.article }}</span>
                 </div>
+                <div class="item-quantity">×{{ item.quantity }}</div>
+                <div class="item-price">{{ item.get_total_price }} ₽</div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="detail-group">
+            <h4>Стоимость заказа</h4>
+            <div class="price-breakdown">
+              <div class="price-row">
+                <span class="price-label">Сумма товаров:</span>
+                <span class="price-value">{{ order.total_price }} ₽</span>
+              </div>
+              <div class="price-row">
+                <span class="price-label">Доставка:</span>
+                <span class="price-value">{{ order.delivery_cost }} ₽</span>
+              </div>
+              {% if order.payment_fee %}
+              <div class="price-row">
+                <span class="price-label">Комиссия платежной системы:</span>
+                <span class="price-value">{{ order.payment_fee }} ₽</span>
+              </div>
+              {% endif %}
+              <div class="price-row total">
+                <span class="price-label">Итого к оплате:</span>
+                <span class="price-value">{{ order.get_final_price_with_fees }} ₽</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-timeline" id="timeline-{{ order.id }}" style="display: none">
+          <h4>📊 История статуса заказа</h4>
+          <div class="timeline-container">
+            {% for step_key, step in order.get_current_timeline.items %}
+            <div class="timeline-step {% if step.completed %}completed{% endif %} {% if step.current %}current{% endif %}">
+              <div class="step-icon">{{ step.icon }}</div>
+              <div class="step-content">
+                <div class="step-title">{{ step.title }}</div>
+                <div class="step-description">{{ step.description }}</div>
+                {% if step_key == 'shipped' and order.tracking_number %}
+                <div class="tracking-info">
+                  <strong>Трек-номер:</strong> {{ order.tracking_number }}
+                  {% if order.shipping_company %}
+                  <br><strong>Служба доставки:</strong> {{ order.shipping_company }}
+                  {% endif %}
+                  {% if order.estimated_delivery %}
+                  <br><strong>Примерная доставка:</strong> {{ order.estimated_delivery|date:"d.m.Y" }}
+                  {% endif %}
+                </div>
+                {% endif %}
+              </div>
+              <div class="step-number">{{ step.order }}</div>
             </div>
             {% endfor %}
+          </div>
         </div>
-        {% else %}
-        <div class="empty-orders" data-aos="zoom-in">
-            <div class="empty-icon">📦</div>
-            <h2>У вас пока нет заказов</h2>
-            <p>Совершите первую покупку, чтобы увидеть здесь историю ваших заказов</p>
-            <div class="empty-actions">
-                <a href="{% url 'products' %}" class="btn btn-primary">
-                    🛍️ Начать покупки
-                </a>
-                <a href="{% url 'services' %}" class="btn btn-secondary">
-                    💼 Наши услуги
-                </a>
+
+        <div class="order-actions">
+            <button class="action-btn reorder-btn" data-order-id="{{ order.id }}">
+                📋 Повторить заказ
+            </button>
+            <button class="action-btn details-btn" data-order-id="{{ order.id }}">
+                📊 Детали и статус
+            </button>
+
+            {% if order.status == 'pending' or order.status == 'processing' or order.status == 'paid' %}
+                {% if order.can_be_cancelled %}
+                <button class="action-btn cancel-btn" data-order-id="{{ order.id }}">
+                ❌ Отменить заказ
+                </button>
+                {% else %}
+                <button class="action-btn cancel-btn disabled" disabled title="Отмена доступна только в течение 5 минут после создания заказа">
+                ❌ Отмена недоступна
+                </button>
+                {% endif %}
+            {% endif %}
             </div>
-        </div>
-        {% endif %}
+      {% endfor %}
     </div>
+    {% else %}
+    <div class="empty-orders" data-aos="zoom-in">
+      <div class="empty-icon">📦</div>
+      <h2>У вас пока нет заказов</h2>
+      <p>Совершите первую покупку, чтобы увидеть здесь историю ваших заказов</p>
+      <div class="empty-actions">
+        <a href="{% url 'products' %}" class="btn btn-primary">🛍️ Начать покупки</a>
+        <a href="{% url 'services' %}" class="btn btn-secondary">💼 Наши услуги</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
 </section>
 
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-<link rel="stylesheet" href="{% static 'css/orders.css' %}">
+<link rel="stylesheet" href="{% static 'css/orders.css' %}?v=1.1" />
 
-<script type="text/javascript" src="{% static 'js/orders.js' %}?v=1.2"></script>
-<script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
-<noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const csrfToken = "{{ csrf_token }}";
+
+  function showAlert(message, type = 'info') {
+    alert(type.toUpperCase() + ': ' + message);
+  }
+
+  function updateCartCounter(count) {
+    const cartCounter = document.querySelector('.cart-counter');
+    if (cartCounter) {
+      cartCounter.textContent = count;
+      cartCounter.style.transform = 'scale(1.3)';
+      setTimeout(() => {
+        cartCounter.style.transform = 'scale(1)';
+      }, 300);
+    }
+  }
+
+  document.querySelectorAll('.reorder-btn').forEach(function(button) {
+    button.addEventListener('click', async function() {
+      const orderId = this.getAttribute('data-order-id') || this.closest('.order-card').id.replace('order-', '');
+      
+      const originalText = this.innerHTML;
+      if (this.disabled) return;
+      
+      try {
+        this.innerHTML = '⏳ Добавляем...';
+        this.disabled = true;
+        
+        console.log('Отправка запроса на /reorder/', orderId);
+        console.log('CSRF токен:', csrfToken ? 'Есть' : 'Нет');
+        
+        const response = await fetch(`/reorder/${orderId}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrfToken
+          },
+          credentials: 'same-origin'
+        });
+        
+        console.log('Статус ответа:', response.status);
+        
+        if (!response.ok) {
+          throw new Error('HTTP ошибка: ' + response.status);
+        }
+        
+        const data = await response.json();
+        console.log('Ответ от сервера:', data);
+        
+        if (data.success) {
+          this.innerHTML = '✅ Добавлено!';
+          showAlert(data.message || 'Товары добавлены в корзину', 'success');
+          
+          if (data.cart_count !== undefined) {
+            updateCartCounter(data.cart_count);
+          }
+          
+          setTimeout(() => {
+            this.innerHTML = originalText;
+            this.disabled = false;
+          }, 2000);
+        } else {
+          this.innerHTML = originalText;
+          this.disabled = false;
+          showAlert(data.error || 'Ошибка', 'error');
+        }
+      } catch (error) {
+        console.error('Ошибка:', error);
+        this.innerHTML = originalText;
+        this.disabled = false;
+        showAlert('Ошибка сети: ' + error.message, 'error');
+      }
+    });
+  });
+
+  document.querySelectorAll('.cancel-btn:not(.disabled)').forEach(function(button) {
+    button.addEventListener('click', async function() {
+      const orderId = this.getAttribute('data-order-id') || this.closest('.order-card').id.replace('order-', '');
+      
+      if (!confirm('Вы уверены, что хотите отменить заказ #' + orderId + '?\n\n⚠️ Отмена доступна только в течение 5 минут после создания заказа.')) {
+        return;
+      }
+      
+      const originalText = this.innerHTML;
+      
+      try {
+        this.innerHTML = '⏳ Отменяем...';
+        this.disabled = true;
+        
+        console.log('Отправка запроса на /orders/cancel/', orderId);
+        
+        const response = await fetch(`/orders/cancel/${orderId}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrfToken
+          },
+          credentials: 'same-origin'
+        });
+        
+        console.log('Статус ответа:', response.status);
+        
+        if (!response.ok) {
+          throw new Error('HTTP ошибка: ' + response.status);
+        }
+        
+        const data = await response.json();
+        console.log('Ответ от сервера:', data);
+        
+        if (data.success) {
+          this.innerHTML = '✅ Отменен';
+          this.classList.add('disabled');
+          this.disabled = true;
+          
+          showAlert(data.message || 'Заказ успешно отменен', 'success');
+          
+          const statusElement = document.querySelector('#order-' + orderId + ' .order-status');
+          if (statusElement) {
+            statusElement.textContent = 'Отменен';
+            statusElement.className = 'order-status cancelled';
+          }
+          
+          setTimeout(() => {
+            location.reload();
+          }, 2000);
+        } else {
+          this.innerHTML = originalText;
+          this.disabled = false;
+          showAlert(data.error || 'Ошибка при отмене заказа', 'error');
+        }
+      } catch (error) {
+        console.error('Ошибка:', error);
+        this.innerHTML = originalText;
+        this.disabled = false;
+        showAlert('Ошибка сети: ' + error.message, 'error');
+      }
+    });
+  });
+
+  document.querySelectorAll('.details-btn').forEach(function(button) {
+    button.addEventListener('click', function() {
+      const orderId = this.closest('.order-card').id.replace('order-', '');
+      toggleTimeline(orderId, this);
+    });
+  });
+
+    document.querySelectorAll('.order-card').forEach(function(card) {
+    const orderId = card.id.replace('order-', '');
+    card.querySelectorAll('.reorder-btn, .cancel-btn, .details-btn').forEach(function(btn) {
+      btn.setAttribute('data-order-id', orderId);
+    });
+  });
+
+  async function reorderOrder(orderId, button) {
+    const originalText = button.innerHTML;
+    
+    if (button.disabled) return;
+    
+    try {
+      button.innerHTML = '⏳ Добавляем...';
+      button.disabled = true;
+      
+      const csrfToken = getCsrfToken();
+          
+      const response = await fetch(`/reorder/${orderId}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': csrfToken
+        },
+        credentials: 'same-origin'
+      });
+      
+      if (!response.ok) {
+        throw new Error('HTTP ошибка: ' + response.status);
+      }
+      
+      const data = await response.json();
+      console.log('Ответ от сервера:', data);
+      
+      if (data.success) {
+        button.innerHTML = '✅ Добавлено!';
+        showAlert(data.message || 'Товары добавлены в корзину', 'success');
+        
+        if (data.cart_count !== undefined) {
+          updateCartCounter(data.cart_count);
+        }
+        
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.disabled = false;
+        }, 2000);
+      } else {
+        button.innerHTML = originalText;
+        button.disabled = false;
+        showAlert(data.error || 'Ошибка', 'error');
+      }
+    } catch (error) {
+      console.error('Ошибка:', error);
+      button.innerHTML = originalText;
+      button.disabled = false;
+      showAlert('Ошибка сети: ' + error.message, 'error');
+    }
+  }
+
+  async function cancelOrder(orderId, button) {
+    if (!confirm('Вы уверены, что хотите отменить заказ #' + orderId + '?\n\n⚠️ Отмена доступна только в течение 5 минут после создания заказа.')) {
+      return;
+    }
+    
+    const originalText = button.innerHTML;
+    
+    try {
+      button.innerHTML = '⏳ Отменяем...';
+      button.disabled = true;
+      
+      const csrfToken = getCsrfToken();
+      
+      const response = await fetch(`/orders/cancel/${orderId}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': csrfToken
+        },
+        credentials: 'same-origin'
+      });
+      
+      if (!response.ok) {
+        throw new Error('HTTP ошибка: ' + response.status);
+      }
+      
+      const data = await response.json();
+      console.log('Ответ от сервера:', data);
+      
+      if (data.success) {
+        button.innerHTML = '✅ Отменен';
+        button.classList.add('disabled');
+        button.disabled = true;
+        
+        showAlert(data.message || 'Заказ успешно отменен', 'success');
+        
+        const statusElement = document.querySelector('#order-' + orderId + ' .order-status');
+        if (statusElement) {
+          statusElement.textContent = 'Отменен';
+          statusElement.className = 'order-status cancelled';
+        }
+        
+        setTimeout(() => {
+          location.reload();
+        }, 2000);
+      } else {
+        button.innerHTML = originalText;
+        button.disabled = false;
+        showAlert(data.error || 'Ошибка при отмене заказа', 'error');
+      }
+    } catch (error) {
+      console.error('Ошибка:', error);
+      button.innerHTML = originalText;
+      button.disabled = false;
+      showAlert('Ошибка сети: ' + error.message, 'error');
+    }
+  }
+
+  function toggleTimeline(orderId, button) {
+    const timeline = document.getElementById('timeline-' + orderId);
+    
+    if (!timeline) return;
+    
+    if (timeline.style.display === 'none' || timeline.style.display === '') {
+      timeline.style.display = 'block';
+      button.textContent = '📊 Скрыть детали';
+    } else {
+      timeline.style.display = 'none';
+      button.textContent = '📊 Детали и статус';
+    }
+  }
+
+  document.querySelectorAll('.reorder-btn, .cancel-btn, .details-btn').forEach(function(button) {
+    button.removeAttribute('onclick');
+  });
+
+  if (typeof AOS !== "undefined") {
+    AOS.init({ duration: 800, once: true, offset: 100 });
+  }
+
+  if (typeof anime !== "undefined") {
+    anime({
+      targets: ".hero-title",
+      translateY: [30, 0],
+      opacity: [0, 1],
+      duration: 1000,
+      easing: "easeOutCubic",
+    });
+    
+    anime({
+      targets: ".hero-subtitle",
+      translateY: [30, 0],
+      opacity: [0, 1],
+      duration: 1000,
+      delay: 300,
+      easing: "easeOutCubic",
+    });
+  }
+
+  document.querySelectorAll('[onclick]').forEach(function(element) {
+    if (element.matches('.reorder-btn, .cancel-btn, .details-btn')) {
+      element.removeAttribute('onclick');
+    }
+  });
+});
+</script>
 {% endblock %}

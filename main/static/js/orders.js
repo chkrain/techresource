@@ -1,16 +1,37 @@
 document.addEventListener("DOMContentLoaded", function () {
-    function getCsrfToken() {
-        const name = "csrftoken"; let token = null; if (document.cookie && document.cookie !== "") { const cookies = document.cookie.split(";"); for (let i = 0; i < cookies.length; i++) { const cookie = cookies[i].trim(); if (cookie.substring(0, name.length + 1) === name + "=") { token = decodeURIComponent(cookie.substring(name.length + 1)); break } } }
-        return token
+  function getCsrfToken() {
+    const name = "csrftoken";
+    let token = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          token = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
     }
-    function showNotification(message, type = "info") {
-        const notification = document.createElement("div"); notification.className = "notification notification-" + type; notification.innerHTML = `
+    return token;
+  }
+  function showNotification(message, type = "info") {
+    const notification = document.createElement("div");
+    notification.className = "notification notification-" + type;
+    notification.innerHTML = `
             <div class="notification-content">
                 <span class="notification-message">${message}</span>
                 <button class="notification-close">×</button>
             </div>
-        `; let bgColor; if (type === "success") { bgColor = "#27ae60" } else if (type === "error") { bgColor = "#e74c3c" } else { bgColor = "#3498db" }
-        notification.style.cssText = `
+        `;
+    let bgColor;
+    if (type === "success") {
+      bgColor = "#27ae60";
+    } else if (type === "error") {
+      bgColor = "#e74c3c";
+    } else {
+      bgColor = "#3498db";
+    }
+    notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
@@ -22,15 +43,19 @@ document.addEventListener("DOMContentLoaded", function () {
             z-index: 10000;
             max-width: 400px;
             animation: slideInRight 0.3s ease;
-        `; const content = notification.querySelector(".notification-content"); if (content) {
-            content.style.cssText = `
+        `;
+    const content = notification.querySelector(".notification-content");
+    if (content) {
+      content.style.cssText = `
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 gap: 15px;
-            `}
-        const closeBtn = notification.querySelector(".notification-close"); if (closeBtn) {
-            closeBtn.style.cssText = `
+            `;
+    }
+    const closeBtn = notification.querySelector(".notification-close");
+    if (closeBtn) {
+      closeBtn.style.cssText = `
                 background: none;
                 border: none;
                 color: white;
@@ -42,78 +67,376 @@ document.addEventListener("DOMContentLoaded", function () {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-            `; closeBtn.addEventListener("click", function () { notification.style.animation = "slideOutRight 0.3s ease"; setTimeout(function () { if (notification.parentNode) { notification.remove() } }, 300) })
-        }
-        document.body.appendChild(notification); setTimeout(function () { if (notification.parentNode) { notification.style.animation = "slideOutRight 0.3s ease"; setTimeout(function () { if (notification.parentNode) { notification.remove() } }, 300) } }, 5000)
+            `;
+      closeBtn.addEventListener("click", function () {
+        notification.style.animation = "slideOutRight 0.3s ease";
+        setTimeout(function () {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 300);
+      });
     }
-    if (typeof AOS !== 'undefined') { AOS.init({ duration: 800, once: !0, offset: 100 }) }
-    if (typeof anime !== 'undefined') { anime({ targets: ".hero-title", translateY: [30, 0], opacity: [0, 1], duration: 1000, easing: "easeOutCubic" }); anime({ targets: ".hero-subtitle", translateY: [30, 0], opacity: [0, 1], duration: 1000, delay: 300, easing: "easeOutCubic" }) }
-    document.querySelectorAll(".timeline-toggle").forEach(function (button) {
-        button.addEventListener("click", function () {
-            const orderId = this.getAttribute("data-order-id"); const timeline = document.getElementById("timeline-" + orderId); if (!timeline) return; if (timeline.style.display === "block") {
-                if (typeof anime !== 'undefined') { anime({ targets: timeline, opacity: [1, 0], height: [timeline.scrollHeight + "px", 0], duration: 400, easing: "easeOutCubic", complete: function () { timeline.style.display = "none" } }) } else { timeline.style.display = "none" }
-                this.classList.remove("active")
-            } else {
-                timeline.style.display = "block"; if (typeof anime !== 'undefined') { anime({ targets: timeline, opacity: [0, 1], height: [0, timeline.scrollHeight + "px"], duration: 500, easing: "easeOutCubic" }) }
-                this.classList.add("active"); function animateTimelineLine(container) {
-                    const timelineContainer = container.querySelector(".timeline-container"); if (!timelineContainer) return; const steps = container.querySelectorAll(".timeline-step"); let completedSteps = 0; steps.forEach(function (step) { if (step.classList.contains("completed") || step.classList.contains("current")) { completedSteps++ } }); if (completedSteps > 0 && typeof anime !== 'undefined') {
-                        const totalSteps = steps.length; const percentage = (completedSteps / totalSteps) * 100; let filledLine = timelineContainer.querySelector(".timeline-filled-line"); if (!filledLine) { filledLine = document.createElement("div"); filledLine.className = "timeline-filled-line"; filledLine.style.cssText = "position:absolute;left:25px;top:0;width:3px;background:linear-gradient(to bottom,#27ae60,#2ecc71);border-radius:2px;height:0;z-index:1;transition:height 1.5s ease;"; timelineContainer.appendChild(filledLine) }
-                        anime({ targets: filledLine, height: percentage + "%", duration: 1500, easing: "easeOutCubic", delay: 300 })
-                    }
-                }
-                animateTimelineLine(timeline)
+    document.body.appendChild(notification);
+    setTimeout(function () {
+      if (notification.parentNode) {
+        notification.style.animation = "slideOutRight 0.3s ease";
+        setTimeout(function () {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 300);
+      }
+    }, 5000);
+  }
+  if (typeof AOS !== "undefined") {
+    AOS.init({ duration: 800, once: !0, offset: 100 });
+  }
+  if (typeof anime !== "undefined") {
+    anime({
+      targets: ".hero-title",
+      translateY: [30, 0],
+      opacity: [0, 1],
+      duration: 1000,
+      easing: "easeOutCubic",
+    });
+    anime({
+      targets: ".hero-subtitle",
+      translateY: [30, 0],
+      opacity: [0, 1],
+      duration: 1000,
+      delay: 300,
+      easing: "easeOutCubic",
+    });
+  }
+  document.querySelectorAll(".timeline-toggle").forEach(function (button) {
+    button.addEventListener("click", function () {
+      const orderId = this.getAttribute("data-order-id");
+      const timeline = document.getElementById("timeline-" + orderId);
+      if (!timeline) return;
+      if (timeline.style.display === "block") {
+        if (typeof anime !== "undefined") {
+          anime({
+            targets: timeline,
+            opacity: [1, 0],
+            height: [timeline.scrollHeight + "px", 0],
+            duration: 400,
+            easing: "easeOutCubic",
+            complete: function () {
+              timeline.style.display = "none";
+            },
+          });
+        } else {
+          timeline.style.display = "none";
+        }
+        this.classList.remove("active");
+      } else {
+        timeline.style.display = "block";
+        if (typeof anime !== "undefined") {
+          anime({
+            targets: timeline,
+            opacity: [0, 1],
+            height: [0, timeline.scrollHeight + "px"],
+            duration: 500,
+            easing: "easeOutCubic",
+          });
+        }
+        this.classList.add("active");
+        function animateTimelineLine(container) {
+          const timelineContainer = container.querySelector(
+            ".timeline-container",
+          );
+          if (!timelineContainer) return;
+          const steps = container.querySelectorAll(".timeline-step");
+          let completedSteps = 0;
+          steps.forEach(function (step) {
+            if (
+              step.classList.contains("completed") ||
+              step.classList.contains("current")
+            ) {
+              completedSteps++;
             }
-        })
-    }); document.querySelectorAll(".reorder-btn").forEach(function (button) {
-        button.addEventListener("click", async function () {
-            const orderId = this.getAttribute("data-order-id"); const originalText = this.innerHTML; if (this.disabled) return; if (typeof anime !== 'undefined') { anime({ targets: this, scale: [1, 0.95, 1], duration: 200, easing: "easeInOutQuad" }) }
-            try {
-                this.innerHTML = "⏳ Добавляем в корзину..."; this.disabled = !0; const response = await fetch("/order/" + orderId + "/reorder/", { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": getCsrfToken(), "X-Requested-With": "XMLHttpRequest" } }); const data = await response.json(); if (!data.success) { throw new Error(data.error || "Ошибка при повторении заказа") }
-                if (typeof anime !== 'undefined') { await anime({ targets: this, backgroundColor: ["#28a745", "#155724"], duration: 300, easing: "easeInOutQuad" }).finished }
-                this.innerHTML = "✅ Добавлено в корзину!"; function updateCartCounter(count) {
-                    const counter = document.querySelector(".cart-counter"); if (counter) {
-                        if (typeof anime !== 'undefined') { anime({ targets: counter, scale: [1, 1.5, 1], duration: 300, easing: "easeInOutQuad" }) }
-                        counter.textContent = count
-                    }
-                }
-                if (data.cart_count !== undefined) { updateCartCounter(data.cart_count) }
-                showNotification(data.message || "Товары добавлены в корзину", "success"); setTimeout(function () { button.innerHTML = originalText; button.disabled = !1; if (typeof anime !== 'undefined') { anime({ targets: button, backgroundColor: ["#155724", "#28a745"], duration: 300 }) } }, 2000)
-            } catch (error) {
-                console.error("Ошибка при повторении заказа:", error); if (typeof anime !== 'undefined') { anime({ targets: this, backgroundColor: ["#28a745", "#dc3545"], duration: 300 }) }
-                this.innerHTML = "❌ Ошибка"; this.disabled = !0; showNotification(error.message || "Произошла ошибка при добавлении в корзину", "error"); setTimeout(function () { button.innerHTML = "📋 Повторить заказ"; button.disabled = !1; if (typeof anime !== 'undefined') { anime({ targets: button, backgroundColor: ["#dc3545", "#28a745"], duration: 300 }) } }, 2000)
+          });
+          if (completedSteps > 0 && typeof anime !== "undefined") {
+            const totalSteps = steps.length;
+            const percentage = (completedSteps / totalSteps) * 100;
+            let filledLine = timelineContainer.querySelector(
+              ".timeline-filled-line",
+            );
+            if (!filledLine) {
+              filledLine = document.createElement("div");
+              filledLine.className = "timeline-filled-line";
+              filledLine.style.cssText =
+                "position:absolute;left:25px;top:0;width:3px;background:linear-gradient(to bottom,#27ae60,#2ecc71);border-radius:2px;height:0;z-index:1;transition:height 1.5s ease;";
+              timelineContainer.appendChild(filledLine);
             }
-        })
-    }); document.querySelectorAll(".details-btn").forEach(function (button) {
-        button.addEventListener("click", function () {
-            const orderId = this.getAttribute("data-order-id"); const orderCard = this.closest(".order-card"); if (!orderCard) return; if (typeof anime !== 'undefined') { anime({ targets: this, scale: [1, 0.95, 1], duration: 200, easing: "easeInOutQuad" }) }
-            const existingDetails = orderCard.querySelector(".order-details-full"); if (existingDetails) { toggleDetails(existingDetails, this) } else { loadOrderDetails(orderId, orderCard, this) }
-            function toggleDetails(detailsElement, buttonElement) {
-                const isVisible = detailsElement.style.display !== "none"; if (isVisible) { if (typeof anime !== 'undefined') { anime({ targets: detailsElement, opacity: [1, 0], height: [detailsElement.scrollHeight + "px", 0], duration: 400, easing: "easeOutCubic", complete: function () { detailsElement.style.display = "none"; buttonElement.innerHTML = "📄 Детали" } }) } else { detailsElement.style.display = "none"; buttonElement.innerHTML = "📄 Детали" } } else {
-                    detailsElement.style.display = "block"; if (typeof anime !== 'undefined') { anime({ targets: detailsElement, opacity: [0, 1], height: [0, detailsElement.scrollHeight + "px"], duration: 500, easing: "easeOutCubic" }) }
-                    buttonElement.innerHTML = "📄 Скрыть детали"
-                }
+            anime({
+              targets: filledLine,
+              height: percentage + "%",
+              duration: 1500,
+              easing: "easeOutCubic",
+              delay: 300,
+            });
+          }
+        }
+        animateTimelineLine(timeline);
+      }
+    });
+  });
+  document.querySelectorAll(".reorder-btn").forEach(function (button) {
+    button.addEventListener("click", async function () {
+      const orderId = this.getAttribute("data-order-id");
+      const originalText = this.innerHTML;
+      if (this.disabled) return;
+      if (typeof anime !== "undefined") {
+        anime({
+          targets: this,
+          scale: [1, 0.95, 1],
+          duration: 200,
+          easing: "easeInOutQuad",
+        });
+      }
+      try {
+        this.innerHTML = "⏳ Добавляем в корзину...";
+        this.disabled = !0;
+        const response = await fetch("/order/" + orderId + "/reorder/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCsrfToken(),
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        });
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.error || "Ошибка при повторении заказа");
+        }
+        if (typeof anime !== "undefined") {
+          await anime({
+            targets: this,
+            backgroundColor: ["#28a745", "#155724"],
+            duration: 300,
+            easing: "easeInOutQuad",
+          }).finished;
+        }
+        this.innerHTML = "✅ Добавлено в корзину!";
+        function updateCartCounter(count) {
+          const counter = document.querySelector(".cart-counter");
+          if (counter) {
+            if (typeof anime !== "undefined") {
+              anime({
+                targets: counter,
+                scale: [1, 1.5, 1],
+                duration: 300,
+                easing: "easeInOutQuad",
+              });
             }
-            async function loadOrderDetails(orderId, orderCard, buttonElement) {
-                try {
-                    const response = await fetch("/order/" + orderId + "/details/", { headers: { "X-Requested-With": "XMLHttpRequest" } }); const data = await response.json(); if (!data.success) { throw new Error(data.error || "Ошибка загрузки деталей") }
-                    const detailsContainer = document.createElement("div"); detailsContainer.className = "order-details-full"; detailsContainer.innerHTML = data.html; const orderContent = orderCard.querySelector(".order-content"); if (orderContent && orderContent.parentNode) {
-                        orderContent.parentNode.insertBefore(detailsContainer, orderContent.nextSibling); if (typeof anime !== 'undefined') { anime({ targets: detailsContainer, opacity: [0, 1], height: [0, detailsContainer.scrollHeight + "px"], duration: 500, easing: "easeOutCubic" }) }
-                        buttonElement.innerHTML = "📄 Скрыть детали"
-                    }
-                } catch (error) { console.error("Ошибка загрузки деталей заказа:", error); showNotification("Не удалось загрузить детали заказа", "error") }
+            counter.textContent = count;
+          }
+        }
+        if (data.cart_count !== undefined) {
+          updateCartCounter(data.cart_count);
+        }
+        showNotification(
+          data.message || "Товары добавлены в корзину",
+          "success",
+        );
+        setTimeout(function () {
+          button.innerHTML = originalText;
+          button.disabled = !1;
+          if (typeof anime !== "undefined") {
+            anime({
+              targets: button,
+              backgroundColor: ["#155724", "#28a745"],
+              duration: 300,
+            });
+          }
+        }, 2000);
+      } catch (error) {
+        console.error("Ошибка при повторении заказа:", error);
+        if (typeof anime !== "undefined") {
+          anime({
+            targets: this,
+            backgroundColor: ["#28a745", "#dc3545"],
+            duration: 300,
+          });
+        }
+        this.innerHTML = "❌ Ошибка";
+        this.disabled = !0;
+        showNotification(
+          error.message || "Произошла ошибка при добавлении в корзину",
+          "error",
+        );
+        setTimeout(function () {
+          button.innerHTML = "📋 Повторить заказ";
+          button.disabled = !1;
+          if (typeof anime !== "undefined") {
+            anime({
+              targets: button,
+              backgroundColor: ["#dc3545", "#28a745"],
+              duration: 300,
+            });
+          }
+        }, 2000);
+      }
+    });
+  });
+  document.querySelectorAll(".details-btn").forEach(function (button) {
+    button.addEventListener("click", function () {
+      const orderId = this.getAttribute("data-order-id");
+      const orderCard = this.closest(".order-card");
+      if (!orderCard) return;
+      if (typeof anime !== "undefined") {
+        anime({
+          targets: this,
+          scale: [1, 0.95, 1],
+          duration: 200,
+          easing: "easeInOutQuad",
+        });
+      }
+      const existingDetails = orderCard.querySelector(".order-details-full");
+      if (existingDetails) {
+        toggleDetails(existingDetails, this);
+      } else {
+        loadOrderDetails(orderId, orderCard, this);
+      }
+      function toggleDetails(detailsElement, buttonElement) {
+        const isVisible = detailsElement.style.display !== "none";
+        if (isVisible) {
+          if (typeof anime !== "undefined") {
+            anime({
+              targets: detailsElement,
+              opacity: [1, 0],
+              height: [detailsElement.scrollHeight + "px", 0],
+              duration: 400,
+              easing: "easeOutCubic",
+              complete: function () {
+                detailsElement.style.display = "none";
+                buttonElement.innerHTML = "📄 Детали";
+              },
+            });
+          } else {
+            detailsElement.style.display = "none";
+            buttonElement.innerHTML = "📄 Детали";
+          }
+        } else {
+          detailsElement.style.display = "block";
+          if (typeof anime !== "undefined") {
+            anime({
+              targets: detailsElement,
+              opacity: [0, 1],
+              height: [0, detailsElement.scrollHeight + "px"],
+              duration: 500,
+              easing: "easeOutCubic",
+            });
+          }
+          buttonElement.innerHTML = "📄 Скрыть детали";
+        }
+      }
+      async function loadOrderDetails(orderId, orderCard, buttonElement) {
+        try {
+          const response = await fetch("/order/" + orderId + "/details/", {
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+          });
+          const data = await response.json();
+          if (!data.success) {
+            throw new Error(data.error || "Ошибка загрузки деталей");
+          }
+          const detailsContainer = document.createElement("div");
+          detailsContainer.className = "order-details-full";
+          detailsContainer.innerHTML = data.html;
+          const orderContent = orderCard.querySelector(".order-content");
+          if (orderContent && orderContent.parentNode) {
+            orderContent.parentNode.insertBefore(
+              detailsContainer,
+              orderContent.nextSibling,
+            );
+            if (typeof anime !== "undefined") {
+              anime({
+                targets: detailsContainer,
+                opacity: [0, 1],
+                height: [0, detailsContainer.scrollHeight + "px"],
+                duration: 500,
+                easing: "easeOutCubic",
+              });
             }
-        })
-    }); document.querySelectorAll(".cancel-btn:not(.disabled)").forEach(function (button) {
-        button.addEventListener("click", async function () {
-            const orderId = this.getAttribute("data-order-id"); const orderCard = this.closest(".order-card"); if (!orderCard) return; if (confirm("Вы уверены,что хотите отменить этот заказ?")) {
-                const originalText = this.innerHTML; this.innerHTML = "⏳ Отмена..."; this.disabled = !0; try {
-                    const response = await fetch("/order/cancel/" + orderId + "/", { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": getCsrfToken(), "X-Requested-With": "XMLHttpRequest" } }); const data = await response.json(); if (!data.success) { throw new Error(data.error || "Ошибка при отмене заказа") }
-                    if (typeof anime !== 'undefined') { await anime({ targets: orderCard, opacity: [1, 0], translateY: [0, -20], duration: 500, easing: "easeInOutQuad" }).finished }
-                    showNotification(data.message || "Заказ успешно отменен", "success"); setTimeout(function () { location.reload() }, 1000)
-                } catch (error) { console.error("Ошибка при отмене заказа:", error); this.innerHTML = originalText; this.disabled = !1; showNotification(error.message || "Произошла ошибка при отмене заказа", "error"); if (typeof anime !== 'undefined') { anime({ targets: orderCard, translateX: [0, 10, -10, 0], duration: 400, easing: "easeInOutQuad" }) } }
+            buttonElement.innerHTML = "📄 Скрыть детали";
+          }
+        } catch (error) {
+          console.error("Ошибка загрузки деталей заказа:", error);
+          showNotification("Не удалось загрузить детали заказа", "error");
+        }
+      }
+    });
+  });
+  document
+    .querySelectorAll(".cancel-btn:not(.disabled)")
+    .forEach(function (button) {
+      button.addEventListener("click", async function () {
+        const orderId = this.getAttribute("data-order-id");
+        const orderCard = this.closest(".order-card");
+        if (!orderCard) return;
+        if (confirm("Вы уверены,что хотите отменить этот заказ?")) {
+          const originalText = this.innerHTML;
+          this.innerHTML = "⏳ Отмена...";
+          this.disabled = !0;
+          try {
+            const response = await fetch("/order/cancel/" + orderId + "/", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCsrfToken(),
+                "X-Requested-With": "XMLHttpRequest",
+              },
+            });
+            const data = await response.json();
+            if (!data.success) {
+              throw new Error(data.error || "Ошибка при отмене заказа");
             }
-        })
-    }); document.querySelectorAll(".refund-btn").forEach(function (button) { button.addEventListener("click", function () { const orderId = this.getAttribute("data-order-id"); window.location.href = "/order/" + orderId + "/request-refund/" }) }); const style = document.createElement("style"); style.textContent = `
+            if (typeof anime !== "undefined") {
+              await anime({
+                targets: orderCard,
+                opacity: [1, 0],
+                translateY: [0, -20],
+                duration: 500,
+                easing: "easeInOutQuad",
+              }).finished;
+            }
+            showNotification(
+              data.message || "Заказ успешно отменен",
+              "success",
+            );
+            setTimeout(function () {
+              location.reload();
+            }, 1000);
+          } catch (error) {
+            console.error("Ошибка при отмене заказа:", error);
+            this.innerHTML = originalText;
+            this.disabled = !1;
+            showNotification(
+              error.message || "Произошла ошибка при отмене заказа",
+              "error",
+            );
+            if (typeof anime !== "undefined") {
+              anime({
+                targets: orderCard,
+                translateX: [0, 10, -10, 0],
+                duration: 400,
+                easing: "easeInOutQuad",
+              });
+            }
+          }
+        }
+      });
+    });
+  document.querySelectorAll(".refund-btn").forEach(function (button) {
+    button.addEventListener("click", function () {
+      const orderId = this.getAttribute("data-order-id");
+      window.location.href = "/order/" + orderId + "/request-refund/";
+    });
+  });
+  const style = document.createElement("style");
+  style.textContent = `
         @keyframes slideInRight {
             from {
                 transform: translateX(100%);
@@ -135,6 +458,57 @@ document.addEventListener("DOMContentLoaded", function () {
                 opacity: 0;
             }
         }
-    `; document.head.appendChild(style); if (typeof anime !== 'undefined') { document.querySelectorAll(".status-dot").forEach(function (dot) { anime({ targets: dot, scale: [1, 1.2, 1], duration: 2000, loop: !0, easing: "easeInOutSine" }) }); document.querySelectorAll(".timeline-step").forEach(function (step, index) { setTimeout(function () { anime({ targets: step, translateX: [-20, 0], opacity: [0, 1], duration: 600, easing: "easeOutCubic" }) }, 200 * index) }); document.querySelectorAll(".step-icon").forEach(function (icon) { const step = icon.closest(".timeline-step"); if (step && step.classList.contains("current")) { anime({ targets: icon, scale: [1, 1.05, 1], duration: 2000, loop: !0, easing: "easeInOutSine" }) } }); document.querySelectorAll(".tracking-info").forEach(function (info) { anime({ targets: info, opacity: [0, 1], translateY: [10, 0], duration: 800, delay: 600, easing: "easeOutCubic" }) }) }
-    window.addEventListener("scroll", function () { const scrollPosition = window.pageYOffset; const hero = document.querySelector(".orders-hero"); if (hero) { hero.style.transform = "translateY(" + (0.5 * scrollPosition) + "px)" } })
-})
+    `;
+  document.head.appendChild(style);
+  if (typeof anime !== "undefined") {
+    document.querySelectorAll(".status-dot").forEach(function (dot) {
+      anime({
+        targets: dot,
+        scale: [1, 1.2, 1],
+        duration: 2000,
+        loop: !0,
+        easing: "easeInOutSine",
+      });
+    });
+    document.querySelectorAll(".timeline-step").forEach(function (step, index) {
+      setTimeout(function () {
+        anime({
+          targets: step,
+          translateX: [-20, 0],
+          opacity: [0, 1],
+          duration: 600,
+          easing: "easeOutCubic",
+        });
+      }, 200 * index);
+    });
+    document.querySelectorAll(".step-icon").forEach(function (icon) {
+      const step = icon.closest(".timeline-step");
+      if (step && step.classList.contains("current")) {
+        anime({
+          targets: icon,
+          scale: [1, 1.05, 1],
+          duration: 2000,
+          loop: !0,
+          easing: "easeInOutSine",
+        });
+      }
+    });
+    document.querySelectorAll(".tracking-info").forEach(function (info) {
+      anime({
+        targets: info,
+        opacity: [0, 1],
+        translateY: [10, 0],
+        duration: 800,
+        delay: 600,
+        easing: "easeOutCubic",
+      });
+    });
+  }
+  window.addEventListener("scroll", function () {
+    const scrollPosition = window.pageYOffset;
+    const hero = document.querySelector(".orders-hero");
+    if (hero) {
+      hero.style.transform = "translateY(" + 0.5 * scrollPosition + "px)";
+    }
+  });
+});

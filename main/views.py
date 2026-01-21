@@ -670,9 +670,9 @@ def cart_view(request):
             customer_inn = request.POST.get('customer_inn', '')
             customer_kpp = request.POST.get('customer_kpp', '')
 
-            for cart_item in cart_items:
-                if cart_item.product.quantity < cart_item.quantity:
-                    messages.error(request, f'Недостаточно товара "{cart_item.product.name}" на складе. Доступно: {cart_item.product.quantity}')
+            for cart_item_check in cart_items:
+                if cart_item_check.product.quantity < cart_item_check.quantity:
+                    messages.error(request, f'Недостаточно товара "{cart_item_check.product.name}" на складе. Доступно: {cart_item_check.product.quantity}')
                     return redirect('cart')
             
             order = Order.objects.create(
@@ -693,17 +693,17 @@ def cart_view(request):
                 customer_kpp=customer_kpp,
             )
             
-            for cart_item in cart_items:
+            for cart_item_order in cart_items:
                 OrderItem.objects.create(
                     order=order,
-                    product=cart_item.product,
-                    quantity=cart_item.quantity,
-                    price=cart_item.product.price,
+                    product=cart_item_order.product,
+                    quantity=cart_item_order.quantity,
+                    price=cart_item_order.product.price,
                     vat_rate=vat_rate
                 )
 
-            cart_item.product.quantity -= cart_item.quantity
-            cart_item.product.save()
+                cart_item_order.product.quantity -= cart_item_order.quantity
+                cart_item_order.product.save()
             cart_items.delete()
             order.status = 'processing'
             order.save()
@@ -850,8 +850,6 @@ def resend_invoice(request, order_id):
 def cancel_order(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     
-    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-    
     try:
         if order.can_be_cancelled():
             old_status = order.status
@@ -881,40 +879,39 @@ def cancel_order(request, order_id):
                 success=True
             )
             
-            message = f'Заказ #{order.id} отменен. Уведомление отправлено администратору.'
-            
-            if is_ajax:
-                return JsonResponse({
-                    'success': True,
-                    'message': message
-                })
-            else:
-                messages.success(request, message)
+            return JsonResponse({
+                'success': True,
+                'message': f'Заказ #{order.id} отменен.'
+            })
                 
         else:
-            message = 'Невозможно отменить заказ. Срок отмены истек или заказ уже обрабатывается. Если возникли вопросы - свяжитесь с нами, мы поможем!'
-            
-            if is_ajax:
-                return JsonResponse({
-                    'success': False,
-                    'error': message
-                })
+            now = timezone.now()
+            if order.paid_at:
+                time_since_payment = (now - order.paid_at).total_seconds()
+                time_left = max(0, 600 - time_since_payment) 
             else:
-                messages.error(request, message)
-                
-    except Exception as e:
-        error_msg = f'Ошибка при отмене заказа: {str(e)}'
-        
-        if is_ajax:
+                time_since_creation = (now - order.created_at).total_seconds()
+                time_left = max(0, 600 - time_since_creation)
+            
+            if time_left > 0:
+                minutes_left = int(time_left // 60)
+                seconds_left = int(time_left % 60)
+                time_message = f"{minutes_left} мин {seconds_left} сек"
+            else:
+                time_message = "время истекло"
+            
             return JsonResponse({
                 'success': False,
-                'error': error_msg
+                'error': f'Невозможно отменить заказ. Отмена доступна только в течение 5 минут после создания/оплаты. ({time_message})'
             })
-        else:
-            messages.error(request, error_msg)
-    
-    if not is_ajax:
-        return redirect('orders')
+                
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'error': f'Ошибка при отмене заказа: {str(e)}'
+        })
 
 @login_required
 def orders_view(request):
@@ -2242,6 +2239,7 @@ def product_detail(request, product_id):
     return render(request, 'main/product_detail.html', context)
 
 @login_required
+@require_http_methods(["POST"])
 def reorder_order(request, order_id):
     """Повторение заказа - добавление всех товаров в корзину"""
     order = get_object_or_404(Order, id=order_id, user=request.user)
@@ -2277,6 +2275,8 @@ def reorder_order(request, order_id):
         })
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
             'success': False,
             'error': f'Ошибка при повторении заказа: {str(e)}'

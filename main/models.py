@@ -1508,11 +1508,17 @@ class Order(models.Model):
             'payment_fee': self.payment_fee,
             'total': self.get_final_price_with_fees()
         }
-    
+        
     def can_be_cancelled(self):
-        """Можно отменить заказ в течение 10 минут после оплаты"""
+        """Можно отменить заказ в течение 5 минут после создания или оплаты"""
+        if self.status in ['pending', 'processing']:
+            time_since_creation = (timezone.now() - self.created_at).total_seconds()
+            return time_since_creation < 600 
+        
         if self.status == 'paid' and self.paid_at:
-            return (timezone.now() - self.paid_at).total_seconds() < 3600  # час
+            time_since_payment = (timezone.now() - self.paid_at).total_seconds()
+            return time_since_payment < 600 
+        
         return False
     
     def get_status_timeline(self):
