@@ -8,19 +8,9 @@
   "theme_color": "#2c3e50",
   "icons": [
     {
-      "src": "/static/images/favicon/android-chrome-192x192.png", 
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/static/images/favicon/android-chrome-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    },
-    {
-      "src": "/static/images/favicon/logo.svg",
+      "src": "/static/favicon.ico",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "icons/ico",
       "purpose": "any"
     }
   ]
