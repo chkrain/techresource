@@ -256,13 +256,12 @@ section {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
+  background: #2c3e50;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transform: translateY(10px);
   transition: all 0.3s ease;
   border-radius: 20px;
   font-weight: 600;
