@@ -1,6 +1,6 @@
 :root {
   --invoice-blue: #0052cc;
-  --invoice-blue-light: #0066cc;
+  --invoice-blue-light: #06c;
   --invoice-green: #48bb78;
   --invoice-red: #e53e3e;
   --invoice-orange: #ed8936;
@@ -8,264 +8,98 @@
   --invoice-gray: #6c757d;
   --invoice-light: #f8f9fa;
   --invoice-dark: #2c3e50;
+  --invoice-yellow: #ecc94b;
+  --invoice-cyan: #0dcaf0;
 }
-
-.invoice-container {
-  background: var(--invoice-light);
-  min-height: calc(100vh - var(--header-height));
-  padding: 2rem 0;
+.container-fluid.py-4 {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: calc(100vh - 70px);
 }
-
-.invoice-card {
-  background: var(--white);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: var(--transition);
-  overflow: hidden;
-  margin-bottom: 1.5rem;
+.display-5.fw-bold {
+  background: linear-gradient(
+    135deg,
+    var(--invoice-dark) 0%,
+    var(--invoice-blue) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  padding-bottom: 10px;
 }
-
-.invoice-card:hover {
-  box-shadow: var(--shadow-hover);
-  transform: translateY(-2px);
+.display-5.fw-bold::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--invoice-blue), var(--invoice-green));
+  border-radius: 2px;
 }
-
-.invoice-card-header {
-  background: linear-gradient(135deg, var(--invoice-blue), var(--invoice-blue-light));
-  color: white;
-  padding: 1.5rem;
-  border-bottom: none;
-}
-
-.invoice-card-header h2,
-.invoice-card-header h5 {
-  margin: 0;
-  color: white;
-  font-weight: 600;
-}
-
-.invoice-card-body {
-  padding: 1.5rem;
-}
-
-.invoice-status {
-  padding: 0.5rem 1rem;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  letter-spacing: 0.3px;
+.action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-}
-
-.status-paid {
-  background: linear-gradient(135deg, var(--invoice-green), #38a169);
-  color: white;
-  box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
-}
-
-.status-sent {
-  background: linear-gradient(135deg, var(--invoice-orange), #dd6b20);
-  color: white;
-  box-shadow: 0 4px 15px rgba(237, 137, 54, 0.3);
-}
-
-.status-overdue {
-  background: linear-gradient(135deg, var(--invoice-red), #c53030);
-  color: white;
-  box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
-}
-
-.status-created {
-  background: linear-gradient(135deg, var(--invoice-gray), #4a5568);
-  color: white;
-  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-}
-
-.invoice-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.invoice-table thead {
-  background: linear-gradient(135deg, var(--invoice-blue), var(--invoice-blue-light));
-  color: white;
-}
-
-.invoice-table th {
-  padding: 1rem 1.5rem;
-  font-weight: 600;
-  text-align: left;
-  border: none;
-  font-size: 0.9rem;
-  letter-spacing: 0.5px;
-}
-
-.invoice-table tbody tr {
-  transition: all 0.2s ease;
-}
-
-.invoice-table tbody tr:hover {
-  background: rgba(0, 82, 204, 0.05);
-  transform: translateX(5px);
-}
-
-.invoice-table td {
-  padding: 1rem 1.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  vertical-align: middle;
-}
-
-.invoice-amount {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--invoice-blue);
-  text-align: right;
-}
-
-.invoice-amount-total {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--invoice-green);
-  text-align: right;
-}
-
-.delivery-badge {
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-right: 0.3rem;
-}
-
-.badge-email {
-  background: linear-gradient(135deg, #4299e1, #3182ce);
-  color: white;
-}
-
-.badge-telegram {
-  background: linear-gradient(135deg, #24a1de, #0088cc);
-  color: white;
-}
-
-.invoice-form .form-control,
-.invoice-form .form-select {
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  transition: all 0.3s ease;
-}
-
-.invoice-form .form-control:focus,
-.invoice-form .form-select:focus {
-  border-color: var(--invoice-blue);
-  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
-  outline: none;
-}
-
-.invoice-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  gap: 8px;
+  padding: 12px 24px;
   border-radius: 50px;
   font-weight: 600;
   text-decoration: none;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-print-invoice {
-  background: linear-gradient(135deg, var(--invoice-blue), var(--invoice-blue-light));
-  color: white;
-}
-
-.btn-print-invoice:hover {
-  background: linear-gradient(135deg, var(--invoice-blue-light), var(--invoice-blue));
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 82, 204, 0.3);
-}
-
-.btn-edit-invoice {
-  background: linear-gradient(135deg, var(--invoice-green), #38a169);
-  color: white;
-}
-
-.btn-edit-invoice:hover {
-  background: linear-gradient(135deg, #38a169, var(--invoice-green));
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
-}
-
-.btn-resend-invoice {
-  background: linear-gradient(135deg, var(--invoice-orange), #dd6b20);
-  color: white;
-}
-
-.btn-resend-invoice:hover {
-  background: linear-gradient(135deg, #dd6b20, var(--invoice-orange));
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(237, 137, 54, 0.3);
-}
-
-.invoice-pagination .page-link {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid transparent;
-  border-radius: 8px;
-  color: var(--invoice-blue);
-  font-weight: 600;
-  transition: all 0.3s ease;
-  margin: 0 0.2rem;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
 }
-
-.invoice-pagination .page-item.active .page-link {
-  background: linear-gradient(135deg, var(--invoice-blue), var(--invoice-blue-light));
-  border-color: var(--invoice-blue);
+.action-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.6s ease;
+  z-index: -1;
+}
+.action-btn:hover::before {
+  left: 100%;
+}
+.btn-export {
+  background: linear-gradient(135deg, #217346 0%, #2e8b57 100%);
   color: white;
+  box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
 }
-
-.invoice-pagination .page-link:hover {
-  background: rgba(0, 82, 204, 0.1);
-  border-color: var(--invoice-blue);
-  transform: translateY(-2px);
+.btn-export:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(46, 139, 87, 0.4);
+  border-color: #217346;
 }
-
-.invoice-filters {
-  background: white;
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
-  margin-bottom: 2rem;
+.btn-telegram {
+  background: linear-gradient(135deg, #24a1de 0%, #0088cc 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(36, 161, 222, 0.3);
 }
-
-.invoice-filters .form-label {
-  font-weight: 600;
-  color: var(--invoice-dark);
-  margin-bottom: 0.5rem;
+.btn-telegram:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(36, 161, 222, 0.4);
+  border-color: #24a1de;
 }
-
-@keyframes slideInInvoice {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.stat-card {
+  border: none;
+  border-radius: 20px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
 }
-
-@keyframes fadeInInvoice {
+@keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -275,191 +109,313 @@
     transform: translateY(0);
   }
 }
-
-.invoice-animate {
-  animation: slideInInvoice 0.5s ease-out;
-}
-
-.stat-card-animate {
-  animation: fadeInInvoice 0.6s ease-out;
-}
-
-.stat-card {
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  color: white;
-  transition: var(--transition);
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-}
-
 .stat-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  z-index: 1;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
 }
-
-.stat-card > div {
-  position: relative;
-  z-index: 2;
+.stat-card.total::before {
+  background: linear-gradient(90deg, #667eea, #764ba2);
 }
-
-.stat-card.total {
-  background: linear-gradient(135deg, var(--invoice-blue), var(--invoice-blue-light));
+.stat-card.amount::before {
+  background: linear-gradient(90deg, #f093fb, #f5576c);
 }
-
-.stat-card.amount {
-  background: linear-gradient(135deg, var(--invoice-purple), #805ad5);
+.stat-card.paid::before {
+  background: linear-gradient(90deg, #4facfe, #00f2fe);
 }
-
-.stat-card.paid {
-  background: linear-gradient(135deg, var(--invoice-green), #38a169);
+.stat-card.overdue::before {
+  background: linear-gradient(90deg, #f093fb, #ed6ea0);
 }
-
-.stat-card.overdue {
-  background: linear-gradient(135deg, var(--invoice-red), #c53030);
+.stat-card .bg-opacity-10 {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px);
 }
-
 .stat-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-10px) scale(1.02);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
-
-@media print {
-  .no-print {
-    display: none !important;
-  }
-  
-  .invoice-printable {
-    box-shadow: none !important;
-    border: 1px solid #ddd !important;
-  }
-  
-  .invoice-table {
-    box-shadow: none !important;
-  }
-  
-  .btn {
-    display: none !important;
-  }
-  
-  body {
-    background: white !important;
-    color: black !important;
-  }
+.amount-display {
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
-
-@media (max-width: 768px) {
-  .invoice-table {
-    font-size: 0.85rem;
-  }
-  
-  .invoice-table th,
-  .invoice-table td {
-    padding: 0.75rem;
-  }
-  
-  .invoice-card-header {
-    padding: 1rem;
-  }
-  
-  .invoice-card-body {
-    padding: 1rem;
-  }
-  
-  .stat-card {
-    padding: 1rem;
-  }
-  
-  .invoice-action-btn {
-    width: 100%;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-  }
+.filter-card {
+  border: none;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
-
-.invoice-empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: var(--invoice-gray);
+.filter-card:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
 }
-
-.invoice-empty-state i {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
+.filter-card .card-body {
+  background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
 }
-
-.table-row-hover {
+.filter-card h5 i {
+  background: linear-gradient(
+    135deg,
+    var(--invoice-blue),
+    var(--invoice-purple)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.table-header {
+  background: linear-gradient(135deg, var(--invoice-dark) 0%, #34495e 100%);
+  color: white;
+}
+.table-header th {
+  border: none;
+  padding: 1.25rem 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   position: relative;
 }
-
-.table-row-hover::after {
-  content: '';
+.table-header th::after {
+  content: "";
   position: absolute;
-  left: 0;
-  right: 0;
   bottom: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--invoice-blue), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  left: 1.5rem;
+  right: 1.5rem;
+  height: 2px;
+  background: linear-gradient(90deg, var(--invoice-blue), var(--invoice-green));
 }
-
-.table-row-hover:hover::after {
-  opacity: 1;
+.table-row {
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
 }
-
+.table-row:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 82, 204, 0.05) 0%,
+    rgba(0, 102, 204, 0.02) 100%
+  );
+  transform: translateX(5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  border-left-color: var(--invoice-blue);
+}
+.table-row.overdue {
+  border-left-color: var(--invoice-red);
+  background: linear-gradient(
+    90deg,
+    rgba(229, 62, 62, 0.05) 0%,
+    transparent 100%
+  );
+}
+.table-row.paid {
+  border-left-color: var(--invoice-green);
+  background: linear-gradient(
+    90deg,
+    rgba(72, 187, 120, 0.05) 0%,
+    transparent 100%
+  );
+}
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: inline-block;
+  text-align: center;
+  min-width: 100px;
+  transition: all 0.3s ease;
+}
+.status-created {
+  background: linear-gradient(135deg, #6c757d, #495057);
+  color: white;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+.status-sent {
+  background: linear-gradient(135deg, #0dcaf0, #0aa2c0);
+  color: white;
+  box-shadow: 0 4px 15px rgba(13, 202, 240, 0.3);
+}
+.status-paid {
+  background: linear-gradient(135deg, #48bb78, #38a169);
+  color: white;
+  box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+}
+.status-overdue {
+  background: linear-gradient(135deg, #e53e3e, #c53030);
+  color: white;
+  box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+}
 .customer-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--invoice-blue), var(--invoice-blue-light));
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    var(--invoice-blue),
+    var(--invoice-purple)
+  );
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  box-shadow: 0 5px 15px rgba(0, 82, 204, 0.3);
+  transition: all 0.3s ease;
+}
+.table-row:hover .customer-avatar {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 8px 25px rgba(0, 82, 204, 0.4);
+}
+.badge {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+}
+.badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+.action-icons .btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  margin: 0 2px;
+}
+.action-icons .btn-outline-primary {
+  border: 2px solid var(--invoice-blue);
+  color: var(--invoice-blue);
+}
+.action-icons .btn-outline-primary:hover {
+  background: linear-gradient(
+    135deg,
+    var(--invoice-blue),
+    var(--invoice-blue-light)
+  );
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 82, 204, 0.3);
+}
+.action-icons .btn-outline-secondary {
+  border: 2px solid var(--invoice-gray);
+  color: var(--invoice-gray);
+}
+.action-icons .btn-outline-secondary:hover {
+  background: linear-gradient(135deg, var(--invoice-gray), #495057);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+}
+.empty-state {
+  padding: 4rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 20px;
+}
+.empty-state i {
+  font-size: 4rem;
+  background: linear-gradient(135deg, var(--invoice-gray), #adb5bd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+.pagination-wrapper {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+.page-link {
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  margin: 0 3px;
   font-weight: 600;
-  margin-right: 0.75rem;
-  flex-shrink: 0;
+  color: var(--invoice-blue);
+  transition: all 0.3s ease;
 }
-
-.payment-timeline {
-  position: relative;
-  padding-left: 2rem;
+.page-link:hover {
+  border-color: var(--invoice-blue);
+  background: rgba(0, 82, 204, 0.1);
+  transform: translateY(-2px);
 }
-
-.payment-timeline::before {
-  content: '';
-  position: absolute;
-  left: 10px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, var(--invoice-blue), var(--invoice-green));
+.page-item.active .page-link {
+  background: linear-gradient(
+    135deg,
+    var(--invoice-blue),
+    var(--invoice-blue-light)
+  );
+  border-color: var(--invoice-blue);
+  color: white;
+  box-shadow: 0 5px 15px rgba(0, 82, 204, 0.3);
 }
-
-.timeline-item {
-  position: relative;
-  margin-bottom: 1.5rem;
-  padding-left: 1.5rem;
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(229, 62, 62, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0);
+  }
 }
-
-.timeline-item::before {
-  content: '';
-  position: absolute;
-  left: -6px;
-  top: 5px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--invoice-blue);
-  border: 3px solid white;
-  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.2);
+.table-row.overdue {
+  animation: pulse 2s infinite;
+}
+@media (max-width: 768px) {
+  .stat-card {
+    margin-bottom: 1rem;
+  }
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+  .table-header th,
+  .table-row td {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+  .customer-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  .status-badge {
+    min-width: 80px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+}
+.invoice-meta {
+  color: #6c757d;
+  font-size: 0.85rem;
+  display: block;
+  margin-top: 2px;
+}
+.form-control,
+.form-select {
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--invoice-blue);
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+  transform: translateY(-2px);
 }
