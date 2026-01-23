@@ -1413,30 +1413,30 @@ class Order(models.Model):
         null=True
     )
     
-    # Метод для генерации номера счета
     def generate_invoice_number(self):
-        """Генерация номера счета"""
-        if not self.invoice_number:
-            today = timezone.now()
-            prefix = "СЧ"
-            year = today.strftime('%Y')
-            month = today.strftime('%m')
-            
-            last_invoice = Order.objects.filter(
-                invoice_number__startswith=f"{prefix}-{year}-{month}-"
-            ).order_by('-invoice_number').first()
-            
-            if last_invoice and last_invoice.invoice_number:
+        """Генерация номера счета без сохранения"""
+        if self.invoice_number:
+            return self.invoice_number
+        
+        today = timezone.now()
+        prefix = "СЧ"
+        year = today.strftime('%Y')
+        month = today.strftime('%m')
+        
+        last_invoice = Order.objects.filter(
+            invoice_number__startswith=f"{prefix}-{year}-{month}-"
+        ).order_by('-invoice_number').first()
+        
+        if last_invoice and last_invoice.invoice_number:
+            try:
                 last_num = int(last_invoice.invoice_number.split('-')[-1])
                 next_num = last_num + 1
-            else:
+            except (ValueError, IndexError):
                 next_num = 1
-            
-            self.invoice_number = f"{prefix}-{year}-{month}-{next_num:04d}"
-            self.invoice_date = today.date()
-            self.save()
+        else:
+            next_num = 1
         
-        return self.invoice_number
+        return f"{prefix}-{year}-{month}-{next_num:04d}"
     
     def get_due_date(self):
         """Получить дату оплаты (срок - 5 банковских дней)"""
@@ -2206,11 +2206,15 @@ class InvoiceRegistry(models.Model):
 @receiver(post_save, sender=Order)
 def create_invoice_registry_entry(sender, instance, created, **kwargs):
     """Автоматическое создание записи в реестре при создании заказа"""
-    if created and instance.invoice_number:
-        from datetime import date
-        from django.utils import timezone
-        
-        try:
+    from datetime import date
+    from django.utils import timezone
+    
+    try:
+        if created:
+            if not instance.invoice_number:
+                instance.invoice_number = instance.generate_invoice_number()
+                instance.save(update_fields=['invoice_number'])
+            
             InvoiceRegistry.objects.create(
                 order=instance,
                 invoice_number=instance.invoice_number,
@@ -2227,12 +2231,13 @@ def create_invoice_registry_entry(sender, instance, created, **kwargs):
                 email_sent_at=instance.invoice_sent_at,
                 telegram_sent=getattr(instance, 'invoice_pdf_sent_to_telegram', False),
                 telegram_sent_at=instance.invoice_sent_at if getattr(instance, 'invoice_pdf_sent_to_telegram', False) else None,
-                status='sent' if instance.invoice_sent else 'created'
+                status='created'
             )
-        except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f'Ошибка создания записи реестра: {str(e)}')
+            
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f'Ошибка создания записи реестра: {str(e)}')
 
 @receiver(post_save, sender=Order)
 def update_invoice_registry_entry(sender, instance, **kwargs):

@@ -3689,9 +3689,11 @@ def anonymous_create_order(request):
                 ip_address=get_client_ip(request),
                 user_agent=request.META.get('HTTP_USER_AGENT', ''),
                 invoice_date=timezone.now().date(),
-                invoice_number=invoice_number,
                 invoice_sent=False,
             )
+
+            order.invoice_number = order.generate_invoice_number()
+            order.save(update_fields=['invoice_number'])
 
             for item_data in order_items_data:
                 try:
