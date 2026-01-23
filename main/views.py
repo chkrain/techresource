@@ -15,6 +15,7 @@ from decimal import Decimal
 import requests
 from .models import NotificationLog
 import uuid
+import io
 from io import BytesIO
 from django.contrib.auth.decorators import user_passes_test
 import logging
@@ -49,7 +50,7 @@ from .models import SupportAttachment
 from .forms import SupportTicketForm
 import tempfile
 from blog.models import BlogComment, BlogArticle
-from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage
+from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage, InvoiceRegistry
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm, AdminProfileTagsForm, SupportTicketForm
 from django.db.models import Sum
 import qrcode
@@ -57,6 +58,8 @@ import qrcode.image.svg
 import base64
 from django.urls import reverse
 from PIL import Image
+import csv
+import xlsxwriter
 
 
 User = get_user_model()
@@ -4104,3 +4107,291 @@ def upload_avatar(request):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+from datetime import datetime, date
+from django.db.models import Q, Sum, Count
+
+@staff_member_required
+def invoice_registry(request):
+    """Главная страница реестра счетов"""
+    status_filter = request.GET.get('status', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    search_query = request.GET.get('search', '')
+    
+    invoices = InvoiceRegistry.objects.all().select_related('order')
+    
+    if status_filter:
+        invoices = invoices.filter(status=status_filter)
+    
+    if date_from:
+        try:
+            invoices = invoices.filter(invoice_date__gte=date_from)
+        except ValueError:
+            pass
+    
+    if date_to:
+        try:
+            invoices = invoices.filter(invoice_date__lte=date_to)
+        except ValueError:
+            pass
+    
+    if search_query:
+        invoices = invoices.filter(
+            Q(invoice_number__icontains=search_query) |
+            Q(customer_name__icontains=search_query) |
+            Q(customer_inn__icontains=search_query) |
+            Q(customer_email__icontains=search_query)
+        )
+    
+    stats = {
+        'total': invoices.count(),
+        'total_amount': invoices.aggregate(Sum('amount'))['amount__sum'] or 0,
+        'total_paid': invoices.filter(status='paid').aggregate(Sum('amount'))['amount__sum'] or 0,
+        'total_overdue': invoices.filter(status='overdue').aggregate(Sum('amount'))['amount__sum'] or 0,
+        'overdue_count': invoices.filter(status='overdue').count(),
+    }
+    
+    paginator = Paginator(invoices, 50)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'invoices': page_obj,
+        'page_obj': page_obj,
+        'status_filter': status_filter,
+        'date_from': date_from,
+        'date_to': date_to,
+        'search_query': search_query,
+        'stats': stats,
+        'status_choices': InvoiceRegistry.STATUS_CHOICES,
+    }
+    
+    return render(request, 'main/invoice_registry.html', context)
+
+@staff_member_required
+def export_invoices_excel(request):
+    """Экспорт реестра в Excel"""
+    status_filter = request.GET.get('status', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    
+    invoices = InvoiceRegistry.objects.all()
+    
+    if status_filter:
+        invoices = invoices.filter(status=status_filter)
+    if date_from:
+        invoices = invoices.filter(invoice_date__gte=date_from)
+    if date_to:
+        invoices = invoices.filter(invoice_date__lte=date_to)
+    
+    output = io.BytesIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet('Реестр счетов')
+    
+    header_format = workbook.add_format({
+        'bold': True,
+        'bg_color': '#4472C4',
+        'font_color': 'white',
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter'
+    })
+    
+    date_format = workbook.add_format({'num_format': 'dd.mm.yyyy'})
+    money_format = workbook.add_format({'num_format': '#,##0.00'})
+    
+    headers = [
+        '№', 'Номер счета', 'Дата счета', 'Срок оплаты', 
+        'Покупатель', 'ИНН', 'Email', 'Телефон',
+        'Сумма', 'НДС', 'Без НДС', 'Статус',
+        'Email отправлен', 'Telegram отправлен', 'Заказ №', 'Просрочено дней'
+    ]
+    
+    for col, header in enumerate(headers):
+        worksheet.write(0, col, header, header_format)
+    
+    for row, invoice in enumerate(invoices, start=1):
+        worksheet.write(row, 0, row)
+        worksheet.write(row, 1, invoice.invoice_number)
+        worksheet.write(row, 2, invoice.invoice_date, date_format)
+        worksheet.write(row, 3, invoice.due_date, date_format)
+        worksheet.write(row, 4, invoice.customer_name)
+        worksheet.write(row, 5, invoice.customer_inn or '')
+        worksheet.write(row, 6, invoice.customer_email)
+        worksheet.write(row, 7, invoice.customer_phone)
+        worksheet.write(row, 8, float(invoice.amount), money_format)
+        worksheet.write(row, 9, float(invoice.vat_amount), money_format)
+        worksheet.write(row, 10, float(invoice.amount_without_vat), money_format)
+        
+        status_format = workbook.add_format()
+        if invoice.status == 'paid':
+            status_format.set_bg_color('#C6EFCE')
+        elif invoice.status == 'overdue':
+            status_format.set_bg_color('#FFC7CE')
+        elif invoice.status == 'sent':
+            status_format.set_bg_color('#FFEB9C')
+        
+        worksheet.write(row, 11, invoice.get_status_display(), status_format)
+        worksheet.write(row, 12, 'Да' if invoice.email_sent else 'Нет')
+        worksheet.write(row, 13, 'Да' if invoice.telegram_sent else 'Нет')
+        worksheet.write(row, 14, invoice.order.id)
+        worksheet.write(row, 15, invoice.get_overdue_days() if invoice.is_overdue() else 0)
+    
+    for col in range(len(headers)):
+        worksheet.set_column(col, col, 15)
+    
+    worksheet.set_column(4, 4, 25)  
+    
+    total_row = len(invoices) + 2
+    worksheet.write(total_row, 7, 'ИТОГО:', header_format)
+    worksheet.write(total_row, 8, f'=SUM(I2:I{len(invoices)+1})', money_format)
+    
+    workbook.close()
+    output.seek(0)
+    
+    filename = f'reestr_schetov_{date.today().strftime("%Y%m%d")}.xlsx'
+    response = HttpResponse(
+        output.read(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+@staff_member_required
+def send_invoice_report_telegram(request):
+    """Отправка отчета по счетам в Telegram"""
+    try:
+        status_filter = request.GET.get('status', '')
+        date_from = request.GET.get('date_from', '')
+        date_to = request.GET.get('date_to', '')
+        
+        invoices = InvoiceRegistry.objects.all()
+        
+        if status_filter:
+            invoices = invoices.filter(status=status_filter)
+        if date_from:
+            invoices = invoices.filter(invoice_date__gte=date_from)
+        if date_to:
+            invoices = invoices.filter(invoice_date__lte=date_to)
+        
+        total_count = invoices.count()
+        total_amount = invoices.aggregate(Sum('amount'))['amount__sum'] or 0
+        paid_amount = invoices.filter(status='paid').aggregate(Sum('amount'))['amount__sum'] or 0
+        overdue_count = invoices.filter(status='overdue').count()
+        overdue_amount = invoices.filter(status='overdue').aggregate(Sum('amount'))['amount__sum'] or 0
+        
+        message = f"""
+📊 <b>ОТЧЕТ ПО СЧЕТАМ</b>
+
+📅 <b>Период:</b> {date_from or 'Все время'} - {date_to or 'Сегодня'}
+📋 <b>Фильтр статуса:</b> {dict(InvoiceRegistry.STATUS_CHOICES).get(status_filter, 'Все')}
+
+📈 <b>Статистика:</b>
+• Всего счетов: <b>{total_count}</b>
+• Общая сумма: <b>{total_amount:,.2f} руб.</b>
+• Оплачено: <b>{paid_amount:,.2f} руб.</b>
+• Просрочено счетов: <b>{overdue_count}</b>
+• Сумма просрочки: <b>{overdue_amount:,.2f} руб.</b>
+
+📋 <b>Последние 10 счетов:</b>
+"""
+        
+        for invoice in invoices.order_by('-invoice_date')[:10]:
+            status_icon = {
+                'paid': '✅',
+                'overdue': '⏰',
+                'sent': '📤',
+                'created': '📝'
+            }.get(invoice.status, '📄')
+            
+            message += f"\n{status_icon} <b>{invoice.invoice_number}</b>"
+            message += f"\n   👤 {invoice.customer_name}"
+            message += f"\n   💰 {invoice.amount:,.2f} руб."
+            message += f"\n   📅 Срок: {invoice.due_date.strftime('%d.%m.%Y')}"
+            
+            if invoice.is_overdue():
+                message += f" ⚠️ <b>Просрочен на {invoice.get_overdue_days()} дней</b>"
+            
+            message += f"\n   📧 {'✅' if invoice.email_sent else '❌'}"
+            message += f" 📱 {'✅' if invoice.telegram_sent else '❌'}"
+            message += "\n"
+        
+        message += f"\n⏰ <b>Время отчета:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}"
+        
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            'chat_id': settings.TELEGRAM_CHAT_ID,
+            'text': message,
+            'parse_mode': 'HTML'
+        }
+        
+        response = requests.post(url, json=payload, timeout=10)
+        
+        if response.status_code == 200:
+            messages.success(request, 'Отчет успешно отправлен в Telegram')
+            
+            NotificationLog.objects.create(
+                notification_type='telegram_sent',
+                message=f'Отчет по счетам отправлен в Telegram. Фильтры: status={status_filter}, from={date_from}, to={date_to}',
+                sent_to=f"Telegram: {settings.TELEGRAM_CHAT_ID}",
+                success=True
+            )
+        else:
+            messages.error(request, 'Ошибка отправки отчета')
+    
+    except Exception as e:
+        messages.error(request, f'Ошибка: {str(e)}')
+    
+    return redirect('invoice_registry')
+
+@staff_member_required
+def invoice_detail(request, invoice_id):
+    """Детальная информация о счете"""
+    invoice = get_object_or_404(InvoiceRegistry, id=invoice_id)
+    order_items = invoice.order.orderitem_set.all()
+    status_logs = OrderStatusLog.objects.filter(order=invoice.order).order_by('-changed_at')
+    
+    context = {
+        'invoice': invoice,
+        'order': invoice.order,
+        'order_items': order_items,
+        'status_logs': status_logs,
+    }
+    
+    return render(request, 'main/invoice_detail.html', context)
+
+@staff_member_required
+def update_invoice_status(request, invoice_id):
+    """Обновление статуса счета"""
+    invoice = get_object_or_404(InvoiceRegistry, id=invoice_id)
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        notes = request.POST.get('notes', '')
+        
+        if new_status in dict(InvoiceRegistry.STATUS_CHOICES):
+            old_status = invoice.status
+            invoice.status = new_status
+            invoice.admin_notes = notes
+            invoice.save()
+            
+            if new_status == 'paid' and invoice.order.status != 'paid':
+                invoice.order.status = 'paid'
+                invoice.order.paid_at = timezone.now()
+                invoice.order.is_payment_finalized = True
+                invoice.order.save()
+            
+            messages.success(request, f'Статус счета {invoice.invoice_number} обновлен')
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'new_status': invoice.get_status_display(),
+                    'status_class': new_status
+                })
+    
+    return redirect('invoice_detail', invoice_id=invoice_id)
+
+def turnkey_projects(request):
+    return render(request, 'main/turnkey.html')

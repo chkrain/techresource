@@ -30,5 +30,4 @@ fonttools==4.51.0
 bleach==5.0
 django-ipware==5.0
 django-user-agents==0.4
-django-haystack
-whoosh
+XlsxWriter==3.2.9

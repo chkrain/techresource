@@ -165,6 +165,12 @@ SECURE_HSTS_SECONDS = 31536000  #
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
+EXCEL_INVOICE_SETTINGS = {
+    'TELEGRAM_CHAT_ID': '5290661973',  # Ваш чат ID
+    'KEEP_MONTHS': 3,  # Сколько месяцев хранить файлы
+    'AUTO_SEND_HOUR': 18,  # В 18:00 отправлять обновления
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 

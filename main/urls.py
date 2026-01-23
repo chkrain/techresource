@@ -93,6 +93,7 @@ urlpatterns = [
     path('services/dynamic/<slug:service_slug>/<slug:sub_slug>/', views.dynamic_service_page, name='dynamic_sub_service'),
     path('services/dynamic/<slug:service_slug>/<slug:sub_slug>/instructions/<slug:instruction_slug>/', 
          views.dynamic_service_page, name='dynamic_instruction_page'),
+    path('services/turnkey/', views.turnkey_projects, name='turnkey_projects'),
     
     # Инструкции
     path('instructions/altyshevo/', views.altyshevo_instruction, name='altyshevo_instruction'),
@@ -113,6 +114,11 @@ urlpatterns = [
     path('moderate-comment/<int:comment_id>/', views.moderate_comment, name='moderate_comment'),
     path('moderate-all-comments/', views.moderate_all_comments, name='moderate_all_comments'),
     path('admin/profile/manage/<int:user_id>/', views.admin_profile_manage, name='admin_profile_manage'),
+    path('manage/invoices/', views.invoice_registry, name='invoice_registry'),
+    path('manage/invoices/export/', views.export_invoices_excel, name='export_invoices_excel'),
+    path('manage/invoices/report/telegram/', views.send_invoice_report_telegram, name='send_invoice_report_telegram'),
+    path('manage/invoices/<int:invoice_id>/', views.invoice_detail, name='invoice_detail'),
+    path('manage/invoices/<int:invoice_id>/update-status/', views.update_invoice_status, name='update_invoice_status'),
     
     # API
     path('api/search-suggestions/', views.search_suggestions, name='search_suggestions'),

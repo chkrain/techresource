@@ -1,0 +1,311 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Реестр счетов - Техресурс{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/invoce.css' %}?v=1.1">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-5 fw-bold mb-2">
+                <i class="bi bi-receipt me-2"></i>Реестр счетов
+            </h1>
+            <p class="text-muted mb-0">Управление и отслеживание всех финансовых документов</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'export_invoices_excel' %}?{{ request.GET.urlencode }}" 
+               class="action-btn btn-export">
+                <i class="bi bi-file-earmark-excel"></i> Экспорт в Excel
+            </a>
+            <a href="{% url 'send_invoice_report_telegram' %}?{{ request.GET.urlencode }}" 
+               class="action-btn btn-telegram">
+                <i class="bi bi-telegram"></i> Отчет в Telegram
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card total shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Всего счетов</h6>
+                            <h2 class="amount-display mb-0">{{ stats.total }}</h2>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-receipt text-primary fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card amount shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Общая сумма</h6>
+                            <h2 class="amount-display mb-0">{{ stats.total_amount|floatformat:2 }} ₽</h2>
+                        </div>
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-currency-dollar text-info fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card paid shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Оплачено</h6>
+                            <h2 class="amount-display mb-0">{{ stats.total_paid|floatformat:2 }} ₽</h2>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-check-circle text-success fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card overdue shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Просрочено</h6>
+                            <h2 class="amount-display mb-0">{{ stats.overdue_count }}</h2>
+                            <small class="text-danger">{{ stats.total_overdue|floatformat:2 }} ₽</small>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="invoice-card filter-card mb-4">
+        <div class="card-body">
+            <h5 class="mb-3"><i class="bi bi-funnel me-2"></i>Фильтры</h5>
+            <form method="get" class="row g-3">
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">Статус</label>
+                    <select name="status" class="form-select">
+                        <option value="">Все статусы</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">Дата с</label>
+                    <input type="date" name="date_from" value="{{ date_from }}" class="form-control">
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">Дата по</label>
+                    <input type="date" name="date_to" value="{{ date_to }}" class="form-control">
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">Поиск</label>
+                    <div class="input-group">
+                        <input type="text" name="search" value="{{ search_query }}" 
+                               class="form-control" placeholder="Номер, ИНН, имя...">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="invoice-card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-header">
+                        <tr>
+                            <th style="width: 200px;">Счет / Заказ</th>
+                            <th style="width: 150px;">Даты</th>
+                            <th style="width: 250px;">Покупатель</th>
+                            <th style="width: 120px;">Сумма</th>
+                            <th style="width: 120px;">Статус</th>
+                            <th style="width: 120px;">Отправка</th>
+                            <th style="width: 100px;">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in page_obj %}
+                        <tr class="table-row {% if invoice.status == 'overdue' %}overdue{% elif invoice.status == 'paid' %}paid{% endif %}">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="customer-avatar">
+                                        {{ invoice.customer_name|slice:"0:1"|upper }}
+                                    </div>
+                                    <div>
+                                        <strong class="d-block">{{ invoice.invoice_number }}</strong>
+                                        <small class="invoice-meta">Заказ #{{ invoice.order.id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <!-- Даты -->
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-medium">{{ invoice.invoice_date|date:"d.m.Y" }}</span>
+                                    <small class="invoice-meta">Срок: {{ invoice.due_date|date:"d.m.Y" }}</small>
+                                    {% if invoice.is_overdue %}
+                                    <span class="badge bg-danger mt-1">
+                                        +{{ invoice.get_overdue_days }} дн.
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            
+                            <!-- Покупатель -->
+                            <td>
+                                <strong class="d-block">{{ invoice.customer_name }}</strong>
+                                <small class="invoice-meta d-block">{{ invoice.customer_email }}</small>
+                                {% if invoice.customer_inn %}
+                                <small class="invoice-meta">ИНН: {{ invoice.customer_inn }}</small>
+                                {% endif %}
+                            </td>
+                            
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <strong class="text-primary">{{ invoice.amount|floatformat:2 }} ₽</strong>
+                                    <small class="invoice-meta">НДС: {{ invoice.vat_amount|floatformat:2 }} ₽</small>
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <span class="status-badge status-{{ invoice.status }}">
+                                    {{ invoice.get_status_display }}
+                                </span>
+                            </td>
+                            
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    <span class="badge {% if invoice.email_sent %}bg-success{% else %}bg-secondary{% endif %}">
+                                        <i class="bi bi-envelope"></i> Email
+                                    </span>
+                                    <span class="badge {% if invoice.telegram_sent %}bg-info{% else %}bg-secondary{% endif %}">
+                                        <i class="bi bi-telegram"></i> Telegram
+                                    </span>
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="action-icons">
+                                    <a href="{% url 'invoice_detail' invoice.id %}" 
+                                       class="btn btn-outline-primary btn-sm" title="Просмотр">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'admin:main_order_change' invoice.order.id %}" 
+                                       class="btn btn-outline-secondary btn-sm" title="Редактировать">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="bi bi-receipt text-muted"></i>
+                                    <h5 class="text-muted mb-2">Счета не найдены</h5>
+                                    <p class="text-muted">Попробуйте изменить параметры фильтрации</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Пагинация -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination-wrapper mt-4">
+        <nav aria-label="Навигация по страницам">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode|cut:'page=' }}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}&{{ request.GET.urlencode|cut:'page=' }}">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode|cut:'page=' }}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.stat-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+    
+    const overdueRows = document.querySelectorAll('.table-row.overdue');
+    overdueRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.animation = 'pulse 0.5s ease-in-out';
+        });
+    });
+    
+    const filterToggle = document.createElement('button');
+    filterToggle.className = 'btn btn-sm btn-outline-primary mb-3';
+    filterToggle.innerHTML = '<i class="bi bi-funnel"></i> Фильтры';
+    filterToggle.onclick = function() {
+        const filterCard = document.querySelector('.filter-card');
+        filterCard.style.display = filterCard.style.display === 'none' ? 'block' : 'none';
+    };
+    
+    const header = document.querySelector('.d-flex.justify-content-between');
+    if (header) {
+        header.parentNode.insertBefore(filterToggle, header.nextSibling);
+    }
+});
+</script>
+{% endblock %}

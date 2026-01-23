@@ -1,0 +1,220 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Счет {{ invoice.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>
+                <i class="bi bi-receipt"></i> Счет {{ invoice.invoice_number }}
+            </h1>
+            <p class="text-muted">
+                Заказ #{{ order.id }} | {{ invoice.invoice_date|date:"d.m.Y" }}
+            </p>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'invoice_registry' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Назад
+            </a>
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="bi bi-printer"></i> Печать
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Информация о счете</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Покупатель</h6>
+                            <p class="mb-1">
+                                <strong>{{ invoice.customer_name }}</strong><br>
+                                ИНН: {{ invoice.customer_inn|default:"не указан" }}<br>
+                                КПП: {{ order.customer_kpp|default:"не указан" }}
+                            </p>
+                            <p class="mb-1">
+                                📧 {{ invoice.customer_email }}<br>
+                                📞 {{ invoice.customer_phone }}
+                            </p>
+                            <p>
+                                📍 {{ order.delivery_address }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Финансовые данные</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td>Сумма счета:</td>
+                                    <td class="text-end">
+                                        <strong>{{ invoice.amount|floatformat:2 }} руб.</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Сумма без НДС:</td>
+                                    <td class="text-end">{{ invoice.amount_without_vat|floatformat:2 }} руб.</td>
+                                </tr>
+                                <tr>
+                                    <td>НДС {{ order.vat_rate }}%:</td>
+                                    <td class="text-end">{{ invoice.vat_amount|floatformat:2 }} руб.</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td><strong>Итого к оплате:</strong></td>
+                                    <td class="text-end">
+                                        <strong>{{ invoice.amount|floatformat:2 }} руб.</strong>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Товары в заказе</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Товар</th>
+                                    <th class="text-center">Кол-во</th>
+                                    <th class="text-end">Цена</th>
+                                    <th class="text-end">Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order_items %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ item.product.name }}</strong><br>
+                                        <small class="text-muted">Арт: {{ item.product.article }}</small>
+                                    </td>
+                                    <td class="text-center">{{ item.quantity }} шт.</td>
+                                    <td class="text-end">{{ item.price|floatformat:2 }} руб.</td>
+                                    <td class="text-end">{{ item.get_total_price|floatformat:2 }} руб.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Статус</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="badge 
+                            {% if invoice.status == 'paid' %}bg-success
+                            {% elif invoice.status == 'overdue' %}bg-danger
+                            {% elif invoice.status == 'sent' %}bg-warning
+                            {% else %}bg-secondary{% endif %} fs-6">
+                            {{ invoice.get_status_display }}
+                        </span>
+                        {% if invoice.is_overdue %}
+                        <div class="alert alert-danger mt-2">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Просрочен на {{ invoice.get_overdue_days }} дней
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <form method="post" action="{% url 'update_invoice_status' invoice.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Изменить статус</label>
+                            <select name="status" class="form-select">
+                                {% for value, label in invoice.STATUS_CHOICES %}
+                                <option value="{{ value }}" 
+                                    {% if invoice.status == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Заметка</label>
+                            <textarea name="notes" class="form-control" 
+                                      rows="3" placeholder="Комментарий...">{{ invoice.admin_notes }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            Обновить статус
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Отправка</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="bi bi-envelope"></i> Email
+                            </span>
+                            <span>
+                                {% if invoice.email_sent %}
+                                <span class="badge bg-success">
+                                    ✅ {{ invoice.email_sent_at|date:"d.m.Y H:i" }}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">❌ Не отправлен</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="bi bi-telegram"></i> Telegram
+                            </span>
+                            <span>
+                                {% if invoice.telegram_sent %}
+                                <span class="badge bg-info">
+                                    ✅ {{ invoice.telegram_sent_at|date:"d.m.Y H:i" }}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">❌ Не отправлен</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Действия</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'resend_invoice' order.id %}" 
+                           class="btn btn-warning">
+                            <i class="bi bi-envelope-arrow-up"></i> Повторно отправить счет
+                        </a>
+                        <a href="{% url 'admin:main_order_change' order.id %}" 
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-pencil"></i> Редактировать заказ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'css/invoce.css' %}?v=1.1">
+{% endblock %}

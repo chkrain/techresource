@@ -2138,3 +2138,111 @@ class ServicePage(models.Model):
             navigation.append(nav_item)
         
         return navigation
+    
+class InvoiceRegistry(models.Model):
+    """Реестр всех счетов для учета"""
+    STATUS_CHOICES = [
+        ('created', 'Создан'),
+        ('sent', 'Отправлен'),
+        ('paid', 'Оплачен'),
+        ('overdue', 'Просрочен'),
+        ('cancelled', 'Отменен'),
+    ]
+    
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name="Заказ", related_name='invoice_registry')
+    invoice_number = models.CharField(max_length=50, verbose_name="Номер счета", unique=True)
+    invoice_date = models.DateField(verbose_name="Дата счета")
+    due_date = models.DateField(verbose_name="Срок оплаты")
+    customer_name = models.CharField(max_length=200, verbose_name="Покупатель")
+    customer_inn = models.CharField(max_length=12, verbose_name="ИНН покупателя", blank=True, null=True)
+    customer_email = models.EmailField(verbose_name="Email покупателя")
+    customer_phone = models.CharField(max_length=20, verbose_name="Телефон покупателя")
+    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сумма счета")
+    vat_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сумма НДС")
+    amount_without_vat = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сумма без НДС")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='created', verbose_name="Статус счета")
+    email_sent = models.BooleanField(default=False, verbose_name="Email отправлен")
+    email_sent_at = models.DateTimeField(null=True, blank=True, verbose_name="Email отправлен в")
+    telegram_sent = models.BooleanField(default=False, verbose_name="Telegram отправлен")
+    telegram_sent_at = models.DateTimeField(null=True, blank=True, verbose_name="Telegram отправлен в")
+    admin_notes = models.TextField(blank=True, verbose_name="Заметки администратора")
+    payment_details = models.JSONField(default=dict, blank=True, verbose_name="Детали оплаты")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания записи")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    
+    class Meta:
+        verbose_name = "Реестр счетов"
+        verbose_name_plural = "Реестр счетов"
+        ordering = ['-invoice_date', '-created_at']
+        indexes = [
+            models.Index(fields=['invoice_number']),
+            models.Index(fields=['status', 'due_date']),
+            models.Index(fields=['customer_name', 'invoice_date']),
+        ]
+    
+    def __str__(self):
+        return f"Счет №{self.invoice_number} - {self.customer_name} - {self.amount} руб."
+    
+    def is_overdue(self):
+        """Проверка просрочки"""
+        from datetime import date
+        return self.status != 'paid' and self.due_date < date.today()
+    
+    def get_overdue_days(self):
+        """Количество дней просрочки"""
+        from datetime import date
+        if self.is_overdue():
+            return (date.today() - self.due_date).days
+        return 0
+    
+    def get_order_info(self):
+        """Информация о заказе"""
+        return {
+            'order_id': self.order.id,
+            'items': list(self.order.orderitem_set.all().values_list('product__name', 'quantity')),
+            'total_items': self.order.orderitem_set.count(),
+        }
+    
+@receiver(post_save, sender=Order)
+def create_invoice_registry_entry(sender, instance, created, **kwargs):
+    """Автоматическое создание записи в реестре при создании заказа"""
+    if created and instance.invoice_number:
+        from datetime import date
+        from django.utils import timezone
+        
+        try:
+            InvoiceRegistry.objects.create(
+                order=instance,
+                invoice_number=instance.invoice_number,
+                invoice_date=instance.invoice_date or date.today(),
+                due_date=instance.get_due_date() or date.today(),
+                customer_name=instance.customer_name,
+                customer_inn=instance.customer_inn,
+                customer_email=instance.customer_email,
+                customer_phone=instance.customer_phone,
+                amount=instance.total_price,
+                vat_amount=instance.vat_amount,
+                amount_without_vat=instance.price_without_vat,
+                email_sent=instance.invoice_sent,
+                email_sent_at=instance.invoice_sent_at,
+                telegram_sent=getattr(instance, 'invoice_pdf_sent_to_telegram', False),
+                telegram_sent_at=instance.invoice_sent_at if getattr(instance, 'invoice_pdf_sent_to_telegram', False) else None,
+                status='sent' if instance.invoice_sent else 'created'
+            )
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f'Ошибка создания записи реестра: {str(e)}')
+
+@receiver(post_save, sender=Order)
+def update_invoice_registry_entry(sender, instance, **kwargs):
+    """Обновление записи реестра при изменении заказа"""
+    if instance.invoice_number:
+        try:
+            registry_entry = InvoiceRegistry.objects.get(order=instance)
+            registry_entry.status = 'paid' if instance.status == 'paid' else registry_entry.status
+            registry_entry.email_sent = instance.invoice_sent
+            registry_entry.email_sent_at = instance.invoice_sent_at
+            registry_entry.save()
+        except InvoiceRegistry.DoesNotExist:
+            pass
