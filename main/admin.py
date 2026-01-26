@@ -14,7 +14,7 @@ from .models import (
     NotificationLog, OrderStatusLog, ProductReview, ProductImage,
     SecurityLog, LoginAttempt, PaymentAuditLog, Admin2FA,
     FraudDetectionLog, RateLimitLog, CSPViolationReport, Wishlist, WishlistItem,
-    SupportTicket, SupportAttachment, ServicePage
+    SupportTicket, SupportAttachment, ServicePage, PasswordResetToken, InvoiceRegistry
 )
 
 logger = logging.getLogger('django.security')
@@ -596,3 +596,74 @@ class ServicePageAdmin(admin.ModelAdmin):
                 page_type__in=['main_service', 'sub_service']
             )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    
+@admin.register(InvoiceRegistry)
+class InvoiceRegistryAdmin(admin.ModelAdmin):
+    list_display = ['invoice_number', 'customer_name', 'amount', 'status', 'invoice_date', 'due_date', 'is_overdue_display']
+    list_filter = ['status', 'invoice_date', 'due_date']
+    search_fields = ['invoice_number', 'customer_name', 'customer_inn', 'customer_email']
+    readonly_fields = ['order', 'invoice_number', 'invoice_date', 'due_date', 'customer_name', 'customer_inn', 
+                      'customer_email', 'customer_phone', 'amount', 'vat_amount', 'amount_without_vat', 
+                      'created_at', 'updated_at', 'get_overdue_days']
+    date_hierarchy = 'invoice_date'
+    actions = ['mark_as_paid', 'mark_as_sent', 'send_email_reminder']
+    
+    def is_overdue_display(self, obj):
+        return obj.is_overdue()
+    is_overdue_display.short_description = 'Просрочен'
+    is_overdue_display.boolean = True
+    
+    def get_overdue_days(self, obj):
+        return obj.get_overdue_days()
+    get_overdue_days.short_description = 'Дней просрочки'
+    
+    def mark_as_paid(self, request, queryset):
+        updated = queryset.update(status='paid')
+        self.message_user(request, f'{updated} счетов помечено как оплаченные')
+    mark_as_paid.short_description = "Пометить как оплаченные"
+    
+    def mark_as_sent(self, request, queryset):
+        updated = queryset.update(email_sent=True, email_sent_at=timezone.now())
+        self.message_user(request, f'{updated} счетов помечено как отправленные')
+    mark_as_sent.short_description = "Пометить как отправленные"
+    
+    def send_email_reminder(self, request, queryset):
+        """Отправить напоминание по email (заглушка)"""
+        self.message_user(request, f'Напоминания отправлены для {queryset.count()} счетов')
+    send_email_reminder.short_description = "Отправить напоминание по email"
+
+@admin.register(PasswordResetToken)
+class PasswordResetTokenAdmin(admin.ModelAdmin):
+    list_display = ['user', 'token_short', 'created_at', 'expires_at', 'used', 'ip_address', 'is_expired']
+    list_filter = ['used', 'created_at', 'expires_at']
+    search_fields = ['user__username', 'user__email', 'token', 'ip_address']
+    readonly_fields = ['user', 'token', 'created_at', 'expires_at', 'used', 'ip_address']
+    date_hierarchy = 'created_at'
+    
+    def token_short(self, obj):
+        return f"{obj.token[:10]}..." if obj.token else ""
+    token_short.short_description = 'Токен (первые 10 символов)'
+    
+    def is_expired(self, obj):
+        return timezone.now() > obj.expires_at
+    is_expired.short_description = 'Истек'
+    is_expired.boolean = True
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ['id', 'product', 'order', 'is_main', 'created_at', 'preview']
+    list_filter = ['is_main', 'created_at', 'product__category']
+    search_fields = ['product__name', 'product__article']
+    list_editable = ['order', 'is_main']
+    
+    def preview(self, obj):
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" style="max-height: 50px;" />')
+        return "Нет изображения"
+    preview.short_description = "Предпросмотр"

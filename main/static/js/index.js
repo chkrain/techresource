@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
         centeredSlides: true,
         speed: 800,
         autoplay: {
-            delay: 5000,
+            delay: 50000,
             disableOnInteraction: false,
             pauseOnMouseEnter: true,
         },
