@@ -1,0 +1,299 @@
+document.addEventListener("DOMContentLoaded", function () {
+  const e = document.querySelector(".forgot-password"),
+    t = document.getElementById("forgot-password"),
+    n = document.querySelector(".modal-close"),
+    r = document.querySelector(".close-modal");
+  let o = "",
+    s = null;
+  function c() {
+    (t.style.display = "none"), i();
+  }
+  function i() {
+    a(1),
+      clearInterval(s),
+      document.getElementById("emailForm") &&
+        document.getElementById("emailForm").reset(),
+      document.getElementById("codeForm") &&
+        document.getElementById("codeForm").reset(),
+      document.getElementById("passwordForm") &&
+        document.getElementById("passwordForm").reset(),
+      document.querySelectorAll(".requirement").forEach((e) => {
+        e.classList.remove("valid", "invalid");
+      });
+  }
+  function a(e) {
+    document.querySelectorAll(".recovery-step").forEach((e) => {
+      e.classList.remove("active");
+    });
+    const t = document.getElementById(`step${e}`);
+    t && t.classList.add("active"),
+      (function (e) {
+        const t = document.querySelectorAll(".step-circle"),
+          n = document.querySelectorAll(".step-line");
+        t.forEach((t, n) => {
+          const r = parseInt(t.dataset.step);
+          t.classList.remove("active", "completed"),
+            r < e
+              ? t.classList.add("completed")
+              : r === e && t.classList.add("active");
+        }),
+          n.forEach((t, n) => {
+            t.classList.remove("active"),
+              n < e - 1 && t.classList.add("active");
+          });
+      })(e);
+  }
+  function d() {
+    const e = document.getElementById("timer-count"),
+      t = document.getElementById("code-timer");
+    if (!e || !t) return;
+    let n = 60;
+    t.classList.add("active"),
+      t.classList.remove("expired"),
+      clearInterval(s),
+      (s = setInterval(() => {
+        if ((n--, (e.textContent = n), n <= 0)) {
+          clearInterval(s),
+            t.classList.remove("active"),
+            t.classList.add("expired"),
+            (t.innerHTML =
+              'Не получили код? <a href="#" id="resend-code">Отправить еще раз</a>');
+          const e = document.getElementById("resend-code");
+          e &&
+            e.addEventListener("click", function (e) {
+              e.preventDefault(),
+                (function () {
+                  const e = new FormData();
+                  e.append("email", o),
+                    e.append("csrfmiddlewaretoken", u()),
+                    fetch("/password-reset/", { method: "POST", body: e })
+                      .then((e) => e.json())
+                      .then((e) => {
+                        var t;
+                        e.success
+                          ? ((t = "Код отправлен повторно"),
+                            console.log("✅ " + t),
+                            d())
+                          : f(e.error || "Ошибка отправки");
+                      })
+                      .catch((e) => {
+                        f("Ошибка сети");
+                      });
+                })();
+            });
+        }
+      }, 1e3));
+  }
+  function l(e) {
+    const t = {
+      length: e.length >= 8,
+      uppercase: /[A-Z]/.test(e),
+      lowercase: /[a-z]/.test(e),
+      number: /\d/.test(e),
+    };
+    return (
+      Object.keys(t).forEach((e) => {
+        const n = document.querySelector(`[data-requirement="${e}"]`);
+        n &&
+          (n.classList.remove("valid", "invalid"),
+          n.classList.add(t[e] ? "valid" : "invalid"));
+      }),
+      Object.values(t).every(Boolean)
+    );
+  }
+  function u() {
+    const e = document.querySelector("[name=csrfmiddlewaretoken]");
+    if (e) return e.value;
+    const t = document.querySelector('meta[name="csrf-token"]');
+    if (t) return t.getAttribute("content");
+    const n = "csrftoken";
+    let r = null;
+    if (document.cookie && "" !== document.cookie) {
+      const e = document.cookie.split(";");
+      for (let t = 0; t < e.length; t++) {
+        const o = e[t].trim();
+        if (o.substring(0, 10) === n + "=") {
+          r = decodeURIComponent(o.substring(10));
+          break;
+        }
+      }
+    }
+    return r;
+  }
+  e &&
+    t &&
+    e.addEventListener("click", function (e) {
+      e.preventDefault(), (t.style.display = "block"), i();
+    }),
+    n && n.addEventListener("click", c),
+    r && r.addEventListener("click", c),
+    window.addEventListener("click", function (e) {
+      e.target === t && c();
+    });
+  const m = document.getElementById("emailForm");
+  m &&
+    m.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const t = new FormData(this),
+        n = t.get("email");
+      if (
+        ((o = n),
+        !(function (e) {
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+        })(n))
+      )
+        return void f("Пожалуйста, введите корректный email адрес");
+      const r = this.querySelector('button[type="submit"]'),
+        s = r.innerHTML;
+      (r.innerHTML = "Отправка..."), (r.disabled = !0);
+      try {
+        const e = await fetch("/password-reset/", {
+            method: "POST",
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "X-CSRFToken": u(),
+            },
+            body: t,
+          }),
+          r = await e.json();
+        r.success
+          ? (document.getElementById("email-display") &&
+              (document.getElementById("email-display").textContent = n),
+            document.getElementById("hidden-email") &&
+              (document.getElementById("hidden-email").value = n),
+            a(2),
+            d())
+          : f(r.error || "Произошла ошибка");
+      } catch (e) {
+        f("Ошибка сети. Проверьте подключение к интернету.");
+      } finally {
+        (r.innerHTML = s), (r.disabled = !1);
+      }
+    });
+  const y = document.getElementById("codeForm");
+  y &&
+    y.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const t = new FormData(this),
+        n = this.querySelector('button[type="submit"]'),
+        r = n.innerHTML;
+      (n.innerHTML = "Проверка..."), (n.disabled = !0);
+      try {
+        const e = await fetch("/password-reset/verify/", {
+            method: "POST",
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "X-CSRFToken": u(),
+            },
+            body: t,
+          }),
+          n = await e.json();
+        n.success
+          ? (document.getElementById("reset-token") &&
+              (document.getElementById("reset-token").value = n.reset_token),
+            a(3),
+            clearInterval(s))
+          : f(n.error || "Неверный код");
+      } catch (e) {
+        f("Ошибка сети");
+      } finally {
+        (n.innerHTML = r), (n.disabled = !1);
+      }
+    });
+  const v = document.getElementById("passwordForm");
+  if (v) {
+    const e = v.querySelector('input[name="new_password"]');
+    e &&
+      e.addEventListener("input", function () {
+        l(this.value);
+      }),
+      v.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const t = new FormData(this),
+          n = t.get("new_password"),
+          r = t.get("confirm_password");
+        if (!l(n)) return void f("Пароль не соответствует требованиям");
+        if (n !== r) return void f("Пароли не совпадают");
+        const o = this.querySelector('button[type="submit"]'),
+          s = o.innerHTML;
+        (o.innerHTML = "Сохранение..."), (o.disabled = !0);
+        try {
+          const e = await fetch("/password-reset/set-password/", {
+              method: "POST",
+              headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": u(),
+              },
+              body: t,
+            }),
+            n = await e.json();
+          n.success ? a(4) : f(n.error || "Ошибка сохранения пароля");
+        } catch (e) {
+          f("Ошибка сети");
+        } finally {
+          (o.innerHTML = s), (o.disabled = !1);
+        }
+      });
+  }
+  function f(e) {
+    const t = document.querySelector(".recovery-error");
+    t && t.remove();
+    const n = document.querySelector(".recovery-step.active");
+    if (!n) return;
+    const r = document.createElement("div");
+    (r.className = "error-message recovery-error"),
+      (r.innerHTML = `\n            <div class="error-icon">⚠️</div>\n            <div class="error-content">\n                <strong>Ошибка</strong>\n                <p>${e}</p>\n            </div>\n        `),
+      n.insertBefore(r, n.firstChild),
+      r.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  document.querySelectorAll(".form-input").forEach((e) => {
+    e.addEventListener("focus", function () {
+      this.parentElement.classList.add("focused");
+    }),
+      e.addEventListener("blur", function () {
+        this.value || this.parentElement.classList.remove("focused");
+      });
+  });
+  const p = document.querySelector(".login-form");
+  p &&
+    p.addEventListener("submit", function (e) {
+      const t = this.querySelector('input[name="username"]'),
+        n = this.querySelector('input[name="password"]');
+      let r = !0;
+      if (
+        (t && t.value.trim()
+          ? (t.style.borderColor = "#48bb78")
+          : (t && (t.style.borderColor = "#e53e3e"), (r = !1)),
+        n && n.value.trim()
+          ? (n.style.borderColor = "#48bb78")
+          : (n && (n.style.borderColor = "#e53e3e"), (r = !1)),
+        !r)
+      ) {
+        e.preventDefault();
+        let t = this.querySelector(".validation-error");
+        t ||
+          ((t = document.createElement("div")),
+          (t.className = "error-message validation-error"),
+          (t.innerHTML =
+            '\n                        <div class="error-icon">⚠️</div>\n                        <div class="error-content">\n                            <strong>Заполните все поля</strong>\n                            <p>Пожалуйста, введите имя пользователя и пароль</p>\n                        </div>\n                    '),
+          this.insertBefore(t, this.firstChild)),
+          t.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+  const h = new IntersectionObserver(
+    (e) => {
+      e.forEach((e) => {
+        e.isIntersecting &&
+          ((e.target.style.opacity = "1"),
+          (e.target.style.transform = "translateY(0)"));
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+  );
+  document.querySelectorAll(".login-card, .benefits-card").forEach((e) => {
+    (e.style.opacity = "0"),
+      (e.style.transform = "translateY(20px)"),
+      (e.style.transition = "opacity 0.6s ease, transform 0.6s ease"),
+      h.observe(e);
+  });
+});

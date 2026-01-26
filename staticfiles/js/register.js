@@ -1,0 +1,195 @@
+document.addEventListener("DOMContentLoaded", function () {
+  "undefined" != typeof AOS &&
+    AOS.init({ duration: 800, once: !0, offset: 50 });
+  const e = document.querySelectorAll('input[name="account_type"]'),
+    t = document.getElementById("individual-fields"),
+    n = document.getElementById("legal-fields");
+  function a() {
+    const e = document.querySelector(
+      'input[name="account_type"]:checked'
+    ).value;
+    console.log("Selected type:", e),
+      "individual" === e
+        ? ((t.style.display = "block"),
+          (n.style.display = "none"),
+          document.querySelectorAll(".individual-field").forEach((e) => {
+            ("first_name" !== e.name && "last_name" !== e.name) ||
+              (e.required = !0);
+          }),
+          document.querySelectorAll(".legal-field").forEach((e) => {
+            e.required = !1;
+          }))
+        : ((t.style.display = "none"),
+          (n.style.display = "block"),
+          document.querySelectorAll(".individual-field").forEach((e) => {
+            e.required = !1;
+          }),
+          document.querySelectorAll(".legal-field").forEach((e) => {
+            ("company_name" !== e.name &&
+              "inn" !== e.name &&
+              "legal_address" !== e.name) ||
+              (e.required = !0);
+          }));
+  }
+  e.forEach((e) => {
+    e.addEventListener("change", a);
+  }),
+    a();
+  const o = document.querySelector('input[name="password1"]'),
+    r = document.querySelector('input[name="password2"]'),
+    l = document.getElementById("password-strength"),
+    c =
+      (document.getElementById("password-strength-fill"),
+      document.getElementById("password-match"));
+  function s(e) {
+    const t = [];
+    return (
+      e.length < 6 && t.push("Пароль должен содержать минимум 6 символов"),
+      '{{ form.email.value|default:""|lower }}' === e.toLowerCase() &&
+        t.push("Пароль не должен совпадать с email"),
+      t
+    );
+  }
+  o &&
+    o.addEventListener("input", function (e) {
+      const t = e.target.value;
+      !(function (e) {
+        let t = "weak";
+        e.length >= 10 ? (t = "strong") : e.length >= 7 && (t = "medium"),
+          (l.className = "password-strength " + t);
+      })(t);
+      const n = s(t),
+        a = o.parentNode.querySelector(".password-errors");
+      if (n.length > 0) {
+        if (!e) {
+          const e = document.createElement("div");
+          (e.className = "password-errors error-message"),
+            o.parentNode.appendChild(e);
+        }
+        const e = o.parentNode.querySelector(".password-errors");
+        e.innerHTML = n
+          .map((e) => `<span class="error-icon">⚠</span> ${e}`)
+          .join("<br>");
+      } else a && a.remove();
+    }),
+    r &&
+      r.addEventListener("input", function () {
+        const e = o.value,
+          t = r.value;
+        e && t
+          ? e === t
+            ? ((c.textContent = "Пароли совпадают"),
+              (c.className = "password-match match"))
+            : ((c.textContent = "Пароли не совпадают"),
+              (c.className = "password-match mismatch"))
+          : (c.className = "password-match");
+      }),
+    (function () {
+      const e = document.querySelector('input[name="inn"]');
+      e &&
+        e.addEventListener("input", function (e) {
+          let t = e.target.value.replace(/\D/g, "");
+          t.length > 12 && (t = t.slice(0, 12)), (e.target.value = t);
+        });
+      const t = document.querySelector('input[name="kpp"]');
+      t &&
+        t.addEventListener("input", function (e) {
+          let t = e.target.value.replace(/\D/g, "");
+          t.length > 9 && (t = t.slice(0, 9)), (e.target.value = t);
+        });
+      const n = document.querySelector('input[name="ogrn"]');
+      n &&
+        n.addEventListener("input", function (e) {
+          let t = e.target.value.replace(/\D/g, "");
+          t.length > 13 && (t = t.slice(0, 13)), (e.target.value = t);
+        });
+      const a = document.querySelector('input[name="bik"]');
+      a &&
+        a.addEventListener("input", function (e) {
+          let t = e.target.value.replace(/\D/g, "");
+          t.length > 9 && (t = t.slice(0, 9)), (e.target.value = t);
+        });
+      const o = document.querySelector('input[name="settlement_account"]');
+      o &&
+        o.addEventListener("input", function (e) {
+          let t = e.target.value.replace(/\D/g, "");
+          t.length > 20 && (t = t.slice(0, 20)), (e.target.value = t);
+        });
+    })();
+  const i = document.getElementById("register-form");
+  i &&
+    i.addEventListener("submit", function (e) {
+      const t = document.querySelector(
+        'input[name="account_type"]:checked'
+      ).value;
+      let n = !0;
+      const a = [];
+      i.querySelectorAll("[required]").forEach((e) => {
+        if (e.value.trim()) e.classList.remove("error");
+        else {
+          (n = !1), e.classList.add("error");
+          const t =
+            e.getAttribute("name") ||
+            e.previousElementSibling?.textContent ||
+            "поле";
+          a.push(`Заполните обязательное поле: ${t}`);
+        }
+      });
+      const l = o?.value;
+      if (l) {
+        const e = s(l);
+        e.length > 0 && ((n = !1), a.push(...e));
+      }
+      if (
+        (o &&
+          r &&
+          o.value !== r.value &&
+          ((n = !1), a.push("Пароли не совпадают")),
+        "legal" === t)
+      ) {
+        const e = document.querySelector('input[name="inn"]').value;
+        e &&
+          10 !== e.length &&
+          12 !== e.length &&
+          ((n = !1), a.push("ИНН должен содержать 10 или 12 цифр"));
+      }
+      n ||
+        (e.preventDefault(),
+        (function (e, t = "info") {
+          const n = document.createElement("div");
+          (n.className = `notification ${t}`),
+            (n.innerHTML = `\n            <div class="notification-content">\n                <span class="notification-icon">${
+              "error" === t ? "⚠" : "ℹ"
+            }</span>\n                <span class="notification-message">${e}</span>\n            </div>\n        `),
+            (n.style.cssText = `\n            position: fixed;\n            top: 20px;\n            right: 20px;\n            background: ${
+              "error" === t ? "#fed7d7" : "#bee3f8"
+            };\n            color: ${
+              "error" === t ? "#742a2a" : "#2a4365"
+            };\n            border: 1px solid ${
+              "error" === t ? "#feb2b2" : "#90cdf4"
+            };\n            border-radius: 8px;\n            padding: 1rem;\n            max-width: 400px;\n            z-index: 10000;\n            box-shadow: 0 4px 12px rgba(0,0,0,0.1);\n        `),
+            document.body.appendChild(n),
+            setTimeout(() => {
+              n.remove();
+            }, 5e3);
+        })(a.join("<br>"), "error"));
+    }),
+    (function () {
+      const e = document.getElementById("auth-particles");
+      if (!e) return;
+      for (let t = 0; t < 30; t++) {
+        const t = document.createElement("div"),
+          n = 4 * Math.random() + 2,
+          a = 10 * Math.random() + 5,
+          o = 5 * Math.random();
+        (t.style.cssText = `\n                position: absolute;\n                width: ${n}px;\n                height: ${n}px;\n                background: rgba(255, 255, 255, ${
+          0.3 * Math.random() + 0.1
+        });\n                border-radius: 50%;\n                left: ${
+          100 * Math.random()
+        }%;\n                top: ${
+          100 * Math.random()
+        }%;\n                animation: float ${a}s ease-in-out ${o}s infinite;\n            `),
+          e.appendChild(t);
+      }
+    })();
+});

@@ -8,12 +8,13 @@ from . import views
 from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.views.generic import TemplateView
-from main.sitemap import StaticViewSitemap
 from django.contrib.sitemaps.views import sitemap
+from django.views.static import serve
+from django.conf import settings
+from main.sitemap import sitemaps
 
-sitemaps = {
-    'static' : StaticViewSitemap,
-}
+def custom_robots_txt(request):
+    return serve(request, 'robots.txt', document_root=settings.STATIC_ROOT)
 
 urlpatterns = [
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
@@ -132,5 +133,5 @@ urlpatterns = [
     re_path(r'^\.well-known/.*$', lambda request: HttpResponseNotFound()),
 
     path('manifest.json', TemplateView.as_view(template_name='manifest.json',content_type='application/json'), name='manifest'),
-    path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
+    path('robots.txt', custom_robots_txt),
 ]

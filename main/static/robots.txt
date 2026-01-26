@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /admin-dashboard/
+Disallow: /accounts/
+Disallow: /cart/
+Disallow: /orders/
+Disallow: /profile/
+Disallow: /wishlist/
+Disallow: /login/?next=/
+Disallow: /search/
+
+# Дополнительно для поисковых систем
+User-agent: Googlebot
+Allow: /
+
+User-agent: Yandex
+Allow: /
+Disallow: /cgi-bin/
+Disallow: /*?print=1
+
+User-agent: MJ12bot
+Crawl-delay: 10
+
+Sitemap: https://tech-re.ru/sitemap.xml
