@@ -151,7 +151,7 @@
         </div>
         
         <div class="process-steps">
-            <div class="process-step">
+            <div class="process-step ps-1">
                 <div class="step-number">01</div>
                 <div class="step-content">
                     <h3>Техническое задание</h3>
@@ -164,7 +164,7 @@
                 </div>
             </div>
             
-            <div class="process-step">
+            <div class="process-step ps-2">
                 <div class="step-number">02</div>
                 <div class="step-content">
                     <h3>Эскизное проектирование</h3>
@@ -177,7 +177,7 @@
                 </div>
             </div>
             
-            <div class="process-step">
+            <div class="process-step ps-3">
                 <div class="step-number">03</div>
                 <div class="step-content">
                     <h3>Рабочее проектирование</h3>
@@ -190,7 +190,7 @@
                 </div>
             </div>
             
-            <div class="process-step">
+            <div class="process-step ps-4">
                 <div class="step-number">04</div>
                 <div class="step-content">
                     <h3>Согласование и сдача</h3>
@@ -215,37 +215,37 @@
         
         <div class="tech-grid">
             <div class="tech-card">
-                <div class="tech-icon">🏗️</div>
-                <h4>Autodesk Revit</h4>
-                <p>BIM-моделирование для комплексного проектирования</p>
+                <div class="tech-icon" style="color: black;">Е</div>
+                <h4>EPLAN</h4>
+                <p>Комплексное проектирование</p>
             </div>
             
             <div class="tech-card">
-                <div class="tech-icon">📐</div>
+                <div class="tech-icon" style="color: black;">A</div>
                 <h4>AutoCAD</h4>
                 <p>Точное 2D и 3D проектирование</p>
             </div>
             
             <div class="tech-card">
-                <div class="tech-icon">⚡</div>
+                <div class="tech-icon" style="color: black;">E</div>
                 <h4>ETAP</h4>
                 <p>Расчеты электроэнергетических систем</p>
             </div>
             
             <div class="tech-card">
-                <div class="tech-icon">🌬️</div>
+                <div class="tech-icon" style="color: black;">M</div>
                 <h4>Mag iC</h4>
                 <p>Проектирование систем вентиляции</p>
             </div>
             
             <div class="tech-card">
-                <div class="tech-icon">🔧</div>
+                <div class="tech-icon" style="color: black;">S</div>
                 <h4>SolidWorks</h4>
                 <p>Проектирование механических систем</p>
             </div>
             
             <div class="tech-card">
-                <div class="tech-icon">📊</div>
+                <div class="tech-icon" style="color: black;">N</div>
                 <h4>Navisworks</h4>
                 <p>Координация и анализ проектов</p>
             </div>
@@ -287,14 +287,6 @@
                                 <div class="overview-label">Срок реализации</div>
                                 <div class="overview-value">3 месяца</div>
                             </div>
-                            <div class="overview-item">
-                                <div class="overview-label">Экономия бюджета</div>
-                                <div class="overview-value">18%</div>
-                            </div>
-                            <div class="overview-item">
-                                <div class="overview-label">Дата проекта</div>
-                                <div class="overview-value">2022 год</div>
-                            </div>
                         </div>
                         
                         <div class="case-technologies">
@@ -318,64 +310,52 @@
                             </div>
                             <div class="documents-list">
                                 <a href="{% static 'projects/Линия покраски торцев фанеры. П3.pdf' %}" 
-                                class="document-item" 
-                                download="Пояснительная записка.pdf" 
-                                target="_blank">
-                                    <div class="doc-icon">📄</div>
+                                class="document-item"
+                                target="_blank"
+                                data-pdf-viewer>
                                     <div class="doc-info">
                                         <h5>Пояснительная записка</h5>
                                         <p>Техническое описание системы, алгоритмы работы, требования безопасности</p>
                                         <div class="doc-meta">
-                                            <span>4.2 MB</span>
-                                            <span>PDF</span>
-                                            <span class="download-icon">📥</span>
+                                            <span class="download-icon">👁️</span>
                                         </div>
                                     </div>
                                 </a>
                                 <a href="{% static 'projects/Линия покраски торцев фанеры. Э3.pdf' %}" 
-                                class="document-item" 
-                                download="Схема электрическая принципиальная.pdf" 
-                                target="_blank">
-                                    <div class="doc-icon">📐</div>
+                                class="document-item"
+                                target="_blank"
+                                data-pdf-viewer>
                                     <div class="doc-info">
                                         <h5>Схема электрическая принципиальная</h5>
                                         <p>Принципиальные электрические схемы силовых цепей и управления</p>
                                         <div class="doc-meta">
-                                            <span>5.1 MB</span>
-                                            <span>PDF</span>
-                                            <span class="download-icon">📥</span>
+                                            <span class="download-icon">👁️</span>
                                         </div>
                                     </div>
                                 </a>
                                 
                                 <a href="{% static 'projects/linepokras.pdf' %}" 
-                                class="document-item" 
-                                download="Шкаф управления - общий вид.pdf" 
-                                target="_blank">
-                                    <div class="doc-icon">⚡</div>
+                                class="document-item"
+                                target="_blank"
+                                data-pdf-viewer>
                                     <div class="doc-info">
                                         <h5>Шкаф управления - общий вид</h5>
                                         <p>Компоновка оборудования в шкафу управления, спецификация</p>
                                         <div class="doc-meta">
-                                            <span>3.8 MB</span>
-                                            <span>PDF</span>
-                                            <span class="download-icon">📥</span>
+                                            <span class="download-icon">👁️</span>
                                         </div>
                                     </div>
                                 </a>
                                 
                                 <a href="{% static 'projects/Линия покраски фанеры. Э4.pdf' %}" 
-                                class="document-item" 
-                                download="Схема электрическая монтажная.pdf" 
-                                target="_blank">
-                                    <div class="doc-icon">🔌</div>
+                                class="document-item"
+                                target="_blank"
+                                data-pdf-viewer>
                                     <div class="doc-info">
                                         <h5>Схема электрическая монтажная</h5>
                                         <p>Монтажные схемы подключения оборудования</p>
                                         <div class="doc-meta">
-                                            <span>2.6 MB</span>
-                                            <span>PDF</span>
-                                            <span class="download-icon">📥</span>
+                                            <span class="download-icon">👁️</span>
                                         </div>
                                     </div>
                                 </a>
@@ -425,7 +405,6 @@
                     <div class="case-media">
                         <img src="{% static 'images/img/kotel.png'%}" alt="Автоматизация котельной">
                         <div class="media-preview">
-                            <div class="media-icon">🔥</div>
                             <div class="media-stats">
                             </div>
                         </div>
@@ -445,14 +424,6 @@
                             <div class="overview-item">
                                 <div class="overview-label">Срок реализации</div>
                                 <div class="overview-value">1 месяц</div>
-                            </div>
-                            <div class="overview-item">
-                                <div class="overview-label">Экономия бюджета</div>
-                                <div class="overview-value">12%</div>
-                            </div>
-                            <div class="overview-item">
-                                <div class="overview-label">Дата проекта</div>
-                                <div class="overview-value">2023 год</div>
                             </div>
                         </div>
                         
@@ -478,16 +449,13 @@
                             <div class="documents-list">
                                 <a href="{% static 'projects/Автоматизация котельной.pdf' %}" 
                                 class="document-item" 
-                                download="Автоматизация котельной.pdf" 
-                                target="_blank">
-                                    <div class="doc-icon">📄</div>
+                                target="_blank"
+                                data-pdf-viewer>
                                     <div class="doc-info">
                                         <h5>Проектная документация</h5>
                                         <p>Полный комплект документации по автоматизации котельной</p>
                                         <div class="doc-meta">
-                                            <span>3.5 MB</span>
-                                            <span>PDF</span>
-                                            <span class="download-icon">📥</span>
+                                            <span class="download-icon">👁️</span>
                                         </div>
                                     </div>
                                 </a>
@@ -537,7 +505,6 @@
                     <div class="case-media">
                         <img src="{% static 'images/img/sclad.png'%}" alt="Шкаф управления складом цемента">
                         <div class="media-preview">
-                            <div class="media-icon">🏗️</div>
                             <div class="media-stats">
                             </div>
                         </div>
@@ -557,14 +524,6 @@
                             <div class="overview-item">
                                 <div class="overview-label">Срок реализации</div>
                                 <div class="overview-value">2 месяца</div>
-                            </div>
-                            <div class="overview-item">
-                                <div class="overview-label">Экономия бюджета</div>
-                                <div class="overview-value">20%</div>
-                            </div>
-                            <div class="overview-item">
-                                <div class="overview-label">Дата проекта</div>
-                                <div class="overview-value">2024 год</div>
                             </div>
                         </div>
                         
@@ -589,32 +548,26 @@
                             </div>
                             <div class="documents-list">
                                 <a href="{% static 'projects/Шкаф управления_ПЭ-2024-12-СЦ-000.0-ОВ.pdf' %}" 
-                                class="document-item" 
-                                download="Шкаф управления - общий вид.pdf" 
-                                target="_blank">
-                                    <div class="doc-icon">⚡</div>
+                                class="document-item"
+                                target="_blank"
+                                data-pdf-viewer>
                                     <div class="doc-info">
                                         <h5>Шкаф управления - общий вид</h5>
                                         <p>Компоновка оборудования, общий вид шкафа управления</p>
                                         <div class="doc-meta">
-                                            <span>2.8 MB</span>
-                                            <span>PDF</span>
-                                            <span class="download-icon">📥</span>
+                                            <span class="download-icon">👁️</span>
                                         </div>
                                     </div>
                                 </a>
                                 <a href="{% static 'projects/Шкаф управления_ПЭ-2024-12-СЦ-000.0-СБ.pdf' %}" 
-                                class="document-item" 
-                                download="Схема электрическая.pdf" 
-                                target="_blank">
-                                    <div class="doc-icon">📐</div>
+                                class="document-item"
+                                target="_blank"
+                                data-pdf-viewer>
                                     <div class="doc-info">
                                         <h5>Схема электрическая</h5>
                                         <p>Принципиальная схема шкафа управления</p>
                                         <div class="doc-meta">
-                                            <span>3.2 MB</span>
-                                            <span>PDF</span>
-                                            <span class="download-icon">📥</span>
+                                            <span class="download-icon">👁️</span>
                                         </div>
                                     </div>
                                 </a>
