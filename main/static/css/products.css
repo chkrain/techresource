@@ -16,20 +16,7 @@ section {
   overflow: hidden;
   margin-top: 4%;
   border-radius: 20px;
-  background:
-    linear-gradient(
-      135deg,
-      #2c3e50 0%,
-      #2d4059 25%,
-      #34495e 50%,
-      #3a506b 75%,
-      #3f5c7a 100%
-    ),
-    radial-gradient(
-      circle at 20% 30%,
-      rgba(255, 255, 255, 0.08) 0%,
-      transparent 40%
-    );
+  background: linear-gradient(135deg, #212c36 0%, #374b5f 100%);
 }
 
 .products-hero .container {
