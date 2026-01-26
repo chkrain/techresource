@@ -1,18 +1,18 @@
 function toggleMenu() {
     const nav = document.getElementById("main-nav");
     if (nav) {
-        const isActive = nav.classList.contains('active');
-        console.log('Toggle menu. Current state:', isActive ? 'open' : 'closed');
+        console.log('Toggle menu called from services.js');
         nav.classList.toggle('active');
-        console.log('New state:', nav.classList.contains('active') ? 'open' : 'closed');
-        
-        if (!nav.classList.contains('active')) {
-            nav.style.display = 'none';
-        } else {
-            nav.style.display = 'flex';
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        if (menuBtn) {
+            const isExpanded = nav.classList.contains('active');
+            menuBtn.setAttribute('aria-expanded', isExpanded);
         }
-    } else {
-        console.error('Menu element #main-nav not found!');
+        if (nav.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
     }
 }
 
