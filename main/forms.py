@@ -226,6 +226,32 @@ class SMSCodeForm(forms.Form):
 
 class UserProfileForm(forms.ModelForm):
     """Расширенная форма профиля"""
+    phone = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': '+7 (999) 123-45-67'
+        })
+    )
+    
+    company = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Название компании'
+        })
+    )
+    
+    position = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Должность'
+        })
+    )
     
     first_name = forms.CharField(
         max_length=30,
@@ -392,6 +418,13 @@ class UserProfileForm(forms.ModelForm):
         if 'last_name' in self.cleaned_data:
             profile.user.last_name = self.cleaned_data['last_name']
         
+        if 'phone' in self.cleaned_data:
+            profile.phone = self.cleaned_data['phone']
+        if 'company' in self.cleaned_data:
+            profile.company = self.cleaned_data['company']
+        if 'position' in self.cleaned_data:
+            profile.position = self.cleaned_data['position']
+
         if self.cleaned_data.get('remove_avatar'):
             if profile.avatar:
                 profile.avatar.delete(save=False)
@@ -420,8 +453,12 @@ class UserProfileForm(forms.ModelForm):
 class AddressForm(forms.ModelForm):
     class Meta:
         model = Address
-        fields = ['full_name', 'phone', 'city', 'address', 'postal_code', 'is_default']
+        fields = ['title', 'full_name', 'phone', 'city', 'address', 'postal_code', 'is_default']  
         widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Например: Дом, Офис, Склад'
+            }),
             'full_name': forms.TextInput(attrs={'placeholder': 'ФИО получателя'}),
             'phone': forms.TextInput(attrs={'placeholder': 'Телефон для связи'}),
             'city': forms.TextInput(attrs={'placeholder': 'Город'}),
