@@ -492,7 +492,6 @@ section {
   border-radius: 16px;
   overflow: hidden;
   min-height: 350px;
-  background: linear-gradient(135deg, var(--bg-light) 0%, #e2e8f0 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2714,4 +2713,100 @@ body.zoomed {
 
 .zoom-overlay.active {
     display: block;
+}
+
+.video-card {
+    border: 2px solid #e0e7ff;
+    background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%);
+}
+
+.video-card .case-media {
+    position: relative;
+}
+
+.video-container {
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+    margin-bottom: 8px;
+}
+
+.video-container video {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 300px;
+    object-fit: cover;
+}
+
+.video-card .media-preview {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+}
+
+.video-card .media-icon {
+    font-size: 1.5rem;
+}
+
+.video-card .media-stats .stat-item {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+}
+
+.video-summary {
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.video-summary h4 {
+    color: #1e293b;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-left: 24px;
+}
+
+.video-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-bottom: 16px;
+}
+
+.video-features li {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 8px;
+    color: #475569;
+    line-height: 1.4;
+}
+
+.tech-badge.type-video {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+    border: none;
+}
+
+.video-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(79, 70, 229, 0.15);
+    border-color: #c7d2fe;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .video-container video {
+        max-height: 200px;
+    }
+    
+    .video-summary {
+        padding: 15px;
+    }
+    
+    .video-features li {
+        font-size: 0.9rem;
+    }
 }
