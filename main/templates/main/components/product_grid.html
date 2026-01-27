@@ -1,12 +1,14 @@
 <!-- main/templates/main/components/product_grid.html -->
 <div class="products-grid {% if view == 'list' %}list-view{% endif %}" id="productsGrid">
     {% for product in products %}
-    <div class="product-card" data-product-id="{{ product.id }}">
+    <div class="product-card {% if product.quantity <= 0 %}out-of-stock-card{% endif %}" 
+     data-product-id="{{ product.id }}"
+     {% if product.quantity <= 0 %}title="Товар временно отсутствует на складе"{% endif %}>
         <div class="product-badge">
             {% if product.quantity > 0 %}
-                <span class="badge in-stock-badge">✓ В наличии</span>
+                <span></span>
             {% else %}
-                <span class="badge out-of-stock-badge">✗ Нет в наличии</span>
+                <span class="badge out-of-stock-badge">Нет в наличии</span>
             {% endif %}
         </div>
         
@@ -214,6 +216,53 @@
     color: #a0aec0;
     cursor: not-allowed;
 }
+
+.product-card.out-of-stock-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Затемненное изображение */
+.product-card.out-of-stock-card .product-image img {
+    filter: grayscale(100%);
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+/* Цвета текста для неактивной карточки */
+.product-card.out-of-stock-card .product-title,
+.product-card.out-of-stock-card .product-article,
+.product-card.out-of-stock-card .product-description,
+.product-card.out-of-stock-card .product-category,
+.product-card.out-of-stock-card .product-brand {
+    color: #6c757d;
+}
+
+/* Зачеркнутая цена */
+.product-card.out-of-stock-card .price-section .price {
+    color: #6c757d;
+    text-decoration: line-through;
+}
+
+
+/* Заблокировать клики по кнопкам в неактивной карточке */
+.product-card.out-of-stock-card .product-actions button,
+.product-card.out-of-stock-card .product-actions a {
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+/* Минимальная анимация при наведении */
+.product-card.out-of-stock-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    border-color: #dee2e6;
+}
+
 </style>
 
 <script>
