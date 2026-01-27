@@ -694,7 +694,11 @@ def cart_view(request):
                 delivery_address=f"{address.city}, {address.address}, {address.postal_code}",
                 customer_inn=customer_inn,
                 customer_kpp=customer_kpp,
+                invoice_date=timezone.now().date(), 
             )
+
+            order.invoice_number = order.generate_invoice_number()
+            order.save(update_fields=['invoice_number'])
             
             for cart_item_order in cart_items:
                 OrderItem.objects.create(
