@@ -1935,6 +1935,7 @@ section {
     color: var(--text-gray);
     font-size: 0.9rem;
     font-weight: 500;
+    display: none;
 }
 
 .project-toggle {
@@ -1972,7 +1973,7 @@ section {
 }
 
 .project-item.active .project-content {
-    max-height: 3000px;
+    max-height: 30000px;
     opacity: 1;
     padding: 0 30px 30px;
 }
