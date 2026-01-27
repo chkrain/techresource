@@ -209,8 +209,19 @@ section {
 }
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 30px;
+}
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr; 
+    gap: 20px;
+  }
 }
 .stat-card {
   background: var(--bg-white);
@@ -1659,9 +1670,6 @@ section {
   .step-content ul {
     text-align: left;
     margin-left: 10svw;
-  }
-  .stats-grid {
-    grid-template-columns: repeat(1, 1fr);
   }
   .tech-grid {
     grid-template-columns: 1fr;

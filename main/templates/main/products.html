@@ -46,7 +46,11 @@
         <div class="products-layout">
             <aside class="filters-sidebar" data-aos="fade-up" data-aos-delay="200">
                 <div class="filters-header">
-                    <h3 >Фильтры</h3>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="in_stock" value="true" {% if in_stock %}checked{% endif %} id="inStockCheckbox">
+                        <span class="checkmark"></span>
+                        В&nbsp;наличии
+                    </label>
                     <button type="button" class="clear-filters-btn" id="clearFiltersBtn">
                         Сбросить
                     </button>
@@ -56,7 +60,6 @@
                     <input type="hidden" name="search" value="{{ search_query }}">
                     
                     <div class="filter-group">
-                        <h4>Категория</h4>
                         <select name="category" class="filter-select" id="categorySelect">
                             <option value="">Все категории</option>
                             {% for category in categories %}
@@ -70,26 +73,12 @@
                     <div class="filter-group">
                         <h4>Цена, ₽</h4>
                         <div class="price-inputs">
-                            <input type="number" name="price_min" placeholder="От" value="{{ price_min }}" 
+                            <input type="number" name="price_min" title="Самый дешевый товар в каталоге стоит {{ price_range.min_price|default:0 }} руб." placeholder="От" value="{{ price_min }}" 
                                    class="price-input" id="priceMin" min="0">
                             <span class="price-separator">—</span>
-                            <input type="number" name="price_max" placeholder="До" value="{{ price_max }}" 
+                            <input type="number" name="price_max" title="Самый дорогой товар в каталоге стоит {{ price_range.max_price|default:10000 }} руб." placeholder="До" value="{{ price_max }}" 
                                    class="price-input" id="priceMax" min="0">
                         </div>
-                        <div class="price-range-info">
-                            {% if price_range.min_price or price_range.max_price %}
-                                Диапазон: {{ price_range.min_price|default:0 }} - {{ price_range.max_price|default:10000 }} ₽
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <h4>Наличие</h4>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="in_stock" value="true" {% if in_stock %}checked{% endif %} id="inStockCheckbox">
-                            <span class="checkmark"></span>
-                            Только в наличии
-                        </label>
                     </div>
                     
                     <div class="filter-group">
@@ -226,7 +215,7 @@
 
 <div id="toast-container" class="toast-container"></div>
 
-<link rel="stylesheet" href="{% static 'css/products.css' %}?v=1.2">
+<link rel="stylesheet" href="{% static 'css/products.css' %}?v=1.4">
 
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>

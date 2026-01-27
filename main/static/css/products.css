@@ -201,7 +201,7 @@ select.filter-select option:checked {
   cursor: pointer;
   font-size: 0.95rem;
   color: #2c3e50;
-  gap: 0.75rem;
+  gap: 0.25rem;
   padding: 0.5rem;
   border-radius: 8px;
   transition: background-color 0.3s ease;
@@ -1071,7 +1071,48 @@ body {
     max-height: none;
     margin-bottom: 1.5rem;
     z-index: auto;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
   }
+
+  .checkbox-label {
+    display: none;
+  }
+
+  .filters-form {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+  }
+
+  .filter-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding-left: 2svh;
+    margin-bottom: 0;
+  }
+
+  .filter-group h4 {
+    display: none;
+  }
+
+  .price-input {
+    max-width: 100px;
+  }
+
+  .price-inputs {
+    margin-bottom: 0;
+  }
+
+  .filters-header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+    padding-left: 8px;
+  } 
 
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -1085,6 +1126,10 @@ body {
 @media (max-width: 768px) {
   .products-hero {
     padding: 3rem 0;
+  }
+
+  .price-input {
+    max-width: 20svw
   }
 
   .products-hero h1 {
@@ -1139,14 +1184,6 @@ body {
     text-align: center;
   }
 
-  .price-inputs {
-    flex-wrap: wrap;
-  }
-
-  .price-input {
-    min-width: calc(50% - 0.75rem);
-  }
-
   .active-filters {
     padding: 1rem;
   }
@@ -1179,11 +1216,19 @@ body {
     padding: 1rem 2rem;
     font-size: 1rem;
   }
+
+  .filter-select {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
   .products-main-section .container {
     padding: 0 1rem;
+  }
+
+  .price-input {
+    max-width: 10svw
   }
 
   .filters-sidebar,
