@@ -282,3 +282,9 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 CSP_IMG_SRC = ["'self'", "data:", "https:"]
 CSP_STYLE_SRC = ["'self'", "'unsafe-inline'"]
 CSP_SCRIPT_SRC = ["'self'", "'unsafe-inline'"]
+
+COMPANY_EMAIL = 'techreru@yahoo.com'
+COMPANY_NUMBER = '8 (937) 524-68-88'
+COMPANY_NAME = 'Техресурс'
+COMPANY_ADDRESS = 'Казань, ул. Техническая, 52'
+COMPANY_WORK_HOURS = 'Пн-Пт 08:00-17:00'

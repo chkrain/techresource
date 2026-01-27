@@ -237,14 +237,14 @@
                                 <div class="contact-method">
                                     <div class="contact-details">
                                         <h4>Email</h4>
-                                        <a href="mailto:Kaznacheev56@gmail.com">Kaznacheev56@gmail.com</a>
+                                        <a href="mailto:{{ company_email }}">{{ company_phone }}</a>
                                         <p>Ответим в течение 24 часов</p>
                                     </div>
                                 </div>
                                 <div class="contact-method">
                                     <div class="contact-details">
                                         <h4>Телефон</h4>
-                                        <a href="tel:+79375246888">+7 (937) 524-68-88</a>
+                                        <a href="tel:{{ company_phone|cut:' '|cut:'('|cut:')'|cut:'-'|cut:'–'|cut:'—' }}">{{ company_phone }}</a>
                                         <p>Пн-Пт с 8:00 до 17:00</p>
                                     </div>
                                 </div>

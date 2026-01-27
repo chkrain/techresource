@@ -28,7 +28,7 @@
     {
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
-        "name": "Техресурс",
+        "name": "{{ company_name }}",
         "image": "{% static 'images/favicon.svg' %}",
         "address": {
             "@type": "PostalAddress",
@@ -44,8 +44,8 @@
             "longitude": "49.134585"
         },
         "url": "https://tech-re.ru",
-        "telephone": "+79375246888",
-        "openingHours": "Пн-Пт 08:00-17:00",
+        "telephone": "{{ company_phone }}",
+        "openingHours": "{{ company_work_hours }}",
         "priceRange": "₽₽"
     }
     </script>
@@ -245,7 +245,7 @@
                         <a href="https://t.me/techresourceru" target="_blank" class="social-link" aria-label="Telegram">
                             <i class="fab fa-telegram"></i>
                         </a>
-                        <a href="mailto:Kaznacheev56@gmail.com" class="social-link" aria-label="Email">
+                        <a href="mailto:{{ company_email }}" class="social-link" aria-label="Email">
                             <i class="fas fa-envelope"></i>
                         </a>
                     </div>
@@ -255,26 +255,26 @@
                     <h3>Контакты</h3>
                     <ul class="footer-links">
                         <li>
-                            <a href="tel:+78001234567">
+                            <a href="tel:{{ company_phone|cut:' '|cut:'('|cut:')'|cut:'-'|cut:'–'|cut:'—' }}">
                                 <i class="fas fa-phone"></i>
-                                +79375246888
+                                {{ company_phone }}
                             </a>
                         </li>
                         <li>
-                            <a href="mailto:Kaznacheev56@gmail.com">
+                            <a href="mailto:{{ company_email }}">
                                 <i class="fas fa-envelope"></i>
-                                Kaznacheev56@gmail.com
+                                {{ company_email }}
                             </a>
                         </li>
                         <li>
                             <a href="https://yandex.ru/maps/-/CLtkf21g" target="_blank">
                                 <i class="fas fa-map-marker-alt"></i>
-                                Казань, ул. Техническая, 52
+                                {{ company_address }}
                             </a>
                         </li>
                         <li>
                             <i class="fas fa-clock"></i>
-                            Пн-Пт: 8:00-17:00
+                            {{ company_work_hours }}
                         </li>
                     </ul>
                 </div>

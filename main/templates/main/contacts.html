@@ -21,37 +21,34 @@
         <div class="contacts-grid">
             <div class="contact-info" data-aos="fade-right">
                 <div class="contact-card" data-tilt>
-                    <div class="card-icon">📞</div>
                     <h3>Телефоны</h3>
                     <div class="contact-items">
                         <div class="contact-item">
                             <span class="contact-label">Основной телефон:</span>
-                            <a href="tel:+79375246888" class="contact-value">+7 (937) 524-68-88</a>
+                            <a href="tel:{{ company_phone|cut:' '|cut:'('|cut:')'|cut:'-'|cut:'–'|cut:'—' }}" class="contact-value">{{ company_phone }}</a>
                         </div>
                         <div class="contact-item">
                             <span class="contact-label">Техническая поддержка:</span>
-                            <a href="tel:+78001234567" class="contact-value">+7 (927) 416-84-49</a>
+                            <a href="tel:{{ company_phone|cut:' '|cut:'('|cut:')'|cut:'-'|cut:'–'|cut:'—' }}" class="contact-value">{{ company_phone }}</a>
                         </div>
                     </div>
                 </div>
 
                 <div class="contact-card" data-tilt>
-                    <div class="card-icon">📧</div>
                     <h3>Электронная почта</h3>
                     <div class="contact-items">
                         <div class="contact-item">
                             <span class="contact-label">Общие вопросы:</span>
-                            <a href="mailto:Kaznacheev56@gmail.com" class="contact-value">Kaznacheev56@gmail.com</a>
+                            <a href="mailto:{{ company_email }}" class="contact-value">{{ company_email }}</a>
                         </div>
                         <div class="contact-item">
                             <span class="contact-label">Техподдержка:</span>
-                            <a href="mailto:Kaznacheev56@gmail.com" class="contact-value">Kaznacheev56@gmail.com</a>
+                            <a href="mailto:{{ company_email }}" class="contact-value">{{ company_email }}</a>
                         </div>
                     </div>
                 </div>
 
                 <div class="contact-card" data-tilt>
-                    <div class="card-icon">📍</div>
                     <h3>Адрес офиса</h3>
                     <div class="contact-items">
                         <div class="contact-item">
@@ -61,6 +58,17 @@
                         <div class="contact-item">
                             <span class="contact-label">Время работы:</span>
                             <span class="contact-value">Пн-Пт: 8:00-17:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-card" data-tilt>
+                    <h3>Телеграм-бот</h3>
+                    <div class="contact-items">
+                        <div class="contact-item">
+                            <span class="contact-label">Юзернейм: @calcpriece_bot</span>
+                            <span class="contact-label">Ссылка:</span>
+                            <span class="contact-value"><a href="https://t.me/calcpriece_bot">@calcpriece_bot</a></span>
                         </div>
                     </div>
                 </div>
