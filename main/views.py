@@ -50,7 +50,7 @@ from .models import SupportAttachment
 from .forms import SupportTicketForm
 import tempfile
 from blog.models import BlogComment, BlogArticle
-from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage, InvoiceRegistry
+from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage, InvoiceRegistry, Category
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm, AdminProfileTagsForm, SupportTicketForm
 from django.db.models import Sum
 import qrcode
@@ -326,7 +326,7 @@ def products(request):
     in_stock = request.GET.get('in_stock', '')
     sort_by = request.GET.get('sort_by', 'name')
     
-    products_list = Product.objects.filter(is_active=True)
+    products_list = Product.objects.filter(is_active=True).select_related('category')
     
     if search_query:
         products_list = products_list.filter(
@@ -338,8 +338,27 @@ def products(request):
         )
     
     if category_filter:
-        products_list = products_list.filter(category=category_filter)
-    
+        try:
+            category = Category.objects.get(slug=category_filter, is_active=True)
+            selected_category = category
+            
+            def get_all_children_ids(category_obj, result=None):
+                if result is None:
+                    result = []
+                result.append(category_obj.id)
+                for child in category_obj.children.filter(is_active=True):
+                    get_all_children_ids(child, result)
+                return result
+            
+            category_ids = get_all_children_ids(category)
+            
+            products_list = products_list.filter(category_id__in=category_ids)
+            
+        except Category.DoesNotExist:
+            selected_category = None
+    else:
+        selected_category = None
+
     if brand_filter:
         products_list = products_list.filter(brand=brand_filter)
     
@@ -358,7 +377,6 @@ def products(request):
     if in_stock == 'true':
         products_list = products_list.filter(quantity__gt=0)
     
-    # Применяем сортировку
     sort_options = {
         'name': 'name',
         'price_asc': 'price',
@@ -370,11 +388,28 @@ def products(request):
     }
     products_list = products_list.order_by(sort_options.get(sort_by, 'name'))
     
-    paginator = Paginator(products_list, 12)  # 12 товаров на страницу
+    paginator = Paginator(products_list, 12)  
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
-    categories = Product.objects.filter(is_active=True).values_list('category', flat=True).distinct()
+    categories = Category.objects.filter(
+        parent__isnull=True,  
+        is_active=True
+    ).prefetch_related('children').order_by('order', 'name')
+    
+    def build_category_tree(category_list):
+        result = []
+        for cat in category_list:
+            result.append({
+                'id': cat.id,
+                'name': cat.name,
+                'slug': cat.slug,
+                'product_count': cat.product_count,
+                'children': build_category_tree(cat.children.filter(is_active=True).order_by('order', 'name'))
+            })
+        return result
+
+    category_tree = build_category_tree(categories)
     brands = Product.objects.filter(is_active=True).values_list('brand', flat=True).distinct()
     
     price_range = products_list.aggregate(
@@ -412,6 +447,8 @@ def products(request):
     context = {
         'products': page_obj,
         'page_obj': page_obj,
+        'category_tree': category_tree,
+        'selected_category': selected_category,
         'similar_products': similar_products,
         'categories': categories,
         'brands': brands,

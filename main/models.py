@@ -978,12 +978,137 @@ class Address(models.Model):
         verbose_name = "Адрес"
         verbose_name_plural = "Адреса"
 
+
+class Category(models.Model):
+    """Модель категорий товаров с поддержкой вложенности"""
+    name = models.CharField(max_length=200, verbose_name="Название категории")
+    slug = models.SlugField(max_length=200, unique=True, verbose_name="URL", help_text="Автоматически генерируется из названия")
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, 
+                              verbose_name="Родительская категория", related_name='children')
+    description = models.TextField(blank=True, verbose_name="Описание")
+    image = models.ImageField(upload_to='categories/', blank=True, null=True, verbose_name="Изображение")
+    order = models.IntegerField(default=0, verbose_name="Порядок сортировки")
+    is_active = models.BooleanField(default=True, verbose_name="Активна")
+    seo_title = models.CharField(max_length=200, blank=True, verbose_name="SEO Title")
+    seo_description = models.TextField(max_length=160, blank=True, verbose_name="SEO Description")
+    seo_keywords = models.TextField(blank=True, verbose_name="SEO Keywords")
+    show_in_menu = models.BooleanField(default=True, verbose_name="Показывать в меню")
+    product_count = models.IntegerField(default=0, verbose_name="Количество товаров", editable=False)
+    
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
+        ordering = ['order', 'name']
+    
+    def __str__(self):
+        if self.parent:
+            return f"{self.parent} > {self.name}"
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        
+        if not self.seo_title:
+            if self.parent:
+                self.seo_title = f"{self.name} | {self.parent.name} | Техресурс"
+            else:
+                self.seo_title = f"{self.name} | Техресурс"
+        
+        super().save(*args, **kwargs)
+        
+        self.update_product_counts()
+    
+    def update_product_counts(self):
+        """Обновляет счетчик товаров для категории и всех ее родителей"""
+        from django.db.models import Count
+        
+        def get_all_children(category, result=None):
+            if result is None:
+                result = []
+            result.append(category.id)
+            for child in category.children.all():
+                get_all_children(child, result)
+            return result
+        
+        all_category_ids = get_all_children(self)
+        
+        count = Product.objects.filter(
+            category__in=all_category_ids,
+            is_active=True
+        ).count()
+        
+        Category.objects.filter(id=self.id).update(product_count=count)
+        
+        if self.parent:
+            self.parent.update_product_counts()
+    
+    def get_full_path(self):
+        """Возвращает полный путь категории (всех родителей)"""
+        path = []
+        current = self
+        while current:
+            path.insert(0, current.name)
+            current = current.parent
+        return ' > '.join(path)
+    
+    def get_absolute_url(self):
+        """URL для просмотра категории"""
+        return f"/products/?category={self.slug}"
+    
+    def get_breadcrumbs(self):
+        """Возвращает хлебные крошки для категории"""
+        breadcrumbs = []
+        current = self
+        while current:
+            breadcrumbs.insert(0, {
+                'name': current.name,
+                'url': f"/products/?category={current.slug}"
+            })
+            current = current.parent
+        
+        breadcrumbs.insert(0, {
+            'name': 'Каталог',
+            'url': '/products/'
+        })
+        return breadcrumbs
+    
+    def get_children_tree(self):
+        """Возвращает дерево подкатегорий"""
+        def build_tree(category):
+            children = []
+            for child in category.children.filter(is_active=True).order_by('order', 'name'):
+                children.append({
+                    'category': child,
+                    'children': build_tree(child)
+                })
+            return children
+        
+        return build_tree(self)
+    
+    def get_active_products(self):
+        """Возвращает активные товары категории и всех подкатегорий"""
+        def get_all_children_ids(category, result=None):
+            if result is None:
+                result = []
+            result.append(category.id)
+            for child in category.children.all():
+                get_all_children_ids(child, result)
+            return result
+        
+        all_category_ids = get_all_children_ids(self)
+        return Product.objects.filter(
+            category__in=all_category_ids,
+            is_active=True
+        )
+
 class Product(models.Model):
     name = models.CharField(max_length=200, verbose_name="Название")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
     description = models.TextField(verbose_name="Описание", blank=True)
     quantity = models.IntegerField(default=0, verbose_name="Остаток")
-    category = models.CharField(max_length=100, verbose_name="Категория", blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, 
+                             verbose_name="Категория", related_name='products')
     article = models.CharField(max_length=15, verbose_name="Артикул", blank=True, unique=True, editable=False, help_text="Автоматически генерируется при создании")
     image = models.ImageField(upload_to='products/', verbose_name="Изображение", blank=True, null=True)
     is_active = models.BooleanField(default=True, verbose_name="Активный")
@@ -1147,7 +1272,8 @@ class Product(models.Model):
         
         keywords = []
         if self.category:
-            category_lower = self.category.lower()
+            category_name = self.category.name
+            category_lower = category_name.lower()
             keywords.append(category_lower)
             keywords.append(f"купить {category_lower}")
             keywords.append(f"{category_lower} цена")
@@ -1316,31 +1442,21 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Общая сумма")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Статус")
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default='card', verbose_name="Способ оплаты")
-
-    # Данные доставки
     customer_name = models.CharField(max_length=100, verbose_name="Имя клиента")
     customer_phone = models.CharField(max_length=20, verbose_name="Телефон")
     customer_email = models.EmailField(verbose_name="Email")
     delivery_address = models.TextField(verbose_name="Адрес доставки")
-
     vat_rate = models.DecimalField(max_digits=5, decimal_places=2, default=22.00,  verbose_name="Ставка НДС (%)")
     price_without_vat = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена без НДС", help_text="Рассчитывается автоматически")
-    
-    # Новые поля для отслеживания
     status_changed_at = models.DateTimeField(auto_now=True, verbose_name="Время изменения статуса")
     tracking_number = models.CharField(max_length=100, blank=True, verbose_name="Трек-номер")
     shipping_company = models.CharField(max_length=100, blank=True, verbose_name="Служба доставки")
     estimated_delivery = models.DateField(null=True, blank=True, verbose_name="Примерная дата доставки")
-
     payment_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Комиссия платежной системы")
     delivery_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Стоимость доставки")
     final_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Итоговая сумма с учетом доставки и комиссий")
-    
-    # Таймстампы
     paid_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата оплаты")
     cancelled_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата отмены")
-    
-    # Новые поля для безопасности
     fraud_score = models.DecimalField(max_digits=5, decimal_places=2, default=0, verbose_name="Оценка мошенничества")
     ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name="IP-адрес создания")
     user_agent = models.TextField(blank=True, verbose_name="User Agent")
@@ -1898,7 +2014,6 @@ class ServicePage(models.Model):
         ('instruction', 'Инструкция'),
     ]
     
-    # Связь со статической страницей (если есть)
     STATIC_SERVICES = [
         ('', '--- Не привязано ---'),
         ('design', 'Проектирование систем'),
@@ -1956,7 +2071,6 @@ class ServicePage(models.Model):
     def get_absolute_url(self):
         """Генерируем URL в зависимости от типа и привязки"""
         if self.static_service:
-            # Если привязано к статической странице
             base_url = f"/services/{self.static_service}/"
             if self.page_type == 'instruction' and self.parent:
                 return f"{base_url}instructions/{self.slug}/"
@@ -1965,7 +2079,6 @@ class ServicePage(models.Model):
             else:
                 return base_url
         else:
-            # Динамические страницы
             if self.page_type == 'instruction' and self.parent:
                 return f"/services/dynamic/{self.parent.slug}/instructions/{self.slug}/"
             elif self.parent:
@@ -1999,7 +2112,6 @@ class ServicePage(models.Model):
         for line in self.features_text.strip().split('\n'):
             line = line.strip()
             if line:
-                # Разделяем по вертикальной черте
                 if '|' in line:
                     title, description = line.split('|', 1)
                     features.append({

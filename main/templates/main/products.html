@@ -46,7 +46,7 @@
         <div class="products-layout">
             <aside class="filters-sidebar" data-aos="fade-up" data-aos-delay="200">
                 <div class="filters-header">
-                    <label class="checkbox-label">
+                    <label class="checkbox-label vnal">
                         <input type="checkbox" name="in_stock" value="true" {% if in_stock %}checked{% endif %} id="inStockCheckbox">
                         <span class="checkmark"></span>
                         В&nbsp;наличии
@@ -60,16 +60,128 @@
                     <input type="hidden" name="search" value="{{ search_query }}">
                     
                     <div class="filter-group">
-                        <select name="category" class="filter-select" id="categorySelect">
-                            <option value="">Все категории</option>
-                            {% for category in categories %}
-                                <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>
-                                    {{ category }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
+                        <div class="filter-group">
+                            <h4>Категория</h4>
+                            <div class="category-dropdown-container">
+                                <button type="button" class="category-dropdown-toggle" id="categoryDropdownToggle">
+                                    <span id="selectedCategoryText">
+                                        {% if selected_category %}
+                                            {% for category in category_tree %}
+                                                {% if selected_category == category.slug %}
+                                                    {{ category.name }}
+                                                {% else %}
+                                                    {% for child in category.children %}
+                                                        {% if selected_category == child.slug %}
+                                                            {{ child.name }}
+                                                        {% else %}
+                                                            {% for grandchild in child.children %}
+                                                                {% if selected_category == grandchild.slug %}
+                                                                    {{ grandchild.name }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            Все категории
+                                        {% endif %}
+                                    </span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </button>
+                                
+                                <div class="category-dropdown" id="categoryDropdown">
+                                    <div class="category-option" data-category-value="">
+                                        <label class="checkbox-label">
+                                            <input type="radio" name="category" value="" 
+                                                {% if not selected_category %}checked{% endif %}
+                                                class="category-radio">
+                                            <span class="checkmark"></span>
+                                            <span class="category-name">Все категории</span>
+                                        </label>
+                                    </div>
+                                    
+                                    {% for category in category_tree %}
+                                    <div class="category-item" data-category-level="1">
+                                        <div class="category-option {% if category.children %}has-children{% endif %}" 
+                                            data-category-value="{{ category.slug }}">
+                                            <label class="checkbox-label">
+                                                <input type="radio" name="category" value="{{ category.slug }}"
+                                                    {% if selected_category == category.slug %}checked{% endif %}
+                                                    class="category-radio">
+                                                <span class="checkmark"></span>
+                                                <span class="category-name">{{ category.name }}</span>
+                                                {% if category.product_count > 0 %}
+                                                    <span class="category-count">({{ category.product_count }})</span>
+                                                {% endif %}
+                                            </label>
+                                            
+                                            {% if category.children %}
+                                                <button type="button" class="expand-children-btn" 
+                                                        data-category-id="{{ category.id }}">
+                                                    <span class="expand-icon">+</span>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if category.children %}
+                                        <div class="children-container" id="children-{{ category.id }}" style="display: none;">
+                                            {% for child in category.children %}
+                                            <div class="category-item" data-category-level="2">
+                                                <div class="category-option {% if child.children %}has-children{% endif %}" 
+                                                    data-category-value="{{ child.slug }}">
+                                                    <label class="checkbox-label">
+                                                        <input type="radio" name="category" value="{{ child.slug }}"
+                                                            {% if selected_category == child.slug %}checked{% endif %}
+                                                            class="category-radio">
+                                                        <span class="checkmark"></span>
+                                                        <span class="category-name">{{ child.name }}</span>
+                                                        {% if child.product_count > 0 %}
+                                                            <span class="category-count">({{ child.product_count }})</span>
+                                                        {% endif %}
+                                                    </label>
+                                                    
+                                                    {% if child.children %}
+                                                        <button type="button" class="expand-children-btn" 
+                                                                data-category-id="{{ child.id }}">
+                                                            <span class="expand-icon">+</span>
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                {% if child.children %}
+                                                <div class="children-container" id="children-{{ child.id }}" style="display: none;">
+                                                    {% for grandchild in child.children %}
+                                                    <div class="category-item" data-category-level="3">
+                                                        <div class="category-option" 
+                                                            data-category-value="{{ grandchild.slug }}">
+                                                            <label class="checkbox-label">
+                                                                <input type="radio" name="category" value="{{ grandchild.slug }}"
+                                                                    {% if selected_category == grandchild.slug %}checked{% endif %}
+                                                                    class="category-radio">
+                                                                <span class="checkmark"></span>
+                                                                <span class="category-name">{{ grandchild.name }}</span>
+                                                                {% if grandchild.product_count > 0 %}
+                                                                    <span class="category-count">({{ grandchild.product_count }})</span>
+                                                                {% endif %}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <input type="hidden" name="category" id="categoryHiddenInput" 
+                                value="{{ selected_category|default:'' }}">
+                        </div>
                     <div class="filter-group">
                         <h4>Цена, ₽</h4>
                         <div class="price-inputs">
@@ -215,11 +327,11 @@
 
 <div id="toast-container" class="toast-container"></div>
 
-<link rel="stylesheet" href="{% static 'css/products.css' %}?v=1.5">
+<link rel="stylesheet" href="{% static 'css/products.css' %}?v=2.7">
 
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/products.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/products.js' %}?v=1.4"></script>
 
 {% endblock %}

@@ -14,7 +14,8 @@ from .models import (
     NotificationLog, OrderStatusLog, ProductReview, ProductImage,
     SecurityLog, LoginAttempt, PaymentAuditLog, Admin2FA,
     FraudDetectionLog, RateLimitLog, CSPViolationReport, Wishlist, WishlistItem,
-    SupportTicket, SupportAttachment, ServicePage, PasswordResetToken, InvoiceRegistry
+    SupportTicket, SupportAttachment, ServicePage, PasswordResetToken, InvoiceRegistry, 
+    Category
 )
 
 logger = logging.getLogger('django.security')
@@ -227,8 +228,8 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['article', 'name', 'category', 'price', 'quantity', 'is_active', 'get_article_date']
-    list_filter = ['category', 'is_active', 'created_at']
+    list_display = ['article', 'name', 'get_category_path', 'price', 'quantity', 'is_active', 'get_article_date']
+    list_filter = ['category', 'is_active', 'created_at', 'brand']
     search_fields = ['name', 'article', 'description']
     list_editable = ['price', 'quantity', 'is_active']
     readonly_fields = ['article', 'slug', 'seo_title', 'seo_description', 'seo_keywords', 'created_at', 'updated_at', 'get_article_date']
@@ -293,6 +294,25 @@ class ProductAdmin(admin.ModelAdmin):
     get_article_date.short_description = 'Дата добавления'
     get_article_date.admin_order_field = 'created_at'
 
+    def get_category_path(self, obj):
+        """Отображение полного пути категории в списке товаров"""
+        if obj.category:
+            return obj.category.get_full_path()
+        return "—"
+    get_category_path.short_description = 'Категория'
+    get_category_path.admin_order_field = 'category'
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """Кастомный виджет для выбора категории с иерархией"""
+        if db_field.name == "category":
+            # Показываем категории с отступами для подкатегорий
+            kwargs["queryset"] = Category.objects.all().order_by('parent__order', 'order', 'name')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.select_related('category')
+
     def get_readonly_fields(self, request, obj=None):
         if obj:  
             return ['article', 'slug', 'seo_title', 'seo_description', 'seo_keywords', 'created_at', 'updated_at', 'get_article_date']
@@ -314,6 +334,51 @@ class ProductAdmin(admin.ModelAdmin):
         extra_context['show_save_and_add_another'] = True
         extra_context['show_save_and_continue'] = False
         return super().add_view(request, form_url, extra_context)
+    
+class CategoryInline(admin.TabularInline):
+    model = Category
+    extra = 0
+    fields = ['name', 'order', 'is_active', 'show_in_menu']
+    readonly_fields = ['product_count']
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'parent', 'order', 'product_count', 'is_active', 'show_in_menu']
+    list_filter = ['is_active', 'show_in_menu', 'parent']
+    search_fields = ['name', 'description']
+    list_editable = ['order', 'is_active', 'show_in_menu']
+    prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ['product_count']
+    
+    fieldsets = (
+        ('Основная информация', {
+            'fields': ('name', 'parent', 'slug', 'description', 'image'),
+            'description': 'Для создания подкатегории выберите родительскую категорию'
+        }),
+        ('Настройки отображения', {
+            'fields': ('order', 'is_active', 'show_in_menu'),
+            'classes': ('collapse',)
+        }),
+        ('SEO настройки', {
+            'fields': ('seo_title', 'seo_description', 'seo_keywords'),
+            'classes': ('collapse',)
+        }),
+        ('Статистика', {
+            'fields': ('product_count',),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    inlines = [CategoryInline] 
+    
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.prefetch_related('products')
+    
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if obj.parent:
+            obj.parent.update_product_counts()
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):

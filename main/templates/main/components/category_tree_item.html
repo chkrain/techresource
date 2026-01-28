@@ -1,0 +1,22 @@
+{% load static %}
+
+<div class="category-item level-{{ level }}" data-category-id="{{ category.id }}">
+    <label class="checkbox-label {% if level > 0 %}child-category{% endif %}">
+        <input type="radio" name="category" value="{{ category.slug }}"
+               {% if selected_category == category.slug %}checked{% endif %}
+               class="category-radio" data-category-slug="{{ category.slug }}">
+        <span class="checkmark"></span>
+        {{ category.name }}
+        {% if category.product_count > 0 %}
+            <span class="category-count">({{ category.product_count }})</span>
+        {% endif %}
+    </label>
+    
+    {% if category.children %}
+        <div class="category-children" style="margin-left: {{ level|add:1 }}em;">
+            {% for child in category.children %}
+                {% include 'main/components/category_tree_item.html' with category=child selected_category=selected_category level=level|add:1 %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
