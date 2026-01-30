@@ -3517,15 +3517,16 @@ def anonymous_cart_items(request):
         try:
             product = Product.objects.get(id=product_id)
             quantity = item_data['quantity']
-            item_total = product.price * quantity
+            price_in_rub = product.get_display_price('RUB')
+            item_total = price_in_rub * quantity
             
             items.append({
                 'product_id': product.id,
                 'name': product.name,
                 'article': product.article,
-                'price': str(product.price),
+                'price': float(price_in_rub), 
                 'quantity': quantity,
-                'total': str(item_total),
+                'total': float(item_total),    
                 'image': product.get_display_image_url(),
                 'max_quantity': product.quantity
             })
