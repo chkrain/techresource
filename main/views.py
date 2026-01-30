@@ -325,6 +325,7 @@ def products(request):
     price_max = request.GET.get('price_max', '')
     in_stock = request.GET.get('in_stock', '')
     sort_by = request.GET.get('sort_by', 'name')
+    display_currency = request.GET.get('currency', 'RUB')
     
     products_list = Product.objects.filter(is_active=True).select_related('category')
     
@@ -426,6 +427,14 @@ def products(request):
                 product.in_wishlist = product.id in wishlist_product_ids
                 product.average_rating = ProductReview.get_average_rating(product)
                 product.reviews_count = ProductReview.get_approved_reviews(product).count()
+                product.display_price_value = product.get_display_price(display_currency)
+                product.display_currency = display_currency
+                currency_symbols = {
+                    'RUB': '₽',
+                    'USD': '$',
+                    'EUR': '€',
+                }
+                product.currency_symbol = currency_symbols.get(display_currency, '₽')
         except Wishlist.DoesNotExist:
             for product in page_obj:
                 product.in_wishlist = False
@@ -445,6 +454,12 @@ def products(request):
             )[:6]
     
     context = {
+        'display_currency': display_currency,
+        'available_currencies': [
+            ('RUB', '₽ Рубли'),
+            ('USD', '$ Доллары'),
+            ('EUR', '€ Евро'),
+        ],
         'products': page_obj,
         'page_obj': page_obj,
         'category_tree': category_tree,

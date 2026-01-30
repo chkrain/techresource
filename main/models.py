@@ -18,10 +18,99 @@ from django.db.models.signals import pre_save
 from django.utils.text import slugify
 import re
 from PIL import Image
+from django.core.cache import cache
+import requests
 import os
 from django.core.exceptions import ValidationError
 from django.utils.html import escape
 from .validators import validate_avatar, validate_profile_background
+
+class CurrencyRate(models.Model):
+    """Модель для хранения курсов валют"""
+    CURRENCY_CHOICES = [
+        ('RUB', 'Российский рубль'),
+        ('USD', 'Доллар США'),
+        ('EUR', 'Евро'),
+    ]
+    
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, unique=True, verbose_name="Валюта")
+    rate_to_rub = models.DecimalField(max_digits=10, decimal_places=4, verbose_name="Курс к рублю")
+    last_updated = models.DateTimeField(auto_now=True, verbose_name="Последнее обновление")
+    is_active = models.BooleanField(default=True, verbose_name="Активный курс")
+    
+    class Meta:
+        verbose_name = "Курс валюты"
+        verbose_name_plural = "Курсы валют"
+        ordering = ['currency']
+    
+    def __str__(self):
+        return f"{self.get_currency_display()} = {self.rate_to_rub} RUB"
+    
+    @classmethod
+    def update_rates_from_cbr(cls):
+        """Обновление курсов валют с сайта ЦБ РФ"""
+        try:
+            url = 'https://www.cbr-xml-daily.ru/daily_json.js'
+            response = requests.get(url, timeout=10)
+            data = response.json()
+            
+            usd_rate = Decimal(str(data['Valute']['USD']['Value'])) / Decimal(str(data['Valute']['USD']['Nominal']))
+            cls.objects.update_or_create(
+                currency='USD',
+                defaults={'rate_to_rub': usd_rate}
+            )
+            
+            eur_rate = Decimal(str(data['Valute']['EUR']['Value'])) / Decimal(str(data['Valute']['EUR']['Nominal']))
+            cls.objects.update_or_create(
+                currency='EUR',
+                defaults={'rate_to_rub': eur_rate}
+            )
+            
+            cls.objects.update_or_create(
+                currency='RUB',
+                defaults={'rate_to_rub': Decimal('1.0000')}
+            )
+            
+            return True
+        except Exception as e:
+            return False
+    
+    @classmethod
+    def get_rate(cls, currency_code):
+        """Получение курса валюты с кэшированием"""
+        cache_key = f"currency_rate_{currency_code}"
+        rate = cache.get(cache_key)
+        
+        if rate is None:
+            try:
+                currency = cls.objects.get(currency=currency_code, is_active=True)
+                rate = currency.rate_to_rub
+                cache.set(cache_key, rate, 3600)  # Кэшируем на 1 час
+            except cls.DoesNotExist:
+                rate = Decimal('1.0000')
+        
+        return rate
+    
+    @classmethod
+    def convert_to_rub(cls, amount, from_currency):
+        """Конвертация в рубли"""
+        if from_currency == 'RUB':
+            return amount
+        
+        rate = cls.get_rate(from_currency)
+        return amount * rate
+    
+    @classmethod
+    def convert_from_rub(cls, amount, to_currency):
+        """Конвертация из рублей"""
+        if to_currency == 'RUB':
+            return amount
+        
+        rate = cls.get_rate(to_currency)
+        if rate == 0:
+            return amount
+        
+        return amount / rate
 
 class UserProfile(models.Model):
     ACCOUNT_TYPE_CHOICES = [
@@ -1103,8 +1192,33 @@ class Category(models.Model):
         )
 
 class Product(models.Model):
+    CURRENCY_CHOICES = [
+        ('RUB', '₽ Рубль'),
+        ('USD', '$ Доллар США'),
+        ('EUR', '€ Евро'),
+    ]
     name = models.CharField(max_length=200, verbose_name="Название")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+    currency = models.CharField(
+        max_length=3,
+        choices=CURRENCY_CHOICES,
+        default='RUB',
+        verbose_name="Валюта цены",
+        help_text="Валюта, в которой указана цена товара"
+    )
+    price_in_rub = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name="Цена в рублях",
+        editable=True,
+        default=0
+    )
+    last_rate_update = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Последнее обновление курса",
+        editable=True
+    )
     description = models.TextField(verbose_name="Описание", blank=True)
     quantity = models.IntegerField(default=0, verbose_name="Остаток")
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, 
@@ -1142,6 +1256,8 @@ class Product(models.Model):
     specifications = models.JSONField(default=dict, blank=True, verbose_name="Характеристики", help_text="Дополнительные характеристики в формате JSON. Пример: {'Мощность': '100W', 'Напряжение': '220V'}")
     
     def save(self, *args, **kwargs):
+        self.calculate_price_in_rub()
+
         if self.price and self.vat_rate:
             hundred = Decimal('100')
             self.price_without_vat = self.price / (1 + self.vat_rate / hundred)
@@ -1163,6 +1279,26 @@ class Product(models.Model):
 
         super().save(*args, **kwargs)
 
+    def get_display_price(self, target_currency='RUB'):
+        """Получение цены в указанной валюте"""
+        from .models import CurrencyRate
+        
+        if target_currency == self.currency:
+            return self.price
+        
+        if target_currency == 'RUB':
+            return self.price_in_rub
+        
+        try:
+            rate = CurrencyRate.get_rate(target_currency)
+            if rate == 0:
+                return self.price_in_rub
+            
+            price_in_target = self.price_in_rub / rate
+            return price_in_target.quantize(Decimal('0.01'))
+        except Exception as e:
+            return self.price_in_rub
+
     def __str__(self):
         return f"{self.name} (арт: {self.article})"
     
@@ -1175,6 +1311,64 @@ class Product(models.Model):
         if first_image:
             return first_image
         return None
+    
+    def calculate_price_in_rub(self):
+        """Рассчитывает цену в рублях по текущему курсу"""
+        try:
+            from .models import CurrencyRate 
+            
+            if self.currency == 'RUB':
+                self.price_in_rub = self.price
+            else:
+                rate = CurrencyRate.get_rate(self.currency)
+                self.price_in_rub = self.price * rate
+                self.last_rate_update = timezone.now()
+            
+            self.price_in_rub = self.price_in_rub.quantize(Decimal('0.01'))
+            
+        except Exception as e:
+            if not self.pk:
+                self.price_in_rub = self.price
+    
+    def update_price_from_currency(self):
+        """Обновляет цену в рублях по текущему курсу"""
+        from .models import CurrencyRate
+        
+        try:
+            if self.currency != 'RUB':
+                rate = CurrencyRate.get_rate(self.currency)
+                old_price_rub = self.price_in_rub
+                self.price_in_rub = self.price * rate
+                self.last_rate_update = timezone.now()
+                self.price_in_rub = self.price_in_rub.quantize(Decimal('0.01'))
+                self.save(update_fields=['price_in_rub', 'last_rate_update'])
+                return True
+        except Exception as e:
+            print(f"Ошибка обновления цены для товара {self.article}: {str(e)}")
+        
+        return False
+    
+    def get_price_with_currency_symbol(self):
+        """Получение цены с символом валюты"""
+        currency_symbols = {
+            'RUB': '₽',
+            'USD': '$',
+            'EUR': '€',
+        }
+        symbol = currency_symbols.get(self.currency, '₽')
+        
+        price_str = f"{self.price:,.2f}".replace(',', ' ').replace('.', ',')
+        return f"{price_str} {symbol}"
+
+    def get_price_in_rub_with_symbol(self):
+        """Получение цены в рублях с символом"""
+        price_str = f"{self.price_in_rub:,.2f}".replace(',', ' ').replace('.', ',')
+        return f"{price_str} ₽"
+    
+    @property
+    def display_price(self):
+        """Свойство для получения цены в рублях (для обратной совместимости)"""
+        return self.price_in_rub
     
     def get_images_count(self):
         """Возвращает количество изображений товара"""
@@ -2363,3 +2557,4 @@ def update_invoice_registry_entry(sender, instance, **kwargs):
             registry_entry.save()
         except InvoiceRegistry.DoesNotExist:
             pass
+

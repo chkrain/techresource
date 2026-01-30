@@ -58,7 +58,9 @@
             
             <div class="product-meta">
                 <div class="price-section">
-                    <div class="price">{{ product.price }} ₽</div>
+                    <div class="price">
+                        {{ product.display_price_value|floatformat:2 }} {{ product.currency_symbol }}
+                    </div>
                     <div class="stock-info">
                         {% if product.quantity > 0 %}
                             Остаток: {{ product.quantity }} шт.
@@ -224,14 +226,12 @@
     overflow: hidden;
 }
 
-/* Затемненное изображение */
 .product-card.out-of-stock-card .product-image img {
     filter: grayscale(100%);
     opacity: 0.5;
     transition: all 0.3s ease;
 }
 
-/* Цвета текста для неактивной карточки */
 .product-card.out-of-stock-card .product-title,
 .product-card.out-of-stock-card .product-article,
 .product-card.out-of-stock-card .product-description,
@@ -240,14 +240,11 @@
     color: #6c757d;
 }
 
-/* Зачеркнутая цена */
 .product-card.out-of-stock-card .price-section .price {
     color: #6c757d;
     text-decoration: line-through;
 }
 
-
-/* Заблокировать клики по кнопкам в неактивной карточке */
 .product-card.out-of-stock-card .product-actions button,
 .product-card.out-of-stock-card .product-actions a {
     pointer-events: none;
@@ -256,7 +253,6 @@
 }
 
 
-/* Минимальная анимация при наведении */
 .product-card.out-of-stock-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);

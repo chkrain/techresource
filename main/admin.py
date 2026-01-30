@@ -15,7 +15,7 @@ from .models import (
     SecurityLog, LoginAttempt, PaymentAuditLog, Admin2FA,
     FraudDetectionLog, RateLimitLog, CSPViolationReport, Wishlist, WishlistItem,
     SupportTicket, SupportAttachment, ServicePage, PasswordResetToken, InvoiceRegistry, 
-    Category
+    Category, CurrencyRate
 )
 
 logger = logging.getLogger('django.security')
@@ -228,46 +228,64 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['article', 'name', 'get_category_path', 'price', 'quantity', 'is_active', 'get_article_date']
+    list_display = ['article', 'name', 'get_category_path', 'price', 'currency', 'quantity', 'is_active', 'get_article_date']
     list_filter = ['category', 'is_active', 'created_at', 'brand']
     search_fields = ['name', 'article', 'description']
-    list_editable = ['price', 'quantity', 'is_active']
+    list_editable = ['price', 'currency', 'quantity', 'is_active']
     readonly_fields = ['article', 'slug', 'seo_title', 'seo_description', 'seo_keywords', 'created_at', 'updated_at', 'get_article_date']
     inlines = [ProductImageInline]
-    
+        
     fieldsets = (
         ('Основная информация', {
-            'fields': ('name', 'category', 'brand', 'description', 'article', 'get_article_date', 'slug'),
-            'description': 'Обязательные поля: название, категория, цена и количество. Бренд и описание - рекомендуются.'
+            'fields': ('name', 'category', 'brand', 'description', 'article', 
+                    'get_article_date', 'slug'),
         }),
-        ('Цена и наличие', {
-            'fields': ('price', 'quantity', 'is_active'),
-            'description': 'Цена в рублях. Количество должно быть неотрицательным.'
+        ('Цена и валюта', {
+            'fields': ('price', 'currency', 'quantity', 'is_active'),  
         }),
         ('Технические характеристики', {
             'fields': ('material', 'weight', 'dimensions', 'warranty', 'specifications'),
             'classes': ('collapse',),
-            'description': '''
-                <strong>Инструкция по заполнению:</strong><br>
-                1. <strong>Материал</strong> - основной материал изделия (пластик, металл и т.д.)<br>
-                2. <strong>Вес</strong> - в килограммах, с точностью до сотых (2.50)<br>
-                3. <strong>Габариты</strong> - формат: Длина×Ширина×Высота в см (10×20×5)<br>
-                4. <strong>Гарантия</strong> - срок в месяцах, по умолчанию 12<br>
-                5. <strong>Характеристики (JSON)</strong> - дополнительные параметры в формате ключ: значение<br>
-                &nbsp;&nbsp;&nbsp;Пример: {"Мощность": "100W", "Напряжение": "220V", "Цвет": "черный"}<br>
-                <em>Все эти поля необязательны, но помогают покупателям найти товар</em>
-            '''
         }),
-        ('SEO настройки (автозаполняются)', {
+        ('НДС и доставка', {
+            'fields': ('vat_rate', 'is_fragile', 'requires_special_delivery'),
+            'classes': ('collapse',),
+        }),
+        ('SEO настройки', {
             'fields': ('seo_title', 'seo_description', 'seo_keywords'),
             'classes': ('collapse',),
-            'description': 'Эти поля заполняются автоматически на основе названия и описания.'
         }),
-        ('Даты', {
+        ('Системная информация', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
+
+    def currency_info(self, obj):
+        """Информация о валюте"""
+        if obj.pk:
+            currency_names = {
+                'RUB': 'Российский рубль',
+                'USD': 'Доллар США',
+                'EUR': 'Евро',
+            }
+            name = currency_names.get(obj.currency, obj.currency)
+            return f"Валюта: {name}"
+        return "Выберите валюту"
+    currency_info.short_description = 'Информация о валюте'
+
+    def price_in_rub_info(self, obj):
+        """Информация о цене в рублях"""
+        if obj.pk:
+            if obj.price_in_rub:
+                price_str = f"{obj.price_in_rub:,.2f}".replace(',', ' ').replace('.', ',')
+                
+                if obj.currency != 'RUB' and obj.last_rate_update:
+                    return f"Цена в рублях: {price_str} ₽ (курс обновлен: {obj.last_rate_update.strftime('%d.%m.%Y %H:%M')})"
+                else:
+                    return f"Цена в рублях: {price_str} ₽"
+        return "Будет рассчитано при сохранении"
+    price_in_rub_info.short_description = 'Информация о цене'
 
     def get_fieldsets(self, request, obj=None):
         """Показываем разные наборы полей для создания и редактирования"""
@@ -282,7 +300,7 @@ class ProductAdmin(admin.ModelAdmin):
                     'classes': ('collapse',)
                 }),
                 ('Цена и наличие*', {
-                    'fields': ('price', 'quantity', 'is_active')
+                    'fields': ('price', 'currency', 'quantity', 'is_active')
                 }),
             )
         else:
@@ -305,10 +323,37 @@ class ProductAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """Кастомный виджет для выбора категории с иерархией"""
         if db_field.name == "category":
-            # Показываем категории с отступами для подкатегорий
             kwargs["queryset"] = Category.objects.all().order_by('parent__order', 'order', 'name')
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
     
+    def display_price_info(self, obj):
+        """Отображение информации о цене в рублях"""
+        if obj.pk:
+            if obj.currency != 'RUB' and obj.last_rate_update:
+                return f"{obj.price_in_rub} ₽ (курс от {obj.last_rate_update.strftime('%d.%m.%Y %H:%M')})"
+            elif obj.currency == 'RUB':
+                return f"{obj.price_in_rub} ₽ (исходная валюта)"
+        return "Будет рассчитано при сохранении"
+    display_price_info.short_description = 'Цена в рублях'
+    
+    def price_with_currency(self, obj):
+        """Отображение цены с валютой в списке"""
+        currency_symbols = {
+            'RUB': '₽',
+            'USD': '$',
+            'EUR': '€',
+        }
+        symbol = currency_symbols.get(obj.currency, '₽')
+        return f"{obj.price} {symbol}"
+    price_with_currency.short_description = 'Цена'
+    price_with_currency.admin_order_field = 'price'
+    
+    def price_in_rub_display(self, obj):
+        """Отображение цены в рублях в списке"""
+        return f"{obj.price_in_rub} ₽"
+    price_in_rub_display.short_description = 'Цена в рублях'
+    price_in_rub_display.admin_order_field = 'price_in_rub'
+
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         return queryset.select_related('category')
@@ -321,6 +366,12 @@ class ProductAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """Логирование изменений товаров"""
+        if change:
+            if 'price' in form.changed_data or 'currency' in form.changed_data:
+                obj.calculate_price_in_rub()
+        else: 
+            obj.calculate_price_in_rub()
+        
         if not change:  
             logger.info(f"Admin {request.user} создал товар '{obj.name}' с артикулом {obj.article}")
         else:
@@ -340,6 +391,22 @@ class CategoryInline(admin.TabularInline):
     extra = 0
     fields = ['name', 'order', 'is_active', 'show_in_menu']
     readonly_fields = ['product_count']
+
+@admin.register(CurrencyRate)
+class CurrencyRateAdmin(admin.ModelAdmin):
+    list_display = ['currency', 'rate_to_rub', 'last_updated', 'is_active']
+    list_editable = ['is_active']
+    readonly_fields = ['last_updated']
+    
+    def update_rates(self, request, queryset):
+        """Действие для обновления курсов"""
+        from main.models import CurrencyRate
+        success = CurrencyRate.update_rates_from_cbr()
+        if success:
+            self.message_user(request, "Курсы валют успешно обновлены")
+        else:
+            self.message_user(request, "Ошибка обновления курсов валют", level='error')
+    update_rates.short_description = "Обновить курсы с ЦБ РФ"
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
