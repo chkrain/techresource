@@ -89,15 +89,15 @@
                 </div>
                 
                 <div class="price-section">
-                    <div class="price">{{ product.price }} ₽</div>
+                    <div class="price">
+                        {{ product.display_price_value|floatformat:2 }} {{ product.currency_symbol }}
+                    </div>
                     {% if product.quantity > 0 %}
                         <div class="stock-info in-stock">
-                            <span>✅</span>
                             В наличии: {{ product.quantity }} шт.
                         </div>
                     {% else %}
                         <div class="stock-info out-of-stock">
-                            <span>⏸️</span>
                             Нет в наличии
                         </div>
                     {% endif %}
@@ -113,7 +113,6 @@
                                     data-product-price="{{ product.price }}"
                                     data-product-image="{% with main_image=product.get_main_image %}{% if main_image %}{{ main_image.image.url }}{% endif %}{% endwith %}"
                                     data-product-url="{% url 'product_detail' product.id %}">
-                                <span class="btn-icon">🛒</span>
                                 Добавить в корзину
                             </button>
                         {% else %}
@@ -137,7 +136,6 @@
                         <button type="button" 
                                 class="btn btn-secondary toggle-wishlist-btn {% if in_wishlist %}active{% endif %}" 
                                 data-product-id="{{ product.id }}">
-                            <span class="btn-icon">{{ in_wishlist|yesno:"❤️,🤍" }}</span>
                             {{ in_wishlist|yesno:"В избранном,В избранное" }}
                         </button>
                     {% else %}
@@ -254,9 +252,9 @@
                         <span class="similar-product-price">{{ similar_product.price }} ₽</span>
                         <span class="similar-product-stock">
                             {% if similar_product.quantity > 0 %}
-                                ✅ В наличии
+                                В наличии
                             {% else %}
-                                ⏸️ Нет в наличии
+                                ⏸Нет в наличии
                             {% endif %}
                         </span>
                     </div>

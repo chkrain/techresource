@@ -98,8 +98,13 @@
                         </div>
                         
                         <div class="item-price">
-                            <div class="price-per-item">{{ item.product.price }} ₽/шт</div>
-                            <div class="total-price">{{ item.get_total_price }} ₽</div>
+                            {% if item.product.currency != 'RUB' %}
+                                <small class="text-muted" style="display: block; font-size: 11px; margin-bottom: 4px;">
+                                    {{ item.product.price }} {{ item.product.get_currency_display }}
+                                </small>
+                            {% endif %}
+                            <div class="price-per-item">{{ item.unit_price_in_rub|floatformat:2 }} ₽/шт</div>
+                            <div class="total-price">{{ item.get_total_price|floatformat:2 }} ₽</div>
                         </div>
                         
                         <div class="item-remove">

@@ -74,20 +74,26 @@
             <div class="summary-header">
               <h4>Состав заказа</h4>
               <span class="total-amount">{{ order.total_price }} ₽</span>
-            </div>
+          </div>
 
-            <div class="order-items">
+          <div class="order-items">
               {% for item in order.orderitem_set.all %}
               <div class="order-item">
-                <div class="item-info">
-                  <span class="item-name">{{ item.product.name }}</span>
-                  <span class="item-article">Артикул: {{ item.product.article }}</span>
-                </div>
-                <div class="item-quantity">×{{ item.quantity }}</div>
-                <div class="item-price">{{ item.get_total_price }} ₽</div>
+                  <div class="item-info">
+                      <span class="item-name">{{ item.product.name }}</span>
+                      <span class="item-article">Артикул: {{ item.product.article }}</span>
+                  </div>
+                  <div class="item-quantity">×{{ item.quantity }}</div>
+                  <div class="item-price">
+                      {% if item.product.currency != 'RUB' %}
+                          <small class="text-muted" style="display: block; font-size: 11px;">
+                              {{ item.product.price }} {{ item.product.get_currency_display }}
+                          </small>
+                      {% endif %}
+                      {{ item.get_total_price|floatformat:2 }} ₽
+                  </div>
               </div>
               {% endfor %}
-            </div>
           </div>
 
           <div class="detail-group">

@@ -431,7 +431,7 @@
                     {% endwith %}
                     <div class="product-info">
                         <h3>{{ product.name }}</h3>
-                        <p class="price">{{ product.price }} руб.</p>
+                        <p class="price">{{ product.display_price|floatformat:2 }} ₽</p>
                         <p class="quantity {% if product.quantity > 0 %}in-stock{% else %}out-of-stock{% endif %}">
                             {% if product.quantity > 0 %}В наличии{% else %}Нет в наличии{% endif %}
                         </p>

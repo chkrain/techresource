@@ -1577,11 +1577,14 @@ class Cart(models.Model):
         return f"Корзина {self.user.username}"
     
     def get_total_price(self):
-        return sum(item.get_total_price() for item in self.cartitem_set.all())
+        """Общая стоимость корзины в рублях"""
+        total = Decimal('0')
+        for item in self.cartitem_set.all():
+            total += item.get_total_price() 
+        return total
     
     def get_items_count(self):
-        """Возвращает общее количество товаров в корзине"""
-        return sum(item.quantity for item in self.cartitem_set.all())
+        return self.cartitem_set.count()
     
     def get_total_quantity(self):
         """Возвращает количество позиций (разных товаров) в корзине"""
@@ -1601,8 +1604,14 @@ class CartItem(models.Model):
         return f"{self.product.name} x {self.quantity}"
     
     def get_total_price(self):
-        return self.product.price * self.quantity
+        """Возвращает сумму в рублях с учетом конвертации валюты"""
+        price_in_rub = self.product.get_display_price('RUB')
+        return price_in_rub * self.quantity
     
+    def get_unit_price_in_rub(self):
+        """Возвращает цену за единицу в рублях"""
+        return self.product.get_display_price('RUB')
+
     class Meta:
         verbose_name = "Элемент корзины"
         verbose_name_plural = "Элементы корзины"

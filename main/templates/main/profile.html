@@ -516,18 +516,26 @@
                                 </div>
                                 
                                 <div class="order-items">
-                                    {% for item in order.orderitem_set.all %}
+                                {% for item in order.orderitem_set.all %}
                                     <div class="order-item">
                                         <div class="item-info">
                                             <h4>{{ item.product.name }}</h4>
                                             <p class="item-quantity">Количество: {{ item.quantity }}</p>
-                                            <p class="item-price">{{ item.price }} ₽ × {{ item.quantity }}</p>
+                                            <div class="item-price">
+                                                {% if item.product.currency != 'RUB' %}
+                                                    <small class="text-muted" style="font-size: 12px;">
+                                                        {{ item.product.price }} {{ item.product.get_currency_display }} × {{ item.quantity }}
+                                                    </small>
+                                                    <br>
+                                                {% endif %}
+                                                {{ item.price|floatformat:2 }} ₽ × {{ item.quantity }}
+                                            </div>
                                         </div>
                                         <div class="item-total">
-                                            <strong>{{ item.get_total_price }} ₽</strong>
+                                            <strong>{{ item.get_total_price|floatformat:2 }} ₽</strong>
                                         </div>
                                     </div>
-                                    {% endfor %}
+                                {% endfor %}
                                 </div>
                                 
                                 <div class="order-footer">

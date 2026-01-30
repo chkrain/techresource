@@ -50,7 +50,7 @@ from .models import SupportAttachment
 from .forms import SupportTicketForm
 import tempfile
 from blog.models import BlogComment, BlogArticle
-from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage, InvoiceRegistry, Category
+from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage, InvoiceRegistry, Category, CurrencyRate
 from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm, AdminProfileTagsForm, SupportTicketForm
 from django.db.models import Sum
 import qrcode
@@ -68,6 +68,10 @@ logger = logging.getLogger(__name__)
 
 def index(request):
     featured_products = Product.objects.filter(is_active=True, quantity__gt=0)[:6]
+    
+    for product in featured_products:
+        product.price_in_rub = product.get_display_price('RUB')
+    
     return render(request, 'main/index.html', {'featured_products': featured_products})
 
 def about(request):
@@ -326,7 +330,11 @@ def products(request):
     in_stock = request.GET.get('in_stock', '')
     sort_by = request.GET.get('sort_by', 'name')
     display_currency = request.GET.get('currency', 'RUB')
-    
+    currency_symbols = {
+        'RUB': '₽',
+        'USD': '$',
+        'EUR': '€',
+    }
     products_list = Product.objects.filter(is_active=True).select_related('category')
     
     if search_query:
@@ -438,9 +446,13 @@ def products(request):
         except Wishlist.DoesNotExist:
             for product in page_obj:
                 product.in_wishlist = False
+                product.display_price_value = product.get_display_price(display_currency)
+                product.currency_symbol = currency_symbols.get(display_currency, '₽')
     else:
         for product in page_obj:
             product.in_wishlist = False
+            product.display_price_value = product.get_display_price(display_currency)
+            product.currency_symbol = currency_symbols.get(display_currency, '₽')
     
     similar_products = None
     if search_query:
@@ -514,14 +526,21 @@ def get_price_range(request):
     if brand:
         products = products.filter(brand=brand)
     
-    price_range = products.aggregate(
-        min_price=Min('price'),
-        max_price=Max('price')
-    )
+    prices_in_rub = []
+    for product in products:
+        price_in_rub = product.get_display_price('RUB')
+        prices_in_rub.append(float(price_in_rub))
+    
+    if prices_in_rub:
+        min_price = min(prices_in_rub)
+        max_price = max(prices_in_rub)
+    else:
+        min_price = 0
+        max_price = 10000
     
     return JsonResponse({
-        'min_price': float(price_range['min_price'] or 0),
-        'max_price': float(price_range['max_price'] or 10000)
+        'min_price': min_price,
+        'max_price': max_price
     })
 
 def search_suggestions(request):
@@ -699,7 +718,7 @@ def cart_view(request):
     vat_rate = Decimal('22.00')
     
     for item in cart_items:
-        item_total = item.get_total_price()
+        item_total = item.get_total_price() 
         item_vat = item_total * (vat_rate / 100) / (1 + vat_rate / 100)
         item_without_vat = item_total - item_vat
         
@@ -709,6 +728,7 @@ def cart_view(request):
         item.vat_amount = item_vat
         item.price_without_vat = item_without_vat
         item.vat_rate = vat_rate
+        item.unit_price_in_rub = item.get_unit_price_in_rub()
     
     subtotal = cart.get_total_price()
     
@@ -753,11 +773,12 @@ def cart_view(request):
             order.save(update_fields=['invoice_number'])
             
             for cart_item_order in cart_items:
+                price_in_rub = cart_item_order.get_unit_price_in_rub()
                 OrderItem.objects.create(
                     order=order,
                     product=cart_item_order.product,
                     quantity=cart_item_order.quantity,
-                    price=cart_item_order.product.price,
+                    price=price_in_rub, 
                     vat_rate=vat_rate
                 )
 
@@ -780,10 +801,10 @@ def cart_view(request):
         'cart': cart,
         'cart_items': cart_items,
         'addresses': list(addresses),
-        'subtotal': subtotal,
-        'final_price': subtotal,
-        'vat_total': vat_total,
-        'total_without_vat': total_without_vat,
+        'subtotal': subtotal, 
+        'final_price': subtotal, 
+        'vat_total': vat_total, 
+        'total_without_vat': total_without_vat, 
         'vat_rate': vat_rate,
     }
     return render(request, 'main/cart.html', context)
@@ -2240,7 +2261,16 @@ def delete_review(request, review_id):
 def product_detail(request, product_id):
     """Детальная страница товара"""
     product = get_object_or_404(Product, id=product_id, is_active=True)
-
+    product.display_price_value = product.get_display_price('RUB') 
+    if hasattr(product, 'currency'):
+        product.original_price = product.price
+        product.original_currency = product.currency
+    currency_symbols = {
+        'RUB': '₽',
+        'USD': '$',
+        'EUR': '€',
+    }
+    product.currency_symbol = currency_symbols.get('RUB', '₽') 
     product_images = product.get_images()
     
     similar_products = Product.objects.filter(
@@ -3181,8 +3211,9 @@ def send_invoice_email(order):
         
         items_data = []
         for index, order_item in enumerate(order_items, 1):
-            item_total = order_item.quantity * order_item.price
-            vat_amount = item_total * order_item.vat_rate / (100 + order_item.vat_rate)
+            item_price_in_rub = order_item.product.get_display_price('RUB')
+            item_total_rub = order_item.quantity * item_price_in_rub
+            vat_amount_rub = item_total_rub * order_item.vat_rate / (100 + order_item.vat_rate)
             
             items_data.append({
                 'index': index,
@@ -3190,11 +3221,12 @@ def send_invoice_email(order):
                 'sku': order_item.product.article or '',
                 'quantity': order_item.quantity,
                 'unit': 'шт.',
-                'unit_price': order_item.price,
-                'line_total': item_total,
-                'vat': vat_amount,
+                'unit_price': item_price_in_rub,  
+                'line_total': item_total_rub,  
+                'vat': vat_amount_rub, 
                 'vat_rate': order_item.vat_rate,
             })
+        
         
         totals = {
             'net': order.price_without_vat,
@@ -3696,13 +3728,14 @@ def anonymous_create_order(request):
                 try:
                     product = Product.objects.get(id=int(product_id))
                     quantity = item_data['quantity']
-                    item_total = product.price * quantity
+                    price_in_rub = product.get_display_price('RUB')
+                    item_total = price_in_rub * quantity
                     total += item_total
                     
                     order_items_data.append({
                         'product': product,
                         'quantity': quantity,
-                        'price': product.price,
+                        'price': price_in_rub,
                         'total': item_total
                     })
                     
