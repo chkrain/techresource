@@ -2278,6 +2278,12 @@ def product_detail(request, product_id):
         is_active=True
     ).exclude(id=product.id)[:4]
     
+    display_currency = 'RUB'  
+    if similar_products:
+        for similar_product in similar_products:
+            similar_product.price = similar_product.get_display_price('RUB')
+            similar_product.currency_symbol = currency_symbols.get('RUB', '₽')
+
     in_wishlist = False
     if request.user.is_authenticated:
         try:
