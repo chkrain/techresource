@@ -298,7 +298,7 @@ async function loadProducts(page = 1, customFilters = {}) {
                     </span>
                     <a href="#" class="pagination-btn" data-page="${data.next_page_number}">Далее →</a>
                 `;
-                pagination.style.display = 'block';
+                pagination.style.display = 'flex';
             } else {
                 pagination.innerHTML = `
                     ${page > 1 ? `<a href="#" class="pagination-btn" data-page="${page - 1}">← Назад</a>` : '<span></span>'}
@@ -307,7 +307,7 @@ async function loadProducts(page = 1, customFilters = {}) {
                     </span>
                     <span class="pagination-info">Показаны все товары</span>
                 `;
-                pagination.style.display = 'block';
+                pagination.style.display = 'flex';
             }
             
             pagination.querySelectorAll('.pagination-btn').forEach(btn => {
@@ -693,27 +693,5 @@ document.addEventListener("DOMContentLoaded", function() {
             
             loadProducts(1, {});
         });
-    }
-    
-    let observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && !isLoading) {
-                const nextBtn = document.querySelector('.pagination-btn[data-page]');
-                if (nextBtn) {
-                    const nextPage = parseInt(nextBtn.getAttribute('data-page'));
-                    if (!isNaN(nextPage)) {
-                        loadProducts(nextPage);
-                    }
-                }
-            }
-        });
-    });
-    
-    const sentinel = document.createElement('div');
-    sentinel.id = 'scroll-sentinel';
-    const content = document.querySelector('.products-content');
-    if (content) {
-        content.appendChild(sentinel);
-        observer.observe(sentinel);
     }
 });
