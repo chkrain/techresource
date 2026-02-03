@@ -17,6 +17,7 @@ from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 from .models import SupportTicket, UserProfile
 from .validators import validate_avatar, validate_profile_background
+from .forms_privacy import OrderPrivacyField, SupportPrivacyField, ContactPrivacyField
 
 class ReCaptchaFieldV2(ReCaptchaField):
     widget = ReCaptchaV2Checkbox
@@ -43,11 +44,24 @@ class UserRegisterForm(forms.ModelForm):
         ('individual', 'Физическое лицо'),
         ('legal', 'Юридическое лицо'),
     ]
+
+    privacy_consent = forms.BooleanField(
+        required=True,
+        label='',  # Пустая метка
+        widget=forms.CheckboxInput()
+    )
+    
+    newsletter_consent = forms.BooleanField(
+        required=False,
+        label='',
+        initial=True,
+        widget=forms.CheckboxInput()
+    )
     
     account_type = forms.ChoiceField(
-        choices=ACCOUNT_TYPE_CHOICES,
-        label='Тип аккаунта*',
-        widget=forms.RadioSelect(attrs={'class': 'account-type-selector'})
+        choices=[('individual', 'Физическое лицо'), ('legal', 'Юридическое лицо')],
+        label='Тип аккаунта',
+        required=True
     )
     
     first_name = forms.CharField(
@@ -137,17 +151,22 @@ class UserRegisterForm(forms.ModelForm):
     )
     agree_terms = forms.BooleanField(
         required=True,
-        label='Я соглашаюсь с условиями использования'
+        label='Я соглашаюсь с политикой конфиденциальности'
     )
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'agree_terms', 
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 
+                 'agree_terms', 'privacy_consent', 'newsletter_consent',
                  'account_type', 'company_name', 'inn', 'kpp', 'ogrn', 'legal_address', 
                  'bank_name', 'bik', 'settlement_account', 'correspondent_account']
 
     def clean(self):
         cleaned_data = super().clean()
+
+        if not cleaned_data.get('privacy_consent'):
+            self.add_error('privacy_consent', 'Для регистрации необходимо дать согласие на обработку персональных данных')
+        
         account_type = cleaned_data.get('account_type')
         
         if account_type == 'individual':
@@ -487,10 +506,12 @@ class SecureUserCreationForm(UserCreationForm):
     )
     email = forms.EmailField(required=True)
     agree_terms = forms.BooleanField(required=True)
+    privacy_consent = forms.BooleanField(required=True,label='')
+    newsletter_consent = forms.BooleanField(required=False,label='',initial=True)
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2', 'agree_terms']
+        fields = ['username', 'email', 'password1', 'password2', 'agree_terms', 'privacy_consent']
     
     def clean_email(self):
         email = self.cleaned_data['email']
@@ -681,6 +702,8 @@ class SupportTicketForm(forms.ModelForm):
         error_messages={'required': 'Пожалуйста, подтвердите, что вы не робот'}
     )
     
+    privacy_consent = SupportPrivacyField()
+    
     attachments = forms.FileField(
         required=False,
         widget=forms.ClearableFileInput(),
@@ -761,4 +784,100 @@ class PrivacySettingsForm(forms.ModelForm):
             field: forms.RadioSelect(attrs={'class': 'privacy-radio'})
             for field in fields
         }
-        
+
+class CartOrderForm(forms.Form):
+    """Форма для оформления заказа из корзины"""
+    address_id = forms.IntegerField(
+        required=True,
+        widget=forms.HiddenInput()
+    )
+    customer_inn = forms.CharField(
+        max_length=12, 
+        required=False, 
+        label='ИНН',
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': '10 или 12 цифр',
+            'data-mask': 'inn'
+        })
+    )
+    customer_kpp = forms.CharField(
+        max_length=9, 
+        required=False, 
+        label='КПП',
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': '9 цифр',
+            'data-mask': 'kpp'
+        })
+    )
+    
+    privacy_consent = OrderPrivacyField()
+    
+    def clean_customer_inn(self):
+        inn = self.cleaned_data.get('customer_inn', '').strip()
+        if inn and (not inn.isdigit() or len(inn) not in [10, 12]):
+            raise forms.ValidationError('ИНН должен содержать 10 или 12 цифр')
+        return inn
+    
+    def clean_customer_kpp(self):
+        kpp = self.cleaned_data.get('customer_kpp', '').strip()
+        if kpp and (not kpp.isdigit() or len(kpp) != 9):
+            raise forms.ValidationError('КПП должен содержать 9 цифр')
+        return kpp        
+
+class ContactForm(forms.Form):
+    """Форма обратной связи на главной странице"""
+    name = forms.CharField(
+        max_length=100,
+        label='Ваше имя',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Иван Иванов',
+            'required': 'required'
+        })
+    )
+    
+    email = forms.EmailField(
+        label='Email',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'example@mail.ru',
+            'required': 'required'
+        })
+    )
+    
+    phone = forms.CharField(
+        max_length=20,
+        required=False,
+        label='Телефон',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '+7 (999) 123-45-67'
+        })
+    )
+    
+    message = forms.CharField(
+        label='Сообщение',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Опишите ваш вопрос или предложение...',
+            'required': 'required'
+        })
+    )
+    
+    # Капча
+    captcha = ReCaptchaField(
+        widget=ReCaptchaV2Checkbox(
+            attrs={
+                'data-theme': 'light',
+                'data-size': 'normal',
+            }
+        ),
+        label='',
+        error_messages={'required': 'Пожалуйста, подтвердите, что вы не робот'}
+    )
+    
+    # Согласие на обработку данных
+    privacy_consent = ContactPrivacyField()

@@ -206,6 +206,19 @@
                                 <small class="form-text">Для ИП оставьте пустым</small>
                             </div>
                         </div>
+
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="privacy-consent-container">
+                                    <label for="{{ form.privacy_consent.id_for_label }}" class="privacy-consent-label">
+                                        {{ form.privacy_consent }}
+                                        <span class="privacy-consent-text" style="color: black;">
+                                            Я соглашаюсь с условиями <a href="{% url 'privacy_policy' %}" target="_blank">обработки персональных данных</a>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                         
                         <button type="submit" class="checkout-btn invoice-btn">
                             📄 Оформить заказ по счету

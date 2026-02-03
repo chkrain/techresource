@@ -50,8 +50,8 @@ from .models import SupportAttachment
 from .forms import SupportTicketForm
 import tempfile
 from blog.models import BlogComment, BlogArticle
-from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage, InvoiceRegistry, Category, CurrencyRate
-from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm, AdminProfileTagsForm, SupportTicketForm
+from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage, InvoiceRegistry, Category, CurrencyRate, PrivacyRequest, PrivacyConsent, PrivacyConsentLog
+from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm, AdminProfileTagsForm, SupportTicketForm, CartOrderForm, ContactForm
 from django.db.models import Sum
 import qrcode
 import qrcode.image.svg
@@ -67,12 +67,111 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 def index(request):
-    featured_products = Product.objects.filter(is_active=True, quantity__gt=0)[:6]
+    from django.db.models import Max
+    
+    categories = Category.objects.filter(
+        is_active=True, 
+        products__is_active=True, 
+        products__quantity__gt=0
+    ).distinct()
+    
+    featured_products = []
+    
+    for category in categories:
+        product = Product.objects.filter(
+            category=category,
+            is_active=True,
+            quantity__gt=0
+        ).order_by('-popularity').first()
+        
+        if product and product not in featured_products:
+            featured_products.append(product)
+        
+        if len(featured_products) >= 6:
+            break
+    
+    if len(featured_products) < 6:
+        remaining_products = Product.objects.filter(
+            is_active=True,
+            quantity__gt=0
+        ).exclude(
+            id__in=[p.id for p in featured_products]
+        ).order_by('-popularity')[:6 - len(featured_products)]
+        
+        featured_products.extend(remaining_products)
     
     for product in featured_products:
         product.price_in_rub = product.get_display_price('RUB')
     
-    return render(request, 'main/index.html', {'featured_products': featured_products})
+    contact_form = ContactForm()
+    
+    # Проверяем, отправлена ли контактная форма
+    if request.method == 'POST' and 'contact_form' in request.POST:
+        contact_form = ContactForm(request.POST)
+        
+        if contact_form.is_valid():
+            try:
+                # Получаем данные из формы
+                name = contact_form.cleaned_data['name']
+                email = contact_form.cleaned_data['email']
+                phone = contact_form.cleaned_data.get('phone', '')
+                message = contact_form.cleaned_data['message']
+                
+                # Отправляем сообщение в Telegram
+                ip_address = get_client_ip(request)
+                success = send_contact_message(name, email, phone, message, ip_address)
+                
+                if success:
+                    messages.success(
+                        request, 
+                        '✅ Сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.'
+                    )
+                    
+                    # Логируем отправку
+                    NotificationLog.objects.create(
+                        notification_type='contact_form_sent',
+                        message=f'Контактная форма отправлена от {name} ({email})',
+                        sent_to=f"Telegram",
+                        success=True
+                    )
+                    
+                    # Очищаем форму после успешной отправки
+                    contact_form = ContactForm()
+                    
+                    if request.user.is_authenticated:
+                        from .views_privacy import create_privacy_consent
+                        try:
+                            create_privacy_consent(request.user, 'contact', request=request)
+                        except Exception as e:
+                            logger.error(f"Ошибка создания согласия для контактной формы: {str(e)}")
+                    
+                else:
+                    messages.error(
+                        request, 
+                        '❌ Ошибка при отправке сообщения. Попробуйте позже или свяжитесь с нами по телефону.'
+                    )
+                    
+                    NotificationLog.objects.create(
+                        notification_type='contact_form_sent',
+                        message=f'Ошибка отправки контактной формы от {name}',
+                        sent_to=f"Telegram",
+                        success=False,
+                        error_message='Ошибка Telegram API'
+                    )
+                    
+            except Exception as e:
+                logger.error(f"Ошибка обработки контактной формы: {str(e)}")
+                messages.error(
+                    request, 
+                    '❌ Произошла ошибка при обработке формы. Пожалуйста, попробуйте еще раз.'
+                )
+    
+    context = {
+        'featured_products': featured_products,
+        'contact_form': contact_form,  # Добавляем форму в контекст
+    }
+    
+    return render(request, 'main/index.html', context)
 
 def about(request):
     return render(request, 'main/about.html')
@@ -569,7 +668,7 @@ def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=True, request=request) 
             
             user = authenticate(
                 request, 
@@ -733,17 +832,20 @@ def cart_view(request):
     subtotal = cart.get_total_price()
     
     if request.method == 'POST':
-        address_id = request.POST.get('address_id')
+        form = CartOrderForm(request.POST) 
         
-        if not address_id or address_id == '':
-            messages.error(request, 'Выберите адрес доставки')
+        if not form.is_valid():
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
             return redirect('cart')
+        
+        address_id = form.cleaned_data['address_id']
+        customer_inn = form.cleaned_data.get('customer_inn', '')
+        customer_kpp = form.cleaned_data.get('customer_kpp', '')
         
         try:
             address = Address.objects.get(id=address_id, user=request.user)
-
-            customer_inn = request.POST.get('customer_inn', '')
-            customer_kpp = request.POST.get('customer_kpp', '')
 
             for cart_item_check in cart_items:
                 if cart_item_check.product.quantity < cart_item_check.quantity:
@@ -784,9 +886,13 @@ def cart_view(request):
 
                 cart_item_order.product.quantity -= cart_item_order.quantity
                 cart_item_order.product.save()
+            
             cart_items.delete()
             order.status = 'processing'
             order.save()
+            
+            from .views_privacy import create_privacy_consent
+            create_privacy_consent(request.user, 'order', request=request)
             
             send_invoice_email(order)
             
@@ -797,6 +903,9 @@ def cart_view(request):
             messages.error(request, 'Выбранный адрес не найден')
             return redirect('cart')
     
+    else:
+        form = CartOrderForm()
+    
     context = {
         'cart': cart,
         'cart_items': cart_items,
@@ -806,6 +915,7 @@ def cart_view(request):
         'vat_total': vat_total, 
         'total_without_vat': total_without_vat, 
         'vat_rate': vat_rate,
+        'form': form,  
     }
     return render(request, 'main/cart.html', context)
 
@@ -1672,14 +1782,14 @@ def send_contact_message(name, email, phone, message, ip_address):
         if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID_CONTACTS:
             return False
         
-            
         telegram_message = f"""
-📩 <b>НОВОЕ СООБЩЕНИЕ ОБРАТНОЙ СВЯЗИ</b>
+📩 <b>НОВОЕ СООБЩЕНИЕ С ГЛАВНОЙ СТРАНИЦЫ</b>
 
 👤 <b>Имя:</b> {name}
 📧 <b>Email:</b> {email}
-📞 <b>Телефон:</b> {phone}
+📞 <b>Телефон:</b> {phone if phone else 'Не указан'}
 🌐 <b>IP-адрес:</b> {ip_address}
+📅 <b>Время:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
 
 💬 <b>Сообщение:</b>
 {message}
@@ -1696,6 +1806,7 @@ def send_contact_message(name, email, phone, message, ip_address):
         return response.status_code == 200
         
     except Exception as e:
+        logger.error(f"Ошибка отправки контактного сообщения в Telegram: {str(e)}")
         return False
 
 @csrf_exempt
@@ -2408,9 +2519,7 @@ def contacts(request):
 def support_view(request):
     if request.method == 'POST':
         form = SupportTicketForm(request.POST, request.FILES)
-        if not form.is_valid():
-            print("DEBUG: Ошибки формы:", form.errors.as_json())
-            
+        
         if form.is_valid():
             try:
                 ticket = form.save(commit=False)
@@ -2423,6 +2532,10 @@ def support_view(request):
                 
                 ticket.save()
                 
+                if request.user.is_authenticated:
+                    from .views_privacy import create_privacy_consent
+                    create_privacy_consent(request.user, 'support', request=request)
+                
                 attachment_file = request.FILES.get('attachments')
                 if attachment_file:
                     try:
@@ -2433,7 +2546,6 @@ def support_view(request):
                             file_size=attachment_file.size
                         )
                         support_attachment.save()
-                        
                     except Exception as e:
                         messages.error(request, f'Ошибка сохранения вложения')
                 
@@ -4493,3 +4605,190 @@ def update_invoice_status(request, invoice_id):
 
 def turnkey_projects(request):
     return render(request, 'main/turnkey.html')
+
+def submit_privacy_request(request):
+    """Обработка формы запросов по персональным данным"""
+    if request.method == 'POST':
+        try:
+            # Базовые проверки
+            required_fields = ['full_name', 'email', 'request_type', 'description']
+            for field in required_fields:
+                if not request.POST.get(field):
+                    return render(request, 'main/privacy_request_error.html', {
+                        'error': f'Не заполнено обязательное поле: {field}'
+                    })
+            
+            # Проверка согласия на обработку
+            if not request.POST.get('agree_processing'):
+                return render(request, 'main/privacy_request_error.html', {
+                    'error': 'Необходимо дать согласие на обработку персональных данных'
+                })
+            
+            # Получаем IP адрес и User Agent
+            ip_address = request.META.get('REMOTE_ADDR', '')
+            user_agent = request.META.get('HTTP_USER_AGENT', '')[:500]
+            
+            # Создаем запись в базе данных
+            privacy_request = PrivacyRequest.objects.create(
+                full_name=request.POST.get('full_name'),
+                email=request.POST.get('email'),
+                phone=request.POST.get('phone', ''),
+                request_type=request.POST.get('request_type'),
+                description=request.POST.get('description'),
+                preferred_response=request.POST.get('preferred_response', 'email'),
+                ip_address=ip_address,
+                user_agent=user_agent,
+                incoming_number=f"ПД-{timezone.now().strftime('%Y%m%d-%H%M%S')}",
+                deadline=timezone.now().date() + timedelta(days=30)  # Срок 30 дней по закону
+            )
+            
+            # Обработка файла документа (если есть)
+            if 'verification_document' in request.FILES:
+                document = request.FILES['verification_document']
+                # Проверка размера файла (макс 5MB)
+                if document.size > 5 * 1024 * 1024:
+                    privacy_request.notes = f"Файл отклонен: размер {document.size} байт превышает 5MB"
+                    privacy_request.save()
+                else:
+                    # Проверка расширения
+                    allowed_extensions = ['.pdf', '.jpg', '.jpeg', '.png']
+                    import os
+                    ext = os.path.splitext(document.name)[1].lower()
+                    if ext in allowed_extensions:
+                        privacy_request.verification_document = document
+                        privacy_request.save()
+                    else:
+                        privacy_request.notes = f"Файл отклонен: недопустимое расширение {ext}"
+                        privacy_request.save()
+            
+            # 1. Отправляем уведомление в Telegram
+            telegram_sent = send_privacy_request_to_telegram(privacy_request)
+            
+            # 3. Пытаемся отправить email подтверждение пользователю
+            user_email_sent = False
+            try:
+                send_mail(
+                    subject=f'Запрос по персональным данным #{privacy_request.incoming_number} принят',
+                    message=f'''Уважаемый(ая) {privacy_request.full_name},
+
+Ваш запрос типа "{privacy_request.get_request_type_display()}" получен и зарегистрирован.
+
+Номер вашего запроса: {privacy_request.incoming_number}
+Дата получения: {privacy_request.created_at.strftime('%d.%m.%Y %H:%M')}
+
+В соответствии со статьей 14 Федерального закона от 27.07.2006 № 152-ФЗ "О персональных данных" мы рассмотрим ваш запрос в течение 30 дней и направим ответ на указанный вами адрес электронной почты.
+
+С уважением,
+ООО "Техресурс"
+Отдел защиты персональных данных''',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[privacy_request.email],
+                    fail_silently=False,
+                )
+                user_email_sent = True
+            except Exception as email_error:
+                logger.error(f"Не удалось отправить email подтверждение пользователю: {email_error}")
+            
+            NotificationLog.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                notification_type='privacy_request_created',
+                message=f'Создан запрос ПД #{privacy_request.incoming_number}',
+            )
+            
+            return render(request, 'main/privacy_request_success.html', {
+                'request_id': str(privacy_request.incoming_number),
+                'request_type': privacy_request.get_request_type_display(),
+                'email_sent': user_email_sent,
+                'user_email': privacy_request.email,
+            })
+            
+        except Exception as e:
+            logger.error(f"Критическая ошибка при обработке запроса ПД: {str(e)}", exc_info=True)
+            return render(request, 'main/privacy_request_error.html', {
+                'error': f'Системная ошибка: {str(e)[:200]}'
+            })
+    
+    return render(request, 'main/privacy_request_form.html')
+
+def send_privacy_request_to_telegram(privacy_request):
+    """Отправка уведомления о новом запросе ПД в Telegram"""
+    try:
+        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
+            logger.error("Telegram bot token or chat ID not configured")
+            return False
+        
+        # Определяем приоритетный чат
+        chat_id = settings.TELEGRAM_CHAT_ID
+        
+        message = f"""
+📋 <b>НОВЫЙ ЗАПРОС ПО ПЕРСОНАЛЬНЫМ ДАННЫМ</b>
+
+🆔 <b>Номер:</b> #{privacy_request.incoming_number}
+📋 <b>Тип:</b> {privacy_request.get_request_type_display()}
+⏰ <b>Срок:</b> {privacy_request.deadline.strftime('%d.%m.%Y')} (30 дней)
+
+👤 <b>Контактная информация:</b>
+• ФИО: {privacy_request.full_name}
+• Email: {privacy_request.email}
+• Телефон: {privacy_request.phone or 'Не указан'}
+• Способ ответа: {privacy_request.get_preferred_response_display()}
+
+🌐 <b>Техническая информация:</b>
+• IP: {privacy_request.ip_address or 'Неизвестен'}
+• User Agent: {privacy_request.user_agent[:100] if privacy_request.user_agent else 'Неизвестен'}
+
+📝 <b>Описание запроса:</b>
+{privacy_request.description[:500]}{'...' if len(privacy_request.description) > 500 else ''}
+
+🕒 <b>Время получения:</b> {privacy_request.created_at.strftime('%d.%m.%Y %H:%M')}
+📊 <b>Статус:</b> {privacy_request.get_status_display()}
+
+🔗 <b>Ссылка на админку:</b>
+https://tech-re.ru/admin/main/privacyrequest/{privacy_request.id}/
+"""
+        
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            'chat_id': chat_id,
+            'text': message,
+            'parse_mode': 'HTML',
+            'disable_web_page_preview': True
+        }
+        
+        response = requests.post(url, json=payload, timeout=10)
+        
+        if response.status_code == 200:
+            # Отправка файла, если есть
+            if privacy_request.verification_document:
+                send_document_to_telegram(privacy_request, chat_id)
+            
+            return True
+        else:
+            logger.error(f"Telegram API error: {response.status_code} - {response.text}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Error sending privacy request to Telegram: {str(e)}")
+        return False
+
+def send_document_to_telegram(privacy_request, chat_id):
+    """Отправка файла документа в Telegram"""
+    try:
+        file_path = privacy_request.verification_document.path
+        file_name = os.path.basename(file_path)
+        
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
+        
+        with open(file_path, 'rb') as file:
+            files = {'document': (file_name, file)}
+            data = {
+                'chat_id': chat_id,
+                'caption': f'Документ к запросу ПД #{privacy_request.incoming_number} от {privacy_request.full_name}'
+            }
+            
+            response = requests.post(url, data=data, files=files, timeout=30)
+            return response.status_code == 200
+            
+    except Exception as e:
+        logger.error(f"Error sending document to Telegram: {str(e)}")
+        return False

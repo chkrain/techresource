@@ -1,0 +1,165 @@
+<!-- main/templates/main/privacy_request_error.html -->
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Ошибка отправки - Техресурс{% endblock %}
+
+{% block content %}
+<section class="error-section">
+    <div class="container">
+        <div class="error-card">
+            <div class="error-icon">
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                    <circle cx="32" cy="32" r="32" fill="#F44336" fill-opacity="0.1"/>
+                    <path d="M40 40L24 24M40 24L24 40" stroke="#F44336" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+            </div>
+            
+            <h1>Произошла ошибка</h1>
+            <p class="error-subtitle">Не удалось отправить ваш запрос по персональным данным</p>
+            
+            <div class="error-details">
+                <p><strong>Если повторная отправка не удастся, обратитесь по почте info@tech-re.ru</strong></p>
+            </div>
+            
+            <div class="suggestions">
+                <h3>Что можно сделать?</h3>
+                <ul>
+                    <li>Попробуйте отправить запрос еще раз через несколько минут</li>
+                    <li>Отправьте запрос напрямую на email: <strong>{{ company_email }}</strong></li>
+                    <li>Позвоните по телефону: <strong>{{ company_phone }}</strong></li>
+                    <li>Напишите в поддержку через контактную форму на сайте</li>
+                </ul>
+            </div>
+            
+            <div class="actions">
+                <a href="{% url 'privacy' %}" class="btn btn-secondary">
+                    ← Вернуться и попробовать снова
+                </a>
+                {% url 'home' as home_url %}
+                <a href="{% if home_url %}{{ home_url }}{% else %}/{% endif %}" class="btn btn-primary">
+                    На главную страницу
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.error-section {
+    padding: 80px 0;
+    min-height: 70vh;
+    background: linear-gradient(135deg, #fdf2f2 0%, #fce8e8 100%);
+}
+
+.error-card {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    padding: 48px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.error-icon {
+    margin-bottom: 24px;
+}
+
+.error-card h1 {
+    color: #c62828;
+    margin-bottom: 12px;
+    font-size: 32px;
+}
+
+.error-subtitle {
+    color: #d32f2f;
+    margin-bottom: 32px;
+    font-size: 18px;
+}
+
+.error-details {
+    background: #ffebee;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 32px 0;
+    text-align: left;
+    color: #b71c1c;
+    border-left: 4px solid #f44336;
+}
+
+.suggestions {
+    text-align: left;
+    margin: 32px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.suggestions h3 {
+    color: #2c3e50;
+    margin-bottom: 16px;
+}
+
+.suggestions ul {
+    padding-left: 20px;
+    color: #424242;
+}
+
+.suggestions li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin: 32px 0;
+    flex-wrap: wrap;
+}
+
+.actions .btn {
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .error-card {
+        padding: 32px 24px;
+        margin: 0 16px;
+    }
+    
+    .actions {
+        flex-direction: column;
+    }
+    
+    .actions .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,217 @@
+<!-- main/templates/main/privacy_request_success.html -->
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Запрос отправлен - Техресурс{% endblock %}
+
+{% block content %}
+<section class="success-section">
+    <div class="container">
+        <div class="success-card">
+            <div class="success-icon">
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                    <circle cx="32" cy="32" r="32" fill="#4CAF50" fill-opacity="0.1"/>
+                    <path d="M44 24L28 40L20 32" stroke="#4CAF50" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            
+            <h1>Запрос успешно отправлен!</h1>
+            <p class="success-subtitle">Ваш запрос по персональным данным зарегистрирован в системе</p>
+            
+            <div class="request-details">
+                <div class="detail-item">
+                    <span class="detail-label">Номер запроса:</span>
+                    <span class="detail-value">{{ request_id }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Тип запроса:</span>
+                    <span class="detail-value">{{ request_type }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Дата и время:</span>
+                    <span class="detail-value">{% now "d.m.Y H:i" %}</span>
+                </div>
+                {% if email_sent %}
+                <div class="detail-item">
+                    <span class="detail-label">Статус:</span>
+                    <span class="detail-value" style="color: #4CAF50;">✓ Подтверждение отправлено на email</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="legal-info">
+                <h3>Что дальше?</h3>
+                <ol class="steps-list">
+                    <li>{% if email_sent %}Мы отправили подтверждение на указанный вами email{% else %}Сохраните номер запроса для отслеживания{% endif %}</li>
+                    <li>В соответствии со <strong>статьей 14 Федерального закона № 152-ФЗ</strong> ваш запрос будет рассмотрен в течение <strong>30 дней</strong></li>
+                    <li>Ответ будет направлен вам выбранным способом связи</li>
+                    <li>Вы можете сохранить номер запроса для отслеживания статуса</li>
+                </ol>
+            </div>
+            
+            <div class="actions">
+                <!-- Используем 'privacy' вместо 'privacy_policy' -->
+                <a href="{% url 'privacy' %}" class="btn btn-secondary">
+                    ← Вернуться к политике конфиденциальности
+                </a>
+                <!-- Используем 'home' если есть такой URL, или просто '/' -->
+                {% url 'home' as home_url %}
+                <a href="{% if home_url %}{{ home_url }}{% else %}/{% endif %}" class="btn btn-primary">
+                    На главную страницу
+                </a>
+            </div>
+            
+            <div class="contact-reminder">
+                <p><strong>По вопросам о статусе запроса:</strong> {{ company_email }} или {{ company_phone }}</p>
+                <p><small>Номер запроса: {{ request_id }}</small></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.success-section {
+    padding: 80px 0;
+    min-height: 70vh;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.success-card {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    padding: 48px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.success-icon {
+    margin-bottom: 24px;
+}
+
+.success-card h1 {
+    color: #2c3e50;
+    margin-bottom: 12px;
+    font-size: 32px;
+}
+
+.success-subtitle {
+    color: #7f8c8d;
+    margin-bottom: 32px;
+    font-size: 18px;
+}
+
+.request-details {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 32px 0;
+    text-align: left;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.detail-value {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.legal-info {
+    background: #e8f5e9;
+    border-left: 4px solid #4CAF50;
+    padding: 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 32px 0;
+    text-align: left;
+}
+
+.legal-info h3 {
+    color: #2e7d32;
+    margin-bottom: 16px;
+}
+
+.steps-list {
+    padding-left: 20px;
+    color: #424242;
+}
+
+.steps-list li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin: 32px 0;
+    flex-wrap: wrap;
+}
+
+.actions .btn {
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.contact-reminder {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #e9ecef;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .success-card {
+        padding: 32px 24px;
+        margin: 0 16px;
+    }
+    
+    .actions {
+        flex-direction: column;
+    }
+    
+    .actions .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

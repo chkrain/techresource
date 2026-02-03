@@ -4,7 +4,7 @@ from django.contrib.auth import views as auth_views
 from django.http import HttpResponseNotFound
 from django.urls import path, re_path
 from django.contrib import admin
-from . import views
+from . import views, views_privacy
 from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.views.generic import TemplateView
@@ -24,6 +24,14 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('contacts/', views.contacts, name='contacts'),
     path('privacy/', views.privacy_policy, name='privacy'),
+    path('privacy_policy/', views.privacy_policy, name='privacy_policy'),
+    path('privacy/submit-request/', views.submit_privacy_request, name='submit_privacy_request'),
+    path('privacy/dashboard/', views_privacy.PrivacyDashboardView.as_view(), name='privacy_dashboard'),
+    path('privacy/consent/<int:consent_id>/revoke/', views_privacy.revoke_consent, name='revoke_consent'),
+    path('privacy/consent/<int:consent_id>/details/', views_privacy.get_consent_details, name='consent_details'),
+    path('privacy/consents/bulk-revoke/', views_privacy.bulk_revoke_consents, name='bulk_revoke_consents'),
+    path('privacy/data-portability/', views_privacy.DataPortabilityView.as_view(), name='data_portability'),
+    path('privacy/newsletter-toggle/', views_privacy.toggle_newsletter_consent, name='toggle_newsletter'),
     
     # Аутентификация и профиль
     path('register/', views.secure_register, name='register'),

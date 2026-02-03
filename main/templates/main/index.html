@@ -524,6 +524,24 @@
                     </div>
                     {% endif %}
                 </div>
+
+                <div class="card mb-3">
+                    <div class="card-body privacy-consent-wrapper">
+                        <label for="{{ contact_form.privacy_consent.id_for_label }}" class="d-flex align-items-start privacy-consent-label" style="display: flex; flex-direction: row;">
+                            <div class="me-2" style="margin-right: 1svw;">
+                                {{ contact_form.privacy_consent }}
+                            </div>
+                            <div style="color: black;">
+                                Я даю согласие на <a href="{% url 'privacy_policy' %}" target="_blank">обработку персональных данных</a>
+                            </div>
+                        </label>
+                        {% if contact_form.privacy_consent.errors %}
+                        <div class="error-message" style="color: red; margin-top: 5px;">
+                            {{ contact_form.privacy_consent.errors|striptags }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
                 
                 <div class="form-footer">
                     <button type="submit" class="btn btn-primary" id="submitBtn">

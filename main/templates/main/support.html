@@ -19,8 +19,8 @@
   "provider": {
     "@type": "LocalBusiness",
     "name": "Техресурс",
-    "telephone": "+7 (937) 524-68-88",
-    "email": "support@tech-re.ru"
+    "telephone": "{{ company_phone }}",
+    "email": "{{ company_email }}"
   },
   "serviceArea": {
     "@type": "GeoCircle",
@@ -158,6 +158,25 @@
                             {{ form.captcha.errors|striptags }}
                         </div>
                         {% endif %}
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-body privacy-consent-wrapper">
+                            <label for="{{ form.privacy_consent.id_for_label }}" class="d-flex align-items-start privacy-consent-label">
+                                <div class="me-2">
+                                    {{ form.privacy_consent }}
+                                </div>
+                                <div style="color: black;">
+                                    Я даю согласие на обработку моих персональных данных для обращения в поддержку
+                                    <small class="text-muted d-block mt-1">
+                                        Обрабатываемые данные: имя, email, телефон, информация о проблеме.
+                                        Цель: обработка обращения в службу поддержки.
+                                        Срок хранения: 3 года с момента обращения.
+                                        <a href="{% url 'privacy_policy' %}" target="_blank">Подробнее в Политике конфиденциальности</a>
+                                    </small>
+                                </div>
+                            </label>
+                        </div>
                     </div>
 
                     <button type="submit" class="submit-btn" id="submitBtn">

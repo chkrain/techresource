@@ -1,0 +1,500 @@
+<!-- main/templates/main/privacy_documents.html -->
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Локальные акты по защите ПД - Техресурс{% endblock %}
+
+{% block content %}
+<section class="documents-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Локальные нормативные акты</h1>
+            <p class="hero-subtitle">Документация по обработке и защите персональных данных</p>
+        </div>
+    </div>
+</section>
+
+<section class="documents-section">
+    <div class="container">
+        <div class="documents-grid">
+            <div class="document-card">
+                <div class="document-header">
+                    <h3>Приказ № 15/2026 от 12.01.2026</h3>
+                    <span class="document-status active">Действующий</span>
+                </div>
+                <div class="document-content">
+                    <h4>О назначении ответственного за организацию обработки персональных данных</h4>
+                    <p><strong>На основании:</strong> Федерального закона от 27.07.2006 № 152-ФЗ "О персональных данных"</p>
+                    
+                    <div class="document-details">
+                        <div class="detail-item">
+                            <strong>ПРИКАЗЫВАЮ:</strong>
+                            <p>1. Назначить ответственным за организацию обработки персональных данных в ООО "Техресурс" Чинчаркина Никиту Олеговича.</p>
+                            <p>2. Возложить на Чинчаркина Н.О. следующие обязанности:</p>
+                            <ul>
+                                <li>Контроль за соблюдением требований законодательства о персональных данных</li>
+                                <li>Организация приёма и рассмотрения обращений субъектов ПД</li>
+                                <li>Ведение реестра обработки ПД</li>
+                                <li>Информирование Роскомнадзора об утечках ПД</li>
+                                <li>Проведение внутренних проверок</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Данные ответственного:</strong>
+                            <table class="officer-table">
+                                <tr>
+                                    <td><strong>ФИО:</strong></td>
+                                    <td>Чинчаркин Никита Олегович</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Должность:</strong></td>
+                                    <td>Ответственный за обработку ПД</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Email:</strong></td>
+                                    <td><a href="mailto:{{ company_email }}">{{ company_email }}</a></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Телефон:</strong></td>
+                                    <td><a href="tel:{{ company_phone }}">{{ company_phone }}</a></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Часы приёма:</strong></td>
+                                    <td>Пн-Пт с 9:00 до 17:00 (МСК)</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="document-footer">
+                        <div class="signature">
+                            <p><strong>Генеральный директор</strong></p>
+                            <p>Казначеев А.А.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="document-card">
+                <div class="document-header">
+                    <h3>Положение № 01/ПД от 12.01.2026</h3>
+                    <span class="document-status active">Действующий</span>
+                </div>
+                <div class="document-content">
+                    <h4>Положение об обработке и защите персональных данных</h4>
+                    
+                    <div class="toc">
+                        <h5>Содержание:</h5>
+                        <ol>
+                            <li>Общие положения</li>
+                            <li>Принципы и условия обработки ПД</li>
+                            <li>Права субъектов ПД</li>
+                            <li>Обязанности оператора</li>
+                            <li>Меры по обеспечению безопасности ПД</li>
+                            <li>Порядок обработки запросов субъектов</li>
+                            <li>Порядок уничтожения ПД</li>
+                            <li>Ответственность</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="document-actions">
+                        <a href="{% url 'privacy_policy' %}" class="btn btn-outline">
+                            👁️ Общедоступная версия
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="document-card">
+                <div class="document-header">
+                    <h3>Инструкция № 02/ПД от 12.01.2026</h3>
+                    <span class="document-status active">Действующий</span>
+                </div>
+                <div class="document-content">
+                    <h4>Инструкция по уничтожению персональных данных</h4>
+                    
+                    <div class="procedure-steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h5>Основания для уничтожения</h5>
+                                <ul>
+                                    <li>Истечение срока хранения</li>
+                                    <li>Запрос субъекта ПД</li>
+                                    <li>Достижение цели обработки</li>
+                                    <li>Отзыв согласия</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h5>Порядок уничтожения электронных данных</h5>
+                                <ol>
+                                    <li>Составление акта о необходимости уничтожения</li>
+                                    <li>Согласование с ответственным за ПД</li>
+                                    <li>Резервное копирование (на 1 месяц)</li>
+                                    <li>Удаление из базы данных</li>
+                                    <li>Очистка логов и backup</li>
+                                    <li>Составление акта об уничтожении</li>
+                                </ol>
+                            </div>
+                        </div>
+                        
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h5>Порядок уничтожения бумажных носителей</h5>
+                                <ol>
+                                    <li>Изъятие из архива</li>
+                                    <li>Шредирование документов</li>
+                                    <li>Уничтожение шредерата</li>
+                                    <li>Составление акта</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="document-actions">
+                        <button class="btn btn-danger" onclick="showDestructionModal()">
+                            🗑️ Запустить процедуру уничтожения
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="document-card full-width">
+                <div class="document-header">
+                    <h3>Реестр обработки ПД</h3>
+                    <span class="document-status">Реестр № 01 от 12.01.2026</span>
+                </div>
+                <div class="document-content">
+                    <div class="register-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Наименование обработки</th>
+                                    <th>Цель обработки</th>
+                                    <th>Категории ПД</th>
+                                    <th>Срок хранения</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in processing_records %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ record.name }}</td>
+                                    <td>{{ record.purpose|truncatewords:10 }}</td>
+                                    <td>{{ record.data_categories|truncatewords:5 }}</td>
+                                    <td>{{ record.retention_period }}</td>
+                                    <td><span class="status-badge active">Действует</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="document-card">
+                <div class="document-header">
+                    <h3>Журнал учёта обращений</h3>
+                    <span class="badge">{{ requests_count }} запросов</span>
+                </div>
+                <div class="document-content">
+                    <div class="stats-grid">
+                        <div class="stat">
+                            <div class="stat-value">{{ recent_requests }}</div>
+                            <div class="stat-label">За 30 дней</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">{{ pending_requests }}</div>
+                            <div class="stat-label">В обработке</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">{{ avg_response_time }} дн.</div>
+                            <div class="stat-label">Среднее время ответа</div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="destructionModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Процедура уничтожения ПД</h3>
+            <button class="close-modal" onclick="closeDestructionModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="destructionForm" method="post" action="{% url 'admin_destroy_personal_data' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Основание для уничтожения*</label>
+                    <select name="reason" class="form-select" required>
+                        <option value="">Выберите основание</option>
+                        <option value="expired">Истёк срок хранения</option>
+                        <option value="request">Запрос субъекта ПД</option>
+                        <option value="purpose_achieved">Достигнута цель обработки</option>
+                        <option value="consent_withdrawn">Отзыв согласия</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Тип данных для уничтожения*</label>
+                    <div class="checkbox-grid">
+                        <label><input type="checkbox" name="data_type" value="user_profile"> Профиль пользователя</label>
+                        <label><input type="checkbox" name="data_type" value="orders"> Данные заказов</label>
+                        <label><input type="checkbox" name="data_type" value="addresses"> Адреса доставки</label>
+                        <label><input type="checkbox" name="data_type" value="reviews"> Отзывы</label>
+                        <label><input type="checkbox" name="data_type" value="support_tickets"> Обращения в поддержку</label>
+                        <label><input type="checkbox" name="data_type" value="all"> Все данные пользователя</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Пользователь</label>
+                    <select name="user_id" class="form-select">
+                        <option value="">Выберите пользователя</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }} - {{ user.email }}</option>
+                        {% endfor %}
+                    </select>
+                    <small>Оставьте пустым для массового уничтожения</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Примечание</label>
+                    <textarea name="notes" class="form-textarea" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-danger btn-block">
+                        🗑️ Начать процедуру уничтожения
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.documents-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+}
+
+.documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.document-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.document-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.document-card:hover {
+    transform: translateY(-5px);
+}
+
+.document-header {
+    background: #f8f9fa;
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.document-status {
+    background: #48bb78;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.document-content {
+    padding: 25px;
+}
+
+.procedure-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.step {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.step-number {
+    background: #667eea;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.register-table {
+    overflow-x: auto;
+}
+
+.register-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.register-table th,
+.register-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.register-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.status-badge {
+    background: #c6f6d5;
+    color: #22543d;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #666;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .documents-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .checkbox-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+function showDestructionModal() {
+    document.getElementById('destructionModal').style.display = 'flex';
+}
+
+function closeDestructionModal() {
+    document.getElementById('destructionModal').style.display = 'none';
+}
+
+// Закрытие модального окна при клике вне его
+window.onclick = function(event) {
+    const modal = document.getElementById('destructionModal');
+    if (event.target === modal) {
+        closeDestructionModal();
+    }
+}
+
+// Проверка формы уничтожения
+document.getElementById('destructionForm')?.addEventListener('submit', function(e) {
+    const checkboxes = document.querySelectorAll('input[name="data_type"]:checked');
+    if (checkboxes.length === 0) {
+        e.preventDefault();
+        alert('Выберите хотя бы один тип данных для уничтожения');
+        return false;
+    }
+    
+    if (!confirm('Вы уверены? Это действие невозможно отменить.')) {
+        e.preventDefault();
+        return false;
+    }
+});
+</script>
+{% endblock %}

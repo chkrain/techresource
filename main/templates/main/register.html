@@ -204,15 +204,23 @@
                 <div class="password-match" id="password-match"></div>
             </div>
 
-            <div class="form-group" data-aos="fade-up" data-aos-delay="550">
-                <label class="checkbox-label">
-                    {{ form.agree_terms }}
+            <div class="form-group">
+                {{ form.agree_terms }}
+                {{ form.privacy_consent }}
+                
+                <label class="checkbox-label" style="flex-wrap: wrap;">
+                    <input type="checkbox" id="combined-checkbox" class="custom-checkbox">
                     <span class="checkmark"></span>
-                    Я соглашаюсь с <a href="{% url 'privacy' %}" target="_blank">условиями использования</a>
+                    Я соглашаюсь с <a href="{% url 'privacy' %}" target="_blank">условиями использования</a> 
+                    и даю согласие на <a href="{% url 'privacy_policy' %}" target="_blank">обработку персональных данных</a>
                 </label>
-                {% if form.agree_terms.errors %}
+                
+                {% if form.agree_terms.errors or form.privacy_consent.errors %}
                 <div class="error-message">
                     {% for error in form.agree_terms.errors %}
+                    <span class="error-icon">⚠</span> {{ error }}
+                    {% endfor %}
+                    {% for error in form.privacy_consent.errors %}
                     <span class="error-icon">⚠</span> {{ error }}
                     {% endfor %}
                 </div>
@@ -245,6 +253,11 @@
 </div>
 
 <link rel="stylesheet" href="{% static 'css/register.css' %}">
+<style>
+    #id_privacy_consent, #id_agree_terms {
+        display: none !important;
+    }
+</style>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
@@ -252,5 +265,23 @@
 <script type="text/javascript" src="{% static 'js/register.js' %}"></script>
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const combinedCheckbox = document.getElementById('combined-checkbox');
+    const agreeTerms = document.querySelector('input[name="agree_terms"]');
+    const privacyConsent = document.querySelector('input[name="privacy_consent"]');
+    
+    combinedCheckbox.addEventListener('change', function() {
+        agreeTerms.checked = this.checked;
+        privacyConsent.checked = this.checked;
+        
+        agreeTerms.dispatchEvent(new Event('change'));
+        privacyConsent.dispatchEvent(new Event('change'));
+    });
+    
+    if (agreeTerms.checked && privacyConsent.checked) {
+        combinedCheckbox.checked = true;
+    }
+});
+</script>
 {% endblock %}

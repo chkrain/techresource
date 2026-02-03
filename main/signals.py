@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from .models import UserProfile, User, Wishlist, Admin2FA, ProductReview
 from django.core.cache import cache
 import os
+from main.models import PrivacyConsent
 
 @receiver(post_save, sender=ProductReview)
 def auto_moderate_review(sender, instance, created, **kwargs):
@@ -84,3 +85,20 @@ def clear_profile_cache(sender, instance, **kwargs):
     ]
     for key in cache_keys:
         cache.delete(key)
+
+@receiver(post_save, sender=User)
+def create_default_privacy_consent(sender, instance, created, **kwargs):
+    """Автоматически создаем согласие при создании пользователя"""
+    if created:
+        if not PrivacyConsent.objects.filter(user=instance, consent_type='registration').exists():
+            PrivacyConsent.objects.create(
+                user=instance,
+                consent_type='registration',
+                version='1.0',
+                ip_address='127.0.0.1', 
+                user_agent='System',
+                purpose='Обработка персональных данных для регистрации',
+                data_categories=['email', 'username', 'password_hash'],
+                third_parties=[],
+                storage_period='до отзыва пользователем'
+            )

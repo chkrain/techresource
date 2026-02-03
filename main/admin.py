@@ -15,7 +15,7 @@ from .models import (
     SecurityLog, LoginAttempt, PaymentAuditLog, Admin2FA,
     FraudDetectionLog, RateLimitLog, CSPViolationReport, Wishlist, WishlistItem,
     SupportTicket, SupportAttachment, ServicePage, PasswordResetToken, InvoiceRegistry, 
-    Category, CurrencyRate
+    Category, CurrencyRate, PrivacyRequest, PrivacyConsent, PrivacyConsentLog
 )
 
 logger = logging.getLogger('django.security')
@@ -799,3 +799,98 @@ class ProductImageAdmin(admin.ModelAdmin):
             return mark_safe(f'<img src="{obj.image.url}" style="max-height: 50px;" />')
         return "Нет изображения"
     preview.short_description = "Предпросмотр"
+
+@admin.register(PrivacyRequest)
+class PrivacyRequestAdmin(admin.ModelAdmin):
+    list_display = ('id', 'full_name', 'email', 'request_type', 'status', 'created_at', 'days_since_creation')
+    list_filter = ('status', 'request_type', 'created_at')
+    search_fields = ('full_name', 'email', 'id')
+    readonly_fields = ('id', 'created_at', 'updated_at', 'ip_address', 'user_agent', 'days_since_creation')
+    fieldsets = (
+        ('Информация о запросе', {
+            'fields': ('id', 'user', 'full_name', 'email', 'phone', 'request_type', 'description')
+        }),
+        ('Документы', {
+            'fields': ('verification_document',)
+        }),
+        ('Статус и ответ', {
+            'fields': ('status', 'response_text', 'response_method', 'response_sent_at', 'resolved_at')
+        }),
+        ('Системная информация', {
+            'fields': ('ip_address', 'user_agent', 'created_at', 'updated_at', 'notes')
+        }),
+    )
+    
+    def days_since_creation(self, obj):
+        return obj.days_since_creation
+    days_since_creation.short_description = 'Дней с создания'
+
+@admin.register(PrivacyConsent)
+class PrivacyConsentAdmin(admin.ModelAdmin):
+    list_display = ['user', 'consent_type', 'version', 'is_active', 'granted_at', 'revoked_at']
+    list_filter = ['consent_type', 'is_active', 'granted_at', 'revoked_at']
+    search_fields = ['user__username', 'user__email', 'consent_type']
+    readonly_fields = ['granted_at', 'revoked_at', 'ip_address', 'user_agent']
+    actions = ['bulk_deactivate', 'export_consents']
+    
+    fieldsets = (
+        ('Основная информация', {
+            'fields': ('user', 'consent_type', 'version', 'is_active')
+        }),
+        ('Детали согласия', {
+            'fields': ('purpose', 'data_categories', 'third_parties', 'storage_period', 'document_url'),
+            'classes': ('collapse',)
+        }),
+        ('Техническая информация', {
+            'fields': ('ip_address', 'user_agent', 'granted_at', 'revoked_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def bulk_deactivate(self, request, queryset):
+        """Массовая деактивация согласий"""
+        updated = queryset.update(is_active=False, revoked_at=timezone.now())
+        self.message_user(request, f'{updated} согласий деактивировано')
+    bulk_deactivate.short_description = "Деактивировать выбранные согласия"
+    
+    def export_consents(self, request, queryset):
+        """Экспорт согласий в CSV (только для superuser)"""
+        if not request.user.is_superuser:
+            self.message_user(request, 'Недостаточно прав для экспорта', level=messages.ERROR)
+            return
+        
+        import csv
+        from django.http import HttpResponse
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="consents_export.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['User', 'Consent Type', 'Version', 'Active', 'Granted At', 'Revoked At', 'Purpose'])
+        
+        for consent in queryset:
+            writer.writerow([
+                consent.user.username,
+                consent.get_consent_type_display(),
+                consent.version,
+                'Да' if consent.is_active else 'Нет',
+                consent.granted_at.strftime('%Y-%m-%d %H:%M:%S') if consent.granted_at else '',
+                consent.revoked_at.strftime('%Y-%m-%d %H:%M:%S') if consent.revoked_at else '',
+                consent.purpose[:100]
+            ])
+        
+        return response
+    export_consents.short_description = "Экспортировать выбранные согласия (CSV)"
+
+@admin.register(PrivacyConsentLog)
+class PrivacyConsentLogAdmin(admin.ModelAdmin):
+    list_display = ['consent', 'action', 'user', 'ip_address', 'timestamp']
+    list_filter = ['action', 'timestamp']
+    search_fields = ['consent__user__username', 'ip_address']
+    readonly_fields = ['consent', 'action', 'user', 'ip_address', 'user_agent', 'timestamp', 'details']
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False

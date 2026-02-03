@@ -20,10 +20,15 @@ import re
 from PIL import Image
 from django.core.cache import cache
 import requests
+import uuid
+from django.contrib.auth import get_user_model
 import os
 from django.core.exceptions import ValidationError
 from django.utils.html import escape
 from .validators import validate_avatar, validate_profile_background
+from django.urls import reverse
+
+User = get_user_model()
 
 class CurrencyRate(models.Model):
     """Модель для хранения курсов валют"""
@@ -2567,3 +2572,308 @@ def update_invoice_registry_entry(sender, instance, **kwargs):
         except InvoiceRegistry.DoesNotExist:
             pass
 
+class PrivacyRequest(models.Model):
+    """Модель для хранения запросов по персональным данным"""
+    
+    REQUEST_TYPES = [
+        ('access', 'Запрос о предоставлении сведений об обработке ПД'),
+        ('correction', 'Требование об уточнении персональных данных'),
+        ('blocking', 'Требование о блокировании персональных данных'),
+        ('destruction', 'Требование об уничтожении персональных данных'),
+        ('withdraw_consent', 'Отзыв согласия на обработку персональных данных'),
+        ('objection', 'Возражение против обработки персональных данных'),
+        ('complaint', 'Жалоба на обработку персональных данных'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('received', 'Получен'),
+        ('in_progress', 'В обработке'),
+        ('waiting_verification', 'Ожидает верификации'),
+        ('completed', 'Выполнен'),
+        ('rejected', 'Отклонен'),
+        ('cancelled', 'Отменен'),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='privacy_requests')
+    incoming_number = models.CharField(max_length=100, blank=True, verbose_name='Входящий номер')
+    deadline = models.DateField(null=True, blank=True, verbose_name='Срок рассмотрения')
+    # Данные запроса
+    full_name = models.CharField(max_length=255, verbose_name='ФИО')
+    email = models.EmailField(verbose_name='Email для связи')
+    phone = models.CharField(max_length=20, blank=True, verbose_name='Телефон')
+    request_type = models.CharField(max_length=50, choices=REQUEST_TYPES, verbose_name='Тип запроса')
+    description = models.TextField(verbose_name='Описание запроса')
+    preferred_response = models.CharField(max_length=20, default='email', 
+                                         choices=[('email', 'Email'), ('phone', 'Телефон'), ('post', 'Почта')],
+                                         verbose_name='Предпочтительный способ ответа')
+    
+    # Файлы
+    verification_document = models.FileField(upload_to='privacy_requests/verification/%Y/%m/', 
+                                           null=True, blank=True, 
+                                           verbose_name='Документ для верификации')
+    
+    # Системная информация
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='received', verbose_name='Статус')
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name='IP-адрес')
+    user_agent = models.TextField(blank=True, verbose_name='User Agent')
+    
+    # Даты
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    resolved_at = models.DateTimeField(null=True, blank=True, verbose_name='Дата решения')
+    
+    # Ответ оператора
+    response_text = models.TextField(blank=True, verbose_name='Текст ответа')
+    response_sent_at = models.DateTimeField(null=True, blank=True, verbose_name='Дата отправки ответа')
+    response_method = models.CharField(max_length=20, blank=True, 
+                                      choices=[('email', 'Email'), ('phone', 'Телефон'), ('post', 'Почта')],
+                                      verbose_name='Способ отправки ответа')
+    
+    # Логи
+    notes = models.TextField(blank=True, verbose_name='Внутренние заметки')
+    
+    class Meta:
+        verbose_name = 'Запрос по персональным данным'
+        verbose_name_plural = 'Запросы по персональным данным'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['email', 'created_at']),
+            models.Index(fields=['status', 'created_at']),
+        ]
+    
+    def __str__(self):
+        return f"Запрос ПД #{self.id} - {self.full_name} - {self.get_request_type_display()}"
+    
+    def get_absolute_url(self):
+        return reverse('admin_privacy_request_detail', args=[str(self.id)])
+    
+    @property
+    def days_since_creation(self):
+        """Количество дней с момента создания запроса"""
+        from django.utils import timezone
+        delta = timezone.now() - self.created_at
+        return delta.days
+    
+    def can_be_processed(self):
+        """Можно ли обрабатывать запрос (не истекли сроки)"""
+        return self.days_since_creation <= 30 and self.status in ['received', 'in_progress']
+    
+    def mark_as_resolved(self, response_text, response_method):
+        """Отметить запрос как решенный"""
+        from django.utils import timezone
+        self.status = 'completed'
+        self.response_text = response_text
+        self.response_method = response_method
+        self.response_sent_at = timezone.now()
+        self.resolved_at = timezone.now()
+        self.save()
+
+class PrivacyRequestLog(models.Model):
+    """Журнал обработки запросов ПД"""
+    request = models.ForeignKey(PrivacyRequest, on_delete=models.CASCADE)
+    action = models.CharField(max_length=100)  # 'received', 'verified', 'replied', etc.
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    details = models.JSONField(default=dict)
+
+class DataProtectionOfficer(models.Model):
+    """Ответственный за обработку ПД"""
+    full_name = models.CharField(max_length=255, verbose_name='ФИО')
+    position = models.CharField(max_length=255, verbose_name='Должность')
+    email = models.EmailField(verbose_name='Email')
+    phone = models.CharField(max_length=20, verbose_name='Телефон')
+    appointment_date = models.DateField(verbose_name='Дата назначения')
+    appointment_order = models.CharField(max_length=100, verbose_name='Номер приказа')
+    is_active = models.BooleanField(default=True, verbose_name='Действующий')
+    
+    class Meta:
+        verbose_name = 'Ответственный за ПД'
+        verbose_name_plural = 'Ответственные за ПД'
+    
+    def __str__(self):
+        return f"{self.full_name} ({self.position})"
+    
+class ProcessingRegister(models.Model):
+    """Реестр обработки ПД (требование ст. 18.1 152-ФЗ)"""
+    
+    PROCESSING_TYPES = [
+        ('automated', 'Автоматизированная'),
+        ('manual', 'Неавтоматизированная'),
+        ('mixed', 'Смешанная'),
+    ]
+    
+    STORAGE_TYPES = [
+        ('electronic', 'Электронный'),
+        ('paper', 'Бумажный'),
+        ('mixed', 'Смешанный'),
+    ]
+    
+    name = models.CharField(max_length=500, verbose_name='Наименование обработки')
+    purpose = models.TextField(verbose_name='Цель обработки')
+    categories = models.TextField(verbose_name='Категории субъектов ПД')
+    data_categories = models.TextField(verbose_name='Категории ПД')
+    legal_basis = models.TextField(verbose_name='Правовое основание')
+    processing_type = models.CharField(max_length=20, choices=PROCESSING_TYPES, 
+                                      verbose_name='Тип обработки')
+    storage_type = models.CharField(max_length=20, choices=STORAGE_TYPES, 
+                                   verbose_name='Форма хранения')
+    retention_period = models.CharField(max_length=100, verbose_name='Срок хранения')
+    destruction_procedure = models.TextField(verbose_name='Порядок уничтожения')
+    security_measures = models.TextField(verbose_name='Применяемые меры защиты')
+    created_at = models.DateField(auto_now_add=True, verbose_name='Дата внесения')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    
+    class Meta:
+        verbose_name = 'Запись реестра обработки ПД'
+        verbose_name_plural = 'Реестр обработки ПД'
+        ordering = ['created_at']
+    
+    def __str__(self):
+        return self.name
+
+class PrivacyConsent(models.Model):
+    """Модель для хранения согласий на обработку персональных данных"""
+    
+    CONSENT_TYPES = [
+        ('registration', 'Согласие при регистрации'),
+        ('newsletter', 'Согласие на рассылку'),
+        ('marketing', 'Согласие на маркетинговые коммуникации'),
+        ('cookies', 'Согласие на использование cookies'),
+        ('analytics', 'Согласие на аналитику'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    consent_type = models.CharField(max_length=50, choices=CONSENT_TYPES, verbose_name="Тип согласия")
+    version = models.CharField(max_length=20, verbose_name="Версия согласия")
+    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")
+    user_agent = models.TextField(verbose_name="User Agent")
+    is_active = models.BooleanField(default=True, verbose_name="Действует")
+    granted_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата выдачи")
+    revoked_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата отзыва")
+    
+    document_url = models.URLField(blank=True, verbose_name="Ссылка на документ")
+    purpose = models.TextField(verbose_name="Цель обработки")
+    data_categories = models.JSONField(default=list, verbose_name="Категории данных")
+    third_parties = models.JSONField(default=list, verbose_name="Третьи стороны")
+    storage_period = models.CharField(max_length=100, verbose_name="Срок хранения")
+    
+    class Meta:
+        verbose_name = "Согласие на обработку ПД"
+        verbose_name_plural = "Согласия на обработку ПД"
+        unique_together = ['user', 'consent_type', 'version']
+        indexes = [
+            models.Index(fields=['user', 'consent_type', 'is_active']),
+            models.Index(fields=['granted_at', 'is_active']),
+        ]
+    
+    def __str__(self):
+        return f"Согласие {self.get_consent_type_display()} - {self.user.username}"
+    
+    def revoke(self, ip_address=None, user_agent=None):
+        """Отзыв согласия"""
+        self.is_active = False
+        self.revoked_at = timezone.now()
+        
+        PrivacyConsentLog.objects.create(
+            consent=self,
+            action='revoked',
+            ip_address=ip_address,
+            user_agent=user_agent,
+            details={'previous_status': 'active'}
+        )
+        
+        if self.consent_type == 'newsletter':
+            self.handle_newsletter_unsubscribe()
+        
+        self.save()
+    
+    def handle_newsletter_unsubscribe(self):
+        """Обработка отписки от рассылки"""
+        pass
+    
+    def is_valid(self):
+        """Проверка валидности согласия"""
+        return self.is_active
+    
+    def get_expiration_date(self):
+        """Получение даты истечения срока"""
+        if self.storage_period == 'until_revoked':
+            return None
+        
+        try:
+            if 'year' in self.storage_period:
+                years = int(self.storage_period.split()[0])
+                return self.granted_at + timedelta(days=365 * years)
+        except:
+            return None
+        
+        return None
+
+class PrivacyConsentLog(models.Model):
+    """Лог изменений согласий"""
+    consent = models.ForeignKey(PrivacyConsent, on_delete=models.CASCADE, verbose_name="Согласие")
+    action = models.CharField(max_length=50, verbose_name="Действие")  # created, modified, revoked, etc.
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Пользователь")
+    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")
+    user_agent = models.TextField(verbose_name="User Agent")
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Время")
+    details = models.JSONField(default=dict, verbose_name="Детали")
+    
+    class Meta:
+        verbose_name = "Лог согласия"
+        verbose_name_plural = "Логи согласий"
+        ordering = ['-timestamp']
+
+def create_registration_consent(user, ip_address=None, user_agent=None, request=None):
+    """Создание согласия при регистрации"""
+    try:
+        if not ip_address and request:
+            ip_address = get_client_ip(request)
+        
+        if not user_agent and request:
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
+        
+        consent = PrivacyConsent.objects.create(
+            user=user,
+            consent_type='registration',
+            version='1.0',
+            ip_address=ip_address or '0.0.0.0',
+            user_agent=user_agent or 'Unknown',
+            purpose='Создание учетной записи, идентификация пользователя, оказание услуг',
+            data_categories=['ФИО', 'email', 'телефон', 'адрес', 'пароль (хэшированный)'],
+            third_parties=[
+                {'name': 'Хостинг-провайдер', 'purpose': 'Хранение данных'},
+                {'name': 'Платежный шлюз', 'purpose': 'Обработка платежей'},
+                {'name': 'Служба доставки', 'purpose': 'Доставка товаров'},
+                {'name': 'Email-сервис', 'purpose': 'Отправка уведомлений'}
+            ],
+            storage_period='5 years after last activity',
+            document_url='/privacy/'  
+        )
+        
+        PrivacyConsentLog.objects.create(
+            consent=consent,
+            action='created',
+            user=user,
+            ip_address=ip_address or '0.0.0.0',
+            user_agent=user_agent or 'Unknown',
+            details={'context': 'registration'}
+        )
+        
+        return consent
+        
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f'Ошибка создания согласия при регистрации: {str(e)}')
+        return None
+
+def get_client_ip(request):
+    """Получение реального IP адреса клиента"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
