@@ -154,6 +154,23 @@ class UserProfile(models.Model):
     verification_token = models.CharField(max_length=100, blank=True, null=True)
     verification_token_created = models.DateTimeField(blank=True, null=True)
     last_security_notification = models.DateTimeField(blank=True, null=True)
+
+    has_detailed_consent = models.BooleanField(
+        default=False,
+        verbose_name="Имеет подробное согласие"
+    )
+    
+    detailed_consent_date = models.DateTimeField(
+        null=True, 
+        blank=True,
+        verbose_name="Дата подписания подробного согласия"
+    )
+    
+    last_privacy_update = models.DateTimeField(
+        null=True, 
+        blank=True,
+        verbose_name="Последнее обновление настроек приватности"
+    )
     
     PRIVACY_CHOICES = [
         ('public', 'Публично'),

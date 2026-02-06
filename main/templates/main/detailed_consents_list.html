@@ -1,0 +1,1269 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Мои подробные согласия - Техресурс{% endblock %}
+{% block og_title %}Мои подробные согласия — Техресурс{% endblock %}
+{% block og_description %}Просмотр и управление подробными согласиями на обработку персональных данных.{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Боковое меню приватности -->
+        <div class="col-lg-3 mb-4">
+            <div class="privacy-sidebar">
+                <div class="sidebar-header">
+                    <h5>
+                        <i class="fas fa-user-shield me-2"></i>
+                        Управление приватностью
+                    </h5>
+                </div>
+                <div class="sidebar-menu">
+                    <a href="{% url 'privacy_dashboard' %}" class="sidebar-item">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        <span>Дашборд</span>
+                    </a>
+                    <a href="{% url 'privacy_dashboard' %}#consents" class="sidebar-item">
+                        <i class="fas fa-file-contract me-2"></i>
+                        <span>Все согласия</span>
+                    </a>
+                    <a href="{% url 'detailed_consents_list' %}" class="sidebar-item active">
+                        <i class="fas fa-file-signature me-2"></i>
+                        <span>Подробные согласия</span>
+                        <span class="badge-count">{{ consents|length }}</span>
+                    </a>
+                    <a href="{% url 'privacy_dashboard' %}#requests" class="sidebar-item">
+                        <i class="fas fa-envelope me-2"></i>
+                        <span>Мои запросы</span>
+                    </a>
+                    <a href="{% url 'data_portability' %}" class="sidebar-item">
+                        <i class="fas fa-download me-2"></i>
+                        <span>Экспорт данных</span>
+                    </a>
+                    <a href="{% url 'privacy' %}" class="sidebar-item">
+                        <i class="fas fa-lock me-2"></i>
+                        <span>Политика</span>
+                    </a>
+                </div>
+                <div class="sidebar-footer">
+                    <div class="info-badge">
+                        <i class="fas fa-shield-alt me-1"></i>
+                        <small>Защита данных 152-ФЗ</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Основной контент -->
+        <div class="col-lg-9">
+            <div class="main-content-card">
+                <div class="content-header">
+                    <div class="header-title">
+                        <h1>
+                            <i class="fas fa-file-signature me-2"></i>
+                            Мои подробные согласия
+                        </h1>
+                        <p class="subtitle">Детальная настройка обработки персональных данных</p>
+                    </div>
+                    <a href="{% url 'process_detailed_consent' %}" class="create-btn">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Новое согласие
+                    </a>
+                </div>
+                
+                <div class="content-body">
+                    {% if messages %}
+                    <div class="messages-container">
+                        {% for message in messages %}
+                        <div class="message-alert alert-{{ message.tags }}">
+                            <div class="alert-icon">
+                                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                            </div>
+                            <div class="alert-text">{{ message }}</div>
+                            <button class="alert-close">&times;</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if consents %}
+                        <div class="table-container">
+                            <table class="consents-table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th>Дата подписания</th>
+                                        <th class="text-center">Версия</th>
+                                        <th class="text-center">Статус</th>
+                                        <th>Срок хранения</th>
+                                        <th class="text-center">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for consent in consents %}
+                                    <tr class="consent-row {% if not consent.is_active %}inactive{% endif %}">
+                                        <td class="text-center serial">{{ forloop.counter }}</td>
+                                        <td class="date-cell">
+                                            <div class="date-main">{{ consent.granted_at|date:"d.m.Y" }}</div>
+                                            <div class="date-time">{{ consent.granted_at|date:"H:i" }}</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="version-badge">
+                                                v{{ consent.version }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="status-badge {% if consent.is_active %}active{% else %}revoked{% endif %}">
+                                                <i class="fas fa-{% if consent.is_active %}check-circle{% else %}times-circle{% endif %} me-1"></i>
+                                                {% if consent.is_active %}Действует{% else %}Отозвано{% endif %}
+                                            </span>
+                                            {% if not consent.is_active %}
+                                            <div class="revoked-date">
+                                                {{ consent.revoked_at|date:"d.m.Y H:i" }}
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                        <td class="storage-cell">
+                                            <div class="storage-period">{{ consent.storage_period }}</div>
+                                            <div class="expiration">
+                                                <i class="fas fa-{% if consent.is_active %}calendar-alt{% else %}calendar-times{% endif %} me-1"></i>
+                                                {% if consent.is_active %}
+                                                    {% if consent.get_expiration_date %}
+                                                        до {{ consent.get_expiration_date|date:"d.m.Y" }}
+                                                    {% else %}
+                                                        до отзыва
+                                                    {% endif %}
+                                                {% else %}
+                                                    истёк
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td class="actions-cell">
+                                            <div class="actions-group">
+                                                <button class="action-btn view-btn" 
+                                                        data-consent-id="{{ consent.id }}"
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#consentDetailsModal">
+                                                    <i class="fas fa-eye"></i>
+                                                    <span class="tooltip">Просмотреть</span>
+                                                </button>
+                                                
+                                                {% if consent.is_active %}
+                                                <a href="{% url 'revoke_consent' consent.id %}" 
+                                                   class="action-btn revoke-btn"
+                                                   onclick="return confirm('Вы уверены, что хотите отозвать это согласие?');">
+                                                    <i class="fas fa-ban"></i>
+                                                    <span class="tooltip">Отозвать</span>
+                                                </a>
+                                                {% endif %}
+                                                
+                                                {% if consent.document_url %}
+                                                <a href="{{ consent.document_url }}" 
+                                                   target="_blank" 
+                                                   class="action-btn document-btn">
+                                                    <i class="fas fa-external-link-alt"></i>
+                                                    <span class="tooltip">Документ</span>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Информационный блок -->
+                        <div class="info-section">
+                            <div class="info-header">
+                                <i class="fas fa-info-circle"></i>
+                                <h3>Что такое подробное согласие?</h3>
+                            </div>
+                            <p class="info-description">
+                                Подробное согласие позволяет вам детально настроить параметры обработки 
+                                ваших персональных данных под ваши потребности и требования законодательства.
+                            </p>
+                            <div class="features-grid">
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-user-check"></i>
+                                    </div>
+                                    <div class="feature-content">
+                                        <h4>Гибкие настройки</h4>
+                                        <p>Контроль передачи данных третьим лицам и условий обработки</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <div class="feature-content">
+                                        <h4>Повышенная защита</h4>
+                                        <p>Возможность установить дополнительные ограничения на обработку</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-sliders-h"></i>
+                                    </div>
+                                    <div class="feature-content">
+                                        <h4>Детальный контроль</h4>
+                                        <p>Настройка параметров передачи данных и маркетинговых коммуникаций</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div class="empty-content">
+                                <h2>У вас еще нет подробных согласий</h2>
+                                <p class="empty-description">
+                                    Подробное согласие позволяет детально настроить параметры обработки 
+                                    ваших персональных данных под ваши потребности в соответствии с 152-ФЗ.
+                                </p>
+                                <a href="{% url 'process_detailed_consent' %}" class="empty-action-btn">
+                                    <i class="fas fa-file-signature me-2"></i>
+                                    Создать подробное согласие
+                                </a>
+                                <p class="empty-note">
+                                    <i class="fas fa-lightbulb me-1"></i>
+                                    Это бесплатно и займет всего несколько минут
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {% if consents %}
+                <div class="content-footer">
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Всего согласий:</span>
+                            <span class="stat-value">{{ consents|length }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Действующих:</span>
+                            <span class="stat-value active">{{ consents|length }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Отозванных:</span>
+                            <span class="stat-value revoked">0</span>
+                        </div>
+                    </div>
+                    <div class="export-options">
+                        <button class="export-btn">
+                            <i class="fas fa-download me-2"></i>
+                            Экспорт списка
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для деталей согласия -->
+<div class="modal fade" id="consentDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-content">
+                    <i class="fas fa-file-contract"></i>
+                    <h2>Детали согласия</h2>
+                </div>
+                <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="consentDetailsContent">
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Загрузка деталей согласия...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn-primary print-btn">
+                    <i class="fas fa-print me-2"></i>
+                    Распечатать
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ===== Базовые переменные ===== */
+:root {
+    --primary-color: #2563eb;
+    --primary-light: #eff6ff;
+    --secondary-color: #64748b;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #3b82f6;
+    --light-color: #f8fafc;
+    --dark-color: #1e293b;
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== Боковое меню ===== */
+.privacy-sidebar {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    height: fit-content;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+    color: white;
+}
+
+.sidebar-header h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-menu {
+    padding: 0.75rem;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    color: var(--secondary-color);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.25rem;
+    transition: var(--transition);
+    position: relative;
+}
+
+.sidebar-item:hover {
+    background: var(--primary-light);
+    color: var(--primary-color);
+    transform: translateX(4px);
+}
+
+.sidebar-item.active {
+    background: var(--primary-light);
+    color: var(--primary-color);
+    font-weight: 500;
+    border-left: 4px solid var(--primary-color);
+    padding-left: calc(1rem - 4px);
+}
+
+.sidebar-item i {
+    width: 20px;
+    text-align: center;
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.badge-count {
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    margin-left: auto;
+}
+
+.sidebar-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--light-color);
+}
+
+.info-badge {
+    display: inline-flex;
+    align-items: center;
+    background: white;
+    padding: 0.5rem 0.875rem;
+    border-radius: var(--radius-sm);
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+    border: 1px solid var(--border-color);
+}
+
+/* ===== Основной контент ===== */
+.main-content-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.content-header {
+    padding: 2rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.header-title h1 {
+    margin: 0;
+    color: var(--dark-color);
+    font-size: 1.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.header-title h1 i {
+    color: var(--primary-color);
+}
+
+.subtitle {
+    margin: 0.5rem 0 0;
+    color: var(--secondary-color);
+    font-size: 1rem;
+}
+
+.create-btn {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.875rem 1.75rem;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+}
+
+.create-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ===== Тело контента ===== */
+.content-body {
+    padding: 2rem;
+}
+
+/* Сообщения */
+.messages-container {
+    margin-bottom: 2rem;
+}
+
+.message-alert {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 0.75rem;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-success {
+    background: #d1fae5;
+    color: #065f46;
+    border-left: 4px solid var(--success-color);
+}
+
+.alert-error {
+    background: #fee2e2;
+    color: #991b1b;
+    border-left: 4px solid var(--danger-color);
+}
+
+.alert-info {
+    background: #dbeafe;
+    color: #1e40af;
+    border-left: 4px solid var(--info-color);
+}
+
+.alert-icon {
+    margin-right: 1rem;
+    font-size: 1.25rem;
+}
+
+.alert-text {
+    flex: 1;
+}
+
+.alert-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: inherit;
+    opacity: 0.7;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.alert-close:hover {
+    opacity: 1;
+}
+
+/* Таблица */
+.table-container {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.consents-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.consents-table thead {
+    background: #f1f5f9;
+}
+
+.consents-table th {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--dark-color);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.consents-table th.text-center {
+    text-align: center;
+}
+
+.consents-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.consents-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.consents-table tbody tr.inactive {
+    opacity: 0.7;
+}
+
+.consents-table td {
+    padding: 1.25rem 1.25rem;
+    vertical-align: middle;
+}
+
+.serial {
+    font-weight: 500;
+    color: var(--secondary-color);
+    font-size: 0.95rem;
+}
+
+.date-cell .date-main {
+    font-weight: 600;
+    color: var(--dark-color);
+    font-size: 1rem;
+}
+
+.date-cell .date-time {
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+    margin-top: 0.25rem;
+}
+
+.version-badge {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: #f1f5f9;
+    color: var(--secondary-color);
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid var(--border-color);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.status-badge.revoked {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.revoked-date {
+    font-size: 0.75rem;
+    color: var(--secondary-color);
+    margin-top: 0.5rem;
+}
+
+.storage-cell .storage-period {
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.storage-cell .expiration {
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.actions-cell {
+    min-width: 140px;
+}
+
+.actions-group {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    background: white;
+    border: 1px solid var(--border-color);
+    color: var(--secondary-color);
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.action-btn:hover .tooltip {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.view-btn:hover {
+    background: var(--primary-light);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.revoke-btn:hover {
+    background: #fee2e2;
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.document-btn:hover {
+    background: #f0f9ff;
+    color: var(--info-color);
+    border-color: var(--info-color);
+}
+
+.tooltip {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--dark-color);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    transition: var(--transition);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.tooltip:after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 4px 4px 0 4px;
+    border-style: solid;
+    border-color: var(--dark-color) transparent transparent transparent;
+}
+
+/* Информационный блок */
+.info-section {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-top: 2rem;
+    border: 1px solid #bae6fd;
+}
+
+.info-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.info-header i {
+    font-size: 1.5rem;
+    color: var(--info-color);
+    margin-right: 1rem;
+}
+
+.info-header h3 {
+    margin: 0;
+    color: var(--dark-color);
+    font-size: 1.25rem;
+}
+
+.info-description {
+    color: var(--secondary-color);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.feature-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    background: white;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+}
+
+.feature-content h4 {
+    margin: 0 0 0.5rem;
+    color: var(--dark-color);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.feature-content p {
+    margin: 0;
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* Состояние "пусто" */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: #cbd5e1;
+    margin-bottom: 1.5rem;
+}
+
+.empty-content h2 {
+    color: var(--dark-color);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.empty-description {
+    color: var(--secondary-color);
+    max-width: 500px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+    font-size: 1.125rem;
+}
+
+.empty-action-btn {
+    display: inline-flex;
+    align-items: center;
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    margin-bottom: 1rem;
+}
+
+.empty-action-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.empty-note {
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Футер контента */
+.content-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--light-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.stats {
+    display: flex;
+    gap: 2rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-label {
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--dark-color);
+    font-size: 1.125rem;
+}
+
+.stat-value.active {
+    color: var(--success-color);
+}
+
+.stat-value.revoked {
+    color: var(--danger-color);
+}
+
+.export-btn {
+    background: white;
+    color: var(--secondary-color);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.export-btn:hover {
+    background: var(--primary-light);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* ===== Модальное окно ===== */
+.modal-content {
+    border: none;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+    color: white;
+    border-bottom: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.modal-title-content i {
+    font-size: 1.5rem;
+}
+
+.modal-title-content h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.modal-close:hover {
+    background: rgba(255,255,255,0.2);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: 2rem;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--light-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: #f8fafc;
+    border-color: var(--secondary-color);
+}
+
+/* ===== Адаптивность ===== */
+@media (max-width: 992px) {
+    .content-header {
+        padding: 1.5rem;
+    }
+    
+    .content-body {
+        padding: 1.5rem;
+    }
+    
+    .actions-group {
+        flex-direction: column;
+    }
+    
+    .action-btn {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+@media (max-width: 768px) {
+    .privacy-sidebar {
+        margin-bottom: 1.5rem;
+    }
+    
+    .content-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .create-btn {
+        align-self: flex-start;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .content-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .stats {
+        justify-content: space-around;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .content-header, .content-body, .content-footer {
+        padding: 1.25rem;
+    }
+    
+    .header-title h1 {
+        font-size: 1.5rem;
+    }
+    
+    .consents-table td, .consents-table th {
+        padding: 1rem 0.75rem;
+    }
+    
+    .modal-header, .modal-footer {
+        padding: 1.25rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Загрузка деталей согласия
+    const consentDetailsModal = document.getElementById('consentDetailsModal');
+    if (consentDetailsModal) {
+        consentDetailsModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const consentId = button.getAttribute('data-consent-id');
+            const contentDiv = document.getElementById('consentDetailsContent');
+            
+            if (consentId) {
+                contentDiv.innerHTML = `
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Загрузка деталей согласия...</p>
+                    </div>
+                `;
+                
+                // Загружаем данные через AJAX
+                fetch(`/privacy/detailed-consent/${consentId}/info/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            contentDiv.innerHTML = generateConsentDetailsHTML(data.consent);
+                        } else {
+                            contentDiv.innerHTML = `
+                                <div class="error-state">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <h3>Ошибка загрузки</h3>
+                                    <p>${data.error || 'Не удалось загрузить данные'}</p>
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        contentDiv.innerHTML = `
+                            <div class="error-state">
+                                <i class="fas fa-wifi-slash"></i>
+                                <h3>Ошибка соединения</h3>
+                                <p>Проверьте подключение к интернету</p>
+                            </div>
+                        `;
+                    });
+            }
+        });
+    }
+    
+    // Закрытие сообщений
+    document.querySelectorAll('.alert-close').forEach(closeBtn => {
+        closeBtn.addEventListener('click', function() {
+            this.closest('.message-alert').style.opacity = '0';
+            setTimeout(() => {
+                this.closest('.message-alert').remove();
+            }, 300);
+        });
+    });
+    
+    // Экспорт списка
+    document.querySelector('.export-btn')?.addEventListener('click', function() {
+        alert('Функция экспорта будет реализована в следующем обновлении');
+    });
+    
+    // Печать согласия
+    document.querySelector('.print-btn')?.addEventListener('click', function() {
+        window.print();
+    });
+});
+
+// Функция генерации HTML для деталей согласия
+function generateConsentDetailsHTML(consent) {
+    return `
+        <div class="consent-details-view">
+            <div class="detail-header">
+                <div class="header-badge ${consent.is_active ? 'active' : 'revoked'}">
+                    <i class="fas fa-${consent.is_active ? 'check-circle' : 'times-circle'}"></i>
+                    ${consent.is_active ? 'Действующее согласие' : 'Отозванное согласие'}
+                </div>
+                <div class="header-meta">
+                    <span>ID: #${consent.id}</span>
+                    <span>Версия: v${consent.version}</span>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h3><i class="fas fa-calendar-alt"></i> Сроки действия</h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Дата выдачи:</label>
+                        <div class="value">${consent.granted_at || 'Не указана'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Срок хранения:</label>
+                        <div class="value">${consent.storage_period || 'Не указан'}</div>
+                    </div>
+                    ${consent.expiration_date ? `
+                    <div class="detail-item">
+                        <label>Дата истечения:</label>
+                        <div class="value">${consent.expiration_date}</div>
+                    </div>
+                    ` : ''}
+                    ${consent.revoked_at ? `
+                    <div class="detail-item">
+                        <label>Дата отзыва:</label>
+                        <div class="value">${consent.revoked_at}</div>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            
+            ${consent.purpose ? `
+            <div class="detail-section">
+                <h3><i class="fas fa-bullseye"></i> Цель обработки</h3>
+                <div class="purpose-text">${consent.purpose}</div>
+            </div>
+            ` : ''}
+            
+            ${consent.data_categories && consent.data_categories.length > 0 ? `
+            <div class="detail-section">
+                <h3><i class="fas fa-database"></i> Категории данных</h3>
+                <div class="categories-list">
+                    ${consent.data_categories.map(cat => `
+                        <span class="category-tag">${cat}</span>
+                    `).join('')}
+                </div>
+            </div>
+            ` : ''}
+            
+            ${consent.third_parties && consent.third_parties.length > 0 ? `
+            <div class="detail-section">
+                <h3><i class="fas fa-handshake"></i> Третьи стороны</h3>
+                <div class="parties-list">
+                    ${consent.third_parties.map(party => `
+                        <div class="party-item">
+                            <div class="party-name">${party.name || 'Не указано'}</div>
+                            <div class="party-purpose">${party.purpose || 'Цель не указана'}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            ` : ''}
+            
+            ${consent.document_url ? `
+            <div class="document-link">
+                <a href="${consent.document_url}" target="_blank" class="document-btn">
+                    <i class="fas fa-external-link-alt"></i>
+                    Открыть оригинал документа
+                </a>
+            </div>
+            ` : ''}
+        </div>
+    `;
+}
+</script>
+{% endblock %}

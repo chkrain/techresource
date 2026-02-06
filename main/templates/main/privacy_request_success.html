@@ -50,11 +50,9 @@
             </div>
             
             <div class="actions">
-                <!-- Используем 'privacy' вместо 'privacy_policy' -->
                 <a href="{% url 'privacy' %}" class="btn btn-secondary">
                     ← Вернуться к политике конфиденциальности
                 </a>
-                <!-- Используем 'home' если есть такой URL, или просто '/' -->
                 {% url 'home' as home_url %}
                 <a href="{% if home_url %}{{ home_url }}{% else %}/{% endif %}" class="btn btn-primary">
                     На главную страницу

@@ -879,5 +879,97 @@ class ContactForm(forms.Form):
         error_messages={'required': 'Пожалуйста, подтвердите, что вы не робот'}
     )
     
-    # Согласие на обработку данных
     privacy_consent = ContactPrivacyField()
+
+class ConsentForm(forms.Form):
+    TRANSFER_CHOICES = [
+        ('not_prohibited', 'не запрещено'),
+        ('prohibited', 'запрещено'),
+    ]
+    
+    transfer_unlimited = forms.ChoiceField(
+        choices=TRANSFER_CHOICES,
+        label='Передача персональных данных оператором неограниченному кругу лиц',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    
+    PROCESSING_CHOICES = [
+        ('not_prohibited', 'не запрещено'),
+        ('prohibited', 'запрещено'),
+        ('not_prohibited_with_conditions', 'не запрещено, с условиями'),
+    ]
+    
+    processing_unlimited = forms.ChoiceField(
+        choices=PROCESSING_CHOICES,
+        label='Обработка персональных данных неограниченным кругом лиц',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    
+    PROHIBITED_ACTIONS_CHOICES = [
+        ('collection', 'сбор'),
+        ('recording', 'запись'),
+        ('systematization', 'систематизация'),
+        ('accumulation', 'накопление'),
+        ('storage', 'хранение'),
+        ('update', 'уточнение (обновление, изменение)'),
+        ('extraction', 'извлечение'),
+        ('use', 'использование'),
+        ('transfer', 'передача (распространение, предоставление)'),
+        ('depersonalization', 'обезличивание'),
+        ('blocking', 'блокирование'),
+    ]
+    
+    prohibited_actions = forms.MultipleChoiceField(
+        choices=PROHIBITED_ACTIONS_CHOICES,
+        label='Запрещаемые действия по обработке ПД',
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'})
+    )
+    
+    NETWORK_CHOICES = [
+        ('not_specified', 'не указано'),
+        ('internal_network', 'только по внутренней сети'),
+        ('it_networks', 'с использованием информационно-телекоммуникационных сетей'),
+        ('no_transfer', 'без передачи по сети'),
+    ]
+    
+    network_transfer = forms.ChoiceField(
+        choices=NETWORK_CHOICES,
+        label='Условия передачи персональных данных оператором по сети',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    
+    email = forms.EmailField(
+        label='Электронная почта',
+        required=True,
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'ваш@email.com'})
+    )
+    
+    phone = forms.CharField(
+        label='Телефон',
+        required=False,
+        max_length=20,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+7 (999) 999-99-99'})
+    )
+    
+    marketing_consent = forms.BooleanField(
+        label='Согласие на маркетинговые рассылки',
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    
+    policy_agreement = forms.BooleanField(
+        label='Согласие с Политикой конфиденциальности',
+        required=True,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        processing_unlimited = cleaned_data.get('processing_unlimited')
+        prohibited_actions = cleaned_data.get('prohibited_actions', [])
+        
+        if processing_unlimited == 'not_prohibited_with_conditions' and not prohibited_actions:
+            self.add_error('prohibited_actions', 'При выборе "не запрещено, с условиями" необходимо указать хотя бы одно запрещенное действие.')
+        
+        return cleaned_data

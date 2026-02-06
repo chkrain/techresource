@@ -5,6 +5,12 @@ from django.http import HttpResponseNotFound
 from django.urls import path, re_path
 from django.contrib import admin
 from . import views, views_privacy
+from .views_privacy import (
+    process_detailed_consent,
+    ConsentSuccessDetailedView,
+    detailed_consents_list,
+    get_detailed_consent_info,
+)
 from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.views.generic import TemplateView
@@ -32,8 +38,13 @@ urlpatterns = [
     path('privacy/consents/bulk-revoke/', views_privacy.bulk_revoke_consents, name='bulk_revoke_consents'),
     path('privacy/data-portability/', views_privacy.DataPortabilityView.as_view(), name='data_portability'),
     path('privacy/newsletter-toggle/', views_privacy.toggle_newsletter_consent, name='toggle_newsletter'),
+    path('privacy/detailed-consent/', process_detailed_consent, name='process_detailed_consent'),
+    path('privacy/detailed-consent/success/', ConsentSuccessDetailedView.as_view(), name='consent_success_detailed'),
+    path('privacy/my-detailed-consents/', detailed_consents_list, name='detailed_consents_list'),
     
-    # Аутентификация и профиль
+    path('privacy/detailed-consent/<int:consent_id>/info/', 
+         get_detailed_consent_info, 
+         name='get_detailed_consent_info'),
     path('register/', views.secure_register, name='register'),
     path('login/', views.secure_login, name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='index'), name='logout'),

@@ -51,7 +51,7 @@ from .forms import SupportTicketForm
 import tempfile
 from blog.models import BlogComment, BlogArticle
 from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage, InvoiceRegistry, Category, CurrencyRate, PrivacyRequest, PrivacyConsent, PrivacyConsentLog
-from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm, AdminProfileTagsForm, SupportTicketForm, CartOrderForm, ContactForm
+from .forms import SecureUserCreationForm, SecureAuthenticationForm, SecurePasswordResetForm, SecureSetPasswordForm, UserRegisterForm, UserProfileForm, AddressForm, ProductReviewForm, AdminProfileTagsForm, SupportTicketForm, CartOrderForm, ContactForm, ConsentForm
 from django.db.models import Sum
 import qrcode
 import qrcode.image.svg

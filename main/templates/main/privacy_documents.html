@@ -1,500 +1,906 @@
-<!-- main/templates/main/privacy_documents.html -->
 {% extends 'main/base.html' %}
 {% load static %}
-{% block title %}Локальные акты по защите ПД - Техресурс{% endblock %}
 
-{% block content %}
-<section class="documents-hero">
-    <div class="container">
-        <div class="hero-content">
-            <h1>Локальные нормативные акты</h1>
-            <p class="hero-subtitle">Документация по обработке и защите персональных данных</p>
-        </div>
-    </div>
-</section>
+{% block title %}Согласие на обработку персональных данных - Техресурс{% endblock %}
+{% block og_title %}Согласие на обработку персональных данных — Техресурс{% endblock %}
+{% block og_description %}Предоставьте согласие на обработку ваших персональных данных с выбором параметров.{% endblock %}
 
-<section class="documents-section">
-    <div class="container">
-        <div class="documents-grid">
-            <div class="document-card">
-                <div class="document-header">
-                    <h3>Приказ № 15/2026 от 12.01.2026</h3>
-                    <span class="document-status active">Действующий</span>
-                </div>
-                <div class="document-content">
-                    <h4>О назначении ответственного за организацию обработки персональных данных</h4>
-                    <p><strong>На основании:</strong> Федерального закона от 27.07.2006 № 152-ФЗ "О персональных данных"</p>
-                    
-                    <div class="document-details">
-                        <div class="detail-item">
-                            <strong>ПРИКАЗЫВАЮ:</strong>
-                            <p>1. Назначить ответственным за организацию обработки персональных данных в ООО "Техресурс" Чинчаркина Никиту Олеговича.</p>
-                            <p>2. Возложить на Чинчаркина Н.О. следующие обязанности:</p>
-                            <ul>
-                                <li>Контроль за соблюдением требований законодательства о персональных данных</li>
-                                <li>Организация приёма и рассмотрения обращений субъектов ПД</li>
-                                <li>Ведение реестра обработки ПД</li>
-                                <li>Информирование Роскомнадзора об утечках ПД</li>
-                                <li>Проведение внутренних проверок</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <strong>Данные ответственного:</strong>
-                            <table class="officer-table">
-                                <tr>
-                                    <td><strong>ФИО:</strong></td>
-                                    <td>Чинчаркин Никита Олегович</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Должность:</strong></td>
-                                    <td>Ответственный за обработку ПД</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Email:</strong></td>
-                                    <td><a href="mailto:{{ company_email }}">{{ company_email }}</a></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Телефон:</strong></td>
-                                    <td><a href="tel:{{ company_phone }}">{{ company_phone }}</a></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Часы приёма:</strong></td>
-                                    <td>Пн-Пт с 9:00 до 17:00 (МСК)</td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <div class="document-footer">
-                        <div class="signature">
-                            <p><strong>Генеральный директор</strong></p>
-                            <p>Казначеев А.А.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="document-card">
-                <div class="document-header">
-                    <h3>Положение № 01/ПД от 12.01.2026</h3>
-                    <span class="document-status active">Действующий</span>
-                </div>
-                <div class="document-content">
-                    <h4>Положение об обработке и защите персональных данных</h4>
-                    
-                    <div class="toc">
-                        <h5>Содержание:</h5>
-                        <ol>
-                            <li>Общие положения</li>
-                            <li>Принципы и условия обработки ПД</li>
-                            <li>Права субъектов ПД</li>
-                            <li>Обязанности оператора</li>
-                            <li>Меры по обеспечению безопасности ПД</li>
-                            <li>Порядок обработки запросов субъектов</li>
-                            <li>Порядок уничтожения ПД</li>
-                            <li>Ответственность</li>
-                        </ol>
-                    </div>
-                    
-                    <div class="document-actions">
-                        <a href="{% url 'privacy_policy' %}" class="btn btn-outline">
-                            👁️ Общедоступная версия
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="document-card">
-                <div class="document-header">
-                    <h3>Инструкция № 02/ПД от 12.01.2026</h3>
-                    <span class="document-status active">Действующий</span>
-                </div>
-                <div class="document-content">
-                    <h4>Инструкция по уничтожению персональных данных</h4>
-                    
-                    <div class="procedure-steps">
-                        <div class="step">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
-                                <h5>Основания для уничтожения</h5>
-                                <ul>
-                                    <li>Истечение срока хранения</li>
-                                    <li>Запрос субъекта ПД</li>
-                                    <li>Достижение цели обработки</li>
-                                    <li>Отзыв согласия</li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <div class="step">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
-                                <h5>Порядок уничтожения электронных данных</h5>
-                                <ol>
-                                    <li>Составление акта о необходимости уничтожения</li>
-                                    <li>Согласование с ответственным за ПД</li>
-                                    <li>Резервное копирование (на 1 месяц)</li>
-                                    <li>Удаление из базы данных</li>
-                                    <li>Очистка логов и backup</li>
-                                    <li>Составление акта об уничтожении</li>
-                                </ol>
-                            </div>
-                        </div>
-                        
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
-                                <h5>Порядок уничтожения бумажных носителей</h5>
-                                <ol>
-                                    <li>Изъятие из архива</li>
-                                    <li>Шредирование документов</li>
-                                    <li>Уничтожение шредерата</li>
-                                    <li>Составление акта</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="document-actions">
-                        <button class="btn btn-danger" onclick="showDestructionModal()">
-                            🗑️ Запустить процедуру уничтожения
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="document-card full-width">
-                <div class="document-header">
-                    <h3>Реестр обработки ПД</h3>
-                    <span class="document-status">Реестр № 01 от 12.01.2026</span>
-                </div>
-                <div class="document-content">
-                    <div class="register-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>№</th>
-                                    <th>Наименование обработки</th>
-                                    <th>Цель обработки</th>
-                                    <th>Категории ПД</th>
-                                    <th>Срок хранения</th>
-                                    <th>Статус</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for record in processing_records %}
-                                <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td>{{ record.name }}</td>
-                                    <td>{{ record.purpose|truncatewords:10 }}</td>
-                                    <td>{{ record.data_categories|truncatewords:5 }}</td>
-                                    <td>{{ record.retention_period }}</td>
-                                    <td><span class="status-badge active">Действует</span></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                </div>
-            </div>
-
-            <div class="document-card">
-                <div class="document-header">
-                    <h3>Журнал учёта обращений</h3>
-                    <span class="badge">{{ requests_count }} запросов</span>
-                </div>
-                <div class="document-content">
-                    <div class="stats-grid">
-                        <div class="stat">
-                            <div class="stat-value">{{ recent_requests }}</div>
-                            <div class="stat-label">За 30 дней</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value">{{ pending_requests }}</div>
-                            <div class="stat-label">В обработке</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value">{{ avg_response_time }} дн.</div>
-                            <div class="stat-label">Среднее время ответа</div>
-                        </div>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<div id="destructionModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Процедура уничтожения ПД</h3>
-            <button class="close-modal" onclick="closeDestructionModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <form id="destructionForm" method="post" action="{% url 'admin_destroy_personal_data' %}">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label>Основание для уничтожения*</label>
-                    <select name="reason" class="form-select" required>
-                        <option value="">Выберите основание</option>
-                        <option value="expired">Истёк срок хранения</option>
-                        <option value="request">Запрос субъекта ПД</option>
-                        <option value="purpose_achieved">Достигнута цель обработки</option>
-                        <option value="consent_withdrawn">Отзыв согласия</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Тип данных для уничтожения*</label>
-                    <div class="checkbox-grid">
-                        <label><input type="checkbox" name="data_type" value="user_profile"> Профиль пользователя</label>
-                        <label><input type="checkbox" name="data_type" value="orders"> Данные заказов</label>
-                        <label><input type="checkbox" name="data_type" value="addresses"> Адреса доставки</label>
-                        <label><input type="checkbox" name="data_type" value="reviews"> Отзывы</label>
-                        <label><input type="checkbox" name="data_type" value="support_tickets"> Обращения в поддержку</label>
-                        <label><input type="checkbox" name="data_type" value="all"> Все данные пользователя</label>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Пользователь</label>
-                    <select name="user_id" class="form-select">
-                        <option value="">Выберите пользователя</option>
-                        {% for user in users %}
-                        <option value="{{ user.id }}">{{ user.username }} - {{ user.email }}</option>
-                        {% endfor %}
-                    </select>
-                    <small>Оставьте пустым для массового уничтожения</small>
-                </div>
-                
-                <div class="form-group">
-                    <label>Примечание</label>
-                    <textarea name="notes" class="form-textarea" rows="3"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <button type="submit" class="btn btn-danger btn-block">
-                        🗑️ Начать процедуру уничтожения
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
+{% block extra_css %}
 <style>
-.documents-hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 80px 0;
-    text-align: center;
+:root {
+    --primary: #4361ee;
+    --primary-dark: #3a56d4;
+    --secondary: #7209b7;
+    --accent: #f72585;
+    --success: #4cc9f0;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gray: #6c757d;
+    --light-gray: #e9ecef;
+    --border-radius: 12px;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.12);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.documents-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 30px;
-    margin-top: 40px;
+.consent-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    border-radius: 20px;
 }
 
-.document-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+.consent-hero {
+    padding: 80px 0 60px;
+    position: relative;
     overflow: hidden;
-    transition: transform 0.3s;
+    margin-top: 8svh;
 }
 
-.document-card.full-width {
-    grid-column: 1 / -1;
+.hero-title {
+    font-size: 2.75rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
 }
 
-.document-card:hover {
+.hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--gray);
+    max-width: 600px;
+    margin: 0 auto 3rem;
+}
+
+.consent-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    border: none;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.consent-card:hover {
+    box-shadow: var(--shadow-hover);
     transform: translateY(-5px);
 }
 
-.document-header {
-    background: #f8f9fa;
-    padding: 20px;
-    border-bottom: 1px solid #dee2e6;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.document-status {
-    background: #48bb78;
+.card-header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
+    padding: 1.5rem 2rem;
+    border: none;
 }
 
-.document-content {
-    padding: 25px;
-}
-
-.procedure-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.step {
-    display: flex;
-    gap: 15px;
-    align-items: flex-start;
-}
-
-.step-number {
-    background: #667eea;
-    color: white;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+.card-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    flex-shrink: 0;
+    gap: 12px;
 }
 
-.register-table {
-    overflow-x: auto;
+.card-header-icon {
+    font-size: 1.75rem;
+    animation: pulse 2s infinite;
 }
 
-.register-table table {
-    width: 100%;
-    border-collapse: collapse;
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
 }
 
-.register-table th,
-.register-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.register-table th {
-    background: #f8f9fa;
-    font-weight: 600;
-}
-
-.status-badge {
-    background: #c6f6d5;
-    color: #22543d;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    text-align: center;
-}
-
-.stat-value {
-    font-size: 32px;
-    font-weight: bold;
-    color: #667eea;
-}
-
-.stat-label {
-    font-size: 14px;
-    color: #666;
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-.modal-header {
-    padding: 20px;
-    border-bottom: 1px solid #dee2e6;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-body {
-    padding: 20px;
-}
-
-.checkbox-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+.card-body {
+    padding: 2.5rem;
 }
 
 @media (max-width: 768px) {
-    .documents-grid {
-        grid-template-columns: 1fr;
+    .card-body {
+        padding: 1.5rem;
+    }
+}
+
+.info-alert {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: none;
+    border-radius: var(--border-radius);
+    border-left: 5px solid var(--primary);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.info-alert-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.info-icon {
+    color: var(--primary);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.info-text h5 {
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.info-text p {
+    color: #37474f;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.consent-form {
+    margin-top: 1.5rem;
+}
+
+.form-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--light-gray);
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(67, 97, 238, 0.1);
+}
+
+.section-icon {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.5rem;
+}
+
+.form-floating {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: var(--transition);
+    background: white;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+    transform: translateY(-2px);
+}
+
+.form-control-lg {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+.form-label {
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.required::after {
+    content: '*';
+    color: var(--accent);
+    margin-left: 3px;
+}
+
+.form-text {
+    color: var(--gray);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    line-height: 1.4;
+}
+
+.form-check {
+    min-height: 2rem;
+    margin-bottom: 1rem;
+    padding-left: 2.5rem;
+}
+
+.form-check-input {
+    width: 1.3em;
+    height: 1.3em;
+    margin-top: 0.15em;
+    margin-left: -2.5rem;
+    border: 2px solid var(--gray);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.2);
+}
+
+.form-check-label {
+    color: var(--dark);
+    font-weight: 500;
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.conditions-block {
+    background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f4 100%);
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-top: 1rem;
+    transition: var(--transition);
+    border-left: 5px solid var(--secondary);
+}
+
+.conditions-block:hover {
+    border-color: var(--primary);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.conditions-title {
+    color: var(--secondary);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.conditions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.btn {
+    border-radius: 10px;
+    padding: 0.875rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: var(--transition);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-dark), #651aa3);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(67, 97, 238, 0.4);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+.btn-outline:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+}
+
+.btn-lg {
+    padding: 1.25rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+@media (max-width: 992px) {
+    .hero-title {
+        font-size: 2.25rem;
     }
     
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .card-header h2 {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .consent-hero {
+        padding: 60px 0 40px;
     }
     
-    .checkbox-grid {
+    .hero-title {
+        font-size: 1.875rem;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 300px;
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+    }
+    
+    .conditions-grid {
         grid-template-columns: 1fr;
     }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+
+.is-invalid {
+    border-color: #dc3545 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.is-invalid:focus {
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+/* ===== Утилиты ===== */
+.text-gradient {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.shadow-soft {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.rounded-lg {
+    border-radius: var(--border-radius);
+}
+
+.mb-0 { margin-bottom: 0 !important; }
+.mt-0 { margin-top: 0 !important; }
+.mb-1 { margin-bottom: 0.25rem !important; }
+.mb-2 { margin-bottom: 0.5rem !important; }
+.mb-3 { margin-bottom: 1rem !important; }
+.mb-4 { margin-bottom: 1.5rem !important; }
+.mb-5 { margin-bottom: 2rem !important; }
+
+.data-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+.data-list li {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--light-gray);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: var(--transition);
+}
+
+.data-list li:hover {
+    border-color: var(--primary);
+    transform: translateX(5px);
+}
+
+.data-list li::before {
+    content: '✓';
+    color: var(--success);
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.info-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: var(--transition);
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+
+.info-link:hover {
+    color: var(--primary-dark);
+    background: rgba(67, 97, 238, 0.05);
+    text-decoration: underline;
 }
 </style>
+{% endblock %}
 
+{% block content %}
+<div class="consent-page">
+    <section class="consent-hero">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <h1 class="hero-title text-center fade-in">
+                        Согласие на обработку персональных данных
+                    </h1>
+                    <p class="hero-subtitle text-center fade-in delay-1">
+                        Заполните форму, чтобы скорректировать согласие на обработку ваших персональных данных 
+                        в соответствии с Федеральным законом №152-ФЗ. Вы можете выбрать параметры обработки.
+                    </p>
+
+                    <div class="consent-card fade-in delay-2">
+                        <div class="card-header">
+                            <h2>
+                                <i class="fas fa-file-contract card-header-icon"></i>
+                                Форма согласия на обработку ПДн
+                            </h2>
+                        </div>
+                        
+                        <div class="card-body">
+                            <div class="info-alert fade-in delay-1">
+                                <div class="info-alert-content">
+                                    <i class="fas fa-info-circle info-icon"></i>
+                                    <div class="info-text">
+                                        <h5>Важная информация</h5>
+                                        <p>
+                                            Заполните эту форму, чтобы предоставить согласие на обработку ваших персональных 
+                                            данных в соответствии с Федеральным законом №152-ФЗ. Вы можете выбрать параметры 
+                                            обработки данных. Все данные защищены и обрабатываются в соответствии с политикой 
+                                            конфиденциальности.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if form.errors %}
+                            <div class="alert alert-danger alert-dismissible fade show rounded-lg shadow-soft" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-triangle me-3 fs-4"></i>
+                                    <div>
+                                        <h5 class="alert-heading mb-2">Пожалуйста, исправьте ошибки:</h5>
+                                        <ul class="mb-0 ps-3">
+                                            {% for field in form %}
+                                                {% for error in field.errors %}
+                                                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                                {% endfor %}
+                                            {% endfor %}
+                                            {% for error in form.non_field_errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endif %}
+
+                            <form method="post" action="{% url 'process_detailed_consent' %}" id="consentForm" class="consent-form" novalidate>
+                                {% csrf_token %}
+                                
+                                <div class="form-section fade-in">
+                                    <h3 class="section-title">
+                                        <i class="fas fa-user-circle section-icon"></i>
+                                        Контактные данные
+                                    </h3>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4">
+                                            <label for="email" class="form-label required">
+                                                Электронная почта
+                                            </label>
+                                            <input type="email" 
+                                                   class="form-control form-control-lg {% if form.email.errors %}is-invalid{% endif %}" 
+                                                   id="email" 
+                                                   name="email" 
+                                                   required 
+                                                   placeholder="ваш@email.com" 
+                                                   value="{% if form.email.value %}{{ form.email.value }}{% elif user.is_authenticated %}{{ user.email }}{% endif %}">
+                                            {% if form.email.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ form.email.errors|join:", " }}
+                                            </div>
+                                            {% endif %}
+                                            <div class="form-text">
+                                                На этот email будет отправлено подтверждение согласия
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <label for="phone" class="form-label">
+                                                <i class="fas fa-phone me-1"></i>Телефон для связи
+                                            </label>
+                                            <input type="tel" 
+                                                   class="form-control form-control-lg {% if form.phone.errors %}is-invalid{% endif %}" 
+                                                   id="phone" 
+                                                   name="phone" 
+                                                   placeholder="+7 (999) 999-99-99" 
+                                                   value="{{ form.phone.value|default:'' }}">
+                                            {% if form.phone.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ form.phone.errors|join:", " }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-section fade-in delay-1">
+                                    <h3 class="section-title">
+                                        Какие данные обрабатываются
+                                    </h3>
+                                    <div class="card border-0 shadow-soft bg-light">
+                                        <div class="card-body">
+                                            <p class="mb-3" style="color: black;">Настоящим я даю согласие на обработку следующих персональных данных:</p>
+                                            <ul class="data-list" style="color: black;">
+                                                <li>Фамилия, имя, отчество</li>
+                                                <li>Контактные данные (email, телефон)</li>
+                                                <li>Адрес доставки/юридический адрес</li>
+                                                <li>Реквизиты организации (ИНН, КПП, наименование)</li>
+                                                <li>Прикрепляемые файлы (технические задания, реквизиты)</li>
+                                            </ul>
+                                            <div class="mt-3">
+                                                <a href="{% url 'privacy' %}" target="_blank" class="info-link">
+                                                    <i class="fas fa-external-link-alt me-1"></i>
+                                                    Подробнее в Политике конфиденциальности
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-section fade-in delay-2">
+                                    <h3 class="section-title">
+                                        <i class="fas fa-share-alt section-icon"></i>
+                                        Передача данных третьим лицам
+                                    </h3>
+                                    <div class="mb-4">
+                                        <label for="transfer_unlimited" class="form-label required">
+                                            Передача данных неограниченному кругу лиц
+                                        </label>
+                                        <select class="form-select form-control-lg {% if form.transfer_unlimited.errors %}is-invalid{% endif %}" 
+                                                id="transfer_unlimited" 
+                                                name="transfer_unlimited" 
+                                                required>
+                                            <option value="">-- Выберите вариант --</option>
+                                            {% for value, label in form.fields.transfer_unlimited.choices %}
+                                            <option value="{{ value }}" 
+                                                    {% if form.transfer_unlimited.value|stringformat:"s" == value %}selected{% endif %}>
+                                                {{ label }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                        {% if form.transfer_unlimited.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ form.transfer_unlimited.errors|join:", " }}
+                                            </div>
+                                        {% endif %}
+                                        <div class="form-text">
+                                            Разрешаете ли вы передавать ваши данные неограниченному кругу лиц (например, для публикации отзывов)?
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-section fade-in delay-1">
+                                    <h3 class="section-title">
+                                        <i class="fas fa-users-cog section-icon"></i>
+                                        Обработка данных сторонними лицами
+                                    </h3>
+                                    <div class="mb-4">
+                                        <label for="processing_unlimited" class="form-label required">
+                                            Обработка данных неограниченным кругом лиц
+                                        </label>
+                                        <select class="form-select form-control-lg {% if form.processing_unlimited.errors %}is-invalid{% endif %}" 
+                                                id="processing_unlimited" 
+                                                name="processing_unlimited" 
+                                                required>
+                                            <option value="">-- Выберите вариант --</option>
+                                            {% for value, label in form.fields.processing_unlimited.choices %}
+                                            <option value="{{ value }}" 
+                                                    {% if form.processing_unlimited.value|stringformat:"s" == value %}selected{% endif %}>
+                                                {{ label }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                        {% if form.processing_unlimited.errors %}
+                                            <div class="invalid-feedback">
+                                                {{ form.processing_unlimited.errors|join:", " }}
+                                            </div>
+                                        {% endif %}
+                                        <div class="form-text">
+                                            Разрешаете ли вы обработку ваших данных неограниченным кругом лиц?
+                                        </div>
+                                    </div>
+
+                                    <div class="conditions-block mt-4" 
+                                         id="conditions_block" 
+                                         style="display: {% if form.processing_unlimited.value == 'not_prohibited_with_conditions' %}block{% else %}none{% endif %};">
+                                        <h6 class="conditions-title">
+                                            <i class="fas fa-ban me-2"></i>Запрещаемые действия по обработке данных
+                                        </h6>
+                                        <p class="mb-3 small text-muted">Выберите запрещенные действия:</p>
+                                        <div class="conditions-grid">
+                                            {% for value, label in form.fields.prohibited_actions.choices %}
+                                            <div class="form-check">
+                                                <input type="checkbox" 
+                                                       class="form-check-input" 
+                                                       id="prohibited_actions_{{ forloop.counter0 }}" 
+                                                       name="prohibited_actions" 
+                                                       value="{{ value }}"
+                                                       {% if value in form.prohibited_actions.value %}checked{% endif %}>
+                                                <label class="form-check-label" for="prohibited_actions_{{ forloop.counter0 }}">
+                                                    {{ label }}
+                                                </label>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-section fade-in delay-2">
+                                    <h3 class="section-title">
+                                        <i class="fas fa-cogs section-icon"></i>
+                                        Дополнительные настройки
+                                    </h3>
+                                    
+                                    <div class="mb-4">
+                                        <div class="card border-0 bg-light shadow-soft">
+                                            <div class="card-body" style="color: black;">
+                                                <h6 class="d-flex align-items-center gap-2 mb-3">
+                                                    Срок действия согласия
+                                                </h6>
+                                                <p class="mb-0 small">
+                                                    Согласие действует в течение срока, необходимого для достижения целей обработки, 
+                                                    но не менее срока хранения документов по законодательству РФ (5 лет). 
+                                                    Вы можете отозвать согласие в любой момент.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-check mb-4">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               id="marketing_consent" 
+                                               name="marketing_consent" 
+                                               {% if form.marketing_consent.value %}checked{% endif %}>
+                                        <label class="form-check-label" for="marketing_consent">
+                                            <strong>Я согласен(на) получать маркетинговые и информационные рассылки</strong>
+                                        </label>
+                                        <div class="form-text">
+                                            Новости, акции, специальные предложения на указанный email
+                                        </div>
+                                    </div>
+
+                                    <div class="form-check mb-4">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               id="policy_agreement" 
+                                               name="policy_agreement" 
+                                               required 
+                                               {% if form.policy_agreement.value %}checked{% endif %}>
+                                        <label class="form-check-label" for="policy_agreement">
+                                            <strong>Я ознакомлен(а) и согласен(на) с 
+                                                <a href="{% url 'privacy' %}" target="_blank" class="text-decoration-none">
+                                                    Политикой конфиденциальности
+                                                </a>
+                                            </strong>
+                                        </label>
+                                        {% if form.policy_agreement.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.policy_agreement.errors|join:", " }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="form-footer">
+                                    <div class="footer-links">
+                                        <a href="{% url 'privacy' %}" target="_blank" class="btn btn-outline" style="color: black;>
+                                            <i class="fas fa-file-alt me-2"></i>
+                                            Политика конфиденциальности
+                                        </a>
+                                        <a href="{% url 'data_portability' %}" class="btn btn-outline" style="color: black;">
+                                            Портфель данных
+                                        </a>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        Предоставить согласие
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-function showDestructionModal() {
-    document.getElementById('destructionModal').style.display = 'flex';
-}
-
-function closeDestructionModal() {
-    document.getElementById('destructionModal').style.display = 'none';
-}
-
-// Закрытие модального окна при клике вне его
-window.onclick = function(event) {
-    const modal = document.getElementById('destructionModal');
-    if (event.target === modal) {
-        closeDestructionModal();
-    }
-}
-
-// Проверка формы уничтожения
-document.getElementById('destructionForm')?.addEventListener('submit', function(e) {
-    const checkboxes = document.querySelectorAll('input[name="data_type"]:checked');
-    if (checkboxes.length === 0) {
-        e.preventDefault();
-        alert('Выберите хотя бы один тип данных для уничтожения');
-        return false;
+document.addEventListener('DOMContentLoaded', function() {
+    const processingSelect = document.getElementById('processing_unlimited');
+    const conditionsBlock = document.getElementById('conditions_block');
+    
+    if (processingSelect && conditionsBlock) {
+        function toggleConditions() {
+            if (processingSelect.value === 'not_prohibited_with_conditions') {
+                conditionsBlock.style.display = 'block';
+                conditionsBlock.style.opacity = '0';
+                conditionsBlock.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    conditionsBlock.style.transition = 'all 0.3s ease';
+                    conditionsBlock.style.opacity = '1';
+                    conditionsBlock.style.transform = 'translateY(0)';
+                }, 10);
+            } else {
+                conditionsBlock.style.opacity = '1';
+                conditionsBlock.style.transform = 'translateY(0)';
+                setTimeout(() => {
+                    conditionsBlock.style.display = 'none';
+                }, 300);
+            }
+        }
+        
+        processingSelect.addEventListener('change', toggleConditions);
+        toggleConditions();
     }
     
-    if (!confirm('Вы уверены? Это действие невозможно отменить.')) {
-        e.preventDefault();
-        return false;
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+            e.target.value = !x[2] ? x[1] : '+7 (' + x[2] + (x[3] ? ') ' + x[3] : '') + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
+        });
     }
+    
+    const cards = document.querySelectorAll('.card, .conditions-block');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+    
+    const form = document.getElementById('consentForm');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const invalidFields = form.querySelectorAll(':invalid');
+                invalidFields.forEach(field => {
+                    field.classList.add('is-invalid');
+                    
+                    if (invalidFields[0]) {
+                        invalidFields[0].scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }
+                });
+            }
+            
+            form.classList.add('was-validated');
+        }, false);
+    }
+    
+    const inputs = form.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.checkValidity()) {
+                this.classList.remove('is-invalid');
+            }
+        });
+        
+        input.addEventListener('blur', function() {
+            if (!this.checkValidity()) {
+                this.classList.add('is-invalid');
+            }
+        });
+    });
+    
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        form.addEventListener('submit', function() {
+            submitBtn.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Обработка...
+            `;
+            submitBtn.disabled = true;
+        });
+    }
+    
+    const errorAlerts = document.querySelectorAll('.alert-danger');
+    errorAlerts.forEach(alert => {
+        alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
 });
 </script>
-{% endblock %}
+{% endblock %}  
