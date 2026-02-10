@@ -3318,10 +3318,11 @@ def send_invoice_email(order):
         qr_code_data = generate_payment_qr_code(order, company_info)
         
         buyer_info = {
-            'name': order.customer_name,
+            'name': order.company_name if order.company_name else order.customer_name, 
             'inn': order.customer_inn,
             'kpp': order.customer_kpp or '',
-            'address': order.delivery_address,
+            'address': order.delivery_address, 
+            'legal_address': order.legal_address,  
             'contact_name': order.customer_name,
             'phone': order.customer_phone,
             'email': order.customer_email,

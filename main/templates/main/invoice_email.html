@@ -175,8 +175,12 @@
 
     <div class="section-title">Покупатель:</div>
     {{ buyer.name }}<br>
+    Юридический адрес: {{ buyer.legal_address|default:"—" }}<br>
     ИНН/КПП: {{ buyer.inn|default:"—" }} / {{ buyer.kpp|default:"—" }}<br>
-    Адрес: {{ buyer.address|default:"—" }}
+    Адрес доставки: {{ buyer.address|default:"—" }}<br>
+    Контактное лицо: {{ buyer.contact_name }}<br>
+    Телефон: {{ buyer.phone }}<br>
+    Email: {{ buyer.email }}
 
     <div class="section-title">Условия поставки:</div>
     <div class="conditions">
