@@ -172,12 +172,11 @@
     </div>
     {% else %}
     <div class="empty-orders" data-aos="zoom-in">
-      <div class="empty-icon">📦</div>
       <h2>У вас пока нет заказов</h2>
       <p>Совершите первую покупку, чтобы увидеть здесь историю ваших заказов</p>
       <div class="empty-actions">
-        <a href="{% url 'products' %}" class="btn btn-primary">🛍️ Начать покупки</a>
-        <a href="{% url 'services' %}" class="btn btn-secondary">💼 Наши услуги</a>
+        <a href="{% url 'products' %}" class="btn btn-primary">Начать покупки</a>
+        <a href="{% url 'services' %}" class="btn btn-secondary">Наши услуги</a>
       </div>
     </div>
     {% endif %}
