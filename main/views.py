@@ -3322,7 +3322,7 @@ def send_invoice_email(order):
             'inn': order.customer_inn,
             'kpp': order.customer_kpp or '',
             'address': order.delivery_address, 
-            'legal_address': order.legal_address,  
+            'legal_address': order.legal_address or order.delivery_address,
             'contact_name': order.customer_name,
             'phone': order.customer_phone,
             'email': order.customer_email,

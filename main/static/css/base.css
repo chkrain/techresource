@@ -1,85 +1,3 @@
-#page-loader {
-  position: fixed;
-  inset: 0;
-  background: #2c3e50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999999;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
-}
-#page-loader.hidden {
-  opacity: 0;
-  visibility: hidden;
-}
-.loader-content {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.loader-logo {
-  width: 110px;
-  opacity: 0;
-  transform: scale(0.8);
-  animation: logoFade 0.6s ease forwards;
-}
-.loader-title {
-  margin-top: 18px;
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: white;
-  opacity: 0;
-  animation: fadeInUp 0.6s ease forwards 0.3s;
-}
-.loader-progress {
-  width: 260px;
-  height: 8px;
-  background: #e5e5e5;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-top: 40px;
-  position: relative;
-}
-.loader-progress-bar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(135deg, var(--primary), var(--primary-light));
-  border-radius: 6px;
-  transition: width 0.15s ease-out;
-}
-.loader-percent {
-  margin-top: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: white;
-  opacity: 0;
-  animation: fadeIn 0.5s ease forwards 0.4s;
-}
-@keyframes logoFade {
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
 .__ymDebuggerOpener {
   display: none;
 }
@@ -120,8 +38,7 @@ html {
   scroll-behavior: smooth;
 }
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  font-family: "Raleway", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.7;
   min-height: 100vh;
   display: flex;

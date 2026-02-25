@@ -175,7 +175,9 @@
 
     <div class="section-title">Покупатель:</div>
     {{ buyer.name }}<br>
-    Юридический адрес: {{ buyer.legal_address|default:"—" }}<br>
+    {% if buyer.legal_address %}
+        <strong>Юридический адрес:</strong> {{ buyer.legal_address }}<br>
+    {% endif %}
     ИНН/КПП: {{ buyer.inn|default:"—" }} / {{ buyer.kpp|default:"—" }}<br>
     Адрес доставки: {{ buyer.address|default:"—" }}<br>
     Контактное лицо: {{ buyer.contact_name }}<br>

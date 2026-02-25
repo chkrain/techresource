@@ -10,6 +10,187 @@
     <link rel="icon" href="{% static 'favicon.ico' %}?v=1.2" />
     <link rel="manifest" href="{% static 'manifest.json' %}?v=2" alt="манифест">
 
+    {% if request.path == "/" %}
+    <style>
+        #page-loader {
+            position: fixed;
+            inset: 0;
+            background: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            }
+            #page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            }
+            .loader-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            }
+            .loader-logo {
+            width: 110px;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: logoFade 0.6s ease forwards;
+            }
+            h1, h2, h3, h4, h5, h6, .nav-link, .btn {
+            font-weight: 600; 
+            }
+            .loader-title {
+            margin-top: 18px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 0.3s;
+            }
+            .loader-progress {
+            width: 260px;
+            height: 8px;
+            background: #e5e5e5;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 40px;
+            position: relative;
+            }
+            .loader-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 6px;
+            transition: width 0.15s ease-out;
+            }
+            .loader-percent {
+            margin-top: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards 0.4s;
+            }
+            @keyframes logoFade {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+            }
+            @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            }
+            @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+            }
+    </style>
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const bar = document.getElementById("loader-progress-bar");
+        const percent = document.getElementById("loader-percent");
+        const loader = document.getElementById("page-loader");
+        
+        let progress = 0;
+        let progressInterval;
+
+        function updateProgress(targetProgress) {
+            if (progressInterval) clearInterval(progressInterval);
+            
+            progressInterval = setInterval(() => {
+                if (progress < targetProgress) {
+                    const increment = Math.random() * (progress < 50 ? 15 : 5);
+                    progress = Math.min(progress + increment, targetProgress);
+                    
+                    bar.style.width = progress + "%";
+                    percent.textContent = Math.floor(progress) + "%";
+                } else {
+                    clearInterval(progressInterval);
+                }
+            }, 80);
+        }
+
+        updateProgress(70);
+
+        setTimeout(() => {
+            updateProgress(90);
+        }, 300);
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => {
+                    updateProgress(90);
+                    
+                    setTimeout(() => {
+                        if (progress < 100) {
+                            progress = 100;
+                            bar.style.width = "100%";
+                            percent.textContent = "100%";
+                            
+                            setTimeout(() => {
+                                loader.classList.add("hidden");
+                            }, 200);
+                        }
+                    }, 500);
+                }, 200);
+            });
+        }
+
+        const firstImage = document.querySelector('img');
+        if (firstImage) {
+            if (firstImage.complete) {
+                updateProgress(95);
+            } else {
+                firstImage.addEventListener('load', () => {
+                    updateProgress(95);
+                });
+            }
+        }
+
+        setTimeout(() => {
+            if (!loader.classList.contains('hidden')) {
+                progress = 100;
+                bar.style.width = "100%";
+                percent.textContent = "100%";
+                
+                setTimeout(() => {
+                    loader.classList.add("hidden");
+                }, 200);
+            }
+        }, 2000);
+
+        const userInteractions = ['touchstart', 'click', 'keydown', 'scroll'];
+        userInteractions.forEach(event => {
+            document.addEventListener(event, () => {
+                if (!loader.classList.contains('hidden')) {
+                    progress = 100;
+                    bar.style.width = "100%";
+                    percent.textContent = "100%";
+                    
+                    setTimeout(() => {
+                        loader.classList.add("hidden");
+                    }, 150);
+                }
+            }, { once: true });
+        });
+    });
+    </script>
+    {% endif %}
+    
+
     {% block meta %}
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -54,7 +235,9 @@
     
     {% csrf_token %}
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     {% block extra_css %}{% endblock %}
@@ -62,7 +245,8 @@
     <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=2.2">
+    <link rel="preload" href="{% static 'css/base.css' %}?v=2.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{% static 'css/base.css' %}?v=2.3"></noscript>
 </head>
 <body>
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
@@ -190,10 +374,10 @@
                         <i class="fas fa-sign-in-alt"></i>
                         Войти
                     </a>
-                    <a href="/register/" class="nav-link" style="background: var(--success);">
+                    <!-- <a href="/register/" class="nav-link" style="background: var(--success);">
                         <i class="fas fa-user-plus"></i>
                         Регистрация
-                    </a>
+                    </a> -->
                 {% endif %}
                 
                 {% if user.is_staff %}
@@ -317,40 +501,6 @@
     </button>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    {% if request.path == "/" %}
-    <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const bar = document.getElementById("loader-progress-bar");
-        const percent = document.getElementById("loader-percent");
-        const loader = document.getElementById("page-loader");
-
-        let progress = 0;
-
-        const interval = setInterval(() => {
-            const increment = Math.random() * (progress < 80 ? 10 : 3);
-            progress = Math.min(progress + increment, 99);
-
-            bar.style.width = progress + "%";
-            percent.textContent = Math.floor(progress) + "%";
-        }, 120);
-
-        window.addEventListener("load", () => {
-            progress = 100;
-            bar.style.width = "100%";
-            percent.textContent = "100%";
-
-            setTimeout(() => {
-                loader.classList.add("hidden");
-            }, 300);
-
-            setTimeout(() => {
-                clearInterval(interval);
-            }, 600);
-        });
-    });
-    </script>
-    {% endif %}
-
     {% block extra_js %}
     <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
     {% endblock %}
