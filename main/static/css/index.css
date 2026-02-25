@@ -971,6 +971,13 @@ section {
   margin-right: 8px;
 }
 
+@media screen and (max-width: 768px) {
+  .nav-link-page img {
+    max-width: 12px;
+    margin-right: 4px;
+}
+}
+
 .nav-link-page:hover {
     color: white;
     background: rgba(255,255,255,0.1);
