@@ -225,7 +225,6 @@ document.addEventListener('DOMContentLoaded', function() {
         AOS.init({
             duration: 800,
             once: true,
-            offset: 100,
             startEvent: 'load',
             initClassName: 'aos-init',
             animatedClassName: 'aos-animate'
