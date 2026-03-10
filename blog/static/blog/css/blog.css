@@ -61,7 +61,8 @@
 }
 .article-card {
   border-radius: var(--blog-radius);
-  box-shadow: var(--blog-shadow);
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   margin-bottom: 2rem;
   max-width: 100%;
@@ -245,7 +246,8 @@
   border-radius: var(--blog-radius);
   padding: 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: var(--blog-shadow);
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
 }
 .widget-title {
   font-size: 1.25rem;
@@ -466,7 +468,6 @@
   justify-content: space-between;
   width: 100%;
   align-items: center;
-  background-color: var(--blog-card-bg);
   border-radius: 20px;
   padding: 2rem;
 }
