@@ -1105,6 +1105,8 @@ class Category(models.Model):
     seo_keywords = models.TextField(blank=True, verbose_name="SEO Keywords")
     show_in_menu = models.BooleanField(default=True, verbose_name="Показывать в меню")
     product_count = models.IntegerField(default=0, verbose_name="Количество товаров", editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
     
     class Meta:
         verbose_name = "Категория"
@@ -1219,6 +1221,58 @@ class Product(models.Model):
         ('USD', '$ Доллар США'),
         ('EUR', '€ Евро'),
     ]
+    
+    SYNONYMS = {
+        # Оборудование
+        'транспортер': ['транспортёр', 'конвейер', 'ленточный конвейер', 'рольганг', 'перемещения'],
+        'шнек': ['шнековый', 'винтовой конвейер', 'шнековый транспортер', 'винтовой транспортер'],
+        'насос': ['помпа', 'насосное оборудование', 'перекачивающее устройство'],
+        'компрессор': ['воздушный компрессор', 'компрессорное оборудование'],
+        'дробилка': ['измельчитель', 'мельница', 'дробильное оборудование', 'дробильная установка'],
+        'смеситель': ['миксер', 'мешалка', 'смесительное оборудование'],
+        'фильтр': ['фильтрующее устройство', 'очиститель', 'фильтрационное оборудование'],
+        'сушилка': ['сушильное оборудование', 'сушильная установка', 'сушильный аппарат'],
+        'клапан': ['вентиль', 'задвижка', 'запорная арматура', 'регулирующий клапан'],
+        'датчик': ['сенсор', 'измерительный прибор', 'контроллер', 'преобразователь'],
+        'привод': ['электропривод', 'приводное устройство', 'мотор-редуктор'],
+        
+        # Действия
+        'купить': ['приобрести', 'заказать', 'оформить заказ', 'купить недорого', 'цена', 'стоимость'],
+        'продажа': ['реализация', 'поставка', 'продажа оборудования'],
+        
+        # Категории
+        'промышленный': ['индустриальный', 'производственный', 'промышленное'],
+        'автоматизация': ['автоматика', 'АСУ ТП', 'системы управления', 'SCADA', 'контроллеры'],
+        'электрика': ['электрооборудование', 'электротехника', 'электрическое оборудование'],
+        
+        # Характеристики
+        'нержавеющий': ['нержавейка', 'коррозионностойкий', 'inox', 'stainless steel'],
+        'чугунный': ['чугун', 'литье чугуна'],
+        'стальной': ['сталь', 'металлический'],
+        
+        # Состояния
+        'новый': ['новое оборудование', 'оригинал', 'новье'],
+        'б/у': ['бу', 'подержанный', 'восстановленный', 'после капремонта'],
+    }
+    
+    # Общие ключевые слова для всех товаров
+    COMMON_KEYWORDS = [
+        'промышленное оборудование',
+        'производственное оборудование',
+        'техническое оснащение',
+        'купить оборудование',
+        'оборудование цена',
+        'поставка оборудования',
+        'промышленная автоматизация',
+        'КИПиА',
+        'контрольно-измерительные приборы',
+        'АСУ ТП',
+        'системы управления',
+        'электропривод',
+        'пневматика',
+        'гидравлика',
+    ]
+    
     name = models.CharField(max_length=200, verbose_name="Название")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
     currency = models.CharField(
@@ -1276,30 +1330,49 @@ class Product(models.Model):
     last_restock = models.DateTimeField(null=True, blank=True, verbose_name="Последнее пополнение")
 
     specifications = models.JSONField(default=dict, blank=True, verbose_name="Характеристики", help_text="Дополнительные характеристики в формате JSON. Пример: {'Мощность': '100W', 'Напряжение': '220V'}")
-    
+        
     def save(self, *args, **kwargs):
         self.calculate_price_in_rub()
-
+    
         if self.price and self.vat_rate:
             hundred = Decimal('100')
             self.price_without_vat = self.price / (1 + self.vat_rate / hundred)
-
+    
         is_new = not self.pk
-
+    
+        # 1. Сначала генерируем артикул для новых товаров
         if is_new or not self.article or self.article == '':
             self.article = self.generate_article()
-
-        if is_new or not self.seo_title or not self.seo_description:
+    
+        # 2. Проверяем, нужно ли обновить SEO поля
+        need_seo_update = (
+            is_new or  # Новый товар
+            not self.seo_title or  # Отсутствует заголовок
+            not self.seo_description or  # Отсутствует описание
+            not self.seo_keywords or  # Отсутствуют ключевые слова
+            self._has_name_changed() or  # Изменилось название
+            self._has_price_changed() or  # Изменилась цена
+            self._has_brand_changed() or  # Изменился бренд
+            self._has_category_changed()  # Изменилась категория
+        )
+        
+        if need_seo_update:
             self.generate_seo_fields()
-
+    
+        # 3. Генерируем slug (теперь артикул уже точно есть)
         if is_new or not self.slug or self.slug == '':
             if self.name:
-                base_slug = slugify(self.name)[:50]
-                self.slug = f"{base_slug}-{self.article}"
-
+                # Используем новый метод для более SEO-оптимизированного slug
+                self.slug = self.generate_seo_slug()
+    
         self.updated_at = datetime.now()
-
+    
         super().save(*args, **kwargs)
+        
+    def get_absolute_url(self):
+        """Возвращает SEO-дружественный URL товара"""
+        from django.urls import reverse
+        return reverse('product_detail', kwargs={'slug': self.slug})
 
     def get_display_price(self, target_currency='RUB'):
         """Получение цены в указанной валюте"""
@@ -1321,6 +1394,46 @@ class Product(models.Model):
         except Exception as e:
             return self.price_in_rub
 
+    def _has_name_changed(self):
+        """Проверяет, изменилось ли название товара"""
+        if not self.pk:
+            return False
+        try:
+            old = Product.objects.get(pk=self.pk)
+            return old.name != self.name
+        except Product.DoesNotExist:
+            return False
+    
+    def _has_price_changed(self):
+        """Проверяет, изменилась ли цена товара"""
+        if not self.pk:
+            return False
+        try:
+            old = Product.objects.get(pk=self.pk)
+            return old.price != self.price or old.currency != self.currency
+        except Product.DoesNotExist:
+            return False
+    
+    def _has_brand_changed(self):
+        """Проверяет, изменился ли бренд"""
+        if not self.pk:
+            return False
+        try:
+            old = Product.objects.get(pk=self.pk)
+            return old.brand != self.brand
+        except Product.DoesNotExist:
+            return False
+    
+    def _has_category_changed(self):
+        """Проверяет, изменилась ли категория"""
+        if not self.pk:
+            return False
+        try:
+            old = Product.objects.get(pk=self.pk)
+            return old.category_id != self.category_id
+        except Product.DoesNotExist:
+            return False
+            
     def __str__(self):
         return f"{self.name} (арт: {self.article})"
     
@@ -1450,88 +1563,284 @@ class Product(models.Model):
         return f"{date_part}{order_str}"
     
     def generate_seo_fields(self):
-        """Автоматическая генерация SEO полей"""
-        if self.name:
-            base_title = f"{self.name}"
-            if self.brand:
-                base_title = f"{self.brand} {self.name}"
-            
-            if self.category:
-                seo_title = f"{base_title} - купить в {self.category} | Техресурс"
-            else:
-                seo_title = f"{base_title} | Техресурс"
-            
-            self.seo_title = seo_title[:200]
+        """Автоматическая генерация SEO полей с учетом синонимов"""
+        if not self.name:
+            return
         
-        if self.description:
-            clean_desc = re.sub(r'<[^>]+>', '', self.description) 
-            words = clean_desc.split()[:25]  
-            seo_desc = ' '.join(words)
-            
-            if self.price:
-                seo_desc += f" Цена: {self.price} руб."
-            
-            if self.brand:
-                seo_desc += f" Бренд: {self.brand}"
-            
-            if self.article:
-                seo_desc += f" Артикул: {self.article}"
-            
-            self.seo_description = seo_desc[:160]
-        else:
-            if self.name and self.price:
-                desc_text = f"{self.name}. Купить по цене {self.price} руб."
-                if self.article:
-                    desc_text += f" Артикул: {self.article}"
-                desc_text += " | Техресурс"
-                self.seo_description = desc_text[:160]
+        # 1. Генерация SEO заголовка
+        self.seo_title = self._generate_seo_title()
         
-        keywords = []
+        # 2. Генерация SEO описания
+        self.seo_description = self._generate_seo_description()
+        
+        # 3. Генерация ключевых слов с синонимами
+        self.seo_keywords = self._generate_seo_keywords()
+    
+    def _generate_seo_title(self):
+        """Генерирует SEO заголовок с учетом разных форм"""
+        title_parts = []
+        
+        # Добавляем бренд если есть
+        if self.brand:
+            title_parts.append(self.brand)
+        
+        # Основное название
+        title_parts.append(self.name)
+        
+        # Добавляем альтернативные названия для заголовка (если есть синонимы)
+        alt_names = self._get_synonyms_for_product()
+        if alt_names:
+            title_parts.append(f"({alt_names[0]})")
+        
+        # Добавляем цену
+        if self.price:
+            title_parts.append(self.get_price_with_currency_symbol())
+        
+        # Добавляем ключевое действие
         if self.category:
-            category_name = self.category.name
-            category_lower = category_name.lower()
-            keywords.append(category_lower)
-            keywords.append(f"купить {category_lower}")
-            keywords.append(f"{category_lower} цена")
+            title_parts.append(f"купить {self.category.name.lower()}")
+        else:
+            title_parts.append("купить промышленное оборудование")
         
+        # Добавляем название компании
+        title_parts.append("Техресурс")
+        
+        # Собираем заголовок
+        title = " - ".join(title_parts)
+        
+        # Обрезаем до 200 символов, стараясь не резать на полуслове
+        if len(title) > 200:
+            title = title[:197] + "..."
+        
+        return title
+    
+    def _generate_seo_description(self):
+        """Генерирует SEO описание с синонимами и ключевыми фразами"""
+        desc_parts = []
+        
+        # Основная информация о товаре
+        desc_parts.append(f"{self.name}")
+        
+        # Добавляем синонимы в скобках
+        synonyms = self._get_synonyms_for_product()
+        if synonyms:
+            desc_parts.append(f"(также: {', '.join(synonyms[:3])})")
+        
+        # Ценовая информация
+        if self.price:
+            price_text = f"по цене {self.get_price_with_currency_symbol()}"
+            desc_parts.append(price_text)
+        
+        # Технические характеристики
+        tech_info = []
+        if self.brand:
+            tech_info.append(f"бренд {self.brand}")
+        if self.article:
+            tech_info.append(f"артикул {self.article}")
+        if self.material:
+            tech_info.append(f"материал {self.material}")
+        if self.weight:
+            tech_info.append(f"вес {self.weight} кг")
+        
+        if tech_info:
+            desc_parts.append(f"характеристики: {', '.join(tech_info)}")
+        
+        # Категория и применение
+        if self.category:
+            desc_parts.append(f"категория {self.category.name}")
+            
+            # Добавляем фразы для конкретной категории
+            if "насос" in self.category.name.lower():
+                desc_parts.append("перекачка жидкостей, водоснабжение")
+            elif "конвейер" in self.category.name.lower() or "транспортер" in self.category.name.lower():
+                desc_parts.append("перемещение грузов, транспортировка материалов")
+            elif "дробилка" in self.category.name.lower():
+                desc_parts.append("измельчение материалов, дробление пород")
+        
+        # Добавляем описание из карточки товара
+        if self.description:
+            clean_desc = re.sub(r'<[^>]+>', '', self.description)
+            clean_desc = ' '.join(clean_desc.split()[:15])  # Первые 15 слов
+            if clean_desc:
+                desc_parts.append(clean_desc + "...")
+        
+        # Добавляем призыв к действию
+        desc_parts.append("Звоните! Доставка по РФ.")
+        
+        # Собираем описание
+        description = ". ".join(desc_parts)
+        
+        # Обрезаем до 160 символов, стараясь не резать на полуслове
+        if len(description) > 160:
+            description = description[:157] + "..."
+        
+        return description
+    
+    def _generate_seo_keywords(self):
+        """Генерирует ключевые слова с учетом синонимов и N-грамм"""
+        keywords = set()
+        
+        # 1. Добавляем название товара и его части
+        name_lower = self.name.lower()
+        keywords.add(name_lower)
+        
+        # Разбиваем название на слова
+        name_words = re.findall(r'\w+', name_lower)
+        keywords.update(name_words)
+        
+        # Добавляем биграммы (пары слов)
+        if len(name_words) > 1:
+            bigrams = [f"{name_words[i]} {name_words[i+1]}" for i in range(len(name_words)-1)]
+            keywords.update(bigrams)
+        
+        # 2. Добавляем синонимы
+        synonyms = self._get_all_synonyms(name_lower)
+        keywords.update(synonyms)
+        
+        # 3. Добавляем поисковые фразы с синонимами
+        search_phrases = ['купить', 'цена', 'продажа', 'стоимость']
+        for word in name_words:
+            for phrase in search_phrases:
+                keywords.add(f"{phrase} {word}")
+                # Добавляем фразы с синонимами
+                for syn in synonyms:
+                    if len(syn.split()) <= 2:  # Только короткие синонимы
+                        keywords.add(f"{phrase} {syn}")
+        
+        # 4. Добавляем информацию о категории
+        if self.category:
+            cat_lower = self.category.name.lower()
+            keywords.add(cat_lower)
+            keywords.add(f"купить {cat_lower}")
+            keywords.add(f"{cat_lower} цена")
+            
+            # Добавляем родительские категории
+            parent = self.category.parent
+            while parent:
+                parent_lower = parent.name.lower()
+                keywords.add(parent_lower)
+                keywords.add(f"купить {parent_lower}")
+                parent = parent.parent
+        
+        # 5. Добавляем бренд и его вариации
         if self.brand:
             brand_lower = self.brand.lower()
-            keywords.append(brand_lower)
-            keywords.append(f"{brand_lower} купить")
-            keywords.append(f"{brand_lower} цена")
+            keywords.add(brand_lower)
+            keywords.add(f"{brand_lower} оборудование")
+            keywords.add(f"{brand_lower} купить")
         
+        # 6. Добавляем характеристики
         if self.material:
             material_lower = self.material.lower()
-            keywords.append(material_lower)
-            keywords.append(f"{material_lower} товары")
+            keywords.add(material_lower)
+            keywords.add(f"{material_lower} {name_lower}")
         
-        if self.name:
-            name_words = self.name.lower().split()[:5]
-            keywords.extend(name_words)
-            keywords.append(f"{' '.join(name_words)} купить")
+        # 7. Добавляем общие ключевые слова из COMMON_KEYWORDS
+        keywords.update(self.COMMON_KEYWORDS)
         
-        general_keywords = [
-            "промышленное оборудование", 
-            "техническое оборудование",
-            "производственное оборудование",
-            "инструменты и оборудование",
-            "купить оборудование",
-            "оборудование цена",
-            "техника для производства"
-        ]
-        keywords.extend(general_keywords)
+        # 8. Добавляем специфичные для отрасли ключи на основе названия
+        industry_keywords = self._get_industry_keywords(name_lower)
+        keywords.update(industry_keywords)
         
-        unique_keywords = list(dict.fromkeys(keywords))[:15]
-        self.seo_keywords = ', '.join(unique_keywords)
+        # Преобразуем в список, сортируем и ограничиваем
+        keywords_list = list(keywords)
+        keywords_list.sort()  # Сортируем для консистентности
         
-        if self.name:
-            base_slug = slugify(self.name)[:50]  
+        # Ограничиваем количество (но оставляем больше, так как это keywords)
+        return ', '.join(keywords_list[:25])
+    
+    def _get_synonyms_for_product(self):
+        """Возвращает список синонимов для данного товара"""
+        if not self.name:
+            return []
+        
+        name_lower = self.name.lower()
+        found_synonyms = set()
+        
+        for key, syn_list in self.SYNONYMS.items():
+            # Проверяем, содержится ли ключевое слово в названии
+            if key in name_lower:
+                found_synonyms.update(syn_list)
             
-            if self.article:
-                self.slug = f"{base_slug}-{self.article}"
-            else:
-                temp_article = self.generate_article()
-                self.slug = f"{base_slug}-{temp_article}"
+            # Проверяем, содержится ли синоним в названии (обратный поиск)
+            for syn in syn_list:
+                if syn in name_lower:
+                    found_synonyms.add(key)
+                    break
+        
+        # Убираем слишком длинные синонимы
+        return [s for s in found_synonyms if len(s.split()) <= 3][:5]
+    
+    def _get_all_synonyms(self, text):
+        """Возвращает все синонимы для текста"""
+        synonyms = set()
+        
+        for key, syn_list in self.SYNONYMS.items():
+            if key in text:
+                synonyms.update(syn_list)
+            for syn in syn_list:
+                if syn in text:
+                    synonyms.add(key)
+        
+        return synonyms
+        
+    def generate_seo_slug(self):
+        """Генерирует SEO-оптимизированный slug с ключевыми словами"""
+        if not self.name:
+            return ''
+        
+        # Берем название
+        base = self.name.lower()
+        
+        # Добавляем ключевое слово из категории
+        if self.category:
+            category_keywords = {
+                'насос': 'pump',
+                'компрессор': 'compressor',
+                'дробилка': 'crusher',
+                'конвейер': 'conveyor',
+                'транспортер': 'conveyor',
+                'шнек': 'auger',
+                'смеситель': 'mixer',
+                'фильтр': 'filter',
+            }
+            
+            for ru, en in category_keywords.items():
+                if ru in base:
+                    base = f"{base}-{en}"
+                    break
+        
+        # Транслитерируем и создаем slug
+        slug = slugify(base)
+        
+        # Добавляем артикул для уникальности
+        if self.article:
+            slug = f"{slug}-{self.article}"
+        
+        return slug[:200]  # Ограничиваем длину
+    
+    def _get_industry_keywords(self, product_name):
+        """Возвращает отраслевые ключевые слова на основе названия товара"""
+        industry_keywords = set()
+        
+        # Словарь отраслевых привязок
+        industry_map = {
+            'нефть': ['нефтегазовая отрасль', 'нефтепереработка', 'нефтепромысел'],
+            'газ': ['газовая промышленность', 'газодобыча', 'газотранспортная система'],
+            'хим': ['химическая промышленность', 'химическое производство'],
+            'пищев': ['пищевая промышленность', 'пищевое производство'],
+            'цемент': ['цементная промышленность', 'стройматериалы', 'производство цемента'],
+            'металл': ['металлургия', 'металлообработка', 'металлургическая промышленность'],
+            'горн': ['горная промышленность', 'горнодобыча', 'горнорудная отрасль'],
+            'энерг': ['энергетика', 'электроэнергетика'],
+            'вод': ['водоснабжение', 'водоподготовка', 'водоотведение'],
+        }
+        
+        for key, industries in industry_map.items():
+            if key in product_name:
+                industry_keywords.update(industries)
+        
+        return industry_keywords
     
     def get_display_image(self):
         """Возвращает изображение для отображения в каталоге и корзине"""
