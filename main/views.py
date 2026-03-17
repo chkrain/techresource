@@ -2308,7 +2308,7 @@ def add_review(request, product_id):
     
     if not ProductReview.can_user_review(request.user, product):
         messages.error(request, 'Вы не можете оставить отзыв на этот товар.')
-        return redirect('product_detail', product_id=product_id)
+        return redirect('product_detail', slug=product.slug)
     
     if request.method == 'POST':
         form = ProductReviewForm(request.POST)
@@ -2321,7 +2321,7 @@ def add_review(request, product_id):
             
             review.save()
             messages.success(request, 'Спасибо за ваш отзыв!')
-            return redirect('product_detail', product_id=product_id)
+            return redirect('product_detail', slug=review.product.slug)
     else:
         form = ProductReviewForm()
     
@@ -2345,7 +2345,7 @@ def edit_review(request, review_id):
             review.save()
             
             messages.success(request, 'Отзыв обновлен и отправлен на модерацию.')
-            return redirect('product_detail', product_id=review.product.id)
+            return redirect('product_detail', slug=review.product.slug)
     else:
         form = ProductReviewForm(instance=review)
     
@@ -2365,23 +2365,40 @@ def delete_review(request, review_id):
     if request.method == 'POST':
         review.delete()
         messages.success(request, 'Отзыв удален.')
-        return redirect('product_detail', product_id=product_id)
+        return redirect('product_detail', slug=review.product.slug)
     
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
 
-def product_detail(request, product_id):
+def product_detail(request, slug):  # ИЗМЕНЕНО: теперь slug вместо product_id
     """Детальная страница товара"""
-    product = get_object_or_404(Product, id=product_id, is_active=True)
-    product.display_price_value = product.get_display_price('RUB') 
+    # Пытаемся найти товар по slug
+    try:
+        product = Product.objects.get(slug=slug, is_active=True)
+    except Product.DoesNotExist:
+        # Если не нашли по slug, пробуем найти по ID (для старых ссылок)
+        try:
+            # Проверяем, может ли параметр быть числом (старый ID)
+            product_id = int(slug)
+            product = Product.objects.get(id=product_id, is_active=True)
+            # Редирект на новый URL с slug
+            return redirect('product_detail', slug=product.slug, permanent=True)
+        except (ValueError, Product.DoesNotExist):
+            raise Http404("Товар не найден")
+    
+    # Вся остальная логика остается БЕЗ ИЗМЕНЕНИЙ
+    product.display_price_value = product.get_display_price('RUB')
+    
     if hasattr(product, 'currency'):
         product.original_price = product.price
         product.original_currency = product.currency
+    
     currency_symbols = {
         'RUB': '₽',
         'USD': '$',
         'EUR': '€',
     }
-    product.currency_symbol = currency_symbols.get('RUB', '₽') 
+    product.currency_symbol = currency_symbols.get('RUB', '₽')
+    
     product_images = product.get_images()
     
     similar_products = Product.objects.filter(
@@ -2389,7 +2406,7 @@ def product_detail(request, product_id):
         is_active=True
     ).exclude(id=product.id)[:4]
     
-    display_currency = 'RUB'  
+    display_currency = 'RUB'
     if similar_products:
         for similar_product in similar_products:
             similar_product.price = similar_product.get_display_price('RUB')
@@ -2407,7 +2424,7 @@ def product_detail(request, product_id):
             pass
     
     reviews_list = ProductReview.get_approved_reviews(product)
-    paginator = Paginator(reviews_list, 5) 
+    paginator = Paginator(reviews_list, 5)
     page = request.GET.get('page')
     
     try:

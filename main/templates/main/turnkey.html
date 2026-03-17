@@ -1,8 +1,8 @@
     {% extends 'main/base.html' %}
     {% load static %}
 
-    {% block title %}Проекты под ключ - Техресурс{% endblock %}
-    {% block og_title %}Проекты под ключ — Техресурс{% endblock %}
+    {% block title %}Проекты — Техресурс{% endblock %}
+    {% block og_title %}Проекты — Техресурс{% endblock %}
     {% block og_description %}Комплексная реализация проектов: проектирование, электромонтаж, разработка ПО, пусконаладка. Единый подрядчик.{% endblock %}
 
     {% block meta %}
@@ -15,7 +15,7 @@
     {% block content %}
     <div class="turnkey-hero">
         <div class="hero-content">
-            <h1 class="hero-title">Проекты под ключ</h1>
+            <h1 class="hero-title">Наши проекты</h1>
             <p class="hero-subtitle">Комплексная реализация от концепции до ввода в эксплуатацию</p>
         </div>
     </div>
@@ -28,7 +28,7 @@
             <div class="project-card">
                 <div class="project-preview">
                     <div class="project-image">
-                        <img src="{% static 'images/img/bsusca.jpg' %}" alt="Автоматизация линии переработки и фасовки треперла" class="zoomable">
+                        <img src="{% static 'images/img/altcomp.jpg' %}" alt="Автоматизация линии переработки и фасовки треперла" class="zoomable">
                         <div class="image-overlay">
                             <span class="zoom-hint">Нажмите для увеличения</span>
                         </div>
@@ -276,6 +276,147 @@
                 </div>
             </div>
             
+            <div class="project-card">
+                <div class="project-preview">
+                    <div class="project-image">
+                        <img src="{% static 'images/img/pesoksca.jpg' %}" alt="Автоматизация линии переработки и фасовки треперла" class="zoomable">
+                        <div class="image-overlay">
+                            <span class="zoom-hint">Нажмите для увеличения</span>
+                        </div>
+                    </div>
+                    <div class="project-info">
+                        <h3>Автоматизация линии фасовки и для обогащения песка</h3>
+                        <p class="project-description">Комплексная автоматизация линий переработки песка</p>
+                        
+                        <button class="project-toggle-btn">
+                            <span class="toggle-text">Подробнее о проекте</span>
+                            <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="project-dropdown">
+                    <div class="dropdown-content">
+                        <div class="project-stage">
+                            <div class="stage-header">
+                                <h4>Проектирование</h4>
+                                <span class="stage-duration">16 дней</span>
+                            </div>
+                            <div class="stage-content">
+                                <h5>Что нужно было сделать:</h5>
+                                <p>Создать проект для автоматизации обогащения песка</p>
+                                
+                                <h5>Что мы сделали:</h5>
+                                <p>Прибыли на предприятие для проведения детального обследования. 
+                                    Проанализировали, какие необходимы исполнительные механизмы. Разработали и внедрили комплексное 
+                                    решение. Подготовили полный пакет 
+                                    проектной документации. Сформировали и 
+                                    согласовали таблицу сигналов для интеграции оборудования в единую АСУ ТП. Все 
+                                    этапы работ были утверждены с заказчиком перед реализацией.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="project-stage">
+                            <div class="stage-header">
+                                <h4>Монтаж и электромонтаж</h4>
+                                <span class="stage-duration">34 дня</span>
+                            </div>
+                            <div class="stage-content">
+                                <h5>Что нужно было сделать:</h5>
+                                <p>Полностью смонитровать электрооборудование, собрать шкафы АСУ ТП.</p>
+                                
+                                <h5>Что мы сделали:</h5>
+                                <p>Предварительно собрали и настроили новые шкафы - силовые и 
+                                    шкафы АСУ ТП, провели полное тестирование, 
+                                    после чего в готовом и проверенном виде доставили на объект. Подключили 
+                                    новые шкафы ко всем исполнительным механизмам и датчикам, установили 
+                                    и смонтировали локальные пульты управления. Проверили регулировку скорости 
+                                    приводов через частотные преобразователи, убедились в корректности их работы. 
+                                    Установили датчики температуры и влажности, настроили и откалибровали 
+                                    их в соответствии с требованиями технологического процесса. Все работы 
+                                    выполнены с соблюдением действующих нормативов и технологических стандартов.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="project-stage">
+                            <div class="stage-header">
+                                <h4>Разработка ПО</h4>
+                                <span class="stage-duration">24 дня</span>
+                            </div>
+                            <div class="stage-content">
+                                <h5>Что нужно было сделать:</h5>
+                                <p>Необходимо было разработать систему управления линией с возможностью удаленного 
+                                    мониторинга, управления с операторсксого компьютера, анализом данных, умной 
+                                    системой запуска и останова оборудования, предупреждения об угрозах с 
+                                    интуитивно понятным интерфейсом</p>
+                                
+                                <h5>Что мы сделали:</h5>
+                                <p>Разработали и отладили программное обеспечение с полным циклом 
+                                    тестирования. Реализовали двойной режим управления: дистанционный с 
+                                    операторского компьютера и ручной с местных панелей с блокировкой одновременного 
+                                    управления. Интегрировали комплексную систему безопасности: добавили обработку 
+                                    аварийных ситуаций, датчики вращения валов, троссовые выключатели, общую 
+                                    аварийную сигнализацию и протоколирование событий. Настроили сбор и 
+                                    графическое отображение данных с датчиков температуры и влажности. Внедрили 
+                                    интеллектуальную систему запуска и останова всего оборудования по одной 
+                                    кнопке с поэтапной проверкой готовности систем. Разработали удобный интерфейс 
+                                    с визуализацией состояния линии, системой оповещения через световую и звуковую 
+                                    сигнализацию, в том числе на основе датчиков уровня бункеров. Добавили простые 
+                                    настройки скорости оборудования, времени задержек, режимов работы. Для каждого 
+                                    агрегата реализовали учёт моточасов, прогнозирование необходимости ТО и 
+                                    формирование напоминаний. Подготовили подробную инструкцию для оператора 
+                                    и провели тестирование знаний для быстрой адаптации персонала.</p>
+
+                                <div class="stage-gallery">
+                                    <div class="gallery-item zoomable-container">
+                                        <img src="{% static 'images/img/pesoksca.jpg' %}" alt="Скада" class="zoomable">
+                                        <div class="image-overlay">
+                                            <span class="zoom-hint">Увеличить</span>
+                                        </div>
+                                        <span>Вид системы дистанционного управления</span>
+                                    </div>
+                                    <div class="gallery-item zoomable-container">
+                                        <img src="{% static 'images/img/grafanasca.jpg' %}" alt="Скада" class="zoomable">
+                                        <div class="image-overlay">
+                                            <span class="zoom-hint">Увеличить</span>
+                                        </div>
+                                        <span>Вид системы дистанционного управления c графиками</span>
+                                    </div>
+                                    <div class="gallery-item zoomable-container">
+                                        <img src="{% static 'images/img/grafana2sca.jpg' %}" alt="Логирование" class="zoomable">
+                                        <div class="image-overlay">
+                                            <span class="zoom-hint">Увеличить</span>
+                                        </div>
+                                        <span>Дополнительное логирование</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="project-stage">
+                            <div class="stage-header">
+                                <h4>Пусконаладка</h4>
+                                <span class="stage-duration">5 дней</span>
+                            </div>
+                            <div class="stage-content">
+                                <h5>Что нужно было сделать:</h5>
+                                <p>Требовалось провести комплексные испытания системы, обучить персонал работе с новым оборудованием и сдать объект в промышленную эксплуатацию.</p>
+                                
+                                <h5>Что мы сделали:</h5>
+                                <p>Отладили программное обеспечение с полным 
+                                    циклом тестирования. Подготовили подробную инструкцию для оператора и провели 
+                                    тестирование знаний для быстрой адаптации персонала.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+
             <div class="project-cta">
                 <p>Хотите реализовать подобный проект на вашем предприятии?</p>
                 <a href="{% url 'contacts' %}" class="btn btn-primary">Обсудить проект</a>
@@ -891,25 +1032,28 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const toggleBtn = document.querySelector('.project-toggle-btn');
-            const projectCard = document.querySelector('.project-card');
-            const dropdown = document.querySelector('.project-dropdown');
+            const toggleBtns = document.querySelectorAll('.project-toggle-btn');
             
-            toggleBtn.addEventListener('click', function() {
-                projectCard.classList.toggle('active');
-                
-                const isActive = projectCard.classList.contains('active');
-                const toggleText = toggleBtn.querySelector('.toggle-text');
-                toggleText.textContent = isActive ? 'Свернуть' : 'Подробнее о проекте';
-                
-                if (isActive) {
-                    setTimeout(() => {
-                        dropdown.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'nearest' 
-                        });
-                    }, 300);
-                }
+            toggleBtns.forEach((btn) => {
+                btn.addEventListener('click', function() {
+                    const projectCard = this.closest('.project-card');
+                    const dropdown = projectCard.querySelector('.project-dropdown');
+                    
+                    projectCard.classList.toggle('active');
+                    
+                    const isActive = projectCard.classList.contains('active');
+                    const toggleText = this.querySelector('.toggle-text');
+                    toggleText.textContent = isActive ? 'Свернуть' : 'Подробнее о проекте';
+                    
+                    if (isActive) {
+                        setTimeout(() => {
+                            dropdown.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'nearest' 
+                            });
+                        }, 300);
+                    }
+                });
             });
             
             const modal = document.createElement('div');

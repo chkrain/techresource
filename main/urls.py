@@ -64,7 +64,7 @@ urlpatterns = [
     
     # Товары
     path('products/', views.products, name='products'),
-    path('product/<int:product_id>/', views.product_detail, name='product_detail'),
+    path('product/<slug:slug>/', views.product_detail, name='product_detail'),
     path('product/<int:product_id>/review/add/', views.add_review, name='add_review'),
     
     # Отзывы
@@ -149,7 +149,7 @@ urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'images/favicon/favicon.ico')),
     
     # Для .well-known
-    re_path(r'^\.well-known/.*$', lambda request: HttpResponseNotFound()),
+    #re_path(r'^\.well-known/.*$', lambda request: HttpResponseNotFound()),
 
     path('manifest.json', TemplateView.as_view(template_name='manifest.json',content_type='application/json'), name='manifest'),
     path('robots.txt', custom_robots_txt),
