@@ -1,4 +1,22 @@
+<!-- blog/category.html -->
 {% extends "blog/base.html" %}
+
+{% block title %}{{ category.seo_title|default:category.name }} | Категория блога | Техресурс{% endblock %}
+
+{% block description %}
+    {% if category.seo_description %}
+        {{ category.seo_description }}
+    {% else %}
+        {{ category.description|default:"Статьи по категории "|add:category.name }}. Читайте в блоге Техресурс.
+    {% endif %}
+{% endblock %}
+
+{% block meta %}
+    {{ block.super }}
+    {% if category.seo_keywords %}
+    <meta name="keywords" content="{{ category.seo_keywords }}">
+    {% endif %}
+{% endblock %}
 
 {% block blog_content %}
 <section class="category-header">

@@ -4,8 +4,14 @@
 
 {% block title %}{{ product.name }} - Техресурс{% endblock %}
 
+{% block description %}{{ product.name }} - купить в Техресурс. {{ product.short_description|default:product.description|truncatechars:150 }} Артикул: {{ product.article }}, наличие: {{ product.quantity }} шт., цена: {{ product.display_price_value|floatformat:2 }} {{ product.currency_symbol }}. Быстрая доставка по России.{% endblock %}
+
+{% block og_title %}{{ product.name }} - купить в Техресурс{% endblock %}
+
+{% block og_description %}{{ product.short_description|default:product.description|truncatechars:100 }} Артикул: {{ product.article }}, цена: {{ product.display_price_value|floatformat:2 }} {{ product.currency_symbol }}{% endblock %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/product_detail.css' %}?v=2.5">
+<link rel="stylesheet" href="{% static 'css/product_detail.css' %}?v=2.6">
 {% endblock %}
 
 {% block content %}

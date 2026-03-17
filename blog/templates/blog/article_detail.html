@@ -1,6 +1,36 @@
+<!-- blog/article_detail.html -->
 {% extends "blog/base.html" %}
 {% load static %}
-{% load blog_filters %}  
+{% load blog_filters %}
+
+{% block title %}{{ article.meta_title|default:article.title }} | Блог Техресурс{% endblock %}
+
+{% block description %}
+    {% if article.meta_description %}
+        {{ article.meta_description }}
+    {% else %}
+        {{ article.excerpt|default:article.content|striptags|truncatechars:160 }}
+    {% endif %}
+{% endblock %}
+
+{% block meta %}
+    {{ block.super }}
+    {% if article.meta_keywords %}
+    <meta name="keywords" content="{{ article.meta_keywords }}">
+    {% endif %}
+    {% if article.category.seo_keywords %}
+    <meta name="keywords" content="{{ article.category.seo_keywords }}">
+    {% endif %}
+    <meta property="article:published_time" content="{{ article.published_at|date:'c' }}">
+    <meta property="article:modified_time" content="{{ article.updated_at|date:'c' }}">
+    <meta property="article:author" content="{{ article.author.get_full_name|default:article.author.username }}">
+    <meta property="article:section" content="{{ article.category.name }}">
+{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'blog/css/article.css' %}?v=1.0">
+{% endblock %}
 
 {% block blog_content %}
 <article class="article-detail">
@@ -28,8 +58,8 @@
         <div class="article-meta">
             <div class="author-info">
                 <div class="author-avatar">
-                    {% if article.author.userprofile.has_avatar %}
-                        <img src="{{ article.author.userprofile.get_avatar_url }}" alt="{{ article.author.username }}" class="avatar-img-small">
+                    {% if article.get_author_avatar %}
+                        <img src="{{ article.get_author_avatar }}" alt="{{ article.author.username }}" class="avatar-img-small">
                     {% else %}
                         {{ article.author.username|first|upper }}
                     {% endif %}
@@ -55,13 +85,9 @@
                     <i class="fas fa-clock"></i> {{ article.get_pending_comments_count }} на модерации
                 </span>
                 {% endif %}
-                <span class="stat-item">
-                    <i class="far fa-clock"></i> 
-                    {{ reading_time }}
-                </span>
                 <span class="stat-item reading-time">
                     <i class="far fa-clock"></i> 
-                    {{ article.content|reading_time }}  
+                    {{ article.content|reading_time }} мин. чтения
                 </span>
             </div>
         </div>
@@ -90,7 +116,7 @@
         </div>
     {% endif %}
 
-    {% if article.get_tags_list %}
+    {% if article.tags %}
     <div class="article-tags-section">
         <h3><i class="fas fa-tags"></i> Теги:</h3>
         <div class="tags-list">
@@ -157,14 +183,14 @@
                     <div class="comment-header">
                         <div class="comment-author">
                             <div class="author-avatar">
-                                {% if comment.user.userprofile.has_avatar %}
-                                    <img src="{{ comment.user.userprofile.get_avatar_url }}" alt="{{ comment.user.username }}" class="avatar-img-small">
+                                {% if comment.get_user_avatar %}
+                                    <img src="{{ comment.get_user_avatar }}" alt="{{ comment.user.username }}" class="avatar-img-small">
                                 {% else %}
                                     {{ comment.user.username|first|upper }}
                                 {% endif %}
                             </div>
                             <div class="author-info">
-                                <div class="author-name">{% include 'main/components/profile_card.html' with profile_user=comment.user profile=comment.user.userprofile %}</div>
+                                <div class="author-name">{{ comment.user.get_full_name|default:comment.user.username }}</div>
                                 <div class="comment-date">
                                     {{ comment.created_at|date:"d.m.Y H:i" }}
                                     {% if comment.is_edited %}

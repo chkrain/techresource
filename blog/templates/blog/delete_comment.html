@@ -1,4 +1,11 @@
+<!-- blog/delete_comment.html -->
 {% extends "blog/base.html" %}
+
+{% block title %}Удаление комментария | Блог Техресурс{% endblock %}
+
+{% block description %}
+    Подтверждение удаления комментария к статье "{{ object.article.title }}" в блоге Техресурс.
+{% endblock %}
 
 {% block blog_content %}
 <div class="delete-confirm">
@@ -26,4 +33,4 @@
         </form>
     </div>
 </div>
-{% endblock %}  
+{% endblock %}

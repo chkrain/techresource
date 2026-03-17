@@ -1,12 +1,51 @@
+<!-- blog/base.html -->
 {% extends "main/base.html" %}
 {% load static %}
 
 {% block title %}
-    {% if article %}{{ article.title }} | Блог{% elif category %}{{ category.name }} | Блог{% else %}Блог | Техресурс{% endif %}
+    {% if article %}
+        {{ article.meta_title|default:article.title }} | Блог Техресурс
+    {% elif category %}
+        {{ category.seo_title|default:category.name }} | Блог Техресурс
+    {% elif query %}
+        Поиск: {{ query }} | Блог Техресурс
+    {% else %}
+        Блог об инженерных решениях | Техресурс
+    {% endif %}
 {% endblock %}
 
 {% block description %}
-    {% if article %}{{ article.excerpt|truncatechars:150 }}{% elif category %}{{ category.description|truncatechars:150 }}{% else %}Статьи об инженерных решениях, монтаже, разработке ПО и техподдержке{% endif %}
+    {% if article %}
+        {{ article.meta_description|default:article.excerpt|truncatechars:160 }}
+    {% elif category %}
+        {{ category.seo_description|default:category.description|default:"Статьи по категории "|add:category.name|truncatechars:160 }}
+    {% elif query %}
+        Результаты поиска по запросу "{{ query }}" в блоге Техресурс. Статьи об инженерных решениях, монтаже, разработке ПО и техподдержке.
+    {% else %}
+        Технический блог компании Техресурс. Статьи об инженерных решениях, автоматизации, монтаже, разработке ПО и техподдержке. Полезные материалы от экспертов.
+    {% endif %}
+{% endblock %}
+
+{% block og_title %}
+    {% if article %}{{ article.title }}{% elif category %}{{ category.name }}{% else %}Блог Техресурс{% endif %}
+{% endblock %}
+
+{% block og_description %}
+    {% if article %}
+        {{ article.excerpt|truncatechars:100 }}
+    {% elif category %}
+        {{ category.description|default:"Статьи по категории "|add:category.name|truncatechars:100 }}
+    {% else %}
+        Технический блог компании Техресурс
+    {% endif %}
+{% endblock %}
+
+{% block og_image %}
+    {% if article and article.featured_image %}
+        {{ article.featured_image.url }}
+    {% else %}
+        {% static 'images/blog-default.jpg' %}
+    {% endif %}
 {% endblock %}
 
 {% block extra_css %}

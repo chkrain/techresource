@@ -1,4 +1,17 @@
+<!-- blog/search.html -->
 {% extends "blog/base.html" %}
+
+{% block title %}Поиск: {{ query|default:"все статьи" }} | Блог Техресурс{% endblock %}
+
+{% block description %}
+    {% if query %}
+        Результаты поиска по запросу "{{ query }}" в блоге Техресурс. 
+        {% if articles %}Найдено {{ articles|length }} статей.{% endif %}
+        Статьи об инженерных решениях, монтаже, разработке ПО и техподдержке.
+    {% else %}
+        Поиск по статьям блога Техресурс. Найдите нужную информацию об инженерных решениях, автоматизации, монтаже оборудования и разработке ПО.
+    {% endif %}
+{% endblock %}
 
 {% block blog_content %}
 <section class="search-results">
@@ -15,15 +28,42 @@
         Найдено {{ articles|length }} статей
     </div>
     
-    {% include "blog/home.html" with articles=articles %}
+    <div class="articles-grid">
+        {% for article in articles %}
+        <article class="article-card">
+            {% if article.thumbnail %}
+            <a href="{{ article.get_absolute_url }}">
+                <div class="article-thumbnail">
+                    <img src="{{ article.thumbnail.url }}" alt="{{ article.title }}" loading="lazy">
+                </div>
+            </a>
+            {% endif %}
+            <div class="article-content">
+                <span class="article-category">{{ article.category.name }}</span>
+                <h3 class="article-title">
+                    <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                </h3>
+                <p class="article-excerpt">{{ article.excerpt|truncatechars:150 }}</p>
+                <div class="article-meta">
+                    <span><i class="far fa-calendar"></i> {{ article.published_at|date:"d.m.Y" }}</span>
+                    <span><i class="far fa-eye"></i> {{ article.views }}</span>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
     
-        {% else %}
+    {% else %}
     <div class="search-empty">
         <div class="empty-icon">
             <i class="fas fa-search"></i>
         </div>
         <h3>Ничего не найдено</h3>
-        <p>Попробуйте изменить поисковый запрос</p>
+        {% if query %}
+        <p>По запросу "{{ query }}" ничего не найдено</p>
+        {% else %}
+        <p>Введите поисковый запрос</p>
+        {% endif %}
         
         <div class="empty-suggestions">
             <span>Попробуйте:</span>

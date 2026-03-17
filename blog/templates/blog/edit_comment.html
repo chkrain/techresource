@@ -1,5 +1,18 @@
+<!-- blog/add_comment.html -->
 {% extends "blog/base.html" %}
 {% load static %}
+
+{% block title %}
+    {% if edit %}Редактирование комментария{% else %}Добавление комментария{% endif %} | {{ article.title }} | Блог Техресурс
+{% endblock %}
+
+{% block description %}
+    {% if edit %}
+        Редактирование комментария к статье "{{ article.title }}" в блоге Техресурс.
+    {% else %}
+        Добавление комментария к статье "{{ article.title }}" в блоге Техресурс.
+    {% endif %}
+{% endblock %}
 
 {% block blog_content %}
 <div class="comment-form-container">
