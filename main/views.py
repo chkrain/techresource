@@ -3049,8 +3049,10 @@ Email: {company_info['email']}
         email.attach(pdf_filename, pdf_file.getvalue(), 'application/pdf')
         email.send(fail_silently=False)
         admin_notification_sent = send_admin_notification(
-            subject=f"Счет №{order.invoice_number} отправлен",
+            subject=f"Счет №{order.invoice_number} отправлен клиенту",
             message=f"""
+        📄 СЧЕТ ОТПРАВЛЕН КЛИЕНТУ
+
         Клиент: {order.customer_name}
         Email: {order.customer_email}
         Телефон: {order.customer_phone}
@@ -3060,11 +3062,14 @@ Email: {company_info['email']}
 
         Товары:
         {chr(10).join([f"  • {item.product.name} x{item.quantity} - {item.get_total_price()} руб." for item in order.orderitem_set.all()])}
+
+        💡 Копия счета прикреплена к этому письму.
             """,
             is_critical=False,
-            order=order
+            order=order,
+            pdf_file=pdf_file,  # Передаём PDF файл
+            pdf_filename=pdf_filename  # Передаём имя файла
         )
-
         order.invoice_pdf_sent_to_telegram = admin_notification_sent 
         order.save()
         
@@ -4163,10 +4168,10 @@ def submit_privacy_request(request):
     return render(request, 'main/privacy_request_form.html')
 
 
-def send_admin_notification(subject, message, is_critical=False, order=None):
-    """Отправка уведомления администраторам на email"""
+def send_admin_notification(subject, message, is_critical=False, order=None, pdf_file=None, pdf_filename=None):
+    """Отправка уведомления администраторам на email с возможностью прикрепить PDF"""
     try:
-        from django.core.mail import send_mail
+        from django.core.mail import EmailMultiAlternatives
         from django.conf import settings
         from .models import NotificationLog
         
@@ -4195,20 +4200,36 @@ def send_admin_notification(subject, message, is_critical=False, order=None):
         
         plain_message = f"{subject}\n\n{message}\n\nВремя: {timezone.now().strftime('%d.%m.%Y %H:%M:%S')}"
         
-        send_mail(
+        # Создаём email с возможностью вложений
+        email = EmailMultiAlternatives(
             subject=full_subject,
-            message=plain_message,
+            body=plain_message,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[recipient],
-            html_message=html_message,
-            fail_silently=False,
+            to=[recipient],
+            reply_to=['noreply@tech-re.ru'],
         )
+        
+        # Добавляем HTML версию
+        email.attach_alternative(html_message, "text/html")
+        
+        # Если есть PDF файл, прикрепляем его
+        if pdf_file and pdf_filename:
+            # Если pdf_file это BytesIO, получаем содержимое
+            if hasattr(pdf_file, 'getvalue'):
+                pdf_content = pdf_file.getvalue()
+            else:
+                pdf_content = pdf_file
+            
+            email.attach(pdf_filename, pdf_content, 'application/pdf')
+        
+        # Отправляем
+        email.send(fail_silently=False)
         
         # Логируем
         NotificationLog.objects.create(
             order=order,
             notification_type='admin_notification',
-            message=f"Уведомление отправлено на {recipient}: {subject}",
+            message=f"Уведомление отправлено на {recipient}: {subject}" + (" (с PDF)" if pdf_file else ""),
             sent_to=recipient,
             success=True
         )
@@ -4219,10 +4240,6 @@ def send_admin_notification(subject, message, is_critical=False, order=None):
         logger.error(f"Ошибка отправки email-уведомления: {e}")
         return False
     
-# ============================================
-# УВЕДОМЛЕНИЯ НА EMAIL (ВМЕСТО TELEGRAM)
-# ============================================
-
 def send_cancellation_notification(order):
     """Отправка уведомления об отмене заказа на email администраторам"""
     try:
