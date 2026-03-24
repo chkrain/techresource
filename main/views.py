@@ -1209,49 +1209,6 @@ def password_reset_confirm(request, uidb64=None, token=None):
 def password_reset_done(request):
     return render(request, 'main/password_reset_done.html')
 
-def send_cancellation_notification(order):
-    """Отправка уведомления об отмене заказа в Telegram"""
-    try:
-        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
-            return False
-
-        commission_text = f"   • Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
-    
-        message = f"""
-❌ <b>ЗАКАЗ ОТМЕНЕН #{order.id}</b>
-        
-👤 <b>Клиент:</b> {order.customer_name}
-📞 <b>Телефон:</b> {order.customer_phone}
-📧 <b>Email:</b> {order.customer_email}
-💰 <b>Стоимость:</b>
-   • Товары: {order.total_price} руб.
-   • Доставка: {order.delivery_cost} руб.
-{commission_text}   • <b>Итого: {order.final_price} руб.</b>
-🚚 <b>Адрес:</b> {order.delivery_address}
-🕒 <b>Время отмены:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
-
-<b>Товары:</b>
-"""
-        
-        for item in order.orderitem_set.all():
-            message += f"• {item.product.name} x{item.quantity} - {item.get_total_price()} руб.\n"
-        
-        message += f"\n<b>Итого:</b> {order.total_price} руб."
-        message += f"\n\n⚠️ <b>Требуется вернуть средства клиенту</b>"
-        
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            'chat_id': settings.TELEGRAM_CHAT_ID,
-            'text': message,
-            'parse_mode': 'HTML'
-        }
-        
-        response = requests.post(url, json=payload, timeout=10)
-        return response.status_code == 200
-        
-    except Exception as e:
-        return False
-
 def update_quantity_ajax(request, product_id):
     if request.method == 'POST' and request.user.is_authenticated:
         try:
@@ -1777,38 +1734,25 @@ def verify_email(request, token):
         return redirect('register')
 
 def send_contact_message(name, email, phone, message, ip_address):
-    """Отправка сообщения обратной связи в Telegram"""
+    """Отправка сообщения обратной связи на email администраторам"""
     try:
-        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID_CONTACTS:
-            return False
-        
-        telegram_message = f"""
-📩 <b>НОВОЕ СООБЩЕНИЕ С ГЛАВНОЙ СТРАНИЦЫ</b>
+        subject = f"Новое сообщение от {name}"
+        body = f"""
+Имя: {name}
+Email: {email}
+Телефон: {phone if phone else 'Не указан'}
+IP: {ip_address}
+Дата: {timezone.now().strftime('%d.%m.%Y %H:%M')}
 
-👤 <b>Имя:</b> {name}
-📧 <b>Email:</b> {email}
-📞 <b>Телефон:</b> {phone if phone else 'Не указан'}
-🌐 <b>IP-адрес:</b> {ip_address}
-📅 <b>Время:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
-
-💬 <b>Сообщение:</b>
+Сообщение:
 {message}
 """
-        
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            'chat_id': settings.TELEGRAM_CHAT_ID_CONTACTS,
-            'text': telegram_message,
-            'parse_mode': 'HTML'
-        }
-        
-        response = requests.post(url, json=payload, timeout=10)
-        return response.status_code == 200
+        return send_admin_notification(subject, body, is_critical=False)
         
     except Exception as e:
-        logger.error(f"Ошибка отправки контактного сообщения в Telegram: {str(e)}")
+        logger.error(f"Ошибка отправки контактного сообщения: {str(e)}")
         return False
-
+    
 @csrf_exempt
 def contact_form_submit(request):
     """Обработка формы обратной связи"""
@@ -1963,70 +1907,6 @@ def get_order_timeline(request, order_id):
             'estimated_delivery': order.estimated_delivery.isoformat() if order.estimated_delivery else None
         }
     })
-
-def send_order_status_notification(order, old_status, new_status):
-    """Отправка уведомления об изменении статуса"""
-    try:
-        if settings.TELEGRAM_BOT_TOKEN and settings.TELEGRAM_CHAT_ID:
-            
-            commission_text = f"   • Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
-
-            message = f"""
-🔄 <b>ИЗМЕНЕНИЕ СТАТУСА ЗАКАЗА #{order.id}</b>
-
-📊 <b>Статус:</b> {dict(Order.STATUS_CHOICES)[old_status]} → {dict(Order.STATUS_CHOICES)[new_status]}
-👤 <b>Клиент:</b> {order.customer_name}
-📞 <b>Телефон:</b> {order.customer_phone}
-💰 <b>Стоимость:</b>
-   • Товары: {order.total_price} руб.
-   • Доставка: {order.delivery_cost} руб.
-{commission_text}   • <b>Итого: {order.final_price} руб.</b>
-
-⏰ <b>Время:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
-"""
-            
-            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-            payload = {
-                'chat_id': settings.TELEGRAM_CHAT_ID,
-                'text': message,
-                'parse_mode': 'HTML'
-            }
-            requests.post(url, json=payload, timeout=10)
-            
-    except Exception as e:
-        return False
-
-def send_refund_request_notification(order, reason):
-    """Уведомление о запросе возврата"""
-    try:
-        if settings.TELEGRAM_BOT_TOKEN and settings.TELEGRAM_CHAT_ID:
-            commission_text = f"   • Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
-            message = f"""
-💰 <b>ЗАПРОС ВОЗВРАТА СРЕДСТВ</b>
-
-🆔 <b>Заказ:</b> #{order.id}
-👤 <b>Клиент:</b> {order.customer_name}
-📞 <b>Телефон:</b> {order.customer_phone}
-💰 <b>Стоимость:</b>
-• Товары: {order.total_price} руб.
-• Доставка: {order.delivery_cost} руб.
-• Комиссия: {commission_text} руб.  
-
-📝 <b>Причина:</b> {reason}
-
-⏰ <b>Время запроса:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
-"""
-            
-            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-            payload = {
-                'chat_id': settings.TELEGRAM_CHAT_ID,
-                'text': message,
-                'parse_mode': 'HTML'
-            }
-            requests.post(url, json=payload, timeout=10)
-            
-    except Exception as e:
-        return False
 
 
 def send_order_status_email(order, old_status, new_status):
@@ -2593,289 +2473,32 @@ def support_view(request):
     }
     return render(request, 'main/support.html', context)
     
-def send_simple_attachment(attachment):
-    """Упрощенная отправка вложения"""
-    try:
-        file_path = attachment.file.path
-        
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
-        
-        with open(file_path, 'rb') as file:
-            files = {'document': file}
-            data = {
-                'chat_id': settings.TELEGRAM_CHAT_ID_CONTACTS,
-                'caption': f'Файл: {attachment.file_name}'
-            }
-            
-            response = requests.post(url, data=data, files=files, timeout=30)
-            
-            if response.status_code == 200:
-                return True
-            else:
-                return False
-                
-    except Exception as e:
-        return False
 
-def check_bot_settings():
-    """Проверка настроек бота"""
-    try:
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/getMe"
-        response = requests.get(url, timeout=10)
-        
-        if response.status_code == 200:
-            bot_info = response.json()
-            return True
-        else:
-            return False
-    except Exception as e:
-        return False
-    
 def send_support_notification(ticket, attachments):
-    """Отправка уведомления о новой заявке в поддержку в Telegram с полной технической информацией"""
+    """Отправка уведомления о новой заявке в поддержку на email"""
     try:
-        if ticket.priority == 'critical':
-            chat_id = settings.TELEGRAM_CHAT_ID_CRITICAL
-            priority_icon = "🚨🚨🚨"
-            priority_text = "КРИТИЧЕСКИЙ ПРИОРИТЕТ"
-        else:
-            chat_id = settings.TELEGRAM_CHAT_ID_CONTACTS
-            priority_icon = "🆘"
-            priority_text = "НОВОЕ ОБРАЩЕНИЕ"
+        subject = f"Заявка в поддержку #{ticket.id} - {ticket.subject}"
         
-        if not settings.TELEGRAM_BOT_TOKEN or not chat_id:
-            return False
-        
-        user_info = "Гость"
-        user_email = "Не указан"
-        user_id = "Не авторизован"
-        
-        if ticket.user:
-            user_info = f"{ticket.user.username}"
-            user_id = f"{ticket.user.id}"
-            user_email = ticket.user.email if ticket.user.email else "Не указан"
-
-        user_agent = ticket.user_agent or "Не указан"
-        browser_info = parse_user_agent(user_agent)
-        
-        additional_info = get_additional_client_info(ticket)
-
         message = f"""
-{priority_icon} {priority_text} #{ticket.id}
-
+🆔 Номер заявки: #{ticket.id}
 📋 Тема: {ticket.subject}
 🚨 Приоритет: {ticket.get_priority_display()}
-👤 Пользователь: {user_info}
-🆔 User ID: {user_id}
-📧 Email: {user_email}
+👤 Пользователь: {ticket.user.username if ticket.user else 'Гость'}
+📧 Email: {ticket.user.email if ticket.user and ticket.user.email else 'Не указан'}
+🌐 IP: {ticket.ip_address}
+📱 User Agent: {ticket.user_agent[:200] if ticket.user_agent else 'Не указан'}
 
 📝 Описание:
 {ticket.description}
 """
         
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            'chat_id': chat_id,
-            'text': message
-        }
+        is_critical = ticket.priority == 'critical'
         
-        response = requests.post(url, json=payload, timeout=10)
-        
-        if response.status_code != 200:
-            return send_fallback_notification(ticket, attachments)
-            
-        for attachment in attachments:
-            try:
-                send_attachment_with_quality(attachment, chat_id)
-            except Exception as e:
-                return False
-        
-        NotificationLog.objects.create(
-            notification_type='support_ticket',
-            message=f'Заявка поддержки #{ticket.id} отправлена в Telegram ({ "CRITICAL" if ticket.priority == "critical" else "NORMAL" })',
-            sent_to=f"Telegram: {chat_id}",
-            success=True
-        )
-        
-        return True
+        return send_admin_notification(subject, message, is_critical=is_critical)
         
     except Exception as e:
-        return send_fallback_notification(ticket, attachments)
-
-def parse_user_agent(user_agent):
-    """Парсинг User-Agent для получения информации о браузере и ОС"""
-    try:
-        ua = user_agent.lower()
-        browser_info = {}
-        
-        if 'chrome' in ua:
-            browser_info['browser'] = 'Chrome'
-        elif 'firefox' in ua:
-            browser_info['browser'] = 'Firefox'
-        elif 'safari' in ua:
-            browser_info['browser'] = 'Safari'
-        elif 'edge' in ua:
-            browser_info['browser'] = 'Edge'
-        elif 'opera' in ua:
-            browser_info['browser'] = 'Opera'
-        else:
-            browser_info['browser'] = 'Неизвестный браузер'
-        
-        if 'windows' in ua:
-            browser_info['os'] = 'Windows'
-        elif 'mac' in ua:
-            browser_info['os'] = 'macOS'
-        elif 'linux' in ua:
-            browser_info['os'] = 'Linux'
-        elif 'android' in ua:
-            browser_info['os'] = 'Android'
-        elif 'iphone' in ua or 'ipad' in ua:
-            browser_info['os'] = 'iOS'
-        else:
-            browser_info['os'] = 'Неизвестная ОС'
-        
-        if 'mobile' in ua:
-            browser_info['device'] = 'Мобильное'
-        elif 'tablet' in ua:
-            browser_info['device'] = 'Планшет'
-        else:
-            browser_info['device'] = 'Десктоп'
-            
-        return browser_info
-        
-    except Exception as e:
-        return {
-            'browser': 'Ошибка парсинга',
-            'os': 'Ошибка парсинга', 
-            'device': 'Ошибка парсинга'
-        }
-
-def get_additional_client_info(ticket):
-    """Получение дополнительной информации о клиенте"""
-    try:
-        
-        info = {
-            'request_method': 'POST',  
-            'host': 'tech-re.ru',  
-            'path': '/support/',
-            'referer': 'Прямой заход',
-            'cookies_enabled': 'Да (предположительно)',
-            'javascript_enabled': 'Да (предположительно)',
-            'screen_resolution': 'Неизвестно',
-            'timezone': 'Неизвестно'
-        }
-        
-        return info
-        
-    except Exception as e:
-        return {}
-
-def send_attachment_with_quality(attachment, chat_id):
-    """Отправка вложения с сохранением качества фото"""
-    try:
-        file_path = attachment.file.path
-        file_name = attachment.file_name.lower()
-        
-        if any(ext in file_name for ext in ['.jpg', '.jpeg', '.png', '.webp']):
-            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
-            
-            with open(file_path, 'rb') as file:
-                files = {'document': file}
-                data = {
-                    'chat_id': chat_id,
-                    'caption': f'Файл к обращению: {attachment.file_name}'
-                }
-                
-                response = requests.post(url, data=data, files=files, timeout=30)
-        else:
-            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
-            
-            with open(file_path, 'rb') as file:
-                files = {'document': file}
-                data = {
-                    'chat_id': chat_id,
-                    'caption': f'📎 {attachment.file_name}'
-                }
-                
-                response = requests.post(url, data=data, files=files, timeout=30)
-        
-        if response.status_code == 200:
-            return True
-        else:
-            return False
-            
-    except Exception as e:
-        return False
-
-def send_fallback_notification(ticket, attachments):
-    """Резервный метод отправки уведомления"""
-    try:
-        if ticket.priority == 'critical':
-            chat_id = settings.TELEGRAM_CHAT_ID_CRITICAL
-            prefix = "🚨🚨🚨 КРИТИЧЕСКАЯ ЗАЯВКА: "
-        else:
-            chat_id = settings.TELEGRAM_CHAT_ID_CONTACTS
-            prefix = "🆘 Новая заявка поддержки: "
-        
-        message = f"{prefix}#{ticket.id}\nТема: {ticket.subject}\nПриоритет: {ticket.get_priority_display()}"
-        
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            'chat_id': chat_id,
-            'text': message
-        }
-        
-        response = requests.post(url, json=payload, timeout=10)
-        
-        if response.status_code == 200:
-            return True
-        else:
-            return False
-            
-    except Exception as e:
-        return False
-    
-def send_attachment_to_telegram(attachment):
-    """Отправка вложения в Telegram"""
-    try:
-        file_path = attachment.file.path
-        
-        file_extension = attachment.file_name.lower().split('.')[-1] if attachment.file_name else 'bin'
-        
-        if file_extension in ['jpg', 'jpeg', 'png', 'gif', 'bmp']:
-            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendPhoto"
-            files = {'photo': open(file_path, 'rb')}
-            data = {
-                'chat_id': settings.TELEGRAM_CHAT_ID_CONTACTS,
-                'caption': f'📎 {attachment.file_name}'
-            }
-        elif file_extension in ['mp4', 'avi', 'mov', 'webm']:
-            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendVideo"
-            files = {'video': open(file_path, 'rb')}
-            data = {
-                'chat_id': settings.TELEGRAM_CHAT_ID_CONTACTS,
-                'caption': f'🎥 {attachment.file_name}'
-            }
-        else:
-            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
-            files = {'document': open(file_path, 'rb')}
-            data = {
-                'chat_id': settings.TELEGRAM_CHAT_ID_CONTACTS,
-                'caption': f'📄 {attachment.file_name}'
-            }
-        
-        response = requests.post(url, data=data, files=files, timeout=30)
-        
-        file_key = list(files.keys())[0]
-        files[file_key].close()
-        
-        if response.status_code != 200:
-            return False
-            
-        return True
-        
-    except Exception as e:
-        return False
+        logger.error(f"Ошибка отправки уведомления о заявке: {e}")
+        return False    
     
 class RateLimiter:
     @staticmethod
@@ -3425,10 +3048,24 @@ Email: {company_info['email']}
         pdf_filename = f"Счет_{invoice_number}_{order.customer_name.replace(' ', '_')}.pdf"
         email.attach(pdf_filename, pdf_file.getvalue(), 'application/pdf')
         email.send(fail_silently=False)
-        telegram_sent = send_invoice_to_telegram_with_info(pdf_file.getvalue(), pdf_filename, order, company_info)
-        order.invoice_sent = True
-        order.invoice_sent_at = timezone.now()
-        order.invoice_pdf_sent_to_telegram = telegram_sent
+        admin_notification_sent = send_admin_notification(
+            subject=f"Счет №{order.invoice_number} отправлен",
+            message=f"""
+        Клиент: {order.customer_name}
+        Email: {order.customer_email}
+        Телефон: {order.customer_phone}
+        Сумма: {order.total_price} руб.
+        НДС: {order.vat_amount} руб.
+        Итого к оплате: {order.final_price} руб.
+
+        Товары:
+        {chr(10).join([f"  • {item.product.name} x{item.quantity} - {item.get_total_price()} руб." for item in order.orderitem_set.all()])}
+            """,
+            is_critical=False,
+            order=order
+        )
+
+        order.invoice_pdf_sent_to_telegram = admin_notification_sent 
         order.save()
         
         NotificationLog.objects.create(
@@ -3458,96 +3095,6 @@ Email: {company_info['email']}
         
         return False
     
-def send_invoice_to_telegram_with_info(pdf_bytes, filename, order, company_info):
-    """Отправка PDF файла в Telegram с информацией о заказе в одном сообщении"""
-    try:
-        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
-            return False
-        
-        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_file:
-            temp_file.write(pdf_bytes)
-            temp_file_path = temp_file.name
-        
-        try:
-            message = f"""
-📄 <b>СЧЕТ НА ОПЛАТУ #{order.invoice_number}</b>
-
-<b>📅 Дата:</b> {order.invoice_date.strftime('%d.%m.%Y')}
-<b>⏰ Срок оплаты:</b> {order.get_due_date().strftime('%d.%m.%Y')}
-
-<b>🏢 Поставщик:</b> {company_info['name']}
-<b>📋 ИНН/КПП:</b> {company_info['inn']}/{company_info['kpp']}
-
-<b>👤 Покупатель:</b> {order.customer_name}
-<b>📋 ИНН:</b> {order.customer_inn}
-<b>📍 КПП:</b> {order.customer_kpp or 'Не указан'}
-<b>📧 Email:</b> {order.customer_email}
-<b>📞 Телефон:</b> {order.customer_phone}
-
-<b>💰 Сумма:</b> {order.total_price} руб.
-<b>🏛️ Без НДС:</b> {int(order.price_without_vat)} руб.
-<b>📊 НДС ({order.vat_rate}%):</b> {int(order.vat_amount)} руб.
-
-<b>🚚 Адрес доставки:</b>
-{order.delivery_address}
-
-<b>🏦 Назначение платежа:</b>
-Оплата по счету №{order.invoice_number} от {order.invoice_date.strftime('%d.%m.%Y')}
-
-<b>📋 Контакты для связи:</b>
-📞 Телефон: {order.customer_phone}
-✉️ Email: {order.customer_email}
-👤 Контактное лицо: {order.customer_name}
-
-<b>⏰ Время создания:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}
-"""
-            
-            url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
-            
-            with open(temp_file_path, 'rb') as file:
-                files = {'document': (filename, file)}
-                data = {
-                    'chat_id': settings.TELEGRAM_CHAT_ID,
-                    'caption': message,
-                    'parse_mode': 'HTML',
-                    'disable_web_page_preview': True
-                }
-                
-                response = requests.post(url, files=files, data=data, timeout=30)
-                
-                if response.status_code == 200:
-                    
-                    NotificationLog.objects.create(
-                        order=order,
-                        notification_type='invoice_pdf_telegram',
-                        message=f'PDF счета №{order.invoice_number} с информацией о заказе отправлен в Telegram',
-                        sent_to=f"Telegram: {settings.TELEGRAM_CHAT_ID}",
-                        success=True
-                    )
-                    
-                    return True
-                else:
-                    return False
-                    
-        finally:
-            try:
-                os.unlink(temp_file_path)
-            except Exception as e:
-                return False
-                
-    except Exception as e:
-        
-        NotificationLog.objects.create(
-            order=order,
-            notification_type='invoice_pdf_telegram',
-            message=f'Ошибка отправки PDF в Telegram: {str(e)}',
-            sent_to=f"Telegram: {settings.TELEGRAM_CHAT_ID}",
-            success=False,
-            error_message=str(e)
-        )
-        
-        return False
-
 def generate_pdf_from_html(html_content, order, invoice_number):
     """Генерация PDF из HTML с использованием WeasyPrint"""
     try:
@@ -3942,25 +3489,22 @@ def anonymous_create_order(request):
             request.session['anonymous_cart'] = {}
             request.session.modified = True
             try:
-                telegram_data = {
-                    'contact_person': order.customer_name,
-                    'phone': order.customer_phone,
-                    'email': order.customer_email,
-                    'company_name': request.POST.get('company_name', ''),
-                    'inn': order.customer_inn,
-                    'kpp': order.customer_kpp,
-                    'legal_address': request.POST.get('legal_address', ''),
-                    'delivery_address': order.delivery_address,
-                    'comment': request.POST.get('comment', ''),
-                    'total': str(total),
-                    'invoice_number': order.invoice_number,
-                    'items': [{
-                        'name': item['product'].name,
-                        'article': item['product'].article,
-                        'quantity': item['quantity'],
-                        'total': str(item['total'])
-                    } for item in order_items_data]
-                }
+                admin_notification_sent = send_admin_notification(
+    subject=f"Новый анонимный заказ #{order.id}",
+    message=f"""
+Клиент: {order.customer_name}
+Телефон: {order.customer_phone}
+Email: {order.customer_email}
+Компания: {request.POST.get('company_name', 'Не указана')}
+ИНН: {order.customer_inn}
+Сумма: {total} руб.
+
+Товары:
+{chr(10).join([f"  • {item['product'].name} x{item['quantity']} - {item['total']} руб." for item in order_items_data])}
+    """,
+    is_critical=False,
+    order=order
+)
             except Exception as e:
                 telegram_success = False
             try:
@@ -4005,29 +3549,6 @@ def anonymous_create_order(request):
     
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
 
-
-def send_file_to_telegram(file_path, file_name, caption=None):
-    """Отправка файла в Telegram"""
-    try:
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
-        
-        with open(file_path, 'rb') as file:
-            files = {'document': (file_name, file)}
-            data = {
-                'chat_id': settings.TELEGRAM_CHAT_ID,
-                'caption': caption or file_name
-            }
-            
-            response = requests.post(url, files=files, data=data, timeout=30)
-            
-            if response.status_code == 200:
-                return True
-            else:
-                return False
-                
-    except Exception as e:
-        return False
-    
 def generate_payment_qr_code(order, company_info):
     """
     Платёжный QR по ГОСТ Р 56042-2014 (ST00012)
@@ -4487,93 +4008,6 @@ def export_invoices_excel(request):
     return response
 
 @staff_member_required
-def send_invoice_report_telegram(request):
-    """Отправка отчета по счетам в Telegram"""
-    try:
-        status_filter = request.GET.get('status', '')
-        date_from = request.GET.get('date_from', '')
-        date_to = request.GET.get('date_to', '')
-        
-        invoices = InvoiceRegistry.objects.all()
-        
-        if status_filter:
-            invoices = invoices.filter(status=status_filter)
-        if date_from:
-            invoices = invoices.filter(invoice_date__gte=date_from)
-        if date_to:
-            invoices = invoices.filter(invoice_date__lte=date_to)
-        
-        total_count = invoices.count()
-        total_amount = invoices.aggregate(Sum('amount'))['amount__sum'] or 0
-        paid_amount = invoices.filter(status='paid').aggregate(Sum('amount'))['amount__sum'] or 0
-        overdue_count = invoices.filter(status='overdue').count()
-        overdue_amount = invoices.filter(status='overdue').aggregate(Sum('amount'))['amount__sum'] or 0
-        
-        message = f"""
-📊 <b>ОТЧЕТ ПО СЧЕТАМ</b>
-
-📅 <b>Период:</b> {date_from or 'Все время'} - {date_to or 'Сегодня'}
-📋 <b>Фильтр статуса:</b> {dict(InvoiceRegistry.STATUS_CHOICES).get(status_filter, 'Все')}
-
-📈 <b>Статистика:</b>
-• Всего счетов: <b>{total_count}</b>
-• Общая сумма: <b>{total_amount:,.2f} руб.</b>
-• Оплачено: <b>{paid_amount:,.2f} руб.</b>
-• Просрочено счетов: <b>{overdue_count}</b>
-• Сумма просрочки: <b>{overdue_amount:,.2f} руб.</b>
-
-📋 <b>Последние 10 счетов:</b>
-"""
-        
-        for invoice in invoices.order_by('-invoice_date')[:10]:
-            status_icon = {
-                'paid': '✅',
-                'overdue': '⏰',
-                'sent': '📤',
-                'created': '📝'
-            }.get(invoice.status, '📄')
-            
-            message += f"\n{status_icon} <b>{invoice.invoice_number}</b>"
-            message += f"\n   👤 {invoice.customer_name}"
-            message += f"\n   💰 {invoice.amount:,.2f} руб."
-            message += f"\n   📅 Срок: {invoice.due_date.strftime('%d.%m.%Y')}"
-            
-            if invoice.is_overdue():
-                message += f" ⚠️ <b>Просрочен на {invoice.get_overdue_days()} дней</b>"
-            
-            message += f"\n   📧 {'✅' if invoice.email_sent else '❌'}"
-            message += f" 📱 {'✅' if invoice.telegram_sent else '❌'}"
-            message += "\n"
-        
-        message += f"\n⏰ <b>Время отчета:</b> {timezone.now().strftime('%d.%m.%Y %H:%M')}"
-        
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            'chat_id': settings.TELEGRAM_CHAT_ID,
-            'text': message,
-            'parse_mode': 'HTML'
-        }
-        
-        response = requests.post(url, json=payload, timeout=10)
-        
-        if response.status_code == 200:
-            messages.success(request, 'Отчет успешно отправлен в Telegram')
-            
-            NotificationLog.objects.create(
-                notification_type='telegram_sent',
-                message=f'Отчет по счетам отправлен в Telegram. Фильтры: status={status_filter}, from={date_from}, to={date_to}',
-                sent_to=f"Telegram: {settings.TELEGRAM_CHAT_ID}",
-                success=True
-            )
-        else:
-            messages.error(request, 'Ошибка отправки отчета')
-    
-    except Exception as e:
-        messages.error(request, f'Ошибка: {str(e)}')
-    
-    return redirect('invoice_registry')
-
-@staff_member_required
 def invoice_detail(request, invoice_id):
     """Детальная информация о счете"""
     invoice = get_object_or_404(InvoiceRegistry, id=invoice_id)
@@ -4680,7 +4114,7 @@ def submit_privacy_request(request):
                         privacy_request.save()
             
             # 1. Отправляем уведомление в Telegram
-            telegram_sent = send_privacy_request_to_telegram(privacy_request)
+            email_sent = send_privacy_request_notification(privacy_request)
             
             # 3. Пытаемся отправить email подтверждение пользователю
             user_email_sent = False
@@ -4728,85 +4162,280 @@ def submit_privacy_request(request):
     
     return render(request, 'main/privacy_request_form.html')
 
-def send_privacy_request_to_telegram(privacy_request):
-    """Отправка уведомления о новом запросе ПД в Telegram"""
+
+def send_admin_notification(subject, message, is_critical=False, order=None):
+    """Отправка уведомления администраторам на email"""
     try:
-        if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
-            logger.error("Telegram bot token or chat ID not configured")
-            return False
+        from django.core.mail import send_mail
+        from django.conf import settings
+        from .models import NotificationLog
         
-        # Определяем приоритетный чат
-        chat_id = settings.TELEGRAM_CHAT_ID
+        recipient = getattr(settings, 'ADMIN_NOTIFICATION_EMAIL', 'info@tech-re.ru')
         
-        message = f"""
-📋 <b>НОВЫЙ ЗАПРОС ПО ПЕРСОНАЛЬНЫМ ДАННЫМ</b>
-
-🆔 <b>Номер:</b> #{privacy_request.incoming_number}
-📋 <b>Тип:</b> {privacy_request.get_request_type_display()}
-⏰ <b>Срок:</b> {privacy_request.deadline.strftime('%d.%m.%Y')} (30 дней)
-
-👤 <b>Контактная информация:</b>
-• ФИО: {privacy_request.full_name}
-• Email: {privacy_request.email}
-• Телефон: {privacy_request.phone or 'Не указан'}
-• Способ ответа: {privacy_request.get_preferred_response_display()}
-
-🌐 <b>Техническая информация:</b>
-• IP: {privacy_request.ip_address or 'Неизвестен'}
-• User Agent: {privacy_request.user_agent[:100] if privacy_request.user_agent else 'Неизвестен'}
-
-📝 <b>Описание запроса:</b>
-{privacy_request.description[:500]}{'...' if len(privacy_request.description) > 500 else ''}
-
-🕒 <b>Время получения:</b> {privacy_request.created_at.strftime('%d.%m.%Y %H:%M')}
-📊 <b>Статус:</b> {privacy_request.get_status_display()}
-
-🔗 <b>Ссылка на админку:</b>
-https://tech-re.ru/admin/main/privacyrequest/{privacy_request.id}/
-"""
+        prefix = "🚨 КРИТИЧЕСКОЕ: " if is_critical else ""
+        full_subject = f"[ТЕХРЕСУРС] {prefix}{subject}"
         
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            'chat_id': chat_id,
-            'text': message,
-            'parse_mode': 'HTML',
-            'disable_web_page_preview': True
-        }
+        # HTML-версия для красоты
+        html_message = f"""
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8"></head>
+        <body style="font-family: Arial, sans-serif;">
+            <div style="background: {'#dc3545' if is_critical else '#28a745'}; color: white; padding: 15px; text-align: center;">
+                <h2>{'⚠️ КРИТИЧЕСКОЕ УВЕДОМЛЕНИЕ' if is_critical else '📋 УВЕДОМЛЕНИЕ'}</h2>
+            </div>
+            <div style="padding: 20px;">
+                <pre style="background: #f5f5f5; padding: 15px; white-space: pre-wrap;">{message}</pre>
+                <hr>
+                <small>Время: {timezone.now().strftime('%d.%m.%Y %H:%M:%S')}</small>
+            </div>
+        </body>
+        </html>
+        """
         
-        response = requests.post(url, json=payload, timeout=10)
+        plain_message = f"{subject}\n\n{message}\n\nВремя: {timezone.now().strftime('%d.%m.%Y %H:%M:%S')}"
         
-        if response.status_code == 200:
-            # Отправка файла, если есть
-            if privacy_request.verification_document:
-                send_document_to_telegram(privacy_request, chat_id)
-            
-            return True
-        else:
-            logger.error(f"Telegram API error: {response.status_code} - {response.text}")
-            return False
-            
+        send_mail(
+            subject=full_subject,
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[recipient],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+        # Логируем
+        NotificationLog.objects.create(
+            order=order,
+            notification_type='admin_notification',
+            message=f"Уведомление отправлено на {recipient}: {subject}",
+            sent_to=recipient,
+            success=True
+        )
+        
+        return True
+        
     except Exception as e:
-        logger.error(f"Error sending privacy request to Telegram: {str(e)}")
+        logger.error(f"Ошибка отправки email-уведомления: {e}")
+        return False
+    
+# ============================================
+# УВЕДОМЛЕНИЯ НА EMAIL (ВМЕСТО TELEGRAM)
+# ============================================
+
+def send_cancellation_notification(order):
+    """Отправка уведомления об отмене заказа на email администраторам"""
+    try:
+        items_text = ""
+        for item in order.orderitem_set.all():
+            items_text += f"  • {item.product.name} x{item.quantity} - {item.get_total_price()} руб.\n"
+        
+        subject = f"Заказ #{order.id} отменен"
+        message = f"""
+❌ ЗАКАЗ ОТМЕНЕН #{order.id}
+
+👤 Клиент: {order.customer_name}
+📞 Телефон: {order.customer_phone}
+📧 Email: {order.customer_email}
+
+💰 Стоимость:
+  • Товары: {order.total_price} руб.
+  • Доставка: {order.delivery_cost} руб.
+  • Итого: {order.final_price} руб.
+
+🚚 Адрес: {order.delivery_address}
+
+📦 Товары:
+{items_text}
+
+⚠️ Требуется вернуть средства клиенту (если оплата была произведена)
+
+🕒 Время отмены: {timezone.now().strftime('%d.%m.%Y %H:%M')}
+"""
+        return send_admin_notification(subject, message, is_critical=True, order=order)
+        
+    except Exception as e:
+        logger.error(f"Ошибка отправки уведомления об отмене: {e}")
         return False
 
-def send_document_to_telegram(privacy_request, chat_id):
-    """Отправка файла документа в Telegram"""
+
+def send_order_status_notification(order, old_status, new_status):
+    """Отправка уведомления об изменении статуса заказа на email администраторам"""
     try:
-        file_path = privacy_request.verification_document.path
-        file_name = os.path.basename(file_path)
+        status_text = f"{dict(Order.STATUS_CHOICES).get(old_status, old_status)} → {dict(Order.STATUS_CHOICES).get(new_status, new_status)}"
         
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
+        commission_text = f"  • Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
         
-        with open(file_path, 'rb') as file:
-            files = {'document': (file_name, file)}
-            data = {
-                'chat_id': chat_id,
-                'caption': f'Документ к запросу ПД #{privacy_request.incoming_number} от {privacy_request.full_name}'
-            }
-            
-            response = requests.post(url, data=data, files=files, timeout=30)
-            return response.status_code == 200
-            
+        subject = f"Статус заказа #{order.id} изменен"
+        message = f"""
+🔄 ИЗМЕНЕНИЕ СТАТУСА ЗАКАЗА #{order.id}
+
+📊 Статус: {status_text}
+
+👤 Клиент: {order.customer_name}
+📞 Телефон: {order.customer_phone}
+📧 Email: {order.customer_email}
+
+💰 Стоимость:
+  • Товары: {order.total_price} руб.
+  • Доставка: {order.delivery_cost} руб.
+{commission_text}  • Итого: {order.final_price} руб.
+
+⏰ Время: {timezone.now().strftime('%d.%m.%Y %H:%M')}
+"""
+        return send_admin_notification(subject, message, is_critical=(new_status in ['cancelled', 'refunded']), order=order)
+        
     except Exception as e:
-        logger.error(f"Error sending document to Telegram: {str(e)}")
+        logger.error(f"Ошибка отправки уведомления о статусе: {e}")
+        return False
+
+
+def send_refund_request_notification(order, reason):
+    """Отправка уведомления о запросе возврата на email администраторам"""
+    try:
+        commission_text = f"  • Комиссия: {order.payment_fee} руб.\n" if order.payment_fee else ""
+        
+        subject = f"Запрос возврата средств по заказу #{order.id}"
+        message = f"""
+💰 ЗАПРОС ВОЗВРАТА СРЕДСТВ
+
+🆔 Заказ: #{order.id}
+
+👤 Клиент: {order.customer_name}
+📞 Телефон: {order.customer_phone}
+📧 Email: {order.customer_email}
+
+💰 Стоимость:
+  • Товары: {order.total_price} руб.
+  • Доставка: {order.delivery_cost} руб.
+{commission_text}  • Итого к возврату: {order.final_price} руб.
+
+📝 Причина возврата: {reason}
+
+⏰ Время запроса: {timezone.now().strftime('%d.%m.%Y %H:%M')}
+
+⚠️ Требуется обработать возврат средств
+"""
+        return send_admin_notification(subject, message, is_critical=True, order=order)
+        
+    except Exception as e:
+        logger.error(f"Ошибка отправки уведомления о возврате: {e}")
+        return False
+
+
+def send_invoice_report_email(request):
+    """Отправка отчета по счетам на email администраторам (вместо Telegram)"""
+    try:
+        status_filter = request.GET.get('status', '')
+        date_from = request.GET.get('date_from', '')
+        date_to = request.GET.get('date_to', '')
+        
+        invoices = InvoiceRegistry.objects.all()
+        
+        if status_filter:
+            invoices = invoices.filter(status=status_filter)
+        if date_from:
+            invoices = invoices.filter(invoice_date__gte=date_from)
+        if date_to:
+            invoices = invoices.filter(invoice_date__lte=date_to)
+        
+        total_count = invoices.count()
+        total_amount = invoices.aggregate(Sum('amount'))['amount__sum'] or 0
+        paid_amount = invoices.filter(status='paid').aggregate(Sum('amount'))['amount__sum'] or 0
+        overdue_count = invoices.filter(status='overdue').count()
+        overdue_amount = invoices.filter(status='overdue').aggregate(Sum('amount'))['amount__sum'] or 0
+        
+        # Формируем список последних 10 счетов
+        recent_invoices = ""
+        for invoice in invoices.order_by('-invoice_date')[:10]:
+            status_icon = {
+                'paid': '✅',
+                'overdue': '⏰',
+                'sent': '📤',
+                'created': '📝'
+            }.get(invoice.status, '📄')
+            
+            recent_invoices += f"""
+{status_icon} {invoice.invoice_number}
+   👤 {invoice.customer_name}
+   💰 {invoice.amount:,.2f} руб.
+   📅 Срок: {invoice.due_date.strftime('%d.%m.%Y')}
+"""
+            if invoice.is_overdue():
+                recent_invoices += f"   ⚠️ Просрочен на {invoice.get_overdue_days()} дней\n"
+        
+        subject = f"Отчет по счетам"
+        message = f"""
+📊 ОТЧЕТ ПО СЧЕТАМ
+
+📅 Период: {date_from or 'Все время'} - {date_to or 'Сегодня'}
+📋 Фильтр статуса: {dict(InvoiceRegistry.STATUS_CHOICES).get(status_filter, 'Все')}
+
+📈 СТАТИСТИКА:
+  • Всего счетов: {total_count}
+  • Общая сумма: {total_amount:,.2f} руб.
+  • Оплачено: {paid_amount:,.2f} руб.
+  • Просрочено счетов: {overdue_count}
+  • Сумма просрочки: {overdue_amount:,.2f} руб.
+
+📋 ПОСЛЕДНИЕ 10 СЧЕТОВ:
+{recent_invoices}
+
+⏰ Время отчета: {timezone.now().strftime('%d.%m.%Y %H:%M')}
+"""
+        
+        success = send_admin_notification(subject, message, is_critical=False)
+        
+        if success:
+            messages.success(request, 'Отчет успешно отправлен на email администраторам')
+            
+            NotificationLog.objects.create(
+                notification_type='admin_email',
+                message=f'Отчет по счетам отправлен на email. Фильтры: status={status_filter}, from={date_from}, to={date_to}',
+                sent_to=getattr(settings, 'ADMIN_NOTIFICATION_EMAIL', 'info@tech-re.ru'),
+                success=True
+            )
+        else:
+            messages.error(request, 'Ошибка отправки отчета')
+    
+    except Exception as e:
+        messages.error(request, f'Ошибка: {str(e)}')
+        logger.error(f"Ошибка отправки отчета по счетам: {e}")
+    
+    return redirect('invoice_registry')
+
+
+def send_privacy_request_notification(privacy_request):
+    """Отправка уведомления о новом запросе по ПД на email администраторам"""
+    try:
+        subject = f"Новый запрос по персональным данным #{privacy_request.incoming_number}"
+        message = f"""
+📋 НОВЫЙ ЗАПРОС ПО ПЕРСОНАЛЬНЫМ ДАННЫМ
+
+🆔 Номер: #{privacy_request.incoming_number}
+📋 Тип: {privacy_request.get_request_type_display()}
+⏰ Срок: {privacy_request.deadline.strftime('%d.%m.%Y')} (30 дней)
+
+👤 КОНТАКТНАЯ ИНФОРМАЦИЯ:
+  • ФИО: {privacy_request.full_name}
+  • Email: {privacy_request.email}
+  • Телефон: {privacy_request.phone or 'Не указан'}
+  • Способ ответа: {privacy_request.get_preferred_response_display()}
+
+🌐 ТЕХНИЧЕСКАЯ ИНФОРМАЦИЯ:
+  • IP: {privacy_request.ip_address or 'Неизвестен'}
+  • User Agent: {privacy_request.user_agent[:200] if privacy_request.user_agent else 'Неизвестен'}
+
+📝 ОПИСАНИЕ ЗАПРОСА:
+{privacy_request.description[:1000]}
+
+🕒 Время получения: {privacy_request.created_at.strftime('%d.%m.%Y %H:%M')}
+📊 Статус: {privacy_request.get_status_display()}
+
+🔗 Ссылка на админку: https://tech-re.ru/admin/main/privacyrequest/{privacy_request.id}/
+"""
+        return send_admin_notification(subject, message, is_critical=True)
+        
+    except Exception as e:
+        logger.error(f"Ошибка отправки уведомления о запросе ПД: {e}")
         return False

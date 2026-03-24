@@ -136,7 +136,8 @@ urlpatterns = [
     path('admin/profile/manage/<int:user_id>/', views.admin_profile_manage, name='admin_profile_manage'),
     path('manage/invoices/', views.invoice_registry, name='invoice_registry'),
     path('manage/invoices/export/', views.export_invoices_excel, name='export_invoices_excel'),
-    path('manage/invoices/report/telegram/', views.send_invoice_report_telegram, name='send_invoice_report_telegram'),
+    # ИСПРАВЛЕНО: заменено на send_invoice_report_email
+    path('manage/invoices/report/email/', views.send_invoice_report_email, name='send_invoice_report_email'),
     path('manage/invoices/<int:invoice_id>/', views.invoice_detail, name='invoice_detail'),
     path('manage/invoices/<int:invoice_id>/update-status/', views.update_invoice_status, name='update_invoice_status'),
     
