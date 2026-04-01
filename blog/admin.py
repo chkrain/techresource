@@ -1,48 +1,65 @@
+from django import forms
 from django.contrib import admin
 from .models import BlogCategory, BlogArticle, BlogComment, ArticleContentBlock
 from django.utils.html import format_html
 from django.utils.text import Truncator
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django.forms import ModelForm
+
+# Добавляем кастомную форму для статьи
+class BlogArticleForm(ModelForm):
+    class Meta:
+        model = BlogArticle
+        fields = '__all__'
+    
+    def clean(self):
+        """Убираем валидацию content, так как оно скрыто"""
+        cleaned_data = super().clean()
+        # Не проверяем content, так как он не используется
+        return cleaned_data
+
+class ArticleContentBlockForm(ModelForm):
+    """Форма для блоков контента с правильной обработкой изображений"""
+    class Meta:
+        model = ArticleContentBlock
+        fields = '__all__'
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        block_type = cleaned_data.get('block_type')
+        
+        if block_type == 'text':
+            if not cleaned_data.get('text_content'):
+                raise ValidationError('Текстовый блок не может быть пустым')
+        elif block_type == 'image':
+            # Не проверяем image здесь, так как оно может быть загружено позже
+            pass
+        
+        return cleaned_data
 
 class ArticleContentBlockInline(admin.TabularInline):
-    """Упрощенный inline для блоков контента"""
+    """Исправленный inline для блоков контента"""
     model = ArticleContentBlock
+    form = ArticleContentBlockForm
     extra = 1
     
-    fieldsets = (
-        (None, {
-            'fields': ('order', 'block_type')
-        }),
-        ('Контент', {
-            'fields': ('title', 'text_content', 'image', 'caption'),
-            'classes': ('wide',),
-        }),
-    )
+    fields = ('order', 'block_type', 'title', 'text_content', 'image', 'caption')
     
-    def get_fieldsets(self, request, obj=None):
-        """Всегда возвращаем одинаковый fieldset"""
-        return (
-            (None, {
-                'fields': ('order', 'block_type')
-            }),
-            ('Контент', {
-                'fields': ('title', 'text_content', 'image', 'caption'),
-                'classes': ('wide',),
-            }),
-        )
-    
-    class Media:
-        """Добавляем JavaScript для динамического отображения полей"""
-        js = (
-            'admin/js/blog_content_blocks.js',
-        )
-
     def get_formset(self, request, obj=None, **kwargs):
-        """Устанавливаем необязательные поля"""
         formset = super().get_formset(request, obj, **kwargs)
+        
+        # Делаем поля необязательными
         formset.form.base_fields['text_content'].required = False
         formset.form.base_fields['image'].required = False
+        
         return formset
+    
+    class Media:
+        css = {
+            'all': ('admin/css/blog_blocks.css',)
+        }
+        js = ('admin/js/blog_content_blocks.js',)
 
 @admin.register(BlogCategory)
 class BlogCategoryAdmin(admin.ModelAdmin):
@@ -58,6 +75,7 @@ class BlogCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(BlogArticle)
 class BlogArticleAdmin(admin.ModelAdmin):
+    form = BlogArticleForm  # Используем кастомную форму
     list_display = ['title', 'author', 'category', 'status', 'published_at', 
                    'views', 'is_featured', 'thumbnail_preview']
     list_filter = ['status', 'category', 'author', 'published_at', 'is_featured']
@@ -75,7 +93,8 @@ class BlogArticleAdmin(admin.ModelAdmin):
             'fields': ('excerpt', 'featured_image', 'thumbnail')
         }),
         ('SEO', {
-            'fields': ('meta_title', 'meta_description', 'meta_keywords')
+            'fields': ('meta_title', 'meta_description', 'meta_keywords'),
+            'classes': ('collapse',)
         }),
         ('Статус и настройки', {
             'fields': ('status', 'published_at', 'is_featured', 'allow_comments')
@@ -84,24 +103,10 @@ class BlogArticleAdmin(admin.ModelAdmin):
             'fields': ('views', 'likes', 'created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
-        ('Предпросмотр', {
-            'fields': ('thumbnail_preview',),
-            'classes': ('collapse',)
-        }),
     )
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        if 'content' in form.base_fields:
-            form.base_fields['content'].widget = forms.HiddenInput()
-        return form
-
+    
     inlines = [ArticleContentBlockInline]
     
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = super().get_fieldsets(request, obj)
-        return fieldsets
-
     def thumbnail_preview(self, obj):
         if obj.thumbnail:
             return format_html(
@@ -114,8 +119,44 @@ class BlogArticleAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not obj.author_id:
             obj.author = request.user
+        
+        # Сохраняем статью
         super().save_model(request, obj, form, change)
-
+        
+        # Принудительно сохраняем все связанные блоки
+        if hasattr(obj, 'content_blocks'):
+            for block in obj.content_blocks.all():
+                if block.block_type == 'image' and block.image:
+                    # Проверяем, что изображение действительно сохранилось
+                    try:
+                        if block.image and block.image.url:
+                            block.save()
+                    except Exception as e:
+                        print(f"Error saving image block: {e}")
+    
+    def save_related(self, request, form, formsets, change):
+        """Переопределяем сохранение связанных объектов"""
+        try:
+            # Сначала сохраняем формы
+            super().save_related(request, form, formsets, change)
+            
+            # Затем обрабатываем каждый блок контента
+            for formset in formsets:
+                if formset.model == ArticleContentBlock:
+                    for block_form in formset.forms:
+                        if not block_form.cleaned_data.get('DELETE', False):
+                            instance = block_form.instance
+                            if instance.block_type == 'image' and instance.image:
+                                # Дополнительная проверка изображения
+                                try:
+                                    if instance.image and not instance.image.closed:
+                                        instance.save()
+                                except Exception as e:
+                                    print(f"Error processing image: {e}")
+        except Exception as e:
+            print(f"Error in save_related: {e}")
+            raise
+    
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
@@ -201,4 +242,3 @@ class BlogCommentAdmin(admin.ModelAdmin):
         count = spam_comments.count()
         spam_comments.delete()
         self.message_user(request, f'{count} спам-комментариев удалено.')
-

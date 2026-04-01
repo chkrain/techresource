@@ -118,7 +118,7 @@
                                     data-product-name="{{ product.name }}"
                                     data-product-price="{{ product.price }}"
                                     data-product-image="{% with main_image=product.get_main_image %}{% if main_image %}{{ main_image.image.url }}{% endif %}{% endwith %}"
-                                    data-product-url="{% url 'product_detail' product.id %}">
+                                    data-product-url="{% url 'product_detail' slug=product.slug %}">
                                 Добавить в корзину
                             </button>
                         {% else %}
@@ -242,7 +242,7 @@
         
         <div class="similar-products-grid">
             {% for similar_product in similar_products %}
-            <a href="{% url 'product_detail' similar_product.id %}" class="similar-product-card">
+            <a href="{% url 'product_detail' slug=similar_product.slug %}" class="similar-product-card">
                 <div class="similar-product-image">
                     {% with main_image=similar_product.get_main_image %}
                     {% if main_image %}

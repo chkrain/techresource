@@ -1037,6 +1037,8 @@ class Address(models.Model):
     city = models.CharField(max_length=100, verbose_name="Город")
     postal_code = models.CharField(max_length=20, verbose_name="Почтовый индекс")
     is_default = models.BooleanField(default=False, verbose_name="Адрес по умолчанию")
+    legal_address = models.TextField(verbose_name="Юридический адрес", blank=True)  
+    is_legal = models.BooleanField(default=False, verbose_name="Юридическое лицо")
 
     region = models.CharField(max_length=100, verbose_name="Регион", blank=True)
     country = models.CharField(max_length=100, verbose_name="Страна", default="Россия")

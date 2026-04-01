@@ -851,7 +851,7 @@ def cart_view(request):
                 if cart_item_check.product.quantity < cart_item_check.quantity:
                     messages.error(request, f'Недостаточно товара "{cart_item_check.product.name}" на складе. Доступно: {cart_item_check.product.quantity}')
                     return redirect('cart')
-            
+                        
             order = Order.objects.create(
                 user=request.user,
                 total_price=subtotal,
@@ -866,9 +866,10 @@ def cart_view(request):
                 customer_phone=address.phone,
                 customer_email=request.user.email,
                 delivery_address=f"{address.city}, {address.address}, {address.postal_code}",
+                legal_address=f"{address.city}, {address.address}, {address.postal_code}",  # ✅ Добавлено
                 customer_inn=customer_inn,
                 customer_kpp=customer_kpp,
-                invoice_date=timezone.now().date(), 
+                invoice_date=timezone.now().date(),
             )
 
             order.invoice_number = order.generate_invoice_number()
@@ -3463,6 +3464,7 @@ def anonymous_create_order(request):
                 customer_inn=inn,
                 customer_kpp=request.POST.get('kpp', '').strip(),
                 delivery_address=request.POST.get('delivery_address', '').strip(),
+                legal_address=request.POST.get('legal_address', '').strip(),  # ✅ Добавлено
                 status='processing',
                 ip_address=get_client_ip(request),
                 user_agent=request.META.get('HTTP_USER_AGENT', ''),

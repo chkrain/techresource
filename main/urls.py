@@ -65,6 +65,7 @@ urlpatterns = [
     # Товары
     path('products/', views.products, name='products'),
     path('product/<slug:slug>/', views.product_detail, name='product_detail'),
+    path('product/<int:product_id>/', views.product_detail, name='product_detail_old'),
     path('product/<int:product_id>/review/add/', views.add_review, name='add_review'),
     
     # Отзывы

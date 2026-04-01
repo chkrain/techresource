@@ -41,7 +41,7 @@
             {% endwith %}
         </div>
         
-        <a href="{% url 'product_detail' product.id %}" style="text-decoration: none;">
+        <a href="{% url 'product_detail' slug=product.slug %}" style="text-decoration: none;">
             <div class="product-content">
                 <h3 class="product-title">{{ product.name }}</h3>
                 

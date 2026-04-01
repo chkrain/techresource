@@ -326,7 +326,6 @@
 .empty-state i {
   font-size: 4rem;
   background: linear-gradient(135deg, var(--invoice-gray), #adb5bd);
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 1rem;
   opacity: 0.5;

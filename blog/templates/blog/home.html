@@ -59,7 +59,7 @@
     <div class="blog-layout">
         <main class="blog-main">
             <section class="articles-section">
-                <h2 class="section-title"><i class="fas fa-newspaper"></i> Последние статьи</h2>
+                <h2 class="section-title">Последние статьи</h2>
                 
                 {% if articles %}
                 <div class="articles-grid">
@@ -171,7 +171,7 @@
         <aside class="blog-sidebar">
             <div class="sidebar-widget">
                 <h3 class="widget-title">
-                    <i class="fas fa-folder"></i> Категории
+                    Категории
                 </h3>
                 <ul class="categories-list">
                     {% for category in categories %}
@@ -187,7 +187,7 @@
 
             <div class="sidebar-widget">
                 <h3 class="widget-title">
-                    <i class="fas fa-fire"></i> Популярные
+                    Популярные
                 </h3>
                 <div class="popular-posts">
                     {% for article in articles|slice:":5" %}
@@ -214,7 +214,7 @@
             {% if articles %}
             <div class="sidebar-widget">
                 <h3 class="widget-title">
-                    <i class="fas fa-tags"></i> Теги
+                    Теги 
                 </h3>
                 <div class="tags-cloud">
                     {% for article in articles|slice:":10" %}
@@ -228,7 +228,7 @@
 
             <div class="sidebar-widget">
                 <h3 class="widget-title">
-                    <i class="fas fa-search"></i> Поиск
+                    Поиск
                 </h3>
                 <form method="GET" action="{% url 'blog:blog_search' %}" class="search-widget">
                     <input type="text" name="q" placeholder="Поиск статей..." 

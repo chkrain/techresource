@@ -21,5 +21,5 @@ def replace(value, arg):
 def reading_time(text):
     """Вычисление времени чтения"""
     words = len(text.split())
-    minutes = max(1, words // 100)
+    minutes = max(1, words // 80)
     return f"{minutes} мин. чтения"

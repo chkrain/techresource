@@ -301,7 +301,7 @@ class ArticleContentBlock(models.Model):
             raise ValidationError('Текстовый блок не может быть пустым')
         
         if self.block_type == 'image' and not self.image:
-            raise ValidationError('Для блока изображения необходимо загрузить файл')
+            pass
     
     def save(self, *args, **kwargs):
         if self.block_type == 'text':
