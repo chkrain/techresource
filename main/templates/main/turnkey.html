@@ -1,1222 +1,983 @@
-    {% extends 'main/base.html' %}
-    {% load static %}
+{% extends 'main/base.html' %}
+{% load static %}
 
-    {% block title %}Проекты — Техресурс{% endblock %}
-    {% block og_title %}Проекты — Техресурс{% endblock %}
-    {% block og_description %}Комплексная реализация проектов: проектирование, электромонтаж, разработка ПО, пусконаладка. Единый подрядчик.{% endblock %}
+{% block title %}Проекты — Техресурс{% endblock %}
+{% block og_title %}Проекты — Техресурс{% endblock %}
+{% block og_description %}Комплексная реализация проектов: проектирование, электромонтаж, разработка ПО, пусконаладка. Единый подрядчик.{% endblock %}
 
-    {% block meta %}
-    <meta property="og:image" content="{% static 'images/img/turnkey-og.jpg' %}">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta name="description" content="Полный цикл реализации промышленных проектов: от проектирования до пусконаладки. Гарантия качества и сроков.">
-    <meta name="keywords" content="проекты под ключ, комплексные решения, промышленное проектирование, электромонтаж, пусконаладка">
-    {% endblock %}
+{% block meta %}
+<meta property="og:image" content="{% static 'images/img/turnkey-og.jpg' %}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta name="description" content="Полный цикл реализации промышленных проектов: от проектирования до пусконаладки. Гарантия качества и сроков.">
+<meta name="keywords" content="проекты под ключ, комплексные решения, промышленное проектирование, электромонтаж, пусконаладка">
+{% endblock %}
 
-    {% block content %}
-    <div class="turnkey-hero">
-        <div class="hero-content">
-            <h1 class="hero-title">Наши проекты</h1>
-            <p class="hero-subtitle">Комплексная реализация от концепции до ввода в эксплуатацию</p>
+{% block content %}
+<div class="turnkey-hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Наши проекты</h1>
+        <p class="hero-subtitle">Комплексная реализация от концепции до ввода в эксплуатацию</p>
+    </div>
+</div>
+
+<section class="project-example-section">
+    <div class="container">
+        <h2 class="section-title">Пример реализации проектов</h2>
+        <p class="section-subtitle">Полный цикл работ от проектирования до пусконаладки</p>
+        
+        <div class="project-card" id="altyshki">
+            <div class="project-preview">
+                <div class="project-image">
+                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="Автоматизация линии переработки и фасовки треперла" class="zoomable" loading="lazy">
+                    <div class="image-overlay">
+                        <span class="zoom-hint">Нажмите для увеличения</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3>Автоматизация линии фасовки и переработки трепела</h3>
+                    <p class="project-description">Комплексная автоматизация линий фасовки и переработки трепела, аспирационной, вентиляционной и отопительной систем.</p>
+                    
+                    <button class="project-toggle-btn">
+                        <span class="toggle-text">Подробнее о проекте</span>
+                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="project-dropdown">
+                <div class="dropdown-content">
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Проектирование</h4>
+                            <span class="stage-duration">28 дней</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Требовалось модернизировать устаревшую линию исполнительных механизмов. Существующее оборудование не обеспечивало необходимую точность и производительность, отсутствовала система контроля качества, удаленное управление с операторского компьютера, линии аспирации, вентиляции, отопления.</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Прибыли на предприятие для проведения детального обследования. 
+                                Проанализировали существующие исполнительные механизмы и систему 
+                                управления с центрального пульта. Разработали и внедрили комплексное 
+                                решение, включающее проектирование новых технологических линий: сушки, 
+                                переработки, сортировки и фасовки. Организовали инженерные системы - аспирацию, 
+                                вентиляцию и отопление - в единый управляемый контур. Подготовили полный пакет 
+                                проектной документации: функциональные, принципиальные и монтажные схемы. Сформировали и 
+                                согласовали таблицу сигналов для интеграции оборудования в единую АСУ ТП. Все 
+                                этапы работ были утверждены с заказчиком перед реализацией.</p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/linealt.png' %}" alt="Схема" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Общий вид линий</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/silovshkaf.png' %}" alt="Схема" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Общий вид силовых шкафов</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/asutpalt.png' %}" alt="Схема" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Общий вид шкафа АСУ ТП</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Монтаж и электромонтаж</h4>
+                            <span class="stage-duration">34 дня</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Требовалось заменить устаревшую электрическую инфраструктуру, проложить новые кабельные трассы, установить современное щитовое и шкафное оборудование, интегрировать новую систему к старым силовым шкафам.</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Предварительно собрали и настроили новые шкафы - силовые и 
+                                шкафы АСУ ТП, провели полное тестирование в условиях офиса, 
+                                после чего в готовом и проверенном виде доставили на объект. На месте 
+                                выполнили интеграцию новых шкафов с существующей силовой инфраструктурой, 
+                                сохранив работоспособность исторического оборудования. Подключили 
+                                новые шкафы ко всем исполнительным механизмам и датчикам, установили 
+                                и смонтировали локальные пульты управления. Проверили регулировку скорости 
+                                приводов через частотные преобразователи, убедились в корректности их работы. 
+                                Установили датчики температуры и влажности, настроили и откалибровали 
+                                их в соответствии с требованиями технологического процесса. Все работы 
+                                выполнены с соблюдением действующих нормативов и технологических стандартов. Смонтировали необходимое
+                                оборудование.</p>
+                            
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altof1.jpg' %}" alt="Шкаф" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Процесс сборки шкафа АСУ ТП</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altof2.jpg' %}" alt="Шкаф силовой" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Процесс сборки шкафа силового</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altof3.jpg' %}" alt="Шкаф АСУ ТП сборка на объекте" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Процесс подключения шкафа АСУ ТП на объекте</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altof4.jpg' %}" alt="Пульты" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Местные пульты управления</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altof5.jpg' %}" alt="Аспирация и обогрев" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Система аспирации и под ней система обогрева</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altof5.jpg' %}" alt="Стойки на исполнительных механизмах" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Монтаж металлоконструкций</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Разработка ПО</h4>
+                            <span class="stage-duration">24 дня</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Необходимо было разработать систему управления линией с возможностью удаленного 
+                                мониторинга, управления с операторсксого компьютера, анализом данных, умной 
+                                системой запуска и останова оборудования, предупреждения об угрозах с 
+                                интуитивно понятным интерфейсом</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Разработали и отладили программное обеспечение с полным циклом 
+                                тестирования. Реализовали двойной режим управления: дистанционный с 
+                                операторского компьютера и ручной с местных панелей с блокировкой одновременного 
+                                управления. Интегрировали комплексную систему безопасности: добавили обработку 
+                                аварийных ситуаций, датчики вращения валов, троссовые выключатели, общую 
+                                аварийную сигнализацию и протоколирование событий. Настроили сбор и 
+                                графическое отображение данных с датчиков температуры и влажности. Внедрили 
+                                интеллектуальную систему запуска и останова всего оборудования по одной 
+                                кнопке с поэтапной проверкой готовности систем. Разработали удобный интерфейс 
+                                с визуализацией состояния линии, системой оповещения через световую и звуковую 
+                                сигнализацию, в том числе на основе датчиков уровня бункеров. Добавили простые 
+                                настройки скорости оборудования, времени задержек, режимов работы. Для каждого 
+                                агрегата реализовали учёт моточасов, прогнозирование необходимости ТО и 
+                                формирование напоминаний. Подготовили подробную инструкцию для оператора 
+                                и провели тестирование знаний для быстрой адаптации персонала.</p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="Скада" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Вид системы дистанционного управления</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altcomp6.jpg' %}" alt="Скада" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Вид системы дистанционного управления c графиками</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altcomp2.png' %}" alt="Скада блок" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Пример блока управления станцией</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altcomp3.png' %}" alt="Блок скада" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Доп.настройки блока управления станцией</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altcomp4.png' %}" alt="Страница" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Страница управления сушкой</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altcomp5.jpg' %}" alt="Инструкция" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Встроенная в программу инструкция</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Пусконаладка</h4>
+                            <span class="stage-duration">14 дней</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Требовалось провести комплексные испытания системы, обучить персонал работе с новым оборудованием и сдать объект в промышленную эксплуатацию.</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Разработали и отладили программное обеспечение с полным 
+                                циклом тестирования. Реализовали двойной режим управления: 
+                                дистанционный с операторского компьютера и ручной с местных панелей 
+                                с блокировкой одновременного управления. Интегрировали комплексную 
+                                систему безопасности: добавили обработку аварийных ситуаций, датчики 
+                                вращения валов, троссовые выключатели, общую аварийную сигнализацию 
+                                и протоколирование событий. Настроили сбор и графическое 
+                                отображение данных с датчиков температуры и влажности. Внедрили 
+                                интеллектуальную систему запуска и останова всего оборудования по 
+                                одной кнопке с поэтапной проверкой готовности систем. Разработали 
+                                удобный интерфейс с визуализацией состояния линии, системой оповещения 
+                                через световую и звуковую сигнализацию, в том числе на основе датчиков 
+                                уровня бункеров. Добавили простые настройки скорости оборудования, 
+                                времени задержек, режимов работы. Для каждого агрегата реализовали 
+                                учёт моточасов, а также расчитали и уточнили, какое
+                                потенциально необходимое количество моточасов 
+                                потребуется каждому оборудованию, 
+                                прогнозирование необходимости ТО и формирование 
+                                напоминаний. Подготовили подробную инструкцию для оператора и провели 
+                                тестирование знаний для быстрой адаптации персонала.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="project-card" id="pesok">
+            <div class="project-preview">
+                <div class="project-image">
+                    <img src="{% static 'images/img/pesoksca.jpg' %}" alt="Автоматизация линии переработки песка" class="zoomable" loading="lazy">
+                    <div class="image-overlay">
+                        <span class="zoom-hint">Нажмите для увеличения</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3>Автоматизация линии фасовки и для обогащения песка</h3>
+                    <p class="project-description">Комплексная автоматизация линий переработки песка</p>
+                    
+                    <button class="project-toggle-btn">
+                        <span class="toggle-text">Подробнее о проекте</span>
+                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="project-dropdown">
+                <div class="dropdown-content">
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Проектирование</h4>
+                            <span class="stage-duration">16 дней</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Создать проект для автоматизации обогащения песка</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Прибыли на предприятие для проведения детального обследования. 
+                                Проанализировали, какие необходимы исполнительные механизмы. Разработали и внедрили комплексное 
+                                решение. Подготовили полный пакет 
+                                проектной документации. Сформировали и 
+                                согласовали таблицу сигналов для интеграции оборудования в единую АСУ ТП. Все 
+                                этапы работ были утверждены с заказчиком перед реализацией.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Монтаж и электромонтаж</h4>
+                            <span class="stage-duration">34 дня</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Полностью смонитровать электрооборудование, собрать шкафы АСУ ТП.</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Предварительно собрали и настроили новые шкафы - силовые и 
+                                шкафы АСУ ТП, провели полное тестирование, 
+                                после чего в готовом и проверенном виде доставили на объект. Подключили 
+                                новые шкафы ко всем исполнительным механизмам и датчикам, установили 
+                                и смонтировали локальные пульты управления. Проверили регулировку скорости 
+                                приводов через частотные преобразователи, убедились в корректности их работы. 
+                                Установили датчики температуры и влажности, настроили и откалибровали 
+                                их в соответствии с требованиями технологического процесса. Все работы 
+                                выполнены с соблюдением действующих нормативов и технологических стандартов.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Разработка ПО</h4>
+                            <span class="stage-duration">24 дня</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Необходимо было разработать систему управления линией с возможностью удаленного 
+                                мониторинга, управления с операторсксого компьютера, анализом данных, умной 
+                                системой запуска и останова оборудования, предупреждения об угрозах с 
+                                интуитивно понятным интерфейсом</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Разработали и отладили программное обеспечение с полным циклом 
+                                тестирования. Реализовали двойной режим управления: дистанционный с 
+                                операторского компьютера и ручной с местных панелей с блокировкой одновременного 
+                                управления. Интегрировали комплексную систему безопасности: добавили обработку 
+                                аварийных ситуаций, датчики вращения валов, троссовые выключатели, общую 
+                                аварийную сигнализацию и протоколирование событий. Настроили сбор и 
+                                графическое отображение данных с датчиков температуры и влажности. Внедрили 
+                                интеллектуальную систему запуска и останова всего оборудования по одной 
+                                кнопке с поэтапной проверкой готовности систем. Разработали удобный интерфейс 
+                                с визуализацией состояния линии, системой оповещения через световую и звуковую 
+                                сигнализацию, в том числе на основе датчиков уровня бункеров. Добавили простые 
+                                настройки скорости оборудования, времени задержек, режимов работы. Для каждого 
+                                агрегата реализовали учёт моточасов, прогнозирование необходимости ТО и 
+                                формирование напоминаний. Подготовили подробную инструкцию для оператора 
+                                и провели тестирование знаний для быстрой адаптации персонала.</p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/pesoksca.jpg' %}" alt="Скада" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Вид системы дистанционного управления</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/grafanasca.jpg' %}" alt="Скада" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Вид системы дистанционного управления c графиками</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/grafana2sca.jpg' %}" alt="Логирование" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Дополнительное логирование</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Пусконаладка</h4>
+                            <span class="stage-duration">5 дней</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Требовалось провести комплексные испытания системы, обучить персонал работе с новым оборудованием и сдать объект в промышленную эксплуатацию.</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Отладили программное обеспечение с полным 
+                                циклом тестирования. Подготовили подробную инструкцию для оператора и провели 
+                                тестирование знаний для быстрой адаптации персонала.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="project-card" id="lptvs">
+            <div class="project-preview">
+                <div class="project-image">
+                    <img src="{% static 'images/img/lptvs-4.jpg' %}" alt="Силовое оборудование" class="zoomable" loading="lazy">
+                    <div class="image-overlay">
+                        <span class="zoom-hint">Нажмите для увеличения</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3>Поставка новых силовых шкафов для комплекса заводов</h3>
+                    <p class="project-description">Реализация обновленного силового оборудования</p>
+                    
+                    <button class="project-toggle-btn">
+                        <span class="toggle-text">Подробнее о проекте</span>
+                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="project-dropdown">
+                <div class="dropdown-content">
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Проектирование</h4>
+                            <span class="stage-duration">4 дня</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Создать проект для нового силового оборудования</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Создали проект, предусматривающий все поставленные задачи.
+                            </p>
+                        </div>
+                        <div class="stage-gallery">
+                            <div class="gallery-item zoomable-container">
+                                <img src="{% static 'images/img/lptvs-1.jpg' %}" alt="Схема" class="zoomable" loading="lazy">
+                                <div class="image-overlay">
+                                    <span class="zoom-hint">Увеличить</span>
+                                </div>
+                                <span>Общий вид одного из шкафов</span>
+                            </div>
+                            <div class="gallery-item zoomable-container">
+                                <img src="{% static 'images/img/lptvs-2.jpg' %}" alt="Схема" class="zoomable" loading="lazy">
+                                <div class="image-overlay">
+                                    <span class="zoom-hint">Увеличить</span>
+                                </div>
+                                <span>Отрывок из схемы однолинейной</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Монтаж и электромонтаж</h4>
+                            <span class="stage-duration">6 часов</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Полностью смонитровать электрооборудование, собрать силовый шкафы</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>В связи с тем, что данное силовое оборудование необходимо для
+                                работы нескольких действующх предприятий мы обозначили оптимальный временной диапазон,
+                                в который без потерь для заводов отключили старое оборудование и подключили 
+                                новое. 
+                            </p>
+                        </div>
+                        <div class="stage-gallery">
+                            <div class="gallery-item zoomable-container">
+                                <img src="{% static 'images/img/lptvs-3.jpg' %}" alt="Схема" class="zoomable" loading="lazy">
+                                <div class="image-overlay">
+                                    <span class="zoom-hint">Увеличить</span>
+                                </div>
+                                <span>Вид одного из шкафов</span>
+                            </div>
+                            <div class="gallery-item zoomable-container">
+                                <img src="{% static 'images/img/lptvs-4.jpg' %}" alt="Схема" class="zoomable" loading="lazy">
+                                <div class="image-overlay">
+                                    <span class="zoom-hint">Увеличить</span>
+                                </div>
+                                <span>Поставленное новое силовое оборудовние</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Пусконаладка</h4>
+                            <span class="stage-duration">2 часа</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Требовалось в условиях ограниченного времени проверить оборудование.</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Проверили всё действующее оборудование, резервное питание.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="project-card" id="ID">
+            <div class="project-preview">
+                <div class="project-image">
+                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="ALT" class="zoomable" loading="lazy">
+                    <div class="image-overlay">
+                        <span class="zoom-hint">Нажмите для увеличения</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3>NAZV</h3>
+                    <p class="project-description">OPIS</p>
+                    
+                    <button class="project-toggle-btn">
+                        <span class="toggle-text">Подробнее о проекте</span>
+                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="project-dropdown">
+                <div class="dropdown-content">
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Проектирование</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/linealt.png' %}" alt="Схема" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>OPIS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Монтаж и электромонтаж</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+                            
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altof1.jpg' %}" alt="Шкаф" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>OPIS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Разработка ПО</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="Скада" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>OPIS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Пусконаладка</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="project-card" id="ID">
+            <div class="project-preview">
+                <div class="project-image">
+                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="ALT" class="zoomable" loading="lazy">
+                    <div class="image-overlay">
+                        <span class="zoom-hint">Нажмите для увеличения</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3>NAZV</h3>
+                    <p class="project-description">OPIS</p>
+                    
+                    <button class="project-toggle-btn">
+                        <span class="toggle-text">Подробнее о проекте</span>
+                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="project-dropdown">
+                <div class="dropdown-content">
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Проектирование</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/linealt.png' %}" alt="Схема" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>OPIS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Монтаж и электромонтаж</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+                            
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altof1.jpg' %}" alt="Шкаф" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>OPIS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Разработка ПО</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="Скада" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>OPIS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Пусконаладка</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="project-card" id="ID">
+            <div class="project-preview">
+                <div class="project-image">
+                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="ALT" class="zoomable" loading="lazy">
+                    <div class="image-overlay">
+                        <span class="zoom-hint">Нажмите для увеличения</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3>NAZV</h3>
+                    <p class="project-description">OPIS</p>
+                    
+                    <button class="project-toggle-btn">
+                        <span class="toggle-text">Подробнее о проекте</span>
+                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="project-dropdown">
+                <div class="dropdown-content">
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Проектирование</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/linealt.png' %}" alt="Схема" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>OPIS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Монтаж и электромонтаж</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+                            
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altof1.jpg' %}" alt="Шкаф" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>OPIS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Разработка ПО</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="Скада" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>OPIS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Пусконаладка</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="project-card" id="ID">
+            <div class="project-preview">
+                <div class="project-image">
+                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="ALT" class="zoomable" loading="lazy">
+                    <div class="image-overlay">
+                        <span class="zoom-hint">Нажмите для увеличения</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3>NAZV</h3>
+                    <p class="project-description">OPIS</p>
+                    
+                    <button class="project-toggle-btn">
+                        <span class="toggle-text">Подробнее о проекте</span>
+                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="project-dropdown">
+                <div class="dropdown-content">
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Проектирование</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/linealt.png' %}" alt="Схема" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>OPIS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Монтаж и электромонтаж</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+                            
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altof1.jpg' %}" alt="Шкаф" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>OPIS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Разработка ПО</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="Скада" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>OPIS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Пусконаладка</h4>
+                            <span class="stage-duration">SCOC</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>OPIS</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>OPIS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="project-cta">
+            <p>Хотите реализовать подобный проект на вашем предприятии?</p>
+            <a href="{% url 'contacts' %}" class="btn btn-primary">Обсудить проект</a>
         </div>
     </div>
+</section>
 
-    <section class="project-example-section">
-        <div class="container">
-            <h2 class="section-title">Пример реализации проектов</h2>
-            <p class="section-subtitle">Полный цикл работ от проектирования до пусконаладки</p>
-            
-            <div class="project-card" id="altyshki">
-                <div class="project-preview">
-                    <div class="project-image">
-                        <img src="{% static 'images/img/altcomp.jpg' %}" alt="Автоматизация линии переработки и фасовки треперла" class="zoomable">
-                        <div class="image-overlay">
-                            <span class="zoom-hint">Нажмите для увеличения</span>
-                        </div>
-                    </div>
-                    <div class="project-info">
-                        <h3>Автоматизация линии фасовки и переработки трепела</h3>
-                        <p class="project-description">Комплексная автоматизация линий фасовки и переработки трепела, аспирационной, вентиляционной и отопительной систем.</p>
-                        
-                        <button class="project-toggle-btn">
-                            <span class="toggle-text">Подробнее о проекте</span>
-                            <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="project-dropdown">
-                    <div class="dropdown-content">
-                        <div class="project-stage">
-                            <div class="stage-header">
-                                <h4>Проектирование</h4>
-                                <span class="stage-duration">28 дней</span>
-                            </div>
-                            <div class="stage-content">
-                                <h5>Что нужно было сделать:</h5>
-                                <p>Требовалось модернизировать устаревшую линию исполнительных механизмов. Существующее оборудование не обеспечивало необходимую точность и производительность, отсутствовала система контроля качества, удаленное управление с операторского компьютера, линии аспирации, вентиляции, отопления.</p>
-                                
-                                <h5>Что мы сделали:</h5>
-                                <p>Прибыли на предприятие для проведения детального обследования. 
-                                    Проанализировали существующие исполнительные механизмы и систему 
-                                    управления с центрального пульта. Разработали и внедрили комплексное 
-                                    решение, включающее проектирование новых технологических линий: сушки, 
-                                    переработки, сортировки и фасовки. Организовали инженерные системы - аспирацию, 
-                                    вентиляцию и отопление - в единый управляемый контур. Подготовили полный пакет 
-                                    проектной документации: функциональные, принципиальные и монтажные схемы. Сформировали и 
-                                    согласовали таблицу сигналов для интеграции оборудования в единую АСУ ТП. Все 
-                                    этапы работ были утверждены с заказчиком перед реализацией.</p>
-
-                                <div class="stage-gallery">
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/linealt.png' %}" alt="Схема" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Общий вид линий</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/silovshkaf.png' %}" alt="Схема" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Общий вид силовых шкафов</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/asutpalt.png' %}" alt="Схема" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Общий вид шкафа АСУ ТП</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="project-stage">
-                            <div class="stage-header">
-                                <h4>Монтаж и электромонтаж</h4>
-                                <span class="stage-duration">34 дня</span>
-                            </div>
-                            <div class="stage-content">
-                                <h5>Что нужно было сделать:</h5>
-                                <p>Требовалось заменить устаревшую электрическую инфраструктуру, проложить новые кабельные трассы, установить современное щитовое и шкафное оборудование, интегрировать новую систему к старым силовым шкафам.</p>
-                                
-                                <h5>Что мы сделали:</h5>
-                                <p>Предварительно собрали и настроили новые шкафы - силовые и 
-                                    шкафы АСУ ТП, провели полное тестирование в условиях офиса, 
-                                    после чего в готовом и проверенном виде доставили на объект. На месте 
-                                    выполнили интеграцию новых шкафов с существующей силовой инфраструктурой, 
-                                    сохранив работоспособность исторического оборудования. Подключили 
-                                    новые шкафы ко всем исполнительным механизмам и датчикам, установили 
-                                    и смонтировали локальные пульты управления. Проверили регулировку скорости 
-                                    приводов через частотные преобразователи, убедились в корректности их работы. 
-                                    Установили датчики температуры и влажности, настроили и откалибровали 
-                                    их в соответствии с требованиями технологического процесса. Все работы 
-                                    выполнены с соблюдением действующих нормативов и технологических стандартов. Смонтировали необходимое
-                                    оборудование.</p>
-                                
-                                <div class="stage-gallery">
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/altof1.jpg' %}" alt="Шкаф" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Процесс сборки шкафа АСУ ТП</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/altof2.jpg' %}" alt="Шкаф силовой" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Процесс сборки шкафа силового</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/altof3.jpg' %}" alt="Шкаф АСУ ТП сборка на объекте" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Процесс подключения шкафа АСУ ТП на объекте</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/altof4.jpg' %}" alt="Пульты" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Местные пульты управления</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/altof5.jpg' %}" alt="Аспирация и обогрев" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Система аспирации и под ней система обогрева</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/altof5.jpg' %}" alt="Стойки на исполнительных механизмах" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Монтаж металлоконструкций</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="project-stage">
-                            <div class="stage-header">
-                                <h4>Разработка ПО</h4>
-                                <span class="stage-duration">24 дня</span>
-                            </div>
-                            <div class="stage-content">
-                                <h5>Что нужно было сделать:</h5>
-                                <p>Необходимо было разработать систему управления линией с возможностью удаленного 
-                                    мониторинга, управления с операторсксого компьютера, анализом данных, умной 
-                                    системой запуска и останова оборудования, предупреждения об угрозах с 
-                                    интуитивно понятным интерфейсом</p>
-                                
-                                <h5>Что мы сделали:</h5>
-                                <p>Разработали и отладили программное обеспечение с полным циклом 
-                                    тестирования. Реализовали двойной режим управления: дистанционный с 
-                                    операторского компьютера и ручной с местных панелей с блокировкой одновременного 
-                                    управления. Интегрировали комплексную систему безопасности: добавили обработку 
-                                    аварийных ситуаций, датчики вращения валов, троссовые выключатели, общую 
-                                    аварийную сигнализацию и протоколирование событий. Настроили сбор и 
-                                    графическое отображение данных с датчиков температуры и влажности. Внедрили 
-                                    интеллектуальную систему запуска и останова всего оборудования по одной 
-                                    кнопке с поэтапной проверкой готовности систем. Разработали удобный интерфейс 
-                                    с визуализацией состояния линии, системой оповещения через световую и звуковую 
-                                    сигнализацию, в том числе на основе датчиков уровня бункеров. Добавили простые 
-                                    настройки скорости оборудования, времени задержек, режимов работы. Для каждого 
-                                    агрегата реализовали учёт моточасов, прогнозирование необходимости ТО и 
-                                    формирование напоминаний. Подготовили подробную инструкцию для оператора 
-                                    и провели тестирование знаний для быстрой адаптации персонала.</p>
-
-                                <div class="stage-gallery">
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/altcomp.jpg' %}" alt="Скада" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Вид системы дистанционного управления</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/altcomp6.jpg' %}" alt="Скада" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Вид системы дистанционного управления c графиками</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/altcomp2.png' %}" alt="Скада блок" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Пример блока управления станцией</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/altcomp3.png' %}" alt="Блок скада" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Доп.настройки блока управления станцией</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/altcomp4.png' %}" alt="Страница" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Страница управления сушкой</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/altcomp5.jpg' %}" alt="Инструкция" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Встроенная в программу инструкция</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="project-stage">
-                            <div class="stage-header">
-                                <h4>Пусконаладка</h4>
-                                <span class="stage-duration">14 дней</span>
-                            </div>
-                            <div class="stage-content">
-                                <h5>Что нужно было сделать:</h5>
-                                <p>Требовалось провести комплексные испытания системы, обучить персонал работе с новым оборудованием и сдать объект в промышленную эксплуатацию.</p>
-                                
-                                <h5>Что мы сделали:</h5>
-                                <p>Разработали и отладили программное обеспечение с полным 
-                                    циклом тестирования. Реализовали двойной режим управления: 
-                                    дистанционный с операторского компьютера и ручной с местных панелей 
-                                    с блокировкой одновременного управления. Интегрировали комплексную 
-                                    систему безопасности: добавили обработку аварийных ситуаций, датчики 
-                                    вращения валов, троссовые выключатели, общую аварийную сигнализацию 
-                                    и протоколирование событий. Настроили сбор и графическое 
-                                    отображение данных с датчиков температуры и влажности. Внедрили 
-                                    интеллектуальную систему запуска и останова всего оборудования по 
-                                    одной кнопке с поэтапной проверкой готовности систем. Разработали 
-                                    удобный интерфейс с визуализацией состояния линии, системой оповещения 
-                                    через световую и звуковую сигнализацию, в том числе на основе датчиков 
-                                    уровня бункеров. Добавили простые настройки скорости оборудования, 
-                                    времени задержек, режимов работы. Для каждого агрегата реализовали 
-                                    учёт моточасов, а также расчитали и уточнили, какое
-                                    потенциально необходимое количество моточасов 
-                                    потребуется каждому оборудованию, 
-                                    прогнозирование необходимости ТО и формирование 
-                                    напоминаний. Подготовили подробную инструкцию для оператора и провели 
-                                    тестирование знаний для быстрой адаптации персонала.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="project-card" id="pesok">
-                <div class="project-preview">
-                    <div class="project-image">
-                        <img src="{% static 'images/img/pesoksca.jpg' %}" alt="Автоматизация линии переработки песка" class="zoomable">
-                        <div class="image-overlay">
-                            <span class="zoom-hint">Нажмите для увеличения</span>
-                        </div>
-                    </div>
-                    <div class="project-info">
-                        <h3>Автоматизация линии фасовки и для обогащения песка</h3>
-                        <p class="project-description">Комплексная автоматизация линий переработки песка</p>
-                        
-                        <button class="project-toggle-btn">
-                            <span class="toggle-text">Подробнее о проекте</span>
-                            <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="project-dropdown">
-                    <div class="dropdown-content">
-                        <div class="project-stage">
-                            <div class="stage-header">
-                                <h4>Проектирование</h4>
-                                <span class="stage-duration">16 дней</span>
-                            </div>
-                            <div class="stage-content">
-                                <h5>Что нужно было сделать:</h5>
-                                <p>Создать проект для автоматизации обогащения песка</p>
-                                
-                                <h5>Что мы сделали:</h5>
-                                <p>Прибыли на предприятие для проведения детального обследования. 
-                                    Проанализировали, какие необходимы исполнительные механизмы. Разработали и внедрили комплексное 
-                                    решение. Подготовили полный пакет 
-                                    проектной документации. Сформировали и 
-                                    согласовали таблицу сигналов для интеграции оборудования в единую АСУ ТП. Все 
-                                    этапы работ были утверждены с заказчиком перед реализацией.
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="project-stage">
-                            <div class="stage-header">
-                                <h4>Монтаж и электромонтаж</h4>
-                                <span class="stage-duration">34 дня</span>
-                            </div>
-                            <div class="stage-content">
-                                <h5>Что нужно было сделать:</h5>
-                                <p>Полностью смонитровать электрооборудование, собрать шкафы АСУ ТП.</p>
-                                
-                                <h5>Что мы сделали:</h5>
-                                <p>Предварительно собрали и настроили новые шкафы - силовые и 
-                                    шкафы АСУ ТП, провели полное тестирование, 
-                                    после чего в готовом и проверенном виде доставили на объект. Подключили 
-                                    новые шкафы ко всем исполнительным механизмам и датчикам, установили 
-                                    и смонтировали локальные пульты управления. Проверили регулировку скорости 
-                                    приводов через частотные преобразователи, убедились в корректности их работы. 
-                                    Установили датчики температуры и влажности, настроили и откалибровали 
-                                    их в соответствии с требованиями технологического процесса. Все работы 
-                                    выполнены с соблюдением действующих нормативов и технологических стандартов.
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="project-stage">
-                            <div class="stage-header">
-                                <h4>Разработка ПО</h4>
-                                <span class="stage-duration">24 дня</span>
-                            </div>
-                            <div class="stage-content">
-                                <h5>Что нужно было сделать:</h5>
-                                <p>Необходимо было разработать систему управления линией с возможностью удаленного 
-                                    мониторинга, управления с операторсксого компьютера, анализом данных, умной 
-                                    системой запуска и останова оборудования, предупреждения об угрозах с 
-                                    интуитивно понятным интерфейсом</p>
-                                
-                                <h5>Что мы сделали:</h5>
-                                <p>Разработали и отладили программное обеспечение с полным циклом 
-                                    тестирования. Реализовали двойной режим управления: дистанционный с 
-                                    операторского компьютера и ручной с местных панелей с блокировкой одновременного 
-                                    управления. Интегрировали комплексную систему безопасности: добавили обработку 
-                                    аварийных ситуаций, датчики вращения валов, троссовые выключатели, общую 
-                                    аварийную сигнализацию и протоколирование событий. Настроили сбор и 
-                                    графическое отображение данных с датчиков температуры и влажности. Внедрили 
-                                    интеллектуальную систему запуска и останова всего оборудования по одной 
-                                    кнопке с поэтапной проверкой готовности систем. Разработали удобный интерфейс 
-                                    с визуализацией состояния линии, системой оповещения через световую и звуковую 
-                                    сигнализацию, в том числе на основе датчиков уровня бункеров. Добавили простые 
-                                    настройки скорости оборудования, времени задержек, режимов работы. Для каждого 
-                                    агрегата реализовали учёт моточасов, прогнозирование необходимости ТО и 
-                                    формирование напоминаний. Подготовили подробную инструкцию для оператора 
-                                    и провели тестирование знаний для быстрой адаптации персонала.</p>
-
-                                <div class="stage-gallery">
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/pesoksca.jpg' %}" alt="Скада" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Вид системы дистанционного управления</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/grafanasca.jpg' %}" alt="Скада" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Вид системы дистанционного управления c графиками</span>
-                                    </div>
-                                    <div class="gallery-item zoomable-container">
-                                        <img src="{% static 'images/img/grafana2sca.jpg' %}" alt="Логирование" class="zoomable">
-                                        <div class="image-overlay">
-                                            <span class="zoom-hint">Увеличить</span>
-                                        </div>
-                                        <span>Дополнительное логирование</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="project-stage">
-                            <div class="stage-header">
-                                <h4>Пусконаладка</h4>
-                                <span class="stage-duration">5 дней</span>
-                            </div>
-                            <div class="stage-content">
-                                <h5>Что нужно было сделать:</h5>
-                                <p>Требовалось провести комплексные испытания системы, обучить персонал работе с новым оборудованием и сдать объект в промышленную эксплуатацию.</p>
-                                
-                                <h5>Что мы сделали:</h5>
-                                <p>Отладили программное обеспечение с полным 
-                                    циклом тестирования. Подготовили подробную инструкцию для оператора и провели 
-                                    тестирование знаний для быстрой адаптации персонала.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-
-            <div class="project-card" id="lptvs">
-                <div class="project-preview">
-                    <div class="project-image">
-                        <img src="{% static 'images/img/lptvs-4.jpg' %}" alt="Силовое оборудование" class="zoomable">
-                        <div class="image-overlay">
-                            <span class="zoom-hint">Нажмите для увеличения</span>
-                        </div>
-                    </div>
-                    <div class="project-info">
-                        <h3>Поставка новых силовых шкафов для комплекса заводов</h3>
-                        <p class="project-description">Реализация обновленного силового оборудования</p>
-                        
-                        <button class="project-toggle-btn">
-                            <span class="toggle-text">Подробнее о проекте</span>
-                            <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="project-dropdown">
-                    <div class="dropdown-content">
-                        <div class="project-stage">
-                            <div class="stage-header">
-                                <h4>Проектирование</h4>
-                                <span class="stage-duration">4 дня</span>
-                            </div>
-                            <div class="stage-content">
-                                <h5>Что нужно было сделать:</h5>
-                                <p>Создать проект для нового силового оборудования</p>
-                                
-                                <h5>Что мы сделали:</h5>
-                                <p>Создали проект, предусматривающий все поставленные задачи.
-                                </p>
-                            </div>
-                            <div class="stage-gallery">
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/lptvs-1.jpg' %}" alt="Схема" class="zoomable">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>Общий вид одного из шкафов</span>
-                                </div>
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/lptvs-2.jpg' %}" alt="Схема" class="zoomable">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>Отрывок из схемы однолинейной</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="project-stage">
-                            <div class="stage-header">
-                                <h4>Монтаж и электромонтаж</h4>
-                                <span class="stage-duration">6 часов</span>
-                            </div>
-                            <div class="stage-content">
-                                <h5>Что нужно было сделать:</h5>
-                                <p>Полностью смонитровать электрооборудование, собрать силовый шкафы</p>
-                                
-                                <h5>Что мы сделали:</h5>
-                                <p>В связи с тем, что данное силовое оборудование необходимо для
-                                    работы нескольких действующх предприятий мы обозначили оптимальный временной диапазон,
-                                    в который без потерь для заводов отключили старое оборудование и подключили 
-                                    новое. 
-                                </p>
-                            </div>
-                            <div class="stage-gallery">
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/lptvs-3.jpg' %}" alt="Схема" class="zoomable">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>Вид одного из шкафов</span>
-                                </div>
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/lptvs-4.jpg' %}" alt="Схема" class="zoomable">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>Поставленное новое силовое оборудовние</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="project-stage">
-                            <div class="stage-header">
-                                <h4>Пусконаладка</h4>
-                                <span class="stage-duration">2 часа</span>
-                            </div>
-                            <div class="stage-content">
-                                <h5>Что нужно было сделать:</h5>
-                                <p>Требовалось в условиях ограниченного времени проверить оборудование.</p>
-                                
-                                <h5>Что мы сделали:</h5>
-                                <p>Проверили всё действующее оборудование, резервное питание.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-
-            <div class="project-cta">
-                <p>Хотите реализовать подобный проект на вашем предприятии?</p>
-                <a href="{% url 'contacts' %}" class="btn btn-primary">Обсудить проект</a>
-            </div>
-        </div>
-    </section>
-
-    <style>
-        .image-modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            cursor: zoom-out;
-        }
-        
-        .modal-content {
-            margin: auto;
-            display: block;
-            max-width: 90%;
-            max-height: 90%;
-            position: relative;
-            top: 50%;
-            transform: translateY(-50%);
-            animation: zoomIn 0.3s;
-            overflow-y: auto;
-            z-index: 999999;
-        }
-        
-        @keyframes zoomIn {
-            from {transform: scale(0.8) translateY(-50%);}
-            to {transform: scale(1) translateY(-50%);}
-        }
-        
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            color: white;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1001;
-            transition: 0.3s;
-        }
-        
-        .close-modal:hover {
-            color: #bbdefb;
-        }
-        
-        .stage-work {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .work-item {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding: 25px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%);
-            border-radius: 16px;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(220, 230, 245, 0.6);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-        
-        .work-item:hover {
-            background: linear-gradient(135deg, #e8eaf6 0%, #e0e7ff 100%);
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(26, 35, 126, 0.15);
-            border-color: rgba(26, 35, 126, 0.2);
-        }
-        
-        .work-text {
-            flex: 1;
-        }
-        
-        .work-text strong {
-            display: block;
-            margin-bottom: 12px;
-            color: #1a237e;
-            font-size: 1.2rem;
-            font-weight: 700;
-            line-height: 1.4;
-        }
-        
-        .work-text p {
-            margin: 0;
-            color: #555;
-            font-size: 1rem;
-            line-height: 1.6;
-            font-weight: 400;
-        }
-            
-        .stage-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin: 40px 0;
-            background: linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 
-                0 10px 30px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(220, 230, 245, 0.6);
-        }
-            
-        .gallery-item {
-            position: relative;
-            border-radius: 16px;
-            overflow: hidden;
-            cursor: zoom-in;
-            transition: all 0.3s ease;
-            background: white;
-            box-shadow: 
-                0 8px 25px rgba(0, 0, 0, 0.12),
-                0 4px 12px rgba(0, 0, 0, 0.06);
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        
-        .gallery-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 
-                0 15px 35px rgba(0, 0, 0, 0.18),
-                0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .gallery-item img {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-        
-        .gallery-item:hover img {
-            transform: scale(1.03);
-        }
-            
-        .gallery-item > span {
-            display: block;
-            padding: 20px;
-            background: white;
-            text-align: center;
-            font-weight: 600;
-            color: #333;
-            font-size: 1.1rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.08);
-            line-height: 1.4;
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .zoomable-container {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .image-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        
-        .zoomable-container:hover .image-overlay {
-            opacity: 1;
-        }
-        
-        .zoom-hint {
-            color: white;
-            font-size: 0.9rem;
-            font-weight: 600;
-            background: black;
-            padding: 8px 16px;
-            border-radius: 20px;
-            backdrop-filter: blur(5px);
-        }
-        
-        .project-image {
-            position: relative;
-            cursor: zoom-in;
-        }
-        
-        .project-image .image-overlay {
-            background: rgba(0, 0, 0, 0.5);
-        }
-        
-        .turnkey-hero {
-            background: 
-                linear-gradient(135deg, 
-                    #2c3e50 0%, 
-                    #2d4059 25%, 
-                    #34495e 50%, 
-                    #3a506b 75%,
-                    #3f5c7a 100%
-                ),
-                radial-gradient(
-                    circle at 20% 30%,
-                    rgba(255, 255, 255, 0.08) 0%,
-                    transparent 40%
-                );
-            color: white;
-            padding: 130px 0;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            border-radius: 24px;
-            margin: 4svh 0;
-            box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.25),
-                0 15px 30px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            background: linear-gradient(90deg, #fff, #bbdefb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-subtitle {
-            font-size: 1.3rem;
-            opacity: 0.9;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        .project-example-section {
-            background: 
-                linear-gradient(135deg, 
-                    #f5f7fa 0%, 
-                    #eef2f7 25%, 
-                    #e8edf5 50%, 
-                    #e3e9f3 75%,
-                    #dee5f1 100%
-                ),
-                radial-gradient(
-                    circle at 80% 20%,
-                    rgba(255, 255, 255, 0.9) 0%,
-                    transparent 40%
-                );
-            padding: 100px 0;
-            position: relative;
-            overflow: hidden;
-            border-radius: 24px;
-            margin: 60px 0;
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.08),
-                0 10px 20px rgba(0, 0, 0, 0.05),
-                inset 0 1px 0 rgba(255, 255, 255, 0.9),
-                inset 0 -1px 0 rgba(200, 215, 235, 0.3);
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.8rem;
-            margin-bottom: 15px;
-            color: black;
-        }
-
-        .section-subtitle {
-            text-align: center;
-            font-size: 1.1rem;
-            color: #666;
-            margin-bottom: 60px;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .project-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-bottom: 40px;
-            transition: all 0.3s ease;
-        }
-
-        .project-preview {
-            padding: 40px;
-            display: grid;
-            grid-template-columns: 400px 1fr;
-            gap: 40px;
-            align-items: start;
-            background: linear-gradient(135deg, 
-                #ffffff 0%,
-                #fafbfd 50%,
-                #f5f7fa 100%
-            );
-            border-radius: 16px;
-            border: 1px solid rgba(220, 230, 245, 0.8);
-            box-shadow: 
-                0 10px 30px rgba(0, 0, 0, 0.08),
-                0 4px 12px rgba(0, 0, 0, 0.04),
-                inset 0 1px 0 rgba(255, 255, 255, 0.9),
-                inset 0 -1px 0 rgba(220, 230, 245, 0.6);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .project-image {
-            position: relative;
-            border-radius: 20px;
-            overflow: hidden;
-            height: 320px;
-            box-shadow: 
-                0 20px 40px rgba(26, 35, 126, 0.2),
-                0 10px 20px rgba(26, 35, 126, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.5),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            transform-origin: left center;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .project-image:hover {
-            box-shadow: 
-                0 25px 50px rgba(26, 35, 126, 0.25),
-                0 15px 30px rgba(26, 35, 126, 0.15);
-        }
-
-        .project-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-
-        .project-image:hover img {
-            transform: scale(1.05);
-        }
-
-        .project-info h3 {
-            font-size: 2rem;
-            margin-bottom: 15px;
-            color: black;
-        }
-
-        .project-description {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: #555;
-            margin-bottom: 25px;
-        }
-
-        .project-toggle-btn {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(135deg, #343b8a 0%, #343964 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .project-toggle-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(26, 35, 126, 0.3);
-        }
-
-        .toggle-icon {
-            transition: transform 0.3s ease;
-        }
-
-        .project-card.active .toggle-icon {
-            transform: rotate(180deg);
-        }
-
-        .project-dropdown {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            background: #fafafa;
-        }
-
-        .project-card.active .project-dropdown {
-            max-height: 50000px;
-        }
-
-        .dropdown-content {
-            padding: 40px 0;
-        }
-
-        .project-stage {
-            background: white;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-        }
-
-        .stage-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .stage-icon {
-            font-size: 2.5rem;
-        }
-
-        .stage-header h4 {
-            margin: 0;
-            font-size: 1.5rem;
-            color: black;
-            flex: 1;
-        }
-
-        .stage-duration {
-            background: #e8eaf6;
-            color: black;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .stage-content h5 {
-            font-size: 1.2rem;
-            margin: 25px 0 15px;
-            color: #333;
-        }
-
-        .stage-content > p {
-            color: #555;
-            line-height: 1.7;
-            margin-bottom: 25px;
-        }
-
-        .project-cta {
-            text-align: center;
-            padding: 40px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .project-cta p {
-            font-size: 1.3rem;
-            margin-bottom: 25px;
-            color: black;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 15px 40px;
-            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(26, 35, 126, 0.3);
-        }
-
-        @media (max-width: 1200px) {
-            .project-preview {
-                grid-template-columns: 1fr;
-            }
-            
-            .project-image {
-                height: 250px;
-            }
-        }
-
-        @media (max-width: 992px) {
-            .stage-gallery {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 20px;
-                padding: 25px;
-            }
-            
-            .gallery-item img {
-                height: 200px;
-            }
-
-            .hero-title {
-                font-size: 2.8rem;
-            }
-            
-            .section-title {
-                font-size: 2.2rem;
-            }
-            
-            .project-preview,
-            .dropdown-content {
-                padding: 30px;
-            }
-            
-            .stage-work {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .turnkey-hero,
-            .project-example-section {
-                padding: 60px 0;
-            }
-            
-            .hero-title {
-                font-size: 2.2rem;
-            }
-            
-            .section-title {
-                font-size: 1.8rem;
-            }
-
-            .stage-gallery {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-                padding: 20px;
-            }
-            
-            .gallery-item img {
-                height: 180px;
-            }
-            
-            .gallery-item > span {
-                padding: 15px;
-                font-size: 1rem;
-            }
-            
-            .project-info h3 {
-                font-size: 1.6rem;
-            }
-            
-            .stage-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .hero-title {
-                font-size: 1.8rem;
-            }
-            
-            .section-title {
-                font-size: 1.6rem;
-            }
-            
-            .project-preview,
-            .dropdown-content {
-                padding: 20px;
-            }
-            
-            .stage-gallery {
-                grid-template-columns: 1fr;
-            }
-
-            .stage-gallery {
-                grid-template-columns: 1fr;
-                padding: 15px;
-            }
-            
-            .gallery-item img {
-                height: 200px;
-            }
-            
-            .work-item {
-                padding: 20px;
-            }
-        }
-    </style>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleBtns = document.querySelectorAll('.project-toggle-btn');
-            
-            toggleBtns.forEach((btn) => {
-                btn.addEventListener('click', function() {
-                    const projectCard = this.closest('.project-card');
-                    const dropdown = projectCard.querySelector('.project-dropdown');
-                    
-                    projectCard.classList.toggle('active');
-                    
-                    const isActive = projectCard.classList.contains('active');
-                    const toggleText = this.querySelector('.toggle-text');
-                    toggleText.textContent = isActive ? 'Свернуть' : 'Подробнее о проекте';
-                    
-                    if (isActive) {
-                        setTimeout(() => {
-                            dropdown.scrollIntoView({ 
-                                behavior: 'smooth', 
-                                block: 'nearest' 
-                            });
-                        }, 300);
-                    }
-                });
-            });
-            
-            const modal = document.createElement('div');
-            modal.className = 'image-modal';
-            modal.innerHTML = `
-                <span class="close-modal">&times;</span>
-                <img class="modal-content" id="modal-image">
-            `;
-            document.body.appendChild(modal);
-            
-            const modalImg = document.getElementById('modal-image');
-            const closeModal = document.querySelector('.close-modal');
-            
-            document.querySelectorAll('.zoomable').forEach(img => {
-                img.addEventListener('click', function() {
-                    modal.style.display = 'block';
-                    modalImg.src = this.src;
-                    modalImg.alt = this.alt;
-                });
-            });
-            
-            closeModal.addEventListener('click', function() {
-                modal.style.display = 'none';
-            });
-            
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
-            
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && modal.style.display === 'block') {
-                    modal.style.display = 'none';
-                }
-            });
-            
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-            
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }
-                });
-            }, observerOptions);
-            
-            document.querySelectorAll('.project-stage').forEach((stage, index) => {
-                stage.style.opacity = '0';
-                stage.style.transform = 'translateY(20px)';
-                stage.style.transition = `opacity 0.5s ease ${index * 0.1}s, transform 0.5s ease ${index * 0.1}s`;
-                observer.observe(stage);
-            });
-        });
-    </script>
-    {% endblock %}
+<link rel="stylesheet" href="{% static 'css/turnkey.css' %}?v=1.2">
+<script type="text/javascript" src="{% static 'js/turnkey.js' %}?v=1.1"></script>
+{% endblock %}

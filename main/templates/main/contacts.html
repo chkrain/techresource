@@ -220,4 +220,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<link rel="prefetch" href="{% url 'about' %}" as="document">
+<link rel="prefetch" href="{% url 'services' %}" as="document">
+<link rel="prefetch" href="{% url 'products' %}" as="document">
+<link rel="prefetch" href="{% url 'turnkey_projects' %}" as="document">
+
 {% endblock %}

@@ -1454,18 +1454,6 @@ main {
     cursor: pointer;
 }
 
-.contact-modern-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
 .contact-modern-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 30px 60px rgba(102, 126, 234, 0.15);

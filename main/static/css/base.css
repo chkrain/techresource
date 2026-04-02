@@ -38,7 +38,7 @@ html {
   scroll-behavior: smooth;
 }
 body {
-  font-family: "Raleway", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Montserrat", sans-serif;
   line-height: 1.7;
   min-height: 100vh;
   display: flex;
