@@ -34,7 +34,6 @@
                 <img src="{{ main_image.image.url }}" alt="{{ product.name }}" loading="lazy">
             {% else %}
                 <div class="product-image-placeholder">
-                    <span class="placeholder-icon">⚙️</span>
                     <p>Нет изображения</p>
                 </div>
             {% endif %}
@@ -87,7 +86,7 @@
                     {% if product.quantity > 0 %}
                         {% if user.is_authenticated %}
                             <button class="add-to-cart-btn" data-product-id="{{ product.id }}">
-                                🛒 Добавить&nbsp;в&nbsp;корзину
+                                Добавить&nbsp;в&nbsp;корзину
                             </button>
                         {% else %}
                             <button class="btn btn-success anonymous-quick-order" 
@@ -280,7 +279,7 @@ document.querySelectorAll('.anonymous-quick-order').forEach(btn => {
         const productId = this.getAttribute('data-product-id');
         const originalText = this.innerHTML;
         
-        this.innerHTML = '⏳ Добавляем...';
+        this.innerHTML = 'Добавляем...';
         this.disabled = true;
         
         try {
@@ -303,7 +302,7 @@ document.querySelectorAll('.anonymous-quick-order').forEach(btn => {
                 
                 showToast('Товар добавлен!', 'success');
                 
-                this.innerHTML = '✅ В заказе!';
+                this.innerHTML = 'В заказе!';
                 
                 setTimeout(() => {
                     this.innerHTML = originalText;

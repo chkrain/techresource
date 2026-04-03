@@ -50,19 +50,15 @@
                 
                 <nav class="profile-nav">
                     <a href="#main-info" class="nav-item active" data-tab="main-info">
-                        <span class="nav-icon">📋</span>
                         Основная информация
                     </a>
                     <a href="#public-profile" class="nav-item" data-tab="public-profile">
-                        <span class="nav-icon">👤</span>
                         Публичный профиль
                     </a>
                     <a href="#addresses" class="nav-item" data-tab="addresses">
-                        <span class="nav-icon">📍</span>
                         Мои адреса
                     </a>
                     <a href="#orders" class="nav-item" data-tab="orders">
-                        <span class="nav-icon">📦</span>
                         История заказов
                     </a>
                 </nav>
@@ -103,7 +99,6 @@
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label class="form-label">
-                                        <span class="label-icon">👤</span>
                                         Имя пользователя
                                     </label>
                                     <input type="text" value="{{ user.username }}" class="form-input" disabled>
@@ -112,7 +107,6 @@
                                 
                                 <div class="form-group">
                                     <label class="form-label">
-                                        <span class="label-icon">📧</span>
                                         Email
                                     </label>
                                     <input type="email" value="{{ user.email }}" class="form-input" disabled>
@@ -123,7 +117,6 @@
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label class="form-label">
-                                        <span class="label-icon">📱</span>
                                         Телефон
                                     </label>
                                     {{ profile_form.phone }}
@@ -135,7 +128,6 @@
                                 
                                 <div class="form-group">
                                     <label class="form-label">
-                                        <span class="label-icon">🏢</span>
                                         Компания
                                     </label>
                                     {{ profile_form.company }}
@@ -147,7 +139,6 @@
                             
                             <div class="form-group">
                                 <label class="form-label">
-                                    <span class="label-icon">💼</span>
                                     Должность
                                 </label>
                                 {{ profile_form.position }}
@@ -158,11 +149,9 @@
                             
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary">
-                                    <span class="btn-icon">💾</span>
                                     Сохранить изменения
                                 </button>
                                 <a href="{% url 'public_profile' user_profile.profile_slug|default:user.id %}" class="btn btn-secondary">
-                                    <span class="btn-icon">👁️</span>
                                     Посмотреть профиль
                                 </a>
                             </div>
@@ -187,7 +176,6 @@
                             
                             <div class="form-group">
                                 <label class="form-label">
-                                    <span class="label-icon">🖼️</span>
                                     Аватар профиля
                                 </label>
                                 <div class="avatar-preview-section">
@@ -219,7 +207,6 @@
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label class="form-label">
-                                        <span class="label-icon">🎨</span>
                                         Тема профиля
                                     </label>
                                     {{ public_profile_form.profile_theme }}
@@ -227,7 +214,6 @@
                                 
                                 <div class="form-group">
                                     <label class="form-label">
-                                        <span class="label-icon">🖼️</span>
                                         Фон профиля
                                     </label>
                                     
@@ -257,7 +243,6 @@
                             
                             <div class="form-group">
                                 <label class="form-label">
-                                    <span class="label-icon">📝</span>
                                     Биография
                                 </label>
                                 {{ public_profile_form.public_bio }}
@@ -270,7 +255,6 @@
                             
                             <div class="form-group">
                                 <label class="form-label">
-                                    <span class="label-icon">🔧</span>
                                     Навыки
                                 </label>
                                 {{ public_profile_form.public_skills }}
@@ -282,7 +266,6 @@
                             
                             <div class="form-group">
                                 <label class="form-label">
-                                    <span class="label-icon">🔒</span>
                                     Приватность профиля
                                 </label>
                                 {{ public_profile_form.privacy_mode }}
@@ -297,7 +280,6 @@
                                 <div class="form-checkbox">
                                     {{ public_profile_form.show_statistics }}
                                     <label for="{{ public_profile_form.show_statistics.id_for_label }}">
-                                        <span class="checkbox-icon">📊</span>
                                         Показывать статистику
                                     </label>
                                 </div>
@@ -305,7 +287,6 @@
                                 <div class="form-checkbox">
                                     {{ public_profile_form.show_recent_activity }}
                                     <label for="{{ public_profile_form.show_recent_activity.id_for_label }}">
-                                        <span class="checkbox-icon">📈</span>
                                         Показывать последнюю активность
                                     </label>
                                 </div>
@@ -313,12 +294,10 @@
                             
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary">
-                                    <span class="btn-icon">💾</span>
                                     Сохранить настройки профиля
                                 </button>
                                 <a href="{% url 'public_profile' user_profile.profile_slug|default:user.id %}" target="_blank" class="btn btn-secondary">
-                                    <span class="btn-icon">👁️</span>
-                                    Посмотреть как другие
+                                    Посмотреть как видят другие
                                 </a>
                             </div>
                         </form>
@@ -341,7 +320,6 @@
                                         <h3>{{ address.title }}</h3>
                                         {% if address.is_default %}
                                         <span class="default-badge">
-                                            <span class="badge-icon">⭐</span>
                                             По умолчанию
                                         </span>
                                         {% endif %}
@@ -404,7 +382,6 @@
                                 <div class="form-grid">
                                     <div class="form-group">
                                         <label class="form-label">
-                                            <span class="label-icon">🏷️</span>
                                             Название адреса
                                         </label>
                                         {{ address_form.title }}
@@ -415,7 +392,6 @@
                                 <div class="form-grid">
                                     <div class="form-group">
                                         <label class="form-label">
-                                            <span class="label-icon">👤</span>
                                             Имя
                                         </label>
                                         <input type="text" name="first_name" class="form-input" 
@@ -424,7 +400,6 @@
                                     
                                     <div class="form-group">
                                         <label class="form-label">
-                                            <span class="label-icon">👤</span>
                                             Фамилия
                                         </label>
                                         <input type="text" name="last_name" class="form-input" 
@@ -433,7 +408,6 @@
                                     
                                     <div class="form-group">
                                         <label class="form-label">
-                                            <span class="label-icon">📱</span>
                                             Телефон*
                                         </label>
                                         {{ address_form.phone }}
@@ -446,7 +420,6 @@
                                 <div class="form-grid">
                                     <div class="form-group">
                                         <label class="form-label">
-                                            <span class="label-icon">🏙️</span>
                                             Город*
                                         </label>
                                         {{ address_form.city }}
@@ -459,7 +432,6 @@
                                     
                                     <div class="form-group">
                                         <label class="form-label">
-                                            <span class="label-icon">📮</span>
                                             Почтовый индекс
                                         </label>
                                         {{ address_form.postal_code }}
@@ -468,7 +440,6 @@
                                 
                                 <div class="form-group">
                                     <label class="form-label">
-                                        <span class="label-icon">🏠</span>
                                         Адрес*
                                     </label>
                                     {{ address_form.address }}
@@ -483,7 +454,6 @@
                                         {{ address_form.is_default }}
                                         <span class="checkmark"></span>
                                         <span class="checkbox-text">
-                                            <span class="checkbox-icon">⭐</span>
                                             Использовать как адрес по умолчанию
                                         </span>
                                     </label>
@@ -491,7 +461,6 @@
                                 
                                 <div class="form-actions">
                                     <button type="submit" class="btn btn-primary">
-                                        <span class="btn-icon">➕</span>
                                         Добавить адрес
                                     </button>
                                 </div>
@@ -558,11 +527,9 @@
                         </div>
                         {% else %}
                         <div class="empty-state">
-                            <div class="empty-icon">📦</div>
                             <h3>Заказы не найдены</h3>
                             <p>Здесь будет отображаться история ваших заказов</p>
                             <a href="{% url 'products' %}" class="btn btn-primary">
-                                <span class="btn-icon">🛒</span>
                                 Сделать первый заказ
                             </a>
                         </div>

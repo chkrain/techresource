@@ -1,10 +1,10 @@
 <div class="order-details-expanded">
     <div class="details-section">
-        <h4>📦 Подробная информация о заказе #{{ order.id }}</h4>
+        <h4>Подробная информация о заказе #{{ order.id }}</h4>
         
         <div class="details-grid">
             <div class="detail-group">
-                <h5>📋 Информация о заказе</h5>
+                <h5>Информация о заказе</h5>
                 <div class="detail-item">
                     <span class="detail-label">Дата создания:</span>
                     <span class="detail-value">{{ order.created_at|date:"d.m.Y H:i" }}</span>
@@ -30,7 +30,7 @@
             </div>
             
             <div class="detail-group">
-                <h5>👤 Данные клиента</h5>
+                <h5>Данные клиента</h5>
                 <div class="detail-item">
                     <span class="detail-label">Имя:</span>
                     <span class="detail-value">{{ order.customer_name }}</span>
@@ -46,7 +46,7 @@
             </div>
             
             <div class="detail-group">
-                <h5>🚚 Информация о доставке</h5>
+                <h5>Информация о доставке</h5>
                 <div class="detail-item">
                     <span class="detail-label">Адрес доставки:</span>
                     <span class="detail-value">{{ order.delivery_address|linebreaksbr }}</span>
@@ -72,7 +72,7 @@
             </div>
             
             <div class="detail-group">
-                <h5>📊 История статусов</h5>
+                <h5>История статусов</h5>
                 <div class="status-history">
                     {% for log in status_logs %}
                     <div class="status-history-item">
@@ -95,7 +95,7 @@
         </div>
         
         <div class="details-section">
-            <h5>🛍️ Состав заказа</h5>
+            <h5>Состав заказа</h5>
             <div class="order-items-detailed">
                 {% for item in order_items %}
                 <div class="order-item-detailed">
@@ -135,12 +135,12 @@
         
         {% if order.status == 'shipped' and order.tracking_number %}
         <div class="details-section">
-            <h5>🚚 Отслеживание посылки</h5>
+            <h5>Отслеживание посылки</h5>
             <div class="tracking-actions">
                 <button class="action-btn track-external-btn" 
                         data-tracking="{{ order.tracking_number }}"
                         onclick="trackPackage('{{ order.tracking_number }}', '{{ order.shipping_company }}')">
-                    📍 Отследить на сайте службы доставки
+                    Отследить на сайте службы доставки
                 </button>
             </div>
         </div>

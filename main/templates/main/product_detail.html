@@ -11,7 +11,7 @@
 {% block og_description %}{{ product.short_description|default:product.description|truncatechars:100 }} Артикул: {{ product.article }}, цена: {{ product.display_price_value|floatformat:2 }} {{ product.currency_symbol }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/product_detail.css' %}?v=2.6">
+<link rel="stylesheet" href="{% static 'css/product_detail.css' %}?v=3.1">
 {% endblock %}
 
 {% block content %}
@@ -407,36 +407,5 @@
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/product_detail.js' %}"></script>
-<script>
-    function toggleMenu() {
-    const navMain = document.querySelector('.nav-main'); 
-    const burgerBtn = document.querySelector('.burger-menu');
-    const body = document.body;
-    
-    console.log('toggleMenu вызвана');
-    console.log('Найден nav-main:', navMain);
-    console.log('Найден burger-btn:', burgerBtn);
-    
-    if (navMain) {
-        navMain.classList.toggle('active');
-        console.log('Класс active переключен. Новые классы:', navMain.className);
-        
-        if (burgerBtn) {
-            burgerBtn.classList.toggle('active');
-            console.log('Кнопка бургера переключена. Новые классы:', burgerBtn.className);
-        }
-        
-        if (navMain.classList.contains('active')) {
-            body.style.overflow = 'hidden';
-            console.log('Скролл заблокирован');
-        } else {
-            body.style.overflow = '';
-            console.log('Скролл разблокирован');
-        }
-    } else {
-        console.error('Элемент .nav-main не найден!');
-    }
-}
-</script>
+<script type="text/javascript" src="{% static 'js/product_detail.js' %}?v=1.1"></script>
 {% endblock %}
