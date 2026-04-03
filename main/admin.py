@@ -15,7 +15,8 @@ from .models import (
     SecurityLog, LoginAttempt, PaymentAuditLog, Admin2FA,
     FraudDetectionLog, RateLimitLog, CSPViolationReport, Wishlist, WishlistItem,
     SupportTicket, SupportAttachment, ServicePage, PasswordResetToken, InvoiceRegistry, 
-    Category, CurrencyRate, PrivacyRequest, PrivacyConsent, PrivacyConsentLog
+    Category, CurrencyRate, PrivacyRequest, PrivacyConsent, PrivacyConsentLog,
+    ClientDiscount, ClientPriceContract, PriceList, PriceListItem
 )
 
 logger = logging.getLogger('django.security')
@@ -894,3 +895,118 @@ class PrivacyConsentLogAdmin(admin.ModelAdmin):
     
     def has_change_permission(self, request, obj=None):
         return False
+
+@admin.register(ClientDiscount)
+class ClientDiscountAdmin(admin.ModelAdmin):
+    """Админка для управления персональными скидками клиентов"""
+    list_display = ['user', 'discount_value', 'discount_type', 'is_active', 'valid_to', 'issued_by', 'issued_at']
+    list_filter = ['is_active', 'discount_type', 'issued_at']
+    search_fields = ['user__username', 'user__email', 'user__userprofile__company_name', 'user__userprofile__inn']
+    list_editable = ['discount_value', 'is_active', 'valid_to']
+    readonly_fields = ['issued_by', 'issued_at']
+    
+    fieldsets = (
+        ('Клиент', {
+            'fields': ('user',)
+        }),
+        ('Параметры скидки', {
+            'fields': ('discount_type', 'discount_value', 'valid_to', 'is_active')
+        }),
+        ('Ограничения', {
+            'fields': ('max_discount_amount', 'applicable_categories'),
+            'classes': ('collapse',),
+            'description': 'Оставьте пустым для применения ко всем товарам'
+        }),
+        ('Информация о выдаче', {
+            'fields': ('issued_by', 'issued_at', 'reason'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        """Автоматически заполняем issued_by при создании"""
+        if not obj.pk:  # Новая скидка
+            obj.issued_by = request.user
+        super().save_model(request, obj, form, change)
+    
+    def get_queryset(self, request):
+        """Оптимизация запроса"""
+        return super().get_queryset(request).select_related('user', 'issued_by')
+    
+    def user_info(self, obj):
+        """Информация о пользователе"""
+        profile = obj.user.userprofile if hasattr(obj.user, 'userprofile') else None
+        if profile and profile.company_name:
+            return f"{obj.user.username} ({profile.company_name})"
+        return obj.user.username
+    user_info.short_description = 'Клиент'
+    user_info.admin_order_field = 'user__username'
+
+
+@admin.register(ClientPriceContract)
+class ClientPriceContractAdmin(admin.ModelAdmin):
+    """Админка для индивидуальных договоров цен"""
+    list_display = ['user', 'name', 'contract_number', 'valid_from', 'valid_to', 'is_active']
+    list_filter = ['is_active', 'valid_from', 'valid_to']
+    search_fields = ['user__username', 'user__email', 'name', 'contract_number']
+    readonly_fields = ['created_at']
+    
+    fieldsets = (
+        ('Клиент', {
+            'fields': ('user',)
+        }),
+        ('Договор', {
+            'fields': ('name', 'contract_number', 'contract_file')
+        }),
+        ('Срок действия', {
+            'fields': ('valid_from', 'valid_to', 'is_active')
+        }),
+        ('Специальные цены', {
+            'fields': ('special_prices',),
+            'classes': ('collapse',),
+            'description': 'Формат: {"product_id": "цена", "123": "15000.00"}'
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        """Валидация JSON поля special_prices"""
+        if obj.special_prices:
+            # Проверяем, что все product_id существуют
+            from .models import Product
+            for product_id in obj.special_prices.keys():
+                if not Product.objects.filter(id=product_id).exists():
+                    messages.error(request, f'Товар с ID {product_id} не существует')
+                    return
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(PriceList)
+class PriceListAdmin(admin.ModelAdmin):
+    """Админка для управления прайс-листами"""
+    list_display = ['name', 'is_active', 'valid_from', 'valid_to', 'created_at']
+    list_filter = ['is_active', 'valid_from', 'valid_to']
+    search_fields = ['name']
+    inlines = []  # Добавим inline позже
+    
+    fieldsets = (
+        ('Основная информация', {
+            'fields': ('name', 'is_active')
+        }),
+        ('Срок действия', {
+            'fields': ('valid_from', 'valid_to')
+        }),
+    )
+
+
+class PriceListItemInline(admin.TabularInline):
+    """Inline для добавления цен в прайс-лист"""
+    model = PriceListItem
+    extra = 1
+    fields = ['product', 'price', 'currency', 'min_quantity']
+    autocomplete_fields = ['product']
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('product')
+
+
+PriceListAdmin.inlines = [PriceListItemInline]

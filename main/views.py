@@ -700,64 +700,47 @@ def profile(request):
     except UserProfile.DoesNotExist:
         user_profile = UserProfile.objects.create(user=request.user)
     
-    if user_profile.profile_background and not user_profile.has_background():
-        user_profile.profile_background = None
-        user_profile.save(update_fields=['profile_background'])
-        messages.info(request, 'Недействительный фон профиля был удален')
-    
     addresses = Address.objects.filter(user=request.user)
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    
+    if request.method == 'POST':
+        if 'update_profile' in request.POST:
+            first_name = request.POST.get('first_name', '')
+            last_name = request.POST.get('last_name', '')
+            if first_name:
+                request.user.first_name = first_name
+            if last_name:
+                request.user.last_name = last_name
+            request.user.save()
+            
+            # Обновляем профиль
+            user_profile.phone = request.POST.get('phone', '')
+            user_profile.company = request.POST.get('company', '')
+            user_profile.position = request.POST.get('position', '')
+            user_profile.save()
+            
+            messages.success(request, 'Профиль обновлен')
+            return redirect('profile')
+        
+        elif 'update_public_profile' in request.POST:
+            # Это для публичного профиля - оставляем как есть
+            public_profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
+            if public_profile_form.is_valid():
+                public_profile_form.save()
+                messages.success(request, 'Настройки публичного профиля обновлены')
+                return redirect('profile')
     
     profile_form = UserProfileForm(instance=user_profile)
     public_profile_form = UserProfileForm(instance=user_profile)
     address_form = AddressForm()
     
-    if request.method == 'POST':
-        if 'update_profile' in request.POST:
-            profile_form = UserProfileForm(request.POST, instance=user_profile)
-            if profile_form.is_valid():
-                try:
-                    profile_form.save()
-                    messages.success(request, 'Профиль обновлен')
-                    return redirect('profile')
-                except Exception as e:
-                    messages.error(request, f'Ошибка при сохранении: {str(e)}')
-        
-        elif 'update_public_profile' in request.POST:
-            public_profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
-            if public_profile_form.is_valid():
-                try:
-                    if 'profile_background' in request.FILES:
-                        background_file = request.FILES['profile_background']
-                        if background_file.size > 10 * 1024 * 1024:  
-                            messages.error(request, 'Файл фона слишком большой (макс. 10MB)')
-                        else:
-                            public_profile_form.save()
-                            messages.success(request, 'Настройки публичного профиля обновлены')
-                            return redirect('profile')
-                    else:
-                        public_profile_form.save()
-                        messages.success(request, 'Настройки публичного профиля обновлены')
-                        return redirect('profile')
-                except Exception as e:
-                    messages.error(request, f'Ошибка при сохранении фона: {str(e)}')
-                
-        elif 'add_address' in request.POST:
-            address_form = AddressForm(request.POST)
-            if address_form.is_valid():
-                address = address_form.save(commit=False)
-                address.user = request.user
-                address.save()
-                messages.success(request, 'Адрес добавлен')
-                return redirect('profile')
-    
     context = {
-        'user_profile': user_profile,  
+        'user_profile': user_profile,
         'profile_form': profile_form,
         'public_profile_form': public_profile_form,
         'address_form': address_form,
         'addresses': addresses,
-        'orders': orders, 
+        'orders': orders,
     }
     return render(request, 'main/profile.html', context)
     
@@ -812,24 +795,62 @@ def cart_view(request):
         'city', 'postal_code', 'is_default'
     )
 
+    user_profile = request.user.userprofile
+    initial_data = {}
+
+    if user_profile.account_type == 'legal':
+        initial_data = {
+            'customer_inn': user_profile.inn or '',
+            'customer_kpp': user_profile.kpp or '',
+            'company_name': user_profile.company_name or '',
+            'legal_address': user_profile.legal_address or '',
+        }
+
     vat_total = Decimal('0')
     total_without_vat = Decimal('0')
     vat_rate = Decimal('22.00')
+    original_subtotal = Decimal('0')  # ← Добавляем оригинальную сумму без скидки
+    total_savings = Decimal('0')      # ← Общая экономия
     
     for item in cart_items:
-        item_total = item.get_total_price() 
+        # Получаем оригинальную цену (без скидки)
+        original_unit_price = item.product.get_display_price('RUB')
+        discounted_price = item.product.get_price_for_user(request.user, item.quantity)
+        
+        # Сохраняем оригинальную сумму для расчета экономии
+        original_item_total = original_unit_price * item.quantity
+        discounted_item_total = discounted_price * item.quantity
+        
+        original_subtotal += original_item_total
+        total_savings += (original_item_total - discounted_item_total)
+        
+        item_total = discounted_price * item.quantity
         item_vat = item_total * (vat_rate / 100) / (1 + vat_rate / 100)
         item_without_vat = item_total - item_vat
         
         vat_total += item_vat
         total_without_vat += item_without_vat
         
+        # Добавляем все поля для отображения скидки
+        item.original_unit_price = original_unit_price
+        item.original_total = original_item_total
+        item.discounted_price = discounted_price
+        item.savings = original_item_total - discounted_item_total
+        item.discount_percent = ((original_unit_price - discounted_price) / original_unit_price * 100) if original_unit_price > 0 else 0
         item.vat_amount = item_vat
         item.price_without_vat = item_without_vat
         item.vat_rate = vat_rate
-        item.unit_price_in_rub = item.get_unit_price_in_rub()
+        item.unit_price_in_rub = discounted_price
+        
+    subtotal = sum(item.discounted_price * item.quantity for item in cart_items)
     
-    subtotal = cart.get_total_price()
+    # Проверяем, есть ли активная скидка у пользователя
+    user_discount = None
+    if hasattr(request.user, 'discount') and request.user.discount and request.user.discount.is_active:
+        user_discount = request.user.discount
+        # Проверяем срок действия
+        if user_discount.valid_to and user_discount.valid_to < timezone.now().date():
+            user_discount = None
     
     if request.method == 'POST':
         form = CartOrderForm(request.POST) 
@@ -843,6 +864,18 @@ def cart_view(request):
         address_id = form.cleaned_data['address_id']
         customer_inn = form.cleaned_data.get('customer_inn', '')
         customer_kpp = form.cleaned_data.get('customer_kpp', '')
+        company_name = form.cleaned_data.get('company_name', '')
+        legal_address = form.cleaned_data.get('legal_address', '')
+
+        user_profile = request.user.userprofile
+        if not customer_inn and user_profile.inn:
+            customer_inn = user_profile.inn
+        if not customer_kpp and user_profile.kpp:
+            customer_kpp = user_profile.kpp
+        if not company_name and user_profile.company_name:
+            company_name = user_profile.company_name
+        if not legal_address and user_profile.legal_address:
+            legal_address = user_profile.legal_address
         
         try:
             address = Address.objects.get(id=address_id, user=request.user)
@@ -852,12 +885,40 @@ def cart_view(request):
                     messages.error(request, f'Недостаточно товара "{cart_item_check.product.name}" на складе. Доступно: {cart_item_check.product.quantity}')
                     return redirect('cart')
                         
+            total_price = Decimal('0')
+            original_total_price = Decimal('0')  # ← Добавляем оригинальную сумму
+            order_items_data = []
+            
+            for cart_item in cart_items:
+                original_price = cart_item.product.get_display_price('RUB')
+                discounted_price = cart_item.product.get_price_for_user(request.user, cart_item.quantity)
+                
+                original_total_price += original_price * cart_item.quantity
+                total_price += discounted_price * cart_item.quantity
+                
+                order_items_data.append({
+                    'product': cart_item.product,
+                    'quantity': cart_item.quantity,
+                    'price': discounted_price,
+                    'original_price': original_price,  # ← Сохраняем оригинальную цену
+                    'vat_rate': vat_rate
+                })
+            
+            discount_amount = original_total_price - total_price
+            discount_percent = (discount_amount / original_total_price * 100) if original_total_price > 0 else 0
+            
+            vat_amount = total_price * vat_rate / (100 + vat_rate)
+            price_without_vat = total_price - vat_amount
+
             order = Order.objects.create(
                 user=request.user,
-                total_price=subtotal,
-                final_price=subtotal,
-                price_without_vat=total_without_vat,
-                vat_amount=vat_total,
+                total_price=total_price,
+                original_total=original_total_price,  # ← Добавляем
+                discount_amount=discount_amount,      # ← Добавляем
+                discount_percent=discount_percent,    # ← Добавляем
+                final_price=total_price,
+                price_without_vat=price_without_vat,
+                vat_amount=vat_amount,
                 payment_method='invoice',
                 payment_fee=Decimal('0'),
                 delivery_cost=Decimal('0'),
@@ -865,8 +926,9 @@ def cart_view(request):
                 customer_name=address.full_name,
                 customer_phone=address.phone,
                 customer_email=request.user.email,
-                delivery_address=f"{address.city}, {address.address}, {address.postal_code}",
-                legal_address=f"{address.city}, {address.address}, {address.postal_code}",  # ✅ Добавлено
+                delivery_address=f"{address.city}, {address.address}",
+                legal_address=legal_address or address.legal_address or '',
+                company_name=company_name,
                 customer_inn=customer_inn,
                 customer_kpp=customer_kpp,
                 invoice_date=timezone.now().date(),
@@ -875,18 +937,17 @@ def cart_view(request):
             order.invoice_number = order.generate_invoice_number()
             order.save(update_fields=['invoice_number'])
             
-            for cart_item_order in cart_items:
-                price_in_rub = cart_item_order.get_unit_price_in_rub()
+            for item_data in order_items_data:
                 OrderItem.objects.create(
                     order=order,
-                    product=cart_item_order.product,
-                    quantity=cart_item_order.quantity,
-                    price=price_in_rub, 
-                    vat_rate=vat_rate
+                    product=item_data['product'],
+                    quantity=item_data['quantity'],
+                    price=item_data['price'],
+                    vat_rate=item_data['vat_rate']
                 )
-
-                cart_item_order.product.quantity -= cart_item_order.quantity
-                cart_item_order.product.save()
+                
+                item_data['product'].quantity -= item_data['quantity']
+                item_data['product'].save()
             
             cart_items.delete()
             order.status = 'processing'
@@ -897,7 +958,11 @@ def cart_view(request):
             
             send_invoice_email(order)
             
-            messages.success(request, f'Заказ #{order.id} создан! Счет будет выставлен на вашу почту {request.user.email}.')
+            # Добавляем сообщение о скидке, если она была применена
+            if discount_amount > 0:
+                messages.success(request, f'🎉 Заказ #{order.id} создан! Применена скидка {discount_percent:.0f}% (экономия {discount_amount:.2f} ₽). Счет отправлен на {order.customer_email}.')
+            else:
+                messages.success(request, f'Заказ #{order.id} создан! Счет будет выставлен на вашу почту {order.customer_email}.')
             return redirect('orders')
             
         except Address.DoesNotExist:
@@ -905,18 +970,24 @@ def cart_view(request):
             return redirect('cart')
     
     else:
-        form = CartOrderForm()
+        form = CartOrderForm(initial=initial_data)
     
     context = {
         'cart': cart,
         'cart_items': cart_items,
         'addresses': list(addresses),
-        'subtotal': subtotal, 
-        'final_price': subtotal, 
-        'vat_total': vat_total, 
-        'total_without_vat': total_without_vat, 
+        'subtotal': subtotal,
+        'original_subtotal': original_subtotal,  # ← Добавляем
+        'total_savings': total_savings,          # ← Добавляем
+        'final_price': subtotal,
+        'vat_total': vat_total,
+        'total_without_vat': total_without_vat,
         'vat_rate': vat_rate,
-        'form': form,  
+        'form': form,
+        'user_profile': user_profile,
+        'user_discount': user_discount,          # ← Добавляем информацию о скидке
+        'has_discount': total_savings > 0,       # ← Добавляем флаг
+        'show_extra_fields': not (user_profile.inn and user_profile.kpp),
     }
     return render(request, 'main/cart.html', context)
 
@@ -1420,13 +1491,14 @@ def isValidEmail(email):
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
+        ip = x_forwarded_for.split(',')[0].strip()
     else:
-        ip = get_client_ip(request)
-    if not ip or ip == '':
-        ip = get_client_ip(request)
+        ip = request.META.get('REMOTE_ADDR')
     
-    return ip
+    if ip == '127.0.0.1' or ip == '::1':
+        ip = request.META.get('HTTP_X_REAL_IP', ip)
+    
+    return ip or None
 
 def log_security_event(user, action, ip_address, user_agent, success=True):
     if ip_address is None:
@@ -1463,36 +1535,78 @@ def get_client_ip(request):
 def secure_register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
-        
+    else:
+        form = UserRegisterForm()
+    
+    if request.method == 'POST':
         ip_address = get_client_ip(request)
         user_agent = request.META.get('HTTP_USER_AGENT', '')
         
         if form.is_valid():
+            email = form.cleaned_data['email']
+            if User.objects.filter(email=email).exists():
+                messages.error(request, 'Пользователь с таким email уже существует')
+                return render(request, 'main/register.html', {'form': form})
+            
             user = form.save(commit=False)
-            user.email = form.cleaned_data['email']
+            user.email = email
             user.is_active = True
+            user.username = form.cleaned_data['username']
+            user.set_password(form.cleaned_data['password1'])
             user.save()
             
             profile, created = UserProfile.objects.get_or_create(user=user)
-            login(request, user)
-        
-            log_security_event(user, 'register', ip_address, user_agent, True)
             
-            messages.success(
+            account_type = form.cleaned_data.get('account_type', 'individual')
+            profile.account_type = account_type
+            
+            if account_type == 'legal':
+                profile.company_name = form.cleaned_data.get('company_name', '')
+                profile.inn = form.cleaned_data.get('inn', '')
+                profile.kpp = form.cleaned_data.get('kpp', '')
+                profile.ogrn = form.cleaned_data.get('ogrn', '')
+                profile.legal_address = form.cleaned_data.get('legal_address', '')
+                profile.bank_name = form.cleaned_data.get('bank_name', '')
+                profile.bik = form.cleaned_data.get('bik', '')
+                profile.settlement_account = form.cleaned_data.get('settlement_account', '')
+                profile.correspondent_account = form.cleaned_data.get('correspondent_account', '')
+            else:
+                user.first_name = form.cleaned_data.get('first_name', '')
+                user.last_name = form.cleaned_data.get('last_name', '')
+                user.save()
+            
+            profile.save()
+            
+            from django.contrib.auth import authenticate
+            authenticated_user = authenticate(
                 request, 
-                'Регистрация успешна!'
+                username=user.username, 
+                password=form.cleaned_data['password1']
             )
-            return redirect('profile')
+            
+            if authenticated_user:
+                login(request, authenticated_user)
+                log_security_event(user, 'register', ip_address, user_agent, True)
+                messages.success(request, 'Регистрация успешна!')
+                return redirect('profile')
+            else:
+                messages.warning(request, 'Регистрация успешна, но не удалось войти автоматически. Пожалуйста, войдите вручную.')
+                return redirect('login')
         else:
-            if hasattr(form, 'cleaned_data') and 'username' in form.cleaned_data:
+            print("Ошибки валидации формы:")
+            for field, errors in form.errors.items():
+                print(f"  {field}: {', '.join(errors)}")
+            
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{form.fields[field].label}: {error}")
+            
+            if 'username' in form.cleaned_data:
                 try:
                     user = User.objects.get(username=form.cleaned_data['username'])
                     log_security_event(user, 'register_failed', ip_address, user_agent, False)
                 except User.DoesNotExist:
                     pass
-            
-    else:
-        form = SecureUserCreationForm()
     
     return render(request, 'main/register.html', {'form': form})
 
@@ -2936,7 +3050,7 @@ def check_rate_limit(email, action, limit=3, timeout=300):
 def send_invoice_email(order):
     """Отправка счета на email покупателя с PDF вложением"""
     try:
-        invoice_number = order.generate_invoice_number()
+        invoice_number = order.invoice_number or order.generate_invoice_number()
         order_items = order.orderitem_set.all()
         due_date = order.get_due_date()
         
@@ -2969,29 +3083,59 @@ def send_invoice_email(order):
             'email': order.customer_email,
         }
         
+        # Расчет итогов с учетом скидки
+        subtotal = Decimal('0')
+        original_subtotal = Decimal('0')
         items_data = []
+        
         for index, order_item in enumerate(order_items, 1):
-            item_price_in_rub = order_item.product.get_display_price('RUB')
-            item_total_rub = order_item.quantity * item_price_in_rub
-            vat_amount_rub = item_total_rub * order_item.vat_rate / (100 + order_item.vat_rate)
+            # Цена со скидкой (уже сохранена в order_item.price)
+            discounted_price = order_item.price
+            quantity = order_item.quantity
+            discounted_total = discounted_price * quantity
+            
+            # Оригинальная цена (без скидки)
+            original_price = order_item.product.get_display_price('RUB')
+            original_total = original_price * quantity
+            
+            # Считаем НДС от цены со скидкой
+            vat_amount = discounted_total * order_item.vat_rate / (100 + order_item.vat_rate)
+            
+            subtotal += discounted_total
+            original_subtotal += original_total
+            
+            has_discount = discounted_price < original_price
             
             items_data.append({
                 'index': index,
                 'description': order_item.product.name,
                 'sku': order_item.product.article or '',
-                'quantity': order_item.quantity,
+                'quantity': quantity,
                 'unit': 'шт.',
-                'unit_price': item_price_in_rub,  
-                'line_total': item_total_rub,  
-                'vat': vat_amount_rub, 
+                'unit_price': discounted_price,  # ← Цена со скидкой
+                'original_unit_price': original_price if has_discount else None,  # ← Оригинальная цена
+                'line_total': discounted_total,  # ← Сумма со скидкой
+                'original_line_total': original_total if has_discount else None,  # ← Оригинальная сумма
+                'discount_percent': ((original_price - discounted_price) / original_price * 100) if has_discount else 0,
+                'vat': vat_amount,
                 'vat_rate': order_item.vat_rate,
             })
         
+        # Общая скидка
+        discount_amount = original_subtotal - subtotal
+        discount_percent = (discount_amount / original_subtotal * 100) if original_subtotal > 0 else 0
+        
+        vat_total = subtotal * order.vat_rate / (100 + order.vat_rate)
+        price_without_vat = subtotal - vat_total
         
         totals = {
-            'net': order.price_without_vat,
-            'vat': order.vat_amount,
-            'gross': order.total_price,
+            'original_gross': original_subtotal if discount_amount > 0 else None,
+            'subtotal': subtotal,
+            'discount_amount': discount_amount,
+            'discount_percent': discount_percent,
+            'net': price_without_vat,
+            'vat': vat_total,
+            'gross': subtotal,  # ← Итоговая сумма со скидкой
             'vat_rate': order.vat_rate,
         }
         
@@ -3006,6 +3150,7 @@ def send_invoice_email(order):
             'items': items_data,
             'invoice_validity_days': 5,
             'qr_code': qr_code_data,
+            'has_discount': discount_amount > 0,
         }
         
         html_content = render_to_string('main/invoice_email.html', context)

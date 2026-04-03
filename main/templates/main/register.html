@@ -22,38 +22,61 @@
             <p>Выберите тип аккаунта и заполните данные</p>
         </div>
 
-        <form method="post" class="auth-form" id="register-form">
+        {% if form.non_field_errors %}
+        <div class="alert alert-error">
+            {% for error in form.non_field_errors %}
+            <span class="error-icon">⚠</span> {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" class="auth-form" id="register-form" novalidate>
             {% csrf_token %}
             
+            <!-- Тип аккаунта -->
             <div class="form-section" data-aos="fade-up" data-aos-delay="50">
-            <h3 class="section-title">Тип аккаунта</h3>
-            <div class="account-type-selector">
-                <div class="account-type-options">
-                    <label class="account-type-option">
-                        <input type="radio" name="account_type" value="individual" checked class="account-type-radio">
-                        <div class="account-type-card">
-                            <span class="account-icon">👤</span>
-                            <span class="account-title">Физическое лицо</span>
-                            <span class="account-description">Для частных клиентов</span>
-                        </div>
-                    </label>
-                    
-                    <label class="account-type-option">
-                        <input type="radio" name="account_type" value="legal" class="account-type-radio">
-                        <div class="account-type-card">
-                            <span class="account-icon">🏢</span>
-                            <span class="account-title">Юридическое лицо</span>
-                            <span class="account-description">Для компаний и организаций</span>
-                        </div>
-                    </label>
+                <h3 class="section-title">Тип аккаунта</h3>
+                <div class="account-type-selector">
+                    <div class="account-type-options">
+                        <label class="account-type-option">
+                            <input type="radio" name="account_type" value="individual" 
+                                   {% if form.account_type.value == 'individual' or not form.account_type.value %}checked{% endif %} 
+                                   class="account-type-radio">
+                            <div class="account-type-card">
+                                <span class="account-icon">👤</span>
+                                <span class="account-title">Физическое лицо</span>
+                                <span class="account-description">Для частных клиентов</span>
+                            </div>
+                        </label>
+                        
+                        <label class="account-type-option">
+                            <input type="radio" name="account_type" value="legal" 
+                                   {% if form.account_type.value == 'legal' %}checked{% endif %} 
+                                   class="account-type-radio">
+                            <div class="account-type-card">
+                                <span class="account-icon">🏢</span>
+                                <span class="account-title">Юридическое лицо</span>
+                                <span class="account-description">Для компаний и организаций</span>
+                            </div>
+                        </label>
+                    </div>
                 </div>
+                {% if form.account_type.errors %}
+                <div class="error-message">
+                    {% for error in form.account_type.errors %}
+                    <span class="error-icon">⚠</span> {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
-        </div>
 
+            <!-- Имя пользователя -->
             <div class="form-group" data-aos="fade-up" data-aos-delay="100">
                 <label class="form-label">
-                    <span class="label-text">Имя на аккаунте*</span>
-                    {{ form.username }}
+                    <span class="label-text">Имя пользователя*</span>
+                    <input type="text" name="username" class="form-input" 
+                           value="{{ form.username.value|default:'' }}"
+                           placeholder="Введите имя пользователя" required>
                 </label>
                 {% if form.username.errors %}
                 <div class="error-message">
@@ -62,12 +85,15 @@
                     {% endfor %}
                 </div>
                 {% endif %}
+                <div class="form-help">Только буквы, цифры и @/./+/-/_</div>
             </div>
             
             <div class="form-group" data-aos="fade-up" data-aos-delay="150">
                 <label class="form-label">
                     <span class="label-text">Email*</span>
-                    {{ form.email }}
+                    <input type="email" name="email" class="form-input" 
+                           value="{{ form.email.value|default:'' }}"
+                           placeholder="example@mail.ru" required>
                 </label>
                 {% if form.email.errors %}
                 <div class="error-message">
@@ -78,53 +104,169 @@
                 {% endif %}
             </div>
 
+            <!-- Поля для физического лица -->
             <div class="account-fields individual-fields" id="individual-fields">
                 <div class="form-grid" data-aos="fade-up" data-aos-delay="200">
                     <div class="form-group">
                         <label class="form-label">
                             <span class="label-text">Имя*</span>
-                            <input type="text" name="first_name" class="form-input individual-field" placeholder="Введите ваше имя" required>
+                            <input type="text" name="first_name" class="form-input individual-field" 
+                                   value="{{ form.first_name.value|default:'' }}"
+                                   placeholder="Введите ваше имя">
                         </label>
+                        {% if form.first_name.errors %}
+                        <div class="error-message">
+                            {% for error in form.first_name.errors %}
+                            <span class="error-icon">⚠</span> {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">
                             <span class="label-text">Фамилия*</span>
-                            <input type="text" name="last_name" class="form-input individual-field" placeholder="Введите вашу фамилию" required>
+                            <input type="text" name="last_name" class="form-input individual-field" 
+                                   value="{{ form.last_name.value|default:'' }}"
+                                   placeholder="Введите вашу фамилию">
                         </label>
+                        {% if form.last_name.errors %}
+                        <div class="error-message">
+                            {% for error in form.last_name.errors %}
+                            <span class="error-icon">⚠</span> {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
 
+            <!-- Поля для юридического лица -->
             <div class="account-fields legal-fields" id="legal-fields" style="display: none;">
                 <div class="form-group" data-aos="fade-up" data-aos-delay="200">
                     <label class="form-label">
                         <span class="label-text">Название компании*</span>
-                        <input type="text" name="company_name" class="form-input legal-field" placeholder="Введите название компании">
+                        <input type="text" name="company_name" class="form-input legal-field" 
+                               value="{{ form.company_name.value|default:'' }}"
+                               placeholder="Введите название компании">
                     </label>
+                    {% if form.company_name.errors %}
+                    <div class="error-message">
+                        {% for error in form.company_name.errors %}
+                        <span class="error-icon">⚠</span> {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="form-grid" data-aos="fade-up" data-aos-delay="250">
                     <div class="form-group">
                         <label class="form-label">
                             <span class="label-text">ИНН*</span>
-                            <input type="text" name="inn" class="form-input legal-field" placeholder="10 или 12 цифр" maxlength="12">
+                            <input type="text" name="inn" class="form-input legal-field" 
+                                   value="{{ form.inn.value|default:'' }}"
+                                   placeholder="10 или 12 цифр" maxlength="12">
                         </label>
+                        {% if form.inn.errors %}
+                        <div class="error-message">
+                            {% for error in form.inn.errors %}
+                            <span class="error-icon">⚠</span> {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">
                             <span class="label-text">КПП</span>
-                            <input type="text" name="kpp" class="form-input legal-field" placeholder="9 цифр" maxlength="9">
+                            <input type="text" name="kpp" class="form-input legal-field" 
+                                   value="{{ form.kpp.value|default:'' }}"
+                                   placeholder="9 цифр" maxlength="9">
+                        </label>
+                        {% if form.kpp.errors %}
+                        <div class="error-message">
+                            {% for error in form.kpp.errors %}
+                            <span class="error-icon">⚠</span> {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Дополнительные поля для юрлиц (скрыты по умолчанию) -->
+                <div class="additional-legal-fields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">ОГРН</span>
+                            <input type="text" name="ogrn" class="form-input legal-field" 
+                                   value="{{ form.ogrn.value|default:'' }}"
+                                   placeholder="13 цифр" maxlength="13">
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">Юридический адрес*</span>
+                            <textarea name="legal_address" class="form-input legal-field" 
+                                      rows="3" placeholder="Полный юридический адрес">{{ form.legal_address.value|default:'' }}</textarea>
+                        </label>
+                        {% if form.legal_address.errors %}
+                        <div class="error-message">
+                            {% for error in form.legal_address.errors %}
+                            <span class="error-icon">⚠</span> {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">Банк</span>
+                            <input type="text" name="bank_name" class="form-input legal-field" 
+                                   value="{{ form.bank_name.value|default:'' }}"
+                                   placeholder="Название банка">
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">БИК</span>
+                            <input type="text" name="bik" class="form-input legal-field" 
+                                   value="{{ form.bik.value|default:'' }}"
+                                   placeholder="9 цифр" maxlength="9">
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">Расчетный счет</span>
+                            <input type="text" name="settlement_account" class="form-input legal-field" 
+                                   value="{{ form.settlement_account.value|default:'' }}"
+                                   placeholder="20 цифр">
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">Корреспондентский счет</span>
+                            <input type="text" name="correspondent_account" class="form-input legal-field" 
+                                   value="{{ form.correspondent_account.value|default:'' }}"
+                                   placeholder="20 цифр">
                         </label>
                     </div>
                 </div>
+
+                <button type="button" class="btn-link" id="toggle-legal-fields">
+                    <span class="toggle-icon">▼</span> Показать реквизиты
+                </button>
             </div>
 
+            <!-- Пароль -->
             <div class="form-group" data-aos="fade-up" data-aos-delay="450">
                 <label class="form-label">
                     <span class="label-text">Пароль*</span>
-                    {{ form.password1 }}
+                    <input type="password" name="password1" class="form-input" 
+                           id="id_password1" required>
                 </label>
                 {% if form.password1.errors %}
                 <div class="error-message">
@@ -134,17 +276,20 @@
                 </div>
                 {% endif %}
                 <div class="password-hint">
-                    Пароль должен содержать минимум 6 символов.
+                    Пароль должен содержать минимум 8 символов, заглавные и строчные буквы, цифры.
                 </div>
                 <div class="password-strength" id="password-strength">
                     <div class="password-strength-fill" id="password-strength-fill"></div>
+                    <div class="password-strength-text" id="password-strength-text"></div>
                 </div>
             </div>
             
+            <!-- Подтверждение пароля -->
             <div class="form-group" data-aos="fade-up" data-aos-delay="500">
                 <label class="form-label">
                     <span class="label-text">Подтверждение пароля*</span>
-                    {{ form.password2 }}
+                    <input type="password" name="password2" class="form-input" 
+                           id="id_password2" required>
                 </label>
                 {% if form.password2.errors %}
                 <div class="error-message">
@@ -156,22 +301,29 @@
                 <div class="password-match" id="password-match"></div>
             </div>
 
+            <!-- Согласия -->
             <div class="form-group">
-                {{ form.agree_terms }}
-                {{ form.privacy_consent }}
+                <!-- Скрытые поля для форм -->
+                <input type="hidden" name="agree_terms" id="id_agree_terms" value="1">
+                <input type="hidden" name="privacy_consent" id="id_privacy_consent" value="1">
+                <input type="hidden" name="newsletter_consent" id="id_newsletter_consent" value="1">
                 
                 <label class="checkbox-label" style="flex-wrap: wrap;">
-                    <input type="checkbox" id="combined-checkbox" class="custom-checkbox">
+                    <input type="checkbox" id="combined-checkbox" class="custom-checkbox" checked>
                     <span class="checkmark"></span>
                     Я соглашаюсь с <a href="{% url 'privacy' %}" target="_blank">условиями использования</a> 
                     и даю согласие на <a href="{% url 'privacy_policy' %}" target="_blank">обработку персональных данных</a>
                 </label>
                 
-                {% if form.agree_terms.errors or form.privacy_consent.errors %}
+                {% if form.agree_terms.errors %}
                 <div class="error-message">
                     {% for error in form.agree_terms.errors %}
                     <span class="error-icon">⚠</span> {{ error }}
                     {% endfor %}
+                </div>
+                {% endif %}
+                {% if form.privacy_consent.errors %}
+                <div class="error-message">
                     {% for error in form.privacy_consent.errors %}
                     <span class="error-icon">⚠</span> {{ error }}
                     {% endfor %}
@@ -179,6 +331,7 @@
                 {% endif %}
             </div>
 
+            <!-- reCAPTCHA -->
             <div class="form-group" data-aos="fade-up" data-aos-delay="600">
                 <div class="captcha-container">
                     {{ form.captcha }}
@@ -205,11 +358,6 @@
 </div>
 
 <link rel="stylesheet" href="{% static 'css/register.css' %}">
-<style>
-    #id_privacy_consent, #id_agree_terms {
-        display: none !important;
-    }
-</style>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
@@ -217,23 +365,236 @@
 <script type="text/javascript" src="{% static 'js/register.js' %}"></script>
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const combinedCheckbox = document.getElementById('combined-checkbox');
-    const agreeTerms = document.querySelector('input[name="agree_terms"]');
-    const privacyConsent = document.querySelector('input[name="privacy_consent"]');
+    AOS.init();
     
-    combinedCheckbox.addEventListener('change', function() {
-        agreeTerms.checked = this.checked;
-        privacyConsent.checked = this.checked;
+    // Переключение между типами аккаунта
+    const accountTypeRadios = document.querySelectorAll('.account-type-radio');
+    const individualFields = document.getElementById('individual-fields');
+    const legalFields = document.getElementById('legal-fields');
+    
+    function toggleAccountFields() {
+        const selectedType = document.querySelector('.account-type-radio:checked').value;
         
-        agreeTerms.dispatchEvent(new Event('change'));
-        privacyConsent.dispatchEvent(new Event('change'));
+        if (selectedType === 'individual') {
+            individualFields.style.display = 'block';
+            legalFields.style.display = 'none';
+            
+            // Убираем required с полей юрлица
+            document.querySelectorAll('.legal-field').forEach(field => {
+                field.required = false;
+                field.disabled = true;
+            });
+            
+            // Добавляем required для полей физлица
+            document.querySelectorAll('.individual-field').forEach(field => {
+                field.required = true;
+                field.disabled = false;
+            });
+        } else {
+            individualFields.style.display = 'none';
+            legalFields.style.display = 'block';
+            
+            // Убираем required с полей физлица
+            document.querySelectorAll('.individual-field').forEach(field => {
+                field.required = false;
+                field.disabled = true;
+            });
+            
+            // Добавляем required для обязательных полей юрлица
+            const requiredLegalFields = ['company_name', 'inn', 'legal_address'];
+            document.querySelectorAll('.legal-field').forEach(field => {
+                if (requiredLegalFields.includes(field.name)) {
+                    field.required = true;
+                } else {
+                    field.required = false;
+                }
+                field.disabled = false;
+            });
+        }
+    }
+    
+    accountTypeRadios.forEach(radio => {
+        radio.addEventListener('change', toggleAccountFields);
     });
     
-    if (agreeTerms.checked && privacyConsent.checked) {
-        combinedCheckbox.checked = true;
+    // Инициализация
+    toggleAccountFields();
+    
+    // Переключение дополнительных полей юрлица
+    const toggleBtn = document.getElementById('toggle-legal-fields');
+    const additionalFields = document.querySelector('.additional-legal-fields');
+    
+    if (toggleBtn && additionalFields) {
+        toggleBtn.addEventListener('click', function() {
+            if (additionalFields.style.display === 'none') {
+                additionalFields.style.display = 'block';
+                toggleBtn.innerHTML = '<span class="toggle-icon">▲</span> Скрыть реквизиты';
+            } else {
+                additionalFields.style.display = 'none';
+                toggleBtn.innerHTML = '<span class="toggle-icon">▼</span> Показать реквизиты';
+            }
+        });
+    }
+    
+    // Комбинированный чекбокс согласий
+    const combinedCheckbox = document.getElementById('combined-checkbox');
+    const agreeTerms = document.getElementById('id_agree_terms');
+    const privacyConsent = document.getElementById('id_privacy_consent');
+    const newsletterConsent = document.getElementById('id_newsletter_consent');
+    
+    if (combinedCheckbox && agreeTerms && privacyConsent) {
+        combinedCheckbox.addEventListener('change', function() {
+            agreeTerms.value = this.checked ? '1' : '';
+            privacyConsent.value = this.checked ? '1' : '';
+            if (newsletterConsent) {
+                newsletterConsent.value = this.checked ? '1' : '';
+            }
+        });
+    }
+    
+    // Проверка сложности пароля
+    const passwordInput = document.getElementById('id_password1');
+    const passwordConfirm = document.getElementById('id_password2');
+    const strengthFill = document.getElementById('password-strength-fill');
+    const strengthText = document.getElementById('password-strength-text');
+    const matchDiv = document.getElementById('password-match');
+    
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        
+        if (password.length >= 8) strength++;
+        if (password.length >= 12) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+        
+        let width = (strength / 6) * 100;
+        let color = '#dc3545';
+        let text = 'Очень слабый';
+        
+        if (strength >= 5) {
+            color = '#28a745';
+            text = 'Отличный';
+        } else if (strength >= 4) {
+            color = '#17a2b8';
+            text = 'Хороший';
+        } else if (strength >= 3) {
+            color = '#ffc107';
+            text = 'Средний';
+        } else if (strength >= 2) {
+            color = '#fd7e14';
+            text = 'Слабый';
+        }
+        
+        if (strengthFill) {
+            strengthFill.style.width = width + '%';
+            strengthFill.style.backgroundColor = color;
+        }
+        if (strengthText) {
+            strengthText.textContent = text;
+            strengthText.style.color = color;
+        }
+        
+        return strength;
+    }
+    
+    function checkPasswordMatch() {
+        if (!passwordInput.value || !passwordConfirm.value) {
+            if (matchDiv) matchDiv.innerHTML = '';
+            return;
+        }
+        
+        if (passwordInput.value === passwordConfirm.value) {
+            if (matchDiv) {
+                matchDiv.innerHTML = '<span style="color: #28a745;">✓ Пароли совпадают</span>';
+                matchDiv.style.color = '#28a745';
+            }
+        } else {
+            if (matchDiv) {
+                matchDiv.innerHTML = '<span style="color: #dc3545;">✗ Пароли не совпадают</span>';
+                matchDiv.style.color = '#dc3545';
+            }
+        }
+    }
+    
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            checkPasswordStrength(this.value);
+            checkPasswordMatch();
+        });
+    }
+    
+    if (passwordConfirm) {
+        passwordConfirm.addEventListener('input', checkPasswordMatch);
     }
 });
 </script>
+
+<style>
+.alert-error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.form-help {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: #667eea;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    padding: 5px 0;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.password-strength {
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.password-strength-fill {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+.password-strength-text {
+    font-size: 0.75rem;
+    margin-top: 5px;
+    text-align: right;
+}
+
+.password-match {
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+
+.additional-legal-fields {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+</style>
+
 {% endblock %}

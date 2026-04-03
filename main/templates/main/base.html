@@ -245,8 +245,8 @@
     <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
-    <link rel="preload" href="{% static 'css/base.css' %}?v=2.6" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{% static 'css/base.css' %}?v=2.6"></noscript>
+    <link rel="preload" href="{% static 'css/base.css' %}?v=2.7" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{% static 'css/base.css' %}?v=2.7"></noscript>
 </head>
 <body>
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
@@ -306,6 +306,9 @@
                                         {{ user.username|first|upper }}
                                     {% endif %}
                                 </div>
+                                {% if cart_count and cart_count > 0 %}
+                                <span class="avatar-cart-badge" id="avatarCartBadge" style="position: absolute; top: 5%; right: 35%; border: 1px solid gray; border-radius: 50px;padding: 3px;color: whitesmoke;background: gray;">{{ cart_count }}</span>
+                                {% endif %}
                                 <i class="fas fa-chevron-down dropdown-arrow"></i>
                             </button>
                             

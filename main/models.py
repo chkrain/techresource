@@ -1361,10 +1361,8 @@ class Product(models.Model):
         if need_seo_update:
             self.generate_seo_fields()
     
-        # 3. Генерируем slug (теперь артикул уже точно есть)
         if is_new or not self.slug or self.slug == '':
             if self.name:
-                # Используем новый метод для более SEO-оптимизированного slug
                 self.slug = self.generate_seo_slug()
     
         self.updated_at = datetime.now()
@@ -1406,6 +1404,61 @@ class Product(models.Model):
         except Product.DoesNotExist:
             return False
     
+    def get_price_for_user(self, user, quantity=1):
+        """Получить цену для конкретного пользователя с учетом всех скидок"""
+        from django.core.cache import cache
+        
+        # Базовая цена в рублях (используем существующий метод)
+        base_price = self.get_display_price('RUB')
+        
+        if not user or not user.is_authenticated:
+            return base_price
+        
+        try:
+            user_profile = user.userprofile
+        except UserProfile.DoesNotExist:
+            return base_price
+    
+        if hasattr(user, 'price_contracts'):
+            active_contract = user.price_contracts.filter(
+                is_active=True, 
+                valid_from__lte=timezone.now().date(),
+                valid_to__gte=timezone.now().date()
+            ).first()
+            
+            if active_contract and str(self.id) in active_contract.special_prices:
+                return Decimal(str(active_contract.special_prices[str(self.id)]))
+        
+        if hasattr(user, 'discount') and user.discount and user.discount.is_active:
+            applicable = True
+            if hasattr(user.discount, 'applicable_categories') and user.discount.applicable_categories.exists():
+                if self.category not in user.discount.applicable_categories.all():
+                    applicable = False
+            
+            if applicable:
+                discounted_price = user.discount.apply_to_price(base_price)
+                return discounted_price
+        
+        volume_discount = self.get_volume_discount(quantity)
+        if volume_discount:
+            return base_price * (100 - volume_discount) / 100
+        
+        return base_price
+
+    def get_volume_discount(self, quantity):
+        """Скидка от количества"""
+        discounts = {
+            5: 2,   # от 5 шт - 2%
+            10: 3,  # от 10 шт - 3%
+            25: 4,
+            50: 5,
+            100: 7,
+        }
+        for min_qty, discount in sorted(discounts.items(), reverse=True):
+            if quantity >= min_qty:
+                return discount
+        return 0
+
     def _has_price_changed(self):
         """Проверяет, изменилась ли цена товара"""
         if not self.pk:
@@ -2066,12 +2119,40 @@ class Order(models.Model):
         blank=True,
         null=True
     )
+
+    original_total = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0,
+        verbose_name="Сумма без скидки"
+    )
+    
+    discount_amount = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0,
+        verbose_name="Сумма скидки"
+    )
+    
+    discount_percent = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        default=0,
+        verbose_name="Процент скидки"
+    )
     
     def generate_invoice_number(self):
         """Генерация номера счета без сохранения"""
         if self.invoice_number:
             return self.invoice_number
         
+        from django.db import transaction
+    
+        with transaction.atomic():
+            last_invoice = Order.objects.select_for_update().filter(
+                invoice_number__isnull=False
+            ).order_by('-invoice_number').first()
+
         today = timezone.now()
         prefix = "СЧ"
         year = today.strftime('%Y')
@@ -3207,3 +3288,154 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+class PriceList(models.Model):
+    """Прайс-лист (базовые цены)"""
+    name = models.CharField(max_length=200, verbose_name="Название прайс-листа")
+    is_active = models.BooleanField(default=True)
+    valid_from = models.DateField()
+    valid_to = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "Прайс-лист"
+        verbose_name_plural = "Прайс-листы"
+
+class PriceListItem(models.Model):
+    """Цена товара в прайс-листе"""
+    price_list = models.ForeignKey(PriceList, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+    currency = models.CharField(max_length=3, default='RUB')
+    min_quantity = models.PositiveIntegerField(default=1, verbose_name="Мин. количество")
+    
+    class Meta:
+        unique_together = ['price_list', 'product', 'min_quantity']
+
+class ClientDiscount(models.Model):
+    """Персональная скидка для клиента (выдается админом)"""
+    DISCOUNT_TYPES = [
+        ('percent', 'Процентная'),
+        ('fixed', 'Фиксированная'),
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='discount')
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT_TYPES, default='percent')
+    discount_value = models.DecimalField(max_digits=5, decimal_places=2, default=0, 
+                                         verbose_name="Скидка (%)" if 'percent' else "Скидка (руб)")
+    valid_from = models.DateField(auto_now_add=True)
+    valid_to = models.DateField(null=True, blank=True, verbose_name="Действует до")
+    is_active = models.BooleanField(default=True)
+    issued_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='issued_discounts')
+    issued_at = models.DateTimeField(auto_now_add=True)
+    reason = models.TextField(blank=True, verbose_name="Причина скидки")
+    max_discount_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,
+                                              verbose_name="Макс. сумма скидки")
+    applicable_categories = models.ManyToManyField('Category', blank=True, verbose_name="Только для категорий")
+    
+    def apply_to_price(self, original_price):
+        """Применить скидку к цене"""
+        if not self.is_active:
+            return original_price
+        
+        if self.valid_to and self.valid_to < timezone.now().date():
+            return original_price
+        
+        if self.discount_type == 'percent':
+            discounted = original_price * (100 - self.discount_value) / 100
+        else:
+            discounted = original_price - self.discount_value
+        
+        if self.max_discount_amount:
+            discount_amount = original_price - discounted
+            if discount_amount > self.max_discount_amount:
+                discounted = original_price - self.max_discount_amount
+        
+        return max(discounted, 0)
+    
+    class Meta:
+        verbose_name = "Скидка клиента"
+        verbose_name_plural = "Скидки клиентов"
+
+class ClientPriceContract(models.Model):
+    """Индивидуальный договор цен (для крупных клиентов)"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='price_contracts')
+    name = models.CharField(max_length=200, verbose_name="Название договора")
+    contract_number = models.CharField(max_length=50)
+    valid_from = models.DateField()
+    valid_to = models.DateField()
+    contract_file = models.FileField(upload_to='contracts/%Y/%m/', blank=True)
+    special_prices = models.JSONField(default=dict, blank=True, 
+                                      verbose_name="Спеццены {product_id: price}")
+    
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Contract(models.Model):
+    """Договор с клиентом"""
+    CONTRACT_TYPES = [
+        ('supply', 'Договор поставки'),
+        ('service', 'Договор оказания услуг'),
+        ('nda', 'Соглашение о конфиденциальности'),
+        ('framework', 'Рамочный договор'),
+    ]
+    
+    number = models.CharField(max_length=50, unique=True)
+    client = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contracts')
+    contract_type = models.CharField(max_length=20, choices=CONTRACT_TYPES)
+    
+    signed_at = models.DateField()
+    valid_from = models.DateField()
+    valid_to = models.DateField()
+    
+    signed_file = models.FileField(upload_to='contracts/signed/%Y/%m/', verbose_name="Подписанный договор")
+    scan_file = models.FileField(upload_to='contracts/scans/%Y/%m/', blank=True)
+    
+    auto_renew = models.BooleanField(default=False)
+    renewal_notice_days = models.IntegerField(default=30, verbose_name="Дней до уведомления")
+    
+    status = models.CharField(max_length=20, choices=[
+        ('draft', 'Черновик'),
+        ('sent', 'Отправлен'),
+        ('signed', 'Подписан'),
+        ('expired', 'Истек'),
+        ('terminated', 'Расторгнут'),
+    ], default='draft')
+    
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_contracts')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class CommercialOffer(models.Model):
+    """Коммерческое предложение"""
+    number = models.CharField(max_length=50, unique=True)
+    client = models.ForeignKey(User, on_delete=models.CASCADE, related_name='offers')
+    
+    valid_until = models.DateField(verbose_name="Действительно до")
+    
+    items = models.JSONField(default=list, verbose_name="Позиции")
+    
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2)
+    discount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    delivery_cost = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total = models.DecimalField(max_digits=12, decimal_places=2)
+    
+    status = models.CharField(max_length=20, choices=[
+        ('draft', 'Черновик'),
+        ('sent', 'Отправлен'),
+        ('approved', 'Согласован'),
+        ('rejected', 'Отклонен'),
+        ('converted', 'Преобразован в заказ'),
+        ('expired', 'Истек'),
+    ], default='draft')
+    
+    converted_to_order = models.ForeignKey('Order', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    pdf_file = models.FileField(upload_to='offers/%Y/%m/', blank=True)
+    
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_offers')
+    created_at = models.DateTimeField(auto_now_add=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        verbose_name = "Коммерческое предложение"
+        verbose_name_plural = "Коммерческие предложения"

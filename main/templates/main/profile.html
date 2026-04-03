@@ -416,12 +416,19 @@
                                     <div class="form-group">
                                         <label class="form-label">
                                             <span class="label-icon">👤</span>
-                                            ФИО*
+                                            Имя
                                         </label>
-                                        {{ address_form.full_name }}
-                                        {% if address_form.full_name.errors %}
-                                        <div class="form-error">{{ address_form.full_name.errors }}</div>
-                                        {% endif %}
+                                        <input type="text" name="first_name" class="form-input" 
+                                            value="{{ user.first_name|default:'' }}">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <span class="label-icon">👤</span>
+                                            Фамилия
+                                        </label>
+                                        <input type="text" name="last_name" class="form-input" 
+                                            value="{{ user.last_name|default:'' }}">
                                     </div>
                                     
                                     <div class="form-group">

@@ -103,8 +103,30 @@
                                     {{ item.product.price }} {{ item.product.get_currency_display }}
                                 </small>
                             {% endif %}
-                            <div class="price-per-item">{{ item.unit_price_in_rub|floatformat:2 }} ₽/шт</div>
-                            <div class="total-price">{{ item.get_total_price|floatformat:2 }} ₽</div>
+                            
+                            <div class="price-per-item">
+                                {% if item.discount_percent > 0 %}
+                                    <span class="original-price" style="text-decoration: line-through; color: #999; font-size: 12px; display: block;">
+                                        {{ item.original_unit_price|floatformat:2 }} ₽/шт
+                                    </span>
+                                    <span class="discounted-price" style="color: #28a745; font-weight: bold;">
+                                        {{ item.discounted_price|floatformat:2 }} ₽/шт
+                                    </span>
+                                    <span class="discount-badge-item">-{{ item.discount_percent|floatformat:0 }}%</span>
+                                {% else %}
+                                    <span>{{ item.unit_price_in_rub|floatformat:2 }} ₽/шт</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="total-price" style="margin-top: 8px;">
+                                {% if item.discount_percent > 0 %}
+                                    <span class="discounted-total" style="color: #28a745; font-weight: bold;">
+                                        {{ item.discounted_price|multiply:item.quantity|floatformat:2 }} ₽
+                                    </span>
+                                {% else %}
+                                    <span>{{ item.get_total_price|floatformat:2 }} ₽</span>
+                                {% endif %}
+                            </div>
                         </div>
                         
                         <div class="item-remove">
@@ -126,24 +148,71 @@
             <div class="cart-sidebar">
                 <div class="order-summary">
                     <h3>Сводка заказа</h3>
-                    
+                    {% if user_discount %}
+                    <div class="discount-info-card" style="color: rgb(44, 62, 80); margin-bottom: 8px; border-bottom: 1px solid #e9ecef;">
+                        <div class="discount-content">
+                            <div class="discount-value">
+                                Ваша персональная скидка
+                                {% if user_discount.discount_type == 'percent' %}
+                                    {{ user_discount.discount_value }}% на все товары,
+                                    {% if user_discount.valid_to %}
+                                    действует до {{ user_discount.valid_to|date:"d.m.Y" }}
+                                    {% endif %}
+                                {% else %}
+                                    {{ user_discount.discount_value }} ₽,
+                                    {% if user_discount.valid_to %}
+                                    действует до {{ user_discount.valid_to|date:"d.m.Y" }}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Строка с оригинальной суммой (если есть скидка) -->
+                    {% if has_discount %}
+                    <div class="summary-row original-summary">
+                        <span>Сумма без скидки:</span>
+                        <span class="original-amount">{{ original_subtotal|floatformat:2 }} ₽</span>
+                    </div>
+
+                    <div class="summary-row discount-summary">
+                        <span>Ваша скидка:</span>
+                        <span class="discount-amount">- {{ total_savings|floatformat:2 }} ₽</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Сумма со скидкой:</span>
+                        <span class="discounted-amount">{{ subtotal|floatformat:2 }} ₽</span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Товары и НДС -->
                     <div class="summary-row">
                         <span>Товары (<span id="total-quantity">{{ cart.get_total_quantity }}</span>)</span>
-                        <span id="subtotal-price">{{ cart.get_total_price|floatformat:2 }} ₽</span>
+                        <span id="subtotal-price">{{ subtotal|floatformat:2 }} ₽</span>
                     </div>
-                    
+
                     <div class="summary-row">
-                        <span>НДС ({{ vat_rate|floatformat:0  }}%)</span>
-                        <span id="vat-total">{{ vat_total|floatformat:0 }} ₽</span>
+                        <span>НДС ({{ vat_rate|floatformat:0 }}%)</span>
+                        <span id="vat-total">{{ vat_total|floatformat:2 }} ₽</span>
                     </div>
-                    
+
                     <div class="summary-divider"></div>
-                    
+
                     <div class="summary-total">
                         <span>Итого к оплате</span>
                         <span class="total-amount" id="final-price">{{ subtotal|floatformat:2 }} ₽</span>
                     </div>
-                    
+
+                    <!-- Блок с итоговой экономией (в самом низу, после итога) -->
+                    {% if has_discount %}
+                    <div class="savings-banner">
+                        <span class="savings-icon">💰</span>
+                        <span>Вы экономите <strong>{{ total_savings|floatformat:2 }} ₽</strong></span>
+                    </div>
+                    {% endif %}
+
                     <div class="invoice-notice">
                         <div class="notice-icon">📄</div>
                         <div class="notice-content">
@@ -189,24 +258,52 @@
                         </div>
 
                         <div class="form-section">
-                            <h4>📋 Реквизиты для счета (для оплаты по счету)</h4>
-                            
-                            <div class="form-group">
-                                <label class="form-label">ИНН организации</label>
-                                <input type="text" name="customer_inn" class="form-control" maxlength="12" minlength="10"
-                                    placeholder="10 или 12 цифр" pattern="\d{10}|\d{12}"
-                                    required>
-                                <small class="form-text">Обязательно для оформления счета</small>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">КПП (для юридических лиц)</label>
-                                <input type="text" name="customer_kpp" class="form-control" maxlength="9"
-                                    placeholder="9 цифр" pattern="\d{9}">
-                                <small class="form-text">Для ИП оставьте пустым</small>
-                            </div>
+                            <h4>📋 Реквизиты для счета</h4>
+                            {% if user_profile.inn and user_profile.account_type == 'legal' %}
+                                <div class="alert alert-info" style="color: black;">
+                                    Реквизиты из вашего профиля:<br>
+                                    {{ user_profile.company_name }}, ИНН: {{ user_profile.inn }},
+                                    {% if user_profile.kpp %}КПП: {{ user_profile.kpp }}{% endif %}
+                                    {% if user_profile.legal_address %}Юр. адрес: {{ user_profile.legal_address }}{% endif %}
+                                </div>
+                                
+                                <input type="hidden" name="customer_inn" value="{{ user_profile.inn }}">
+                                <input type="hidden" name="customer_kpp" value="{{ user_profile.kpp|default:'' }}">
+                                <input type="hidden" name="company_name" value="{{ user_profile.company_name|default:'' }}">
+                                <input type="hidden" name="legal_address" value="{{ user_profile.legal_address|default:'' }}">
+                                
+                            {% else %}
+                                <div class="form-group">
+                                    <label class="form-label">Название компании</label>
+                                    <input type="text" name="company_name" class="form-control" 
+                                        value="{{ form.company_name.value|default:'' }}"
+                                        placeholder="ООО 'Компания'">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">ИНН организации *</label>
+                                    <input type="text" name="customer_inn" class="form-control" 
+                                        value="{{ form.customer_inn.value|default:'' }}"
+                                        maxlength="12" minlength="10"
+                                        placeholder="10 или 12 цифр" required>
+                                    <small class="form-text">Обязательно для оформления счета</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">КПП</label>
+                                    <input type="text" name="customer_kpp" class="form-control" 
+                                        value="{{ form.customer_kpp.value|default:'' }}"
+                                        maxlength="9" placeholder="9 цифр">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Юридический адрес</label>
+                                    <textarea name="legal_address" class="form-control" rows="2" 
+                                            placeholder="Фактический или юридический адрес">{{ form.legal_address.value|default:'' }}</textarea>
+                                </div>
+                            {% endif %}
                         </div>
-
+                        
                         <div class="card mb-3">
                             <div class="card-body">
                                 <div class="privacy-consent-container">
