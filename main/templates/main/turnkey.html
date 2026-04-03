@@ -522,7 +522,205 @@
             </div>
         </div>
         
-        <div class="project-card" id="ID">
+        <div class="project-card" id="urusuu">
+            <div class="project-preview">
+                <div class="project-image">
+                    <img src="{% static 'images/urusu/gotovoe.jpeg' %}" alt="ALT" class="zoomable" loading="lazy">
+                    <div class="image-overlay">
+                        <span class="zoom-hint">Нажмите для увеличения</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3>Уруссийский цементный хаб</h3>
+                    <p class="project-description">Сборка новых силосов и замена старых, автоматизация склада</p>
+                    
+                    <button class="project-toggle-btn">
+                        <span class="toggle-text">Подробнее о проекте</span>
+                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="project-dropdown">
+                <div class="dropdown-content">
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Проектирование</h4>
+                            <span class="stage-duration">2 недели</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Спроектировать новый цементный хаб</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Основная информация по проектированию данного объекта представлена здесь: <a href="https://tech-re.ru/services/design/#urusu" target="_blank">проектирование хаба</a></p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/pro-main.jpg' %}" alt="Схема" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Пример визуализации 3-д моделирования объекта</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Демонтаж старого оборудования</h4>
+                            <span class="stage-duration">1 неделя</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>На объекте оценить текущее состоянее оборудования. Провести анализ для дальнейшего обновления</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>С помощью современного ПО спроектировали 3-д модель нового склада, оценили его работоспособность в визуализации и приступили к демонтажу непригодного оборудования</p>
+                            
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/silosi-starie.jpg' %}" alt="Старые силосы" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Старые силосы</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Сборка новых силосов</h4>
+                            <span class="stage-duration">3 недели</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>После демонтажа собрать новые силосы</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Собрали новые силосы и установили их</p>
+
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/silos-razobr.jpeg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Первоначально прибывшие материалы</span>
+                                </div>
+                                    <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/sborka-2.jpeg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Ещё одна часть в разобранном виде</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/sborka.jpeg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Поставленное тело силоса</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/sborka-3.jpeg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Начало активных работ по установке</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/kran-stavit.jpg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Установка силоса силами крана</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/relsi.jpeg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Приемный бункер цемента под рельсами</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/silos-kran.jpg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Ещё одна установка краном</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Монтаж оборудования</h4>
+                            <span class="stage-duration">1 неделя</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Что нужно было сделать:</h5>
+                            <p>Смонтировать шнеки</p>
+                            
+                            <h5>Что мы сделали:</h5>
+                            <p>Смонтировали шнеки, расключили "поле" со шкафом, провели ПНР</p>
+                            <div class="stage-gallery">
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/shnek-kran.jpg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Установка шнека краном</span>
+                                </div>
+                                    <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/shnek-u-osn.jpeg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Установленный шнек</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/silos-shneki-niz.jpg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Одна из готовых сборок</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/pult.jpeg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Двухкнопочный пульт управления</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/razvod-ot-silosa.jpg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Место встречи подачи материала</span>
+                                </div>
+                                <div class="gallery-item zoomable-container">
+                                    <img src="{% static 'images/urusu/silosi-so-shnekami.jpg' %}" alt="разобранный силос" class="zoomable" loading="lazy">
+                                    <div class="image-overlay">
+                                        <span class="zoom-hint">Увеличить</span>
+                                    </div>
+                                    <span>Готовый вид объекта</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="project-card" id="ID">
             <div class="project-preview">
                 <div class="project-image">
                     <img src="{% static 'images/img/altcomp.jpg' %}" alt="ALT" class="zoomable" loading="lazy">
@@ -633,344 +831,7 @@
                 </div>
             </div>
         </div>
-
-
-        <div class="project-card" id="ID">
-            <div class="project-preview">
-                <div class="project-image">
-                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="ALT" class="zoomable" loading="lazy">
-                    <div class="image-overlay">
-                        <span class="zoom-hint">Нажмите для увеличения</span>
-                    </div>
-                </div>
-                <div class="project-info">
-                    <h3>NAZV</h3>
-                    <p class="project-description">OPIS</p>
-                    
-                    <button class="project-toggle-btn">
-                        <span class="toggle-text">Подробнее о проекте</span>
-                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="project-dropdown">
-                <div class="dropdown-content">
-                    <div class="project-stage">
-                        <div class="stage-header">
-                            <h4>Проектирование</h4>
-                            <span class="stage-duration">SCOC</span>
-                        </div>
-                        <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
-                            <p>OPIS</p>
-                            
-                            <h5>Что мы сделали:</h5>
-                            <p>OPIS</p>
-
-                            <div class="stage-gallery">
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/linealt.png' %}" alt="Схема" class="zoomable" loading="lazy">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>OPIS</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-stage">
-                        <div class="stage-header">
-                            <h4>Монтаж и электромонтаж</h4>
-                            <span class="stage-duration">SCOC</span>
-                        </div>
-                        <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
-                            <p>OPIS</p>
-                            
-                            <h5>Что мы сделали:</h5>
-                            <p>OPIS</p>
-                            
-                            <div class="stage-gallery">
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/altof1.jpg' %}" alt="Шкаф" class="zoomable" loading="lazy">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>OPIS</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-stage">
-                        <div class="stage-header">
-                            <h4>Разработка ПО</h4>
-                            <span class="stage-duration">SCOC</span>
-                        </div>
-                        <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
-                            <p>OPIS</p>
-                            
-                            <h5>Что мы сделали:</h5>
-                            <p>OPIS</p>
-
-                            <div class="stage-gallery">
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="Скада" class="zoomable" loading="lazy">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>OPIS</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-stage">
-                        <div class="stage-header">
-                            <h4>Пусконаладка</h4>
-                            <span class="stage-duration">SCOC</span>
-                        </div>
-                        <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
-                            <p>OPIS</p>
-                            
-                            <h5>Что мы сделали:</h5>
-                            <p>OPIS</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="project-card" id="ID">
-            <div class="project-preview">
-                <div class="project-image">
-                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="ALT" class="zoomable" loading="lazy">
-                    <div class="image-overlay">
-                        <span class="zoom-hint">Нажмите для увеличения</span>
-                    </div>
-                </div>
-                <div class="project-info">
-                    <h3>NAZV</h3>
-                    <p class="project-description">OPIS</p>
-                    
-                    <button class="project-toggle-btn">
-                        <span class="toggle-text">Подробнее о проекте</span>
-                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="project-dropdown">
-                <div class="dropdown-content">
-                    <div class="project-stage">
-                        <div class="stage-header">
-                            <h4>Проектирование</h4>
-                            <span class="stage-duration">SCOC</span>
-                        </div>
-                        <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
-                            <p>OPIS</p>
-                            
-                            <h5>Что мы сделали:</h5>
-                            <p>OPIS</p>
-
-                            <div class="stage-gallery">
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/linealt.png' %}" alt="Схема" class="zoomable" loading="lazy">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>OPIS</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-stage">
-                        <div class="stage-header">
-                            <h4>Монтаж и электромонтаж</h4>
-                            <span class="stage-duration">SCOC</span>
-                        </div>
-                        <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
-                            <p>OPIS</p>
-                            
-                            <h5>Что мы сделали:</h5>
-                            <p>OPIS</p>
-                            
-                            <div class="stage-gallery">
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/altof1.jpg' %}" alt="Шкаф" class="zoomable" loading="lazy">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>OPIS</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-stage">
-                        <div class="stage-header">
-                            <h4>Разработка ПО</h4>
-                            <span class="stage-duration">SCOC</span>
-                        </div>
-                        <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
-                            <p>OPIS</p>
-                            
-                            <h5>Что мы сделали:</h5>
-                            <p>OPIS</p>
-
-                            <div class="stage-gallery">
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="Скада" class="zoomable" loading="lazy">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>OPIS</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-stage">
-                        <div class="stage-header">
-                            <h4>Пусконаладка</h4>
-                            <span class="stage-duration">SCOC</span>
-                        </div>
-                        <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
-                            <p>OPIS</p>
-                            
-                            <h5>Что мы сделали:</h5>
-                            <p>OPIS</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="project-card" id="ID">
-            <div class="project-preview">
-                <div class="project-image">
-                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="ALT" class="zoomable" loading="lazy">
-                    <div class="image-overlay">
-                        <span class="zoom-hint">Нажмите для увеличения</span>
-                    </div>
-                </div>
-                <div class="project-info">
-                    <h3>NAZV</h3>
-                    <p class="project-description">OPIS</p>
-                    
-                    <button class="project-toggle-btn">
-                        <span class="toggle-text">Подробнее о проекте</span>
-                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="project-dropdown">
-                <div class="dropdown-content">
-                    <div class="project-stage">
-                        <div class="stage-header">
-                            <h4>Проектирование</h4>
-                            <span class="stage-duration">SCOC</span>
-                        </div>
-                        <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
-                            <p>OPIS</p>
-                            
-                            <h5>Что мы сделали:</h5>
-                            <p>OPIS</p>
-
-                            <div class="stage-gallery">
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/linealt.png' %}" alt="Схема" class="zoomable" loading="lazy">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>OPIS</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-stage">
-                        <div class="stage-header">
-                            <h4>Монтаж и электромонтаж</h4>
-                            <span class="stage-duration">SCOC</span>
-                        </div>
-                        <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
-                            <p>OPIS</p>
-                            
-                            <h5>Что мы сделали:</h5>
-                            <p>OPIS</p>
-                            
-                            <div class="stage-gallery">
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/altof1.jpg' %}" alt="Шкаф" class="zoomable" loading="lazy">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>OPIS</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-stage">
-                        <div class="stage-header">
-                            <h4>Разработка ПО</h4>
-                            <span class="stage-duration">SCOC</span>
-                        </div>
-                        <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
-                            <p>OPIS</p>
-                            
-                            <h5>Что мы сделали:</h5>
-                            <p>OPIS</p>
-
-                            <div class="stage-gallery">
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/img/altcomp.jpg' %}" alt="Скада" class="zoomable" loading="lazy">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>OPIS</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-stage">
-                        <div class="stage-header">
-                            <h4>Пусконаладка</h4>
-                            <span class="stage-duration">SCOC</span>
-                        </div>
-                        <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
-                            <p>OPIS</p>
-                            
-                            <h5>Что мы сделали:</h5>
-                            <p>OPIS</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
+ -->
         <div class="project-cta">
             <p>Хотите реализовать подобный проект на вашем предприятии?</p>
             <a href="{% url 'contacts' %}" class="btn btn-primary">Обсудить проект</a>
