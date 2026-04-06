@@ -41,6 +41,7 @@
               <span class="status-dot"></span>
               {{ order.get_status_display }}
             </span>
+            <p class="order-date">Возникли вопросы? Обращайтесь по почте {{ company_email }} или по телефону {{ company_phone }}</p>
           </div>
         </div>
 
@@ -68,61 +69,82 @@
               <h4>Адрес доставки</h4>
               <p class="address-text">{{ order.delivery_address }}</p>
             </div>
-          </div>
+          </div> <!--  order-details -->
 
           <div class="order-summary">
             <div class="summary-header">
               <h4>Состав заказа</h4>
-              <span class="total-amount">{{ order.total_price }} ₽</span>
-          </div>
+              <span class="total-amount" style="color: black;">{{ order.total_price }} ₽</span>
+            </div> <!--  summary-header -->
 
-          <div class="order-items">
+            <div class="order-items">
               {% for item in order.orderitem_set.all %}
               <div class="order-item">
-                  <div class="item-info">
-                      <span class="item-name">{{ item.product.name }}</span>
-                      <span class="item-article">Артикул: {{ item.product.article }}</span>
-                  </div>
-                  <div class="item-quantity">×{{ item.quantity }}</div>
-                  <div class="item-price">
-                      {% if item.product.currency != 'RUB' %}
-                          <small class="text-muted" style="display: block; font-size: 11px;">
-                              {{ item.product.price }} {{ item.product.get_currency_display }}
-                          </small>
-                      {% endif %}
-                      {{ item.get_total_price|floatformat:2 }} ₽
-                  </div>
+                <div class="item-image-mini">
+                  {% with display_image=item.product.get_display_image %}
+                    {% if display_image %}
+                    <a href="{% url 'product_detail' slug=item.product.slug %}" class="item-image-link-mini">
+                      <img src="{{ display_image.url }}" alt="{{ item.product.name }}" loading="lazy" style="max-width: 100px;">
+                    </a>
+                    {% else %}
+                    <div class="image-placeholder-mini">
+                      <span class="placeholder-icon">⚙️</span>
+                    </div>
+                    {% endif %}
+                  {% endwith %}
+                </div>
+                <div class="item-info">
+                  <a href="{% url 'product_detail' slug=item.product.slug %}" class="item-name-link" style="text-decoration: none;" title="Подробнее о товаре">
+                    {{ item.product.name }}
+                  </a>
+                  <span class="item-article">
+                    Артикул: 
+                    <a href="{% url 'products' %}?search={{ item.product.article }}" class="article-link" style="text-decoration: none;" title="Перейти по артикулу в поиск товаров">
+                      {{ item.product.article }}
+                    </a>
+                  </span>
+                </div>
+                <div class="item-quantity">×{{ item.quantity }}</div>
+                <div class="item-price">
+                  {% if item.product.currency != 'RUB' %}
+                    <small class="text-muted" style="display: block; font-size: 11px;">
+                      {{ item.product.price }} {{ item.product.get_currency_display }}
+                    </small>
+                  {% endif %}
+                  {{ item.get_total_price|floatformat:2 }} ₽
+                </div>
               </div>
               {% endfor %}
-          </div>
+            </div> <!--  order-items -->
 
-          <div class="detail-group">
-            <h4>Стоимость заказа</h4>
-            <div class="price-breakdown">
-              <div class="price-row">
-                <span class="price-label">Сумма товаров:</span>
-                <span class="price-value">{{ order.total_price }} ₽</span>
+            <div class="detail-group">
+              <h4>Стоимость заказа</h4>
+              <div class="price-breakdown">
+                <div class="price-row">
+                  <span class="price-label">Сумма товаров:</span>
+                  <span class="price-value">{{ order.total_price }} ₽</span>
+                </div>
+                <div class="price-row">
+                  <span class="price-label">Доставка:</span>
+                  <span class="price-value">{{ order.delivery_cost }} ₽</span>
+                </div>
+                {% if order.payment_fee %}
+                <div class="price-row">
+                  <span class="price-label">Комиссия платежной системы:</span>
+                  <span class="price-value">{{ order.payment_fee }} ₽</span>
+                </div>
+                {% endif %}
+                <div class="price-row total">
+                  <span class="price-label">Итого к оплате:</span>
+                  <span class="price-value">{{ order.get_final_price_with_fees }} ₽</span>
+                </div>
               </div>
-              <div class="price-row">
-                <span class="price-label">Доставка:</span>
-                <span class="price-value">{{ order.delivery_cost }} ₽</span>
-              </div>
-              {% if order.payment_fee %}
-              <div class="price-row">
-                <span class="price-label">Комиссия платежной системы:</span>
-                <span class="price-value">{{ order.payment_fee }} ₽</span>
-              </div>
-              {% endif %}
-              <div class="price-row total">
-                <span class="price-label">Итого к оплате:</span>
-                <span class="price-value">{{ order.get_final_price_with_fees }} ₽</span>
-              </div>
-            </div>
-          </div>
+            </div> <!--  detail-group -->
+          </div> <!--  order-summary -->
         </div>
-
+        
         <div class="order-timeline" id="timeline-{{ order.id }}" style="display: none">
-          <h4>📊 История статуса заказа</h4>
+          <h4>История статуса заказа</h4>
           <div class="timeline-container">
             {% for step_key, step in order.get_current_timeline.items %}
             <div class="timeline-step {% if step.completed %}completed{% endif %} {% if step.current %}current{% endif %}">
@@ -150,10 +172,10 @@
 
         <div class="order-actions">
             <button class="action-btn reorder-btn" data-order-id="{{ order.id }}">
-                📋 Повторить заказ
+                Повторить заказ
             </button>
             <button class="action-btn details-btn" data-order-id="{{ order.id }}">
-                📊 Детали и статус
+                Детали и статус
             </button>
 
             {% if order.status == 'pending' or order.status == 'processing' or order.status == 'paid' %}
@@ -186,7 +208,7 @@
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-<link rel="stylesheet" href="{% static 'css/orders.css' %}?v=1.2" />
+<link rel="stylesheet" href="{% static 'css/orders.css' %}?v=1.3" />
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {

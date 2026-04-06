@@ -128,6 +128,7 @@ section {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
+  justify-content: center;
   border-radius: 25px;
   font-weight: 600;
   font-size: 0.9rem;
@@ -1099,5 +1100,132 @@ section {
   }
   .item-info-detailed {
     text-align: center;
+  }
+}
+/* Стили для кликабельных товаров в заказах */
+.order-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+.order-item:hover {
+    background-color: #f8f9fa;
+}
+
+.item-image-mini {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+}
+
+.item-image-link-mini {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.item-image-link-mini:hover {
+    transform: scale(1.05);
+    opacity: 0.85;
+}
+
+.item-image-mini img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.image-placeholder-mini {
+    width: 100%;
+    height: 100%;
+    background: #f8f9fa;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dee2e6;
+}
+
+.item-info {
+    flex: 2;
+}
+
+.item-name-link {
+    display: block;
+    font-weight: 500;
+    color: #2c3e50;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    margin-bottom: 4px;
+}
+
+.item-name-link:hover {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+.item-article {
+    display: block;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.article-link {
+    color: #6c757d;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.article-link:hover {
+    color: #007bff;
+  text-decoration: underline;
+}
+
+.item-quantity {
+  width: 60px;
+  text-align: center;
+  font-weight: 500;
+  color: #495057;
+}
+
+.item-price {
+  width: 120px;
+  text-align: right;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+  .order-item {
+      flex-wrap: wrap;
+      gap: 10px;
+  }
+  
+  .item-image-mini {
+      width: 50px;
+      height: 50px;
+  }
+  
+  .item-info {
+      flex: 1;
+      min-width: 150px;
+  }
+  
+  .item-quantity,
+  .item-price {
+      width: auto;
+      text-align: left;
+      padding-left: 65px;
+  }
+  
+  .item-price {
+      width: 100%;
   }
 }

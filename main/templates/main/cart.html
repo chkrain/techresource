@@ -28,7 +28,7 @@
                 <div class="cart-items">
                     {% for item in cart_items %}
                     <div class="cart-item" data-item-id="{{ item.id }}">
-                        <a href="{% url 'product_detail' slug=item.product.slug %}" class="item-image-link">
+                        <a href="{% url 'product_detail' slug=item.product.slug %}" class="item-image-link" title="Подробнее о товаре">
                             <div class="item-image">
                                 {% with display_image=item.product.get_display_image %}
                                     {% if display_image %}
@@ -44,24 +44,24 @@
                         
                         <div class="item-details">
                             <h3 class="item-title">
-                                <a href="{% url 'product_detail' slug=item.product.slug %}" class="product-title-link" style="text-decoration: none;">
+                                <a href="{% url 'product_detail' slug=item.product.slug %}" class="product-title-link" style="text-decoration: none;" title="Подробнее о товаре">
                                     {{ item.product.name }}
                                 </a>
                             </h3>
                             <p class="item-article">
-                                <a href="{% url 'products' %}?search={{ item.product.article }}" class="article-link" style="text-decoration: none;">
+                                <a href="{% url 'products' %}?search={{ item.product.article }}" class="article-link" style="text-decoration: none;" title="Найти товары с таким же артикулом">
                                     Артикул: {{ item.product.article }}
                                 </a>
                             </p>
                             <p class="item-category">
-                                <a href="{% url 'products' %}?category={{ item.product.category.slug }}" class="category-link" style="text-decoration: none;">
+                                <a href="{% url 'products' %}?category={{ item.product.category.slug }}" class="category-link" style="text-decoration: none;" title="Показать все товары этой категории">
                                     {{ item.product.category.name }}
                                 </a>
                             </p>
                             
                             <div class="item-price-mobile">
-                                <span class="price">{{ item.product.price }} ₽</span>
-                                <span class="total">Итого: <span class="mobile-total-price">{{ item.get_total_price }}</span> ₽</span>
+                                <span class="price">{{ item.product.price }} ₽</span><br>
+                                <span class="total" style="margin-left: 0 !important;">Итого: <span class="mobile-total-price">{{ item.get_total_price }}</span>&nbsp;₽</span>
                             </div>
                         </div>
                         
@@ -347,9 +347,9 @@
     </div>
 </section>
 
-<link rel="stylesheet" href="{% static 'css/cart.css' %}?v=1.1">
+<link rel="stylesheet" href="{% static 'css/cart.css' %}?v=1.3">
 
-<script type="text/javascript" src="{% static 'js/cart.js' %}?v=1.1"></script>
+<script type="text/javascript" src="{% static 'js/cart.js' %}?v=1.2"></script>
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>

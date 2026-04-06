@@ -483,9 +483,11 @@ section {
   color: #0052cc;
   transition: all 0.3s ease;
 }
-@media screen and (max-width: 1024px) {
+@media screen and (max-width: 480px) {
   .quantity-btn {
     height: 0;
+    border: 0;
+    border-radius: 0;
   }
 }
 .quantity-btn:hover:not(:disabled) {
@@ -861,7 +863,6 @@ section {
   }
   .cart-item {
     grid-template-columns: 80px 1fr;
-    grid-template-areas: "image details" "quantity price" "remove remove";
   }
   .item-remove {
     text-align: center;
