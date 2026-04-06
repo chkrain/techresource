@@ -121,7 +121,7 @@
                     
                     <div class="item-meta">
                         <div class="price-section">
-                            <span class="price">{{ item.product.price }} ₽</span>
+                            <span class="price">{{ item.product.converted_price|floatformat:2 }} ₽</span>
                             {% if item.product.quantity > 0 %}
                                 <span class="stock-info in-stock">В наличии: {{ item.product.quantity }} шт.</span>
                             {% else %}
@@ -150,16 +150,13 @@
         </div>
         {% else %}
         <div class="empty-wishlist">
-            <div class="empty-icon">💔</div>
             <h2>В избранном пока пусто</h2>
             <p>Добавляйте товары в избранное, чтобы не потерять их</p>
             <div class="empty-actions">
                 <a href="{% url 'products' %}" class="btn btn-primary">
-                    <span class="btn-icon">🔍</span>
                     Найти товары
                 </a>
                 <a href="{% url 'index' %}" class="btn btn-secondary">
-                    <span class="btn-icon">🏠</span>
                     На главную
                 </a>
             </div>

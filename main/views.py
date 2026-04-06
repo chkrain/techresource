@@ -2189,6 +2189,11 @@ def wishlist_view(request):
     wishlist, created = Wishlist.objects.get_or_create(user=request.user)
     wishlist_items = WishlistItem.objects.filter(wishlist=wishlist).select_related('product')
     
+    # Добавляем конвертацию в рубли через отдельный атрибут
+    for item in wishlist_items:
+        # Используем другой атрибут, например 'converted_price'
+        item.product.converted_price = item.product.get_display_price('RUB')
+    
     context = {
         'wishlist': wishlist,
         'wishlist_items': wishlist_items,
