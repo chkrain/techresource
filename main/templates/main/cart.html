@@ -28,26 +28,36 @@
                 <div class="cart-items">
                     {% for item in cart_items %}
                     <div class="cart-item" data-item-id="{{ item.id }}">
-                        <div class="item-image">
-                            {% with display_image=item.product.get_display_image %}
-                                {% if display_image %}
-                                <img src="{{ display_image.url }}" alt="{{ item.product.name }}" loading="lazy">
-                                {% else %}
-                                <div class="image-placeholder">
-                                    <span class="placeholder-icon">⚙️</span>
-                                </div>
-                                {% endif %}
-                            {% endwith %}
-                        </div>
+                        <a href="{% url 'product_detail' slug=item.product.slug %}" class="item-image-link">
+                            <div class="item-image">
+                                {% with display_image=item.product.get_display_image %}
+                                    {% if display_image %}
+                                    <img src="{{ display_image.url }}" alt="{{ item.product.name }}" loading="lazy">
+                                    {% else %}
+                                    <div class="image-placeholder">
+                                        <span class="placeholder-icon">⚙️</span>
+                                    </div>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                        </a>
                         
                         <div class="item-details">
-                            <h3 class="item-title">{{ item.product.name }}</h3>
-                            <p class="item-article">Артикул: {{ item.product.article }}</p>
-                            <p class="item-category">{{ item.product.category }}</p>
-                            
-                            {% if item.product.description %}
-                            <p class="item-description">{{ item.product.description|truncatewords:10 }}</p>
-                            {% endif %}
+                            <h3 class="item-title">
+                                <a href="{% url 'product_detail' slug=item.product.slug %}" class="product-title-link" style="text-decoration: none;">
+                                    {{ item.product.name }}
+                                </a>
+                            </h3>
+                            <p class="item-article">
+                                <a href="{% url 'products' %}?search={{ item.product.article }}" class="article-link" style="text-decoration: none;">
+                                    Артикул: {{ item.product.article }}
+                                </a>
+                            </p>
+                            <p class="item-category">
+                                <a href="{% url 'products' %}?category={{ item.product.category.slug }}" class="category-link" style="text-decoration: none;">
+                                    {{ item.product.category.name }}
+                                </a>
+                            </p>
                             
                             <div class="item-price-mobile">
                                 <span class="price">{{ item.product.price }} ₽</span>
@@ -169,7 +179,6 @@
                     </div>
                     {% endif %}
 
-                    <!-- Строка с оригинальной суммой (если есть скидка) -->
                     {% if has_discount %}
                     <div class="summary-row original-summary">
                         <span>Сумма без скидки:</span>
@@ -187,7 +196,6 @@
                     </div>
                     {% endif %}
 
-                    <!-- Товары и НДС -->
                     <div class="summary-row">
                         <span>Товары (<span id="total-quantity">{{ cart.get_total_quantity }}</span>)</span>
                         <span id="subtotal-price">{{ subtotal|floatformat:2 }} ₽</span>
@@ -205,16 +213,13 @@
                         <span class="total-amount" id="final-price">{{ subtotal|floatformat:2 }} ₽</span>
                     </div>
 
-                    <!-- Блок с итоговой экономией (в самом низу, после итога) -->
                     {% if has_discount %}
                     <div class="savings-banner">
-                        <span class="savings-icon">💰</span>
                         <span>Вы экономите <strong>{{ total_savings|floatformat:2 }} ₽</strong></span>
                     </div>
                     {% endif %}
 
                     <div class="invoice-notice">
-                        <div class="notice-icon">📄</div>
                         <div class="notice-content">
                             <strong>Оплата по счету</strong>
                             <small>После оформления заказа мы вышлем вам счет на указанную почту. Доставка рассчитывается отдельно и добавляется к счету.</small>
@@ -227,7 +232,7 @@
                         <input type="hidden" name="payment_method" value="invoice">
 
                         <div class="form-section">
-                            <h4>📍 Адрес для счета и доставки</h4>
+                            <h4>Адрес для счета и доставки</h4>
                             <div class="custom-select-wrapper">
                                 <select name="address_id" id="address-select" class="original-select" required>
                                     <option value="">Выберите адрес</option>
@@ -258,7 +263,7 @@
                         </div>
 
                         <div class="form-section">
-                            <h4>📋 Реквизиты для счета</h4>
+                            <h4>Реквизиты для счета</h4>
                             {% if user_profile.inn and user_profile.account_type == 'legal' %}
                                 <div class="alert alert-info" style="color: black;">
                                     Реквизиты из вашего профиля:<br>
@@ -318,29 +323,12 @@
                         </div>
                         
                         <button type="submit" class="checkout-btn invoice-btn">
-                            📄 Оформить заказ по счету
+                            Оформить заказ по счету
                         </button>
-                        
-                        <div class="order-process-info">
-                            <h5>Как это работает:</h5>
-                            <ol>
-                                <li>Вы оформляете заказ с товарами</li>
-                                <li>Мы высылаем вам счет на указанную почту</li>
-                                <li>Вы оплачиваете счет в вашем банке</li>
-                                <li>Мы согласовываем доставку (стоимость добавим к счету)</li>
-                                <li>Отправляем ваш заказ</li>
-                            </ol>
-                        </div>
-                        
-                        <div class="security-notice">
-                            <span class="security-icon">🔒</span>
-                            <span>Безопасные расчеты. Все документы предоставляются</span>
-                        </div>
                     </form>
                 </div>
                 
                 <div class="support-card">
-                    <div class="support-icon">💬</div>
                     <h4>Нужна помощь?</h4>
                     <p>Наши специалисты ответят на все вопросы по заказу и счетам</p>
                     <a href="/contacts/" class="support-phone">{{ company_phone }}</a>
@@ -349,11 +337,10 @@
         </div>
         {% else %}
         <div class="empty-cart">
-            <div class="empty-cart-icon">🛒</div>
             <h2>Ваша корзина пуста</h2>
             <p>Добавьте товары из каталога, чтобы сделать заказ</p>
             <a href="{% url 'products' %}" class="btn btn-primary">
-                📦 Перейти к покупкам
+                Перейти к покупкам
             </a>
         </div>
         {% endif %}
