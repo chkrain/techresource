@@ -9,7 +9,7 @@
 {% block og_description %}Инженерные услуги, монтаж оборудования, разработка ПО и техподдержка. Работаем по регионам России.{% endblock %}
 
 {% block meta %}
-<meta property="og:image" content="{% static 'images/og-main.jpg' %}">
+<meta property="og:image" content="{% static 'images/og-main.webp' %}">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="keywords" content="автоматизация производства, умные системы управления оборудованием, дистанционный контроль, экономия ресурсов, автоматизация, управление конвейером, промышленная автоматизация">
@@ -150,7 +150,7 @@
             <div class="swiper-wrapper">
                 <div class="swiper-slide">
                     <a href="{% url 'service_design' %}" class="service-link">
-                        <div class="service-card" data-color="blue" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/design.jpg' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
+                        <div class="service-card" data-color="blue" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/design.webp' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
                             <h3>Проектирование</h3>
                             <p>Разработка технической документации и проектных решений</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -159,7 +159,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'service_electrical' %}" class="service-link">
-                        <div class="service-card" data-color="green" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/mont-ob.jpg' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
+                        <div class="service-card" data-color="green" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/mont-ob.webp' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
                             <h3>Монтаж</h3>
                             <p>Электромонтаж оборудования и пусконаладочные работы</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -168,7 +168,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'service_software' %}" class="service-link">
-                        <div class="service-card" data-color="purple" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/razrabpo.jpg' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
+                        <div class="service-card" data-color="purple" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/razrabpo.webp' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
                             <h3>Разработка ПО</h3>
                             <p>Создание систем дистанционного доступа и ПО</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -177,7 +177,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'service_equipment' %}" class="service-link">
-                        <div class="service-card" data-color="orange" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/postavkaob.jpg' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
+                        <div class="service-card" data-color="orange" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/postavkaob.webp' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
                             <h3>Поставка оборудования</h3>
                             <p>Качественное оборудование от проверенных производителей</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -186,7 +186,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'service_support' %}" class="service-link">
-                        <div class="service-card" data-color="red" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/tp.jpg' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
+                        <div class="service-card" data-color="red" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/tp.webp' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
                             <h3>Поддержка</h3>
                             <p>Постоянная поддержка и консультации</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -195,7 +195,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'service_maintenance' %}" class="service-link">
-                        <div class="service-card" data-color="teal" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/serv-obs.jpg' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
+                        <div class="service-card" data-color="teal" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/serv-obs.webp' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
                             <h3>Регулярное обслуживание</h3>
                             <p>Плановое обслуживание объектов</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -204,7 +204,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'services' %}" class="service-link">
-                        <div class="service-card" data-color="indigo" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/suprt.jpg' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
+                        <div class="service-card" data-color="indigo" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/suprt.webp' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
                             <h3>Аудит и консалтинг</h3>
                             <p>Технический аудит и консультации по оптимизации</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -213,7 +213,7 @@
                 </div>
                 <div class="swiper-slide">
                     <a href="{% url 'services' %}" class="service-link">
-                        <div class="service-card" data-color="pink" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/comp.jpeg' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
+                        <div class="service-card" data-color="pink" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/comp.webp' %}'); background-size: cover; background-position: center; border: none;" loading="lazy">
                             <h3>Обучение</h3>
                             <p>Обучение и помощь на всех этапах работы</p>
                             <div class="service-overlay">Подробнее →</div>
@@ -243,7 +243,7 @@
             <div class="project-card-preview" data-aos="fade-up">
                 <a href="{% url 'turnkey_projects' %}#altyshki" style="text-decoration: none;">
                     <div class="project-preview-image">
-                        <img src="{% static 'images/img/altcomp.jpg' %}" alt="Автоматизация линии трепела" loading="lazy">
+                        <img src="{% static 'images/img/altcomp.webp' %}" alt="Автоматизация линии трепела" loading="lazy">
                     </div>
                     <div class="project-preview-content">
                         <h3>Автоматизация линии фасовки и переработки трепела</h3>
@@ -255,15 +255,29 @@
                 </a>
             </div>
 
-            <div class="project-card-preview" data-aos="fade-up">
+            <div class="project-card-preview" data-aos="fade-up"> 
                 <a href="{% url 'turnkey_projects' %}#urusuu" style="text-decoration: none;">
                     <div class="project-preview-image">
-                        <img src="{% static 'images/urusu/gotovoe.jpeg' %}" alt="Уруссийский цементный хаб" loading="lazy">
+                        <img src="{% static 'images/urusu/gotovoe.webp' %}" alt="Уруссийский цементный хаб" loading="lazy">
                     </div>
                     <div class="project-preview-content">
-                        <h3>Аавтоматизация Уруссийского цементного хаба</h3>
+                        <h3>Аавтоматизация цементного хаба в Уруссу</h3>
                         <p class="project-preview-description">
                             Комплексная автоматизация склада цемента, демонтажа старого оборудования с последующей установкой нового.
+                        </p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="project-card-preview" data-aos="fade-up"> 
+                <a href="{% url 'turnkey_projects' %}#vasylevo" style="text-decoration: none;">
+                    <div class="project-preview-image">
+                        <img src="{% static 'images/vasylevo/g-6.webp' %}" alt="Васильево" class="zoomable" loading="lazy">
+                    </div>
+                    <div class="project-preview-content">
+                        <h3>Аавтоматизация цементного хаба в Васильево</h3>
+                        <p class="project-preview-description">
+                            Поставка нового оборудования, демонтаж старого, монтаж трубопровода, пневматического оборудования, интеграция с железнодорожной линией.
                         </p>
                     </div>
                 </a>
@@ -272,7 +286,7 @@
             <div class="project-card-preview" data-aos="fade-up">
                 <a href="{% url 'turnkey_projects' %}#pesok" style="text-decoration: none;">
                     <div class="project-preview-image">
-                        <img src="{% static 'images/img/pesoksca.jpg' %}" alt="Автоматизация линии песка" loading="lazy">
+                        <img src="{% static 'images/img/pesoksca.webp' %}" alt="Автоматизация линии песка" loading="lazy">
                     </div>
                     <div class="project-preview-content">
                         <h3>Автоматизация линии обогащения песка</h3>
@@ -286,7 +300,7 @@
             <div class="project-card-preview" data-aos="fade-up">
                 <a href="{% url 'turnkey_projects' %}#lptvs" style="text-decoration: none;">
                     <div class="project-preview-image">
-                        <img src="{% static 'images/img/lptvs-4.jpg' %}" alt="Обновленное силовое оборудование" loading="lazy">
+                        <img src="{% static 'images/img/lptvs-4.webp' %}" alt="Обновленное силовое оборудование" loading="lazy">
                     </div>
                     <div class="project-preview-content">
                         <h3>Обновление силового оборудования</h3>
@@ -375,12 +389,12 @@
         <div class="partners-grid-modern" data-aos="fade-up">
             <div class="partner-card-modern" 
                  style="background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%), 
-                        url('{% static 'images/partners/siemensp.jpg' %}'); 
+                        url('{% static 'images/partners/siemensp.webp' %}'); 
                         background-size: cover; background-position: center;">
                 <div class="partner-logo-wrapper">
-                    {% static 'images/partners/siemensl.jpg' as siemens_logo %}
+                    {% static 'images/partners/siemensl.webp' as siemens_logo %}
                     {% if siemens_logo %}
-                        <img src="{% static 'images/partners/siemensl.jpg' %}" alt="Siemens" class="partner-logo-img" loading="lazy">
+                        <img src="{% static 'images/partners/siemensl.webp' %}" alt="Siemens" class="partner-logo-img" loading="lazy">
                     {% else %}
                         <div class="partner-icon-large">⚙️</div>
                     {% endif %}
@@ -393,12 +407,12 @@
             
             <div class="partner-card-modern" 
                  style="background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%), 
-                        url('{% static 'images/partners/sheiderp.jpg' %}'); 
+                        url('{% static 'images/partners/sheiderp.webp' %}'); 
                         background-size: cover; background-position: center;">
                 <div class="partner-logo-wrapper">
-                    {% static 'images/partners/shneiderl.jpg' as schneider_logo %}
+                    {% static 'images/partners/shneiderl.webp' as schneider_logo %}
                     {% if schneider_logo %}
-                        <img src="{% static 'images/partners/shneiderl.jpg' %}" alt="Schneider Electric" class="partner-logo-img" loading="lazy">
+                        <img src="{% static 'images/partners/shneiderl.webp' %}" alt="Schneider Electric" class="partner-logo-img" loading="lazy">
                     {% else %}
                         <div class="partner-icon-large">⚡</div>
                     {% endif %}
@@ -411,12 +425,12 @@
             
             <div class="partner-card-modern" 
                  style="background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%), 
-                        url('{% static 'images/partners/intrap.jpg' %}'); 
+                        url('{% static 'images/partners/intrap.webp' %}'); 
                         background-size: cover; background-position: center;">
                 <div class="partner-logo-wrapper">
-                    {% static 'images/partners/intral.jpg' as intra_logo %}
+                    {% static 'images/partners/intral.webp' as intra_logo %}
                     {% if intra_logo %}
-                        <img src="{% static 'images/partners/intral.jpg' %}" alt="intra" class="partner-logo-img" loading="lazy">
+                        <img src="{% static 'images/partners/intral.webp' %}" alt="intra" class="partner-logo-img" loading="lazy">
                     {% else %}
                         <div class="partner-icon-large">🔋</div>
                     {% endif %}
@@ -429,12 +443,12 @@
             
             <div class="partner-card-modern" 
                  style="background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%), 
-                        url('{% static 'images/partners/fasp.jpg' %}'); 
+                        url('{% static 'images/partners/fasp.webp' %}'); 
                         background-size: cover; background-position: center;">
                 <div class="partner-logo-wrapper">
-                    {% static 'images/partners/fasl.jpg' as fas_logo %}
+                    {% static 'images/partners/fasl.webp' as fas_logo %}
                     {% if fas_logo %}
-                        <img src="{% static 'images/partners/fasl.jpg' %}" alt="FAS Elec" class="partner-logo-img" loading="lazy">
+                        <img src="{% static 'images/partners/fasl.webp' %}" alt="FAS Elec" class="partner-logo-img" loading="lazy">
                     {% else %}
                         <div class="partner-icon-large">🔌</div>
                     {% endif %}
@@ -447,12 +461,12 @@
             
             <div class="partner-card-modern" 
                  style="background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%), 
-                        url('{% static 'images/partners/phoenixp.jpg' %}'); 
+                        url('{% static 'images/partners/phoenixp.webp' %}'); 
                         background-size: cover; background-position: center;">
                 <div class="partner-logo-wrapper">
-                    {% static 'images/partners/phoenixl.jpg' as phoenix_logo %}
+                    {% static 'images/partners/phoenixl.webp' as phoenix_logo %}
                     {% if phoenix_logo %}
-                        <img src="{% static 'images/partners/phoenixl.jpg' %}" alt="Phoenix Contact" class="partner-logo-img" loading="lazy">
+                        <img src="{% static 'images/partners/phoenixl.webp' %}" alt="Phoenix Contact" class="partner-logo-img" loading="lazy">
                     {% else %}
                         <div class="partner-icon-large">🔗</div>
                     {% endif %}
@@ -465,12 +479,12 @@
             
             <div class="partner-card-modern" 
                  style="background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%), 
-                        url('{% static 'images/partners/etalonp.jpg' %}'); 
+                        url('{% static 'images/partners/etalonp.webp' %}'); 
                         background-size: cover; background-position: center;">
                 <div class="partner-logo-wrapper">
-                    {% static 'images/partners/etalonl.jpg' as etalon_logo %}
+                    {% static 'images/partners/etalonl.webp' as etalon_logo %}
                     {% if etalon_logo %}
-                        <img src="{% static 'images/partners/etalonl.jpg' %}" alt="ЭТАЛОН" class="partner-logo-img" loading="lazy">
+                        <img src="{% static 'images/partners/etalonl.webp' %}" alt="ЭТАЛОН" class="partner-logo-img" loading="lazy">
                     {% else %}
                         <div class="partner-icon-large">📟</div>
                     {% endif %}

@@ -1099,11 +1099,11 @@ body {
 }
 
 .category-dropdown {
-  position: absolute;
+  position: fixed;
   top: 0;
-  left: 0;
-  right: 0;
-  max-height: 400px;
+  left: -40px;
+  right: -40px;
+  max-height: 600px;
   overflow-y: auto;
   background: white;
   border: 2px solid #667eea;
@@ -1114,7 +1114,8 @@ body {
 }
 
 .category-dropdown.show {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .category-option {

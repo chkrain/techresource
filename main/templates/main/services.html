@@ -7,7 +7,7 @@
 
 {% block meta %}
 <meta property="og:title" content="Услуги по обслуживанию оборудования | Техресурс">
-<meta property="og:image" content="{% static 'images/img/cad.jpeg' %}">
+<meta property="og:image" content="{% static 'images/img/cad.webp' %}">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Полный комплекс услуг по обслуживанию промышленного оборудования: монтаж, ремонт, модернизация, техническая поддержка.">
@@ -121,22 +121,22 @@
                 {% for service in navigation_tree %}
                 <div class="service-item" data-aos="fade-up" 
                     {% if service.slug == 'design' %}
-                    style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/design.jpg' %}'); background-size: cover; background-position: center; border: none;"
+                    style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/design.webp' %}'); background-size: cover; background-position: center; border: none;"
                     {% endif %}
                     {% if service.slug == 'electrical' %}
-                    style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/mont-ob.jpg' %}'); background-size: cover; background-position: center; border: none;"
+                    style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/mont-ob.webp' %}'); background-size: cover; background-position: center; border: none;"
                     {% endif %}
                     {% if service.slug == 'software' %}
-                    style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/razrabpo.jpg' %}'); background-size: cover; background-position: center; border: none;"
+                    style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/razrabpo.webp' %}'); background-size: cover; background-position: center; border: none;"
                     {% endif %}
                     {% if service.slug == 'equipment' %}
-                    style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/postavkaob.jpg' %}'); background-size: cover; background-position: center; border: none;"
+                    style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/postavkaob.webp' %}'); background-size: cover; background-position: center; border: none;"
                     {% endif %}
                     {% if service.slug == 'support' %}
-                    style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/tp.jpg' %}'); background-size: cover; background-position: center; border: none;"
+                    style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/tp.webp' %}'); background-size: cover; background-position: center; border: none;"
                     {% endif %}
                     {% if service.slug == 'maintenance' %}
-                    style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/serv-obs.jpg' %}'); background-size: cover; background-position: center; border: none;"
+                    style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/img/serv-obs.webp' %}'); background-size: cover; background-position: center; border: none;"
                     {% endif %}>
                     <a href="{{ service.url }}" style="text-decoration: none;">
                         <div class="service-content">
@@ -165,7 +165,7 @@
 
     <section class="services-section alt-bg" id="additional-services">
         <div class="container">
-            <h2 class="section-title">Специализированные услуги</h2>
+            <h2 class="section-title">Наши услуги</h2>
             
             <div class="additional-services">
                 <div class="flip-card-wrapper" title="Кликните по полю для дополнительных деталей" data-aos="zoom-in">
