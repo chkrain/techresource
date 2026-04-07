@@ -1,6 +1,7 @@
 """
 Django management command для оптимизации изображений.
 Конвертирует JPG/PNG в WebP, оптимизирует размеры, удаляет метаданные.
+Исключает критически важные изображения (печати, подписи, логотипы в документах).
 """
 
 import os
@@ -70,6 +71,24 @@ class Command(BaseCommand):
             help='Подробный вывод'
         )
     
+    def is_excluded(self, file_path):
+        """Проверяет, нужно ли исключить файл из конвертации"""
+        excluded_names = [
+            'pechat',      # печать
+            'stamp',       # печать (англ)
+            'kaz',         # подпись
+            'signature',   # подпись (англ)
+            'inv.svg',     # логотип в инвойсе
+            'favicon',     # иконки
+        ]
+        
+        file_lower = str(file_path).lower()
+        
+        for excluded in excluded_names:
+            if excluded.lower() in file_lower:
+                return True
+        return False
+    
     def handle(self, *args, **options):
         self.verbose = options['verbose']
         self.dry_run = options['dry_run']
@@ -85,6 +104,7 @@ class Command(BaseCommand):
         self.stdout.write(f'📁 Папка: {self.images_path}')
         self.stdout.write(f'🎨 Качество: {self.quality}%')
         self.stdout.write(f'📏 Макс. ширина: {self.max_width}px')
+        self.stdout.write(self.style.WARNING('⚠️ Исключаемые файлы: печати, подписи, логотипы документов\n'))
         
         if self.dry_run:
             self.stdout.write(self.style.WARNING('⚠️ РЕЖИМ DRY RUN - изменения не будут применены\n'))
@@ -95,7 +115,10 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING('⚠️ Изображения не найдены'))
             return
         
-        self.stdout.write(f'📸 Найдено изображений: {len(self.images)}\n')
+        self.stdout.write(f'📸 Найдено изображений: {len(self.images)}')
+        
+        excluded_count = sum(1 for img in self.images if self.is_excluded(img))
+        self.stdout.write(f'🔒 Исключено (печати/подписи): {excluded_count}\n')
         
         if self.keep_original and not self.dry_run:
             self.originals_dir = self.images_path / 'originals'
@@ -133,13 +156,26 @@ class Command(BaseCommand):
         return images
     
     def convert_to_webp(self):
-        """Конвертирует изображения в WebP"""
+        """Конвертирует изображения в WebP (кроме исключённых)"""
         self.stdout.write('🔄 Конвертация в WebP...\n')
         
         to_convert = [
             img for img in self.images 
             if img.suffix.lower() in ['.jpg', '.jpeg', '.png']
+            and not self.is_excluded(img)
         ]
+        
+        skipped_excluded = [
+            img for img in self.images 
+            if img.suffix.lower() in ['.jpg', '.jpeg', '.png']
+            and self.is_excluded(img)
+        ]
+        
+        if skipped_excluded:
+            self.stdout.write(self.style.WARNING('🔒 Исключено из конвертации:'))
+            for img in skipped_excluded:
+                self.stdout.write(f'   - {img.name}')
+            self.stdout.write('')
         
         if not to_convert:
             self.stdout.write(self.style.WARNING('  Нет изображений для конвертации\n'))
@@ -207,7 +243,7 @@ class Command(BaseCommand):
             raise Exception(f"Ошибка обработки: {e}")
     
     def optimize_originals(self):
-        """Оптимизирует оригинальные JPG/PNG"""
+        """Оптимизирует оригинальные JPG/PNG (кроме исключённых)"""
         self.stdout.write('🔧 Оптимизация оригиналов...\n')
         
         has_jpegoptim = shutil.which('jpegoptim') is not None
@@ -222,12 +258,27 @@ class Command(BaseCommand):
         to_optimize = []
         
         if has_jpegoptim:
-            jpegs = [img for img in self.images if img.suffix.lower() in ['.jpg', '.jpeg']]
+            jpegs = [img for img in self.images if img.suffix.lower() in ['.jpg', '.jpeg'] and not self.is_excluded(img)]
             to_optimize.extend([(img, 'jpeg') for img in jpegs])
         
         if has_optipng:
-            pngs = [img for img in self.images if img.suffix.lower() == '.png']
+            pngs = [img for img in self.images if img.suffix.lower() == '.png' and not self.is_excluded(img)]
             to_optimize.extend([(img, 'png') for img in pngs])
+        
+        skipped_excluded = [
+            img for img in self.images 
+            if (img.suffix.lower() in ['.jpg', '.jpeg', '.png'] and self.is_excluded(img))
+        ]
+        
+        if skipped_excluded and self.verbose:
+            self.stdout.write(self.style.WARNING('🔒 Исключено из оптимизации:'))
+            for img in skipped_excluded:
+                self.stdout.write(f'   - {img.name}')
+            self.stdout.write('')
+        
+        if not to_optimize:
+            self.stdout.write('  Нет изображений для оптимизации\n')
+            return
         
         for i, (img_path, img_type) in enumerate(to_optimize, 1):
             self.stdout.write(f'  [{i}/{len(to_optimize)}] {img_path.name}', ending='')
@@ -321,6 +372,11 @@ class Command(BaseCommand):
             self.stdout.write(f'   До: {original_mb:.2f} MB')
             self.stdout.write(f'   После: {new_mb:.2f} MB')
             self.stdout.write(self.style.SUCCESS(f'   Экономия: {savings:.1f}% ({original_mb - new_mb:.2f} MB)'))
+        
+        self.stdout.write(self.style.WARNING('\n🔒 Критические файлы сохранены в исходном формате:'))
+        self.stdout.write('   - pechat.webp (печать)')
+        self.stdout.write('   - kaz.webp (подпись)')
+        self.stdout.write('   - inv.svg (логотип счёта)')
         
         if self.dry_run:
             self.stdout.write(self.style.WARNING('\n⚠️ Это был пробный запуск. Никакие изменения не применены.'))

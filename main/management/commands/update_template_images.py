@@ -1,5 +1,6 @@
 """
 Обновляет пути к изображениям в шаблонах на .webp
+Исключает шаблон счёта-оферты (invoice_email.html)
 """
 
 import re
@@ -23,6 +24,12 @@ class Command(BaseCommand):
             action='store_true',
             help='Создать бэкапы перед изменениями'
         )
+        
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            help='Включить обработку шаблона счёта (не рекомендуется)'
+        )
     
     def handle(self, *args, **options):
         templates_dir = Path(settings.BASE_DIR) / 'main' / 'templates'
@@ -31,17 +38,33 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR('Папка с шаблонами не найдена'))
             return
         
+        # Исключаем шаблон счёта-оферты
+        excluded_templates = [
+            'invoice_email.html',
+            'invoice_email',
+        ]
+        
         # Расширения для замены
         extensions = ['.jpg', '.jpeg', '.png']
         
         # Находим все HTML файлы
         html_files = list(templates_dir.rglob('*.html'))
         
-        self.stdout.write(f'📁 Найдено HTML файлов: {len(html_files)}\n')
+        # Фильтруем исключённые шаблоны
+        filtered_files = []
+        for html_file in html_files:
+            if not options['force']:
+                if any(excluded in str(html_file) for excluded in excluded_templates):
+                    self.stdout.write(self.style.WARNING(f'🔒 Исключён (шаблон счёта): {html_file.name}'))
+                    continue
+            filtered_files.append(html_file)
+        
+        self.stdout.write(f'📁 Найдено HTML файлов: {len(html_files)}')
+        self.stdout.write(f'📝 Будет обработано: {len(filtered_files)}\n')
         
         updated_count = 0
         
-        for html_file in html_files:
+        for html_file in filtered_files:
             with open(html_file, 'r', encoding='utf-8') as f:
                 content = f.read()
             
@@ -49,8 +72,6 @@ class Command(BaseCommand):
             
             # Заменяем .jpg/.png на .webp в статических путях
             for ext in extensions:
-                pattern = r'(\.\./static|{% static \'[^\']*)\\' + ext.replace('.', r'\.') + r'([^\']*\'?)'
-                # Более простой вариант:
                 content = content.replace(f'{ext}', '.webp')
             
             if content != original_content:
@@ -70,6 +91,12 @@ class Command(BaseCommand):
                     self.stdout.write(f'🔍 [DRY RUN] {html_file.relative_to(templates_dir)}')
         
         self.stdout.write(self.style.SUCCESS(f'\n✨ Обновлено файлов: {updated_count}'))
+        
+        if not options['force']:
+            self.stdout.write(self.style.WARNING(
+                '\n⚠️ Шаблон invoice_email.html НЕ был обработан (сохранены оригинальные пути)'
+            ))
+            self.stdout.write('   Печать, подпись и логотип остались в исходном формате.')
         
         if options['dry_run']:
             self.stdout.write(self.style.WARNING(
