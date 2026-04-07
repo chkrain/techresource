@@ -38,19 +38,15 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR('Папка с шаблонами не найдена'))
             return
         
-        # Исключаем шаблон счёта-оферты
         excluded_templates = [
             'invoice_email.html',
             'invoice_email',
         ]
         
-        # Расширения для замены
         extensions = ['.jpg', '.jpeg', '.png']
         
-        # Находим все HTML файлы
         html_files = list(templates_dir.rglob('*.html'))
         
-        # Фильтруем исключённые шаблоны
         filtered_files = []
         for html_file in html_files:
             if not options['force']:
@@ -70,7 +66,6 @@ class Command(BaseCommand):
             
             original_content = content
             
-            # Заменяем .jpg/.png на .webp в статических путях
             for ext in extensions:
                 content = content.replace(f'{ext}', '.webp')
             

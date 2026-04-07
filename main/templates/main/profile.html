@@ -484,9 +484,9 @@
                                     <div class="order-info">
                                         <h3>Заказ #{{ order.id }}</h3>
                                         <div class="order-meta">
-                                            <span class="order-date">📅 {{ order.created_at|date:"d.m.Y H:i" }}</span>
+                                            <span class="order-date">{{ order.created_at|date:"d.m.Y H:i" }}</span>
                                             <span class="order-status status-{{ order.status }}">{{ order.get_status_display }}</span>
-                                            <span class="order-total">💰 {{ order.total_price }} ₽</span>
+                                            <span class="order-total">{{ order.total_price }}&nbsp;₽</span>
                                         </div>
                                     </div>
                                 </div>
@@ -504,11 +504,11 @@
                                                     </small>
                                                     <br>
                                                 {% endif %}
-                                                {{ item.price|floatformat:2 }} ₽ × {{ item.quantity }}
+                                                {{ item.price|floatformat:2 }}&nbsp;₽ × {{ item.quantity }}
                                             </div>
                                         </div>
                                         <div class="item-total">
-                                            <strong>{{ item.get_total_price|floatformat:2 }} ₽</strong>
+                                            <strong>{{ item.get_total_price|floatformat:2 }}&nbsp;₽</strong>
                                         </div>
                                     </div>
                                 {% endfor %}
