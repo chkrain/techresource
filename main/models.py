@@ -90,7 +90,7 @@ class CurrencyRate(models.Model):
             try:
                 currency = cls.objects.get(currency=currency_code, is_active=True)
                 rate = currency.rate_to_rub
-                cache.set(cache_key, rate, 3600)  # Кэшируем на 1 час
+                cache.set(cache_key, rate, 3600) 
             except cls.DoesNotExist:
                 rate = Decimal('1.0000')
         
@@ -796,8 +796,7 @@ class Admin2FA(models.Model):
     
     def generate_backup_codes(self):
         """Генерация резервных кодов"""
-        # Генерируем 8-символьные коды для удобства
-        self.backup_codes = [secrets.token_hex(4).upper() for _ in range(8)]  # 8-символьные коды
+        self.backup_codes = [secrets.token_hex(4).upper() for _ in range(8)]  
         self.save()
         return self.backup_codes
     
@@ -808,7 +807,6 @@ class Admin2FA(models.Model):
         
         code = code.strip().upper()
         if code in self.backup_codes:
-            # Удаляем использованный код
             self.backup_codes.remove(code)
             self.save()
             return True
@@ -1225,7 +1223,6 @@ class Product(models.Model):
     ]
     
     SYNONYMS = {
-        # Оборудование
         'транспортер': ['транспортёр', 'конвейер', 'ленточный конвейер', 'рольганг', 'перемещения'],
         'шнек': ['шнековый', 'винтовой конвейер', 'шнековый транспортер', 'винтовой транспортер'],
         'насос': ['помпа', 'насосное оборудование', 'перекачивающее устройство'],
@@ -1237,27 +1234,18 @@ class Product(models.Model):
         'клапан': ['вентиль', 'задвижка', 'запорная арматура', 'регулирующий клапан'],
         'датчик': ['сенсор', 'измерительный прибор', 'контроллер', 'преобразователь'],
         'привод': ['электропривод', 'приводное устройство', 'мотор-редуктор'],
-        
-        # Действия
         'купить': ['приобрести', 'заказать', 'оформить заказ', 'купить недорого', 'цена', 'стоимость'],
         'продажа': ['реализация', 'поставка', 'продажа оборудования'],
-        
-        # Категории
         'промышленный': ['индустриальный', 'производственный', 'промышленное'],
         'автоматизация': ['автоматика', 'АСУ ТП', 'системы управления', 'SCADA', 'контроллеры'],
         'электрика': ['электрооборудование', 'электротехника', 'электрическое оборудование'],
-        
-        # Характеристики
         'нержавеющий': ['нержавейка', 'коррозионностойкий', 'inox', 'stainless steel'],
         'чугунный': ['чугун', 'литье чугуна'],
         'стальной': ['сталь', 'металлический'],
-        
-        # Состояния
         'новый': ['новое оборудование', 'оригинал', 'новье'],
         'б/у': ['бу', 'подержанный', 'восстановленный', 'после капремонта'],
     }
     
-    # Общие ключевые слова для всех товаров
     COMMON_KEYWORDS = [
         'промышленное оборудование',
         'производственное оборудование',
@@ -1342,20 +1330,18 @@ class Product(models.Model):
     
         is_new = not self.pk
     
-        # 1. Сначала генерируем артикул для новых товаров
         if is_new or not self.article or self.article == '':
             self.article = self.generate_article()
-    
-        # 2. Проверяем, нужно ли обновить SEO поля
+
         need_seo_update = (
-            is_new or  # Новый товар
-            not self.seo_title or  # Отсутствует заголовок
-            not self.seo_description or  # Отсутствует описание
-            not self.seo_keywords or  # Отсутствуют ключевые слова
-            self._has_name_changed() or  # Изменилось название
-            self._has_price_changed() or  # Изменилась цена
-            self._has_brand_changed() or  # Изменился бренд
-            self._has_category_changed()  # Изменилась категория
+            is_new or  
+            not self.seo_title or  
+            not self.seo_description or 
+            not self.seo_keywords or  
+            self._has_name_changed() or  
+            self._has_price_changed() or  
+            self._has_brand_changed() or 
+            self._has_category_changed()  
         )
         
         if need_seo_update:
@@ -1408,7 +1394,6 @@ class Product(models.Model):
         """Получить цену для конкретного пользователя с учетом всех скидок"""
         from django.core.cache import cache
         
-        # Базовая цена в рублях (используем существующий метод)
         base_price = self.get_display_price('RUB')
         
         if not user or not user.is_authenticated:
@@ -1448,8 +1433,8 @@ class Product(models.Model):
     def get_volume_discount(self, quantity):
         """Скидка от количества"""
         discounts = {
-            5: 2,   # от 5 шт - 2%
-            10: 3,  # от 10 шт - 3%
+            5: 2,   
+            10: 3, 
             25: 4,
             50: 5,
             100: 7,
@@ -1622,48 +1607,34 @@ class Product(models.Model):
         if not self.name:
             return
         
-        # 1. Генерация SEO заголовка
         self.seo_title = self._generate_seo_title()
-        
-        # 2. Генерация SEO описания
         self.seo_description = self._generate_seo_description()
-        
-        # 3. Генерация ключевых слов с синонимами
         self.seo_keywords = self._generate_seo_keywords()
     
     def _generate_seo_title(self):
         """Генерирует SEO заголовок с учетом разных форм"""
         title_parts = []
-        
-        # Добавляем бренд если есть
         if self.brand:
             title_parts.append(self.brand)
         
-        # Основное название
         title_parts.append(self.name)
         
-        # Добавляем альтернативные названия для заголовка (если есть синонимы)
         alt_names = self._get_synonyms_for_product()
         if alt_names:
             title_parts.append(f"({alt_names[0]})")
         
-        # Добавляем цену
         if self.price:
             title_parts.append(self.get_price_with_currency_symbol())
         
-        # Добавляем ключевое действие
         if self.category:
             title_parts.append(f"купить {self.category.name.lower()}")
         else:
             title_parts.append("купить промышленное оборудование")
         
-        # Добавляем название компании
         title_parts.append("Техресурс")
         
-        # Собираем заголовок
         title = " - ".join(title_parts)
         
-        # Обрезаем до 200 символов, стараясь не резать на полуслове
         if len(title) > 200:
             title = title[:197] + "..."
         
@@ -1673,20 +1644,15 @@ class Product(models.Model):
         """Генерирует SEO описание с синонимами и ключевыми фразами"""
         desc_parts = []
         
-        # Основная информация о товаре
         desc_parts.append(f"{self.name}")
-        
-        # Добавляем синонимы в скобках
         synonyms = self._get_synonyms_for_product()
         if synonyms:
             desc_parts.append(f"(также: {', '.join(synonyms[:3])})")
         
-        # Ценовая информация
         if self.price:
             price_text = f"по цене {self.get_price_with_currency_symbol()}"
             desc_parts.append(price_text)
         
-        # Технические характеристики
         tech_info = []
         if self.brand:
             tech_info.append(f"бренд {self.brand}")
@@ -1700,11 +1666,9 @@ class Product(models.Model):
         if tech_info:
             desc_parts.append(f"характеристики: {', '.join(tech_info)}")
         
-        # Категория и применение
         if self.category:
             desc_parts.append(f"категория {self.category.name}")
             
-            # Добавляем фразы для конкретной категории
             if "насос" in self.category.name.lower():
                 desc_parts.append("перекачка жидкостей, водоснабжение")
             elif "конвейер" in self.category.name.lower() or "транспортер" in self.category.name.lower():
@@ -1712,20 +1676,16 @@ class Product(models.Model):
             elif "дробилка" in self.category.name.lower():
                 desc_parts.append("измельчение материалов, дробление пород")
         
-        # Добавляем описание из карточки товара
         if self.description:
             clean_desc = re.sub(r'<[^>]+>', '', self.description)
-            clean_desc = ' '.join(clean_desc.split()[:15])  # Первые 15 слов
+            clean_desc = ' '.join(clean_desc.split()[:15])  
             if clean_desc:
                 desc_parts.append(clean_desc + "...")
         
-        # Добавляем призыв к действию
         desc_parts.append("Звоните! Доставка по РФ.")
         
-        # Собираем описание
         description = ". ".join(desc_parts)
         
-        # Обрезаем до 160 символов, стараясь не резать на полуслове
         if len(description) > 160:
             description = description[:157] + "..."
         
@@ -1735,41 +1695,33 @@ class Product(models.Model):
         """Генерирует ключевые слова с учетом синонимов и N-грамм"""
         keywords = set()
         
-        # 1. Добавляем название товара и его части
         name_lower = self.name.lower()
         keywords.add(name_lower)
         
-        # Разбиваем название на слова
         name_words = re.findall(r'\w+', name_lower)
         keywords.update(name_words)
         
-        # Добавляем биграммы (пары слов)
         if len(name_words) > 1:
             bigrams = [f"{name_words[i]} {name_words[i+1]}" for i in range(len(name_words)-1)]
             keywords.update(bigrams)
         
-        # 2. Добавляем синонимы
         synonyms = self._get_all_synonyms(name_lower)
         keywords.update(synonyms)
         
-        # 3. Добавляем поисковые фразы с синонимами
         search_phrases = ['купить', 'цена', 'продажа', 'стоимость']
         for word in name_words:
             for phrase in search_phrases:
                 keywords.add(f"{phrase} {word}")
-                # Добавляем фразы с синонимами
                 for syn in synonyms:
-                    if len(syn.split()) <= 2:  # Только короткие синонимы
+                    if len(syn.split()) <= 2:  
                         keywords.add(f"{phrase} {syn}")
         
-        # 4. Добавляем информацию о категории
         if self.category:
             cat_lower = self.category.name.lower()
             keywords.add(cat_lower)
             keywords.add(f"купить {cat_lower}")
             keywords.add(f"{cat_lower} цена")
             
-            # Добавляем родительские категории
             parent = self.category.parent
             while parent:
                 parent_lower = parent.name.lower()
@@ -1777,31 +1729,25 @@ class Product(models.Model):
                 keywords.add(f"купить {parent_lower}")
                 parent = parent.parent
         
-        # 5. Добавляем бренд и его вариации
         if self.brand:
             brand_lower = self.brand.lower()
             keywords.add(brand_lower)
             keywords.add(f"{brand_lower} оборудование")
             keywords.add(f"{brand_lower} купить")
         
-        # 6. Добавляем характеристики
         if self.material:
             material_lower = self.material.lower()
             keywords.add(material_lower)
             keywords.add(f"{material_lower} {name_lower}")
         
-        # 7. Добавляем общие ключевые слова из COMMON_KEYWORDS
         keywords.update(self.COMMON_KEYWORDS)
         
-        # 8. Добавляем специфичные для отрасли ключи на основе названия
         industry_keywords = self._get_industry_keywords(name_lower)
         keywords.update(industry_keywords)
         
-        # Преобразуем в список, сортируем и ограничиваем
         keywords_list = list(keywords)
-        keywords_list.sort()  # Сортируем для консистентности
+        keywords_list.sort()  
         
-        # Ограничиваем количество (но оставляем больше, так как это keywords)
         return ', '.join(keywords_list[:25])
     
     def _get_synonyms_for_product(self):
@@ -1813,17 +1759,14 @@ class Product(models.Model):
         found_synonyms = set()
         
         for key, syn_list in self.SYNONYMS.items():
-            # Проверяем, содержится ли ключевое слово в названии
             if key in name_lower:
                 found_synonyms.update(syn_list)
             
-            # Проверяем, содержится ли синоним в названии (обратный поиск)
             for syn in syn_list:
                 if syn in name_lower:
                     found_synonyms.add(key)
                     break
         
-        # Убираем слишком длинные синонимы
         return [s for s in found_synonyms if len(s.split()) <= 3][:5]
     
     def _get_all_synonyms(self, text):
@@ -1844,10 +1787,8 @@ class Product(models.Model):
         if not self.name:
             return ''
         
-        # Берем название
         base = self.name.lower()
         
-        # Добавляем ключевое слово из категории
         if self.category:
             category_keywords = {
                 'насос': 'pump',
@@ -1865,20 +1806,17 @@ class Product(models.Model):
                     base = f"{base}-{en}"
                     break
         
-        # Транслитерируем и создаем slug
         slug = slugify(base)
         
-        # Добавляем артикул для уникальности
         if self.article:
             slug = f"{slug}-{self.article}"
         
-        return slug[:200]  # Ограничиваем длину
+        return slug[:200]  
     
     def _get_industry_keywords(self, product_name):
         """Возвращает отраслевые ключевые слова на основе названия товара"""
         industry_keywords = set()
         
-        # Словарь отраслевых привязок
         industry_map = {
             'нефть': ['нефтегазовая отрасль', 'нефтепереработка', 'нефтепромысел'],
             'газ': ['газовая промышленность', 'газодобыча', 'газотранспортная система'],
@@ -1922,7 +1860,7 @@ class Product(models.Model):
             try:
                 day = int(self.article[0:2])
                 month = int(self.article[2:4])
-                year = 2000 + int(self.article[4:6])  # 20 + ГГ
+                year = 2000 + int(self.article[4:6])  
                 return f"{day:02d}.{month:02d}.{year}"
             except (ValueError, IndexError):
                 return "Дата неизвестна"
@@ -2021,10 +1959,6 @@ class Order(models.Model):
     PAYMENT_METHODS = [
         ('invoice', 'По счету'),  
     ]
-
-    # PAYMENT_SYSTEMS = [
-    #     ('', 'Не используется'), 
-    # ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь",null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
@@ -2341,7 +2275,7 @@ class OrderItem(models.Model):
     vat_rate = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
-        default=Decimal('22.00'),  # Используем Decimal
+        default=Decimal('22.00'),  
         verbose_name="Ставка НДС (%)"
     )
     vat_amount = models.DecimalField(
@@ -2601,7 +2535,6 @@ class SupportAttachment(models.Model):
             self.file_name = self.file.name
         super().save(*args, **kwargs)
 
-# Сигналы
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -2657,13 +2590,11 @@ class ServicePage(models.Model):
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, 
                              verbose_name="Родительская страница", related_name='children')
     
-    # Контент
     hero_title = models.CharField(max_length=200, blank=True, verbose_name="Заголовок героя")
     hero_subtitle = models.TextField(blank=True, verbose_name="Подзаголовок героя")
     hero_image = models.ImageField(upload_to='service_heroes/', blank=True, null=True, verbose_name="Изображение героя")
     content = models.TextField(blank=True, verbose_name="Основной контент")
     
-    # Исправляем features - используем TextField для простоты
     features_text = models.TextField(
         blank=True, 
         verbose_name="Особенности",
@@ -3009,7 +2940,6 @@ class PrivacyRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='privacy_requests')
     incoming_number = models.CharField(max_length=100, blank=True, verbose_name='Входящий номер')
     deadline = models.DateField(null=True, blank=True, verbose_name='Срок рассмотрения')
-    # Данные запроса
     full_name = models.CharField(max_length=255, verbose_name='ФИО')
     email = models.EmailField(verbose_name='Email для связи')
     phone = models.CharField(max_length=20, blank=True, verbose_name='Телефон')
@@ -3019,29 +2949,22 @@ class PrivacyRequest(models.Model):
                                          choices=[('email', 'Email'), ('phone', 'Телефон'), ('post', 'Почта')],
                                          verbose_name='Предпочтительный способ ответа')
     
-    # Файлы
     verification_document = models.FileField(upload_to='privacy_requests/verification/%Y/%m/', 
                                            null=True, blank=True, 
                                            verbose_name='Документ для верификации')
     
-    # Системная информация
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='received', verbose_name='Статус')
     ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name='IP-адрес')
     user_agent = models.TextField(blank=True, verbose_name='User Agent')
-    
-    # Даты
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     resolved_at = models.DateTimeField(null=True, blank=True, verbose_name='Дата решения')
-    
-    # Ответ оператора
     response_text = models.TextField(blank=True, verbose_name='Текст ответа')
     response_sent_at = models.DateTimeField(null=True, blank=True, verbose_name='Дата отправки ответа')
     response_method = models.CharField(max_length=20, blank=True, 
                                       choices=[('email', 'Email'), ('phone', 'Телефон'), ('post', 'Почта')],
                                       verbose_name='Способ отправки ответа')
     
-    # Логи
     notes = models.TextField(blank=True, verbose_name='Внутренние заметки')
     
     class Meta:
@@ -3083,7 +3006,7 @@ class PrivacyRequest(models.Model):
 class PrivacyRequestLog(models.Model):
     """Журнал обработки запросов ПД"""
     request = models.ForeignKey(PrivacyRequest, on_delete=models.CASCADE)
-    action = models.CharField(max_length=100)  # 'received', 'verified', 'replied', etc.
+    action = models.CharField(max_length=100)  
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     details = models.JSONField(default=dict)
@@ -3224,7 +3147,7 @@ class PrivacyConsent(models.Model):
 class PrivacyConsentLog(models.Model):
     """Лог изменений согласий"""
     consent = models.ForeignKey(PrivacyConsent, on_delete=models.CASCADE, verbose_name="Согласие")
-    action = models.CharField(max_length=50, verbose_name="Действие")  # created, modified, revoked, etc.
+    action = models.CharField(max_length=50, verbose_name="Действие") 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Пользователь")
     ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")
     user_agent = models.TextField(verbose_name="User Agent")

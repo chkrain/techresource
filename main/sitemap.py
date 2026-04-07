@@ -53,7 +53,6 @@ class CategorySitemap(Sitemap):
         return Category.objects.filter(is_active=True)
     
     def location(self, obj):
-        # Используем существующий URL 'products' с параметром category
         try:
             return reverse('products') + f'?category={obj.slug}'
         except:
@@ -86,7 +85,6 @@ class ServicePageSitemap(Sitemap):
     priority = 0.6
     
     def items(self):
-        # Проверяем, импортирована ли модель
         if 'ServicePage' not in globals():
             return []
         return ServicePage.objects.filter(is_active=True)

@@ -31,7 +31,6 @@ def delete_profile_images(sender, instance, **kwargs):
         except (OSError, ValueError, TypeError):
             pass
     
-    # Удаляем все изображения профиля
     safe_delete(instance.avatar)
     safe_delete(instance.avatar_small)
     safe_delete(instance.avatar_medium)
@@ -57,18 +56,12 @@ def delete_old_images(sender, instance, **kwargs):
             if old_file and hasattr(old_file, 'path'):
                 old_path = old_file.path
                 new_path = new_file.path if new_file else None
-                
-                # Удаляем если:
-                # 1. Есть старый файл
-                # 2. Нет нового ИЛИ новый файл отличается от старого
-                # 3. Файл существует
                 if (old_path and os.path.isfile(old_path) and 
                     (not new_file or old_path != new_path)):
                     os.remove(old_path)
         except (OSError, ValueError, TypeError):
             pass
     
-    # Проверяем каждое поле с изображением
     safe_delete(old_instance.avatar, instance.avatar, 'avatar')
     safe_delete(old_instance.avatar_small, instance.avatar_small, 'avatar_small')
     safe_delete(old_instance.avatar_medium, instance.avatar_medium, 'avatar_medium')

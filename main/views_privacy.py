@@ -565,7 +565,7 @@ def safe_log_notification(user, action, details=None):
                 )
             else:
                 NotificationLog.objects.create(
-                    recipient=user,  # или другое поле
+                    recipient=user,
                     action=action,
                     details=details or {}
                 )
@@ -615,7 +615,7 @@ def process_detailed_consent(request):
                     existing_consent = PrivacyConsent.objects.filter(
                         user=user,
                         consent_type='detailed_consent',
-                        version='1.0'  # Или динамически определять версию
+                        version='1.0'  
                     ).first()
                 
                 data_categories = [
@@ -849,7 +849,6 @@ def get_detailed_consent_purpose(form_data):
 def create_detailed_marketing_consent(user, email, ip_address, user_agent, form_data):
     """Создание маркетингового согласия из подробной формы"""
     try:
-        # Определяем пользователя
         from django.contrib.auth.models import User
         consent_user = user
         
@@ -859,7 +858,6 @@ def create_detailed_marketing_consent(user, email, ip_address, user_agent, form_
             except User.DoesNotExist:
                 consent_user = None
         
-        # Настройки маркетингового согласия
         marketing_consent_data = {
             'version': '3.0',
             'purpose': 'Отправка маркетинговых и информационных сообщений',
@@ -876,7 +874,6 @@ def create_detailed_marketing_consent(user, email, ip_address, user_agent, form_
             'document_url': '/privacy/#marketing'
         }
         
-        # Проверяем наличие активного маркетингового согласия
         existing_marketing_consent = None
         if consent_user:
             existing_marketing_consent = PrivacyConsent.objects.filter(
@@ -886,7 +883,6 @@ def create_detailed_marketing_consent(user, email, ip_address, user_agent, form_
             ).first()
         
         if existing_marketing_consent:
-            # Обновляем существующее согласие
             existing_marketing_consent.version = marketing_consent_data['version']
             existing_marketing_consent.purpose = marketing_consent_data['purpose']
             existing_marketing_consent.save()
@@ -980,7 +976,6 @@ def get_detailed_consent_info(request, consent_id):
             consent_type='detailed_consent'
         )
         
-        # Ищем лог с деталями формы
         form_details = {}
         try:
             consent_log = PrivacyConsentLog.objects.filter(
@@ -993,7 +988,6 @@ def get_detailed_consent_info(request, consent_id):
         except:
             pass
         
-        # Формируем ответ
         data = {
             'id': consent.id,
             'consent_type': 'Подробное согласие',
@@ -1017,7 +1011,6 @@ def get_detailed_consent_info(request, consent_id):
 def create_detailed_privacy_consent(user, request=None, context_data=None):
     """Создание подробного согласия на обработку персональных данных"""
     try:
-        # Проверяем наличие активного подробного согласия
         existing_consent = PrivacyConsent.objects.filter(
             user=user,
             consent_type='detailed_consent',
@@ -1027,7 +1020,6 @@ def create_detailed_privacy_consent(user, request=None, context_data=None):
         if existing_consent:
             return existing_consent
         
-        # Настройки для подробного согласия
         config = {
             'version': '3.0',
             'purpose': 'Комплексная обработка персональных данных с учетом пользовательских предпочтений',
@@ -1050,7 +1042,6 @@ def create_detailed_privacy_consent(user, request=None, context_data=None):
             ip_address = context_data.get('ip_address', '')
             user_agent = context_data.get('user_agent', '')
         
-        # Создаем согласие
         consent = PrivacyConsent.objects.create(
             user=user,
             consent_type='detailed_consent',
@@ -1079,7 +1070,6 @@ def create_detailed_privacy_consent(user, request=None, context_data=None):
             }
         )
         
-        # Обновляем профиль
         try:
             profile = UserProfile.objects.get(user=user)
             profile.last_privacy_update = timezone.now()

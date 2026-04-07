@@ -477,7 +477,6 @@ class OrderAdmin(admin.ModelAdmin):
         """Ограничение видимости заказов для не-superuser админов"""
         qs = super().get_queryset(request)
         if not request.user.is_superuser:
-            # Обычные админы видят только последние 1000 заказов
             qs = qs.order_by('-created_at')[:1000]
         return qs
     
@@ -487,7 +486,6 @@ class OrderAdmin(admin.ModelAdmin):
             self.message_user(request, 'Недостаточно прав для экспорта', level=messages.ERROR)
             return
         
-        # Здесь может быть логика экспорта
         self.message_user(request, f'Экспортировано {queryset.count()} заказов')
     export_orders.short_description = "Экспортировать выбранные заказы"
     
@@ -497,7 +495,6 @@ class OrderAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} заказов помечены как отправленные')
     mark_as_shipped.short_description = "Пометить как отправленные"
     
-    # Методы для list_display
     def get_user(self, obj):
         return obj.user.username if obj.user else 'Гость'
     get_user.short_description = 'Пользователь'
@@ -570,7 +567,6 @@ class ProductReviewAdmin(admin.ModelAdmin):
         updated = queryset.update(is_approved=True, is_moderated=True)
         self.message_user(request, f'{updated} отзывов одобрено.')
         
-        # Логирование
         logger.info(f"Admin {request.user} approved {updated} reviews")
     approve_reviews.short_description = "Одобрить выбранные отзывы"
     
@@ -579,7 +575,6 @@ class ProductReviewAdmin(admin.ModelAdmin):
         updated = queryset.update(is_approved=False, is_moderated=True)
         self.message_user(request, f'{updated} отзывов отклонено.')
         
-        # Логирование
         logger.info(f"Admin {request.user} rejected {updated} reviews")
     reject_reviews.short_description = "Отклонить выбранные отзывы"
     
@@ -593,11 +588,9 @@ class ProductReviewAdmin(admin.ModelAdmin):
         queryset.delete()
         self.message_user(request, f'{count} отзывов удалено.')
         
-        # Логирование
         logger.warning(f"Admin {request.user} bulk deleted {count} reviews")
     bulk_delete_reviews.short_description = "Массовое удаление отзывов"
 
-# Остальные модели с базовой безопасностью
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
     list_display = ['user', 'created_at', 'get_total_price']
@@ -986,7 +979,7 @@ class PriceListAdmin(admin.ModelAdmin):
     list_display = ['name', 'is_active', 'valid_from', 'valid_to', 'created_at']
     list_filter = ['is_active', 'valid_from', 'valid_to']
     search_fields = ['name']
-    inlines = []  # Добавим inline позже
+    inlines = []
     
     fieldsets = (
         ('Основная информация', {

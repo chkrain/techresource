@@ -105,19 +105,16 @@ def index(request):
     
     contact_form = ContactForm()
     
-    # Проверяем, отправлена ли контактная форма
     if request.method == 'POST' and 'contact_form' in request.POST:
         contact_form = ContactForm(request.POST)
         
         if contact_form.is_valid():
             try:
-                # Получаем данные из формы
                 name = contact_form.cleaned_data['name']
                 email = contact_form.cleaned_data['email']
                 phone = contact_form.cleaned_data.get('phone', '')
                 message = contact_form.cleaned_data['message']
                 
-                # Отправляем сообщение в Telegram
                 ip_address = get_client_ip(request)
                 success = send_contact_message(name, email, phone, message, ip_address)
                 
@@ -126,8 +123,6 @@ def index(request):
                         request, 
                         '✅ Сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.'
                     )
-                    
-                    # Логируем отправку
                     NotificationLog.objects.create(
                         notification_type='contact_form_sent',
                         message=f'Контактная форма отправлена от {name} ({email})',
@@ -135,7 +130,6 @@ def index(request):
                         success=True
                     )
                     
-                    # Очищаем форму после успешной отправки
                     contact_form = ContactForm()
                     
                     if request.user.is_authenticated:
@@ -168,7 +162,7 @@ def index(request):
     
     context = {
         'featured_products': featured_products,
-        'contact_form': contact_form,  # Добавляем форму в контекст
+        'contact_form': contact_form,  
     }
     
     return render(request, 'main/index.html', context)
@@ -375,7 +369,6 @@ def moderate_all_comments(request):
         messages.error(request, f'Неизвестное действие: {action}')
         return redirect('admin_dashboard')
     
-    # Логирование
     try:
         ip_address = get_client_ip(request)
         user_agent = request.META.get('HTTP_USER_AGENT', '')
@@ -713,7 +706,6 @@ def profile(request):
                 request.user.last_name = last_name
             request.user.save()
             
-            # Обновляем профиль
             user_profile.phone = request.POST.get('phone', '')
             user_profile.company = request.POST.get('company', '')
             user_profile.position = request.POST.get('position', '')
@@ -723,7 +715,6 @@ def profile(request):
             return redirect('profile')
         
         elif 'update_public_profile' in request.POST:
-            # Это для публичного профиля - оставляем как есть
             public_profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
             if public_profile_form.is_valid():
                 public_profile_form.save()
@@ -809,15 +800,13 @@ def cart_view(request):
     vat_total = Decimal('0')
     total_without_vat = Decimal('0')
     vat_rate = Decimal('22.00')
-    original_subtotal = Decimal('0')  # ← Добавляем оригинальную сумму без скидки
-    total_savings = Decimal('0')      # ← Общая экономия
+    original_subtotal = Decimal('0') 
+    total_savings = Decimal('0')  
     
     for item in cart_items:
-        # Получаем оригинальную цену (без скидки)
         original_unit_price = item.product.get_display_price('RUB')
         discounted_price = item.product.get_price_for_user(request.user, item.quantity)
         
-        # Сохраняем оригинальную сумму для расчета экономии
         original_item_total = original_unit_price * item.quantity
         discounted_item_total = discounted_price * item.quantity
         
@@ -831,7 +820,6 @@ def cart_view(request):
         vat_total += item_vat
         total_without_vat += item_without_vat
         
-        # Добавляем все поля для отображения скидки
         item.original_unit_price = original_unit_price
         item.original_total = original_item_total
         item.discounted_price = discounted_price
@@ -844,11 +832,9 @@ def cart_view(request):
         
     subtotal = sum(item.discounted_price * item.quantity for item in cart_items)
     
-    # Проверяем, есть ли активная скидка у пользователя
     user_discount = None
     if hasattr(request.user, 'discount') and request.user.discount and request.user.discount.is_active:
         user_discount = request.user.discount
-        # Проверяем срок действия
         if user_discount.valid_to and user_discount.valid_to < timezone.now().date():
             user_discount = None
     
@@ -886,7 +872,7 @@ def cart_view(request):
                     return redirect('cart')
                         
             total_price = Decimal('0')
-            original_total_price = Decimal('0')  # ← Добавляем оригинальную сумму
+            original_total_price = Decimal('0')  
             order_items_data = []
             
             for cart_item in cart_items:
@@ -900,7 +886,7 @@ def cart_view(request):
                     'product': cart_item.product,
                     'quantity': cart_item.quantity,
                     'price': discounted_price,
-                    'original_price': original_price,  # ← Сохраняем оригинальную цену
+                    'original_price': original_price, 
                     'vat_rate': vat_rate
                 })
             
@@ -913,9 +899,9 @@ def cart_view(request):
             order = Order.objects.create(
                 user=request.user,
                 total_price=total_price,
-                original_total=original_total_price,  # ← Добавляем
-                discount_amount=discount_amount,      # ← Добавляем
-                discount_percent=discount_percent,    # ← Добавляем
+                original_total=original_total_price, 
+                discount_amount=discount_amount,      
+                discount_percent=discount_percent,   
                 final_price=total_price,
                 price_without_vat=price_without_vat,
                 vat_amount=vat_amount,
@@ -958,7 +944,6 @@ def cart_view(request):
             
             send_invoice_email(order)
             
-            # Добавляем сообщение о скидке, если она была применена
             if discount_amount > 0:
                 messages.success(request, f'🎉 Заказ #{order.id} создан! Применена скидка {discount_percent:.0f}% (экономия {discount_amount:.2f} ₽). Счет отправлен на {order.customer_email}.')
             else:
@@ -977,16 +962,16 @@ def cart_view(request):
         'cart_items': cart_items,
         'addresses': list(addresses),
         'subtotal': subtotal,
-        'original_subtotal': original_subtotal,  # ← Добавляем
-        'total_savings': total_savings,          # ← Добавляем
+        'original_subtotal': original_subtotal,  
+        'total_savings': total_savings,          
         'final_price': subtotal,
         'vat_total': vat_total,
         'total_without_vat': total_without_vat,
         'vat_rate': vat_rate,
         'form': form,
         'user_profile': user_profile,
-        'user_discount': user_discount,          # ← Добавляем информацию о скидке
-        'has_discount': total_savings > 0,       # ← Добавляем флаг
+        'user_discount': user_discount,         
+        'has_discount': total_savings > 0,       
         'show_extra_fields': not (user_profile.inn and user_profile.kpp),
     }
     return render(request, 'main/cart.html', context)
@@ -2189,9 +2174,7 @@ def wishlist_view(request):
     wishlist, created = Wishlist.objects.get_or_create(user=request.user)
     wishlist_items = WishlistItem.objects.filter(wishlist=wishlist).select_related('product')
     
-    # Добавляем конвертацию в рубли через отдельный атрибут
     for item in wishlist_items:
-        # Используем другой атрибут, например 'converted_price'
         item.product.converted_price = item.product.get_display_price('RUB')
     
     context = {
@@ -2369,23 +2352,18 @@ def delete_review(request, review_id):
     
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
 
-def product_detail(request, slug):  # ИЗМЕНЕНО: теперь slug вместо product_id
+def product_detail(request, slug):  
     """Детальная страница товара"""
-    # Пытаемся найти товар по slug
     try:
         product = Product.objects.get(slug=slug, is_active=True)
     except Product.DoesNotExist:
-        # Если не нашли по slug, пробуем найти по ID (для старых ссылок)
         try:
-            # Проверяем, может ли параметр быть числом (старый ID)
             product_id = int(slug)
             product = Product.objects.get(id=product_id, is_active=True)
-            # Редирект на новый URL с slug
             return redirect('product_detail', slug=product.slug, permanent=True)
         except (ValueError, Product.DoesNotExist):
             raise Http404("Товар не найден")
     
-    # Вся остальная логика остается БЕЗ ИЗМЕНЕНИЙ
     product.display_price_value = product.get_display_price('RUB')
     
     if hasattr(product, 'currency'):
@@ -2869,7 +2847,6 @@ def send_password_reset_email_via_mail_ru(email, code, username):
         
         msg = EmailMessage()
         
-        # Текстовое содержимое
         text_content = f"""Код восстановления пароля - Техресурс
 
 Здравствуйте, {username}!
@@ -2928,7 +2905,6 @@ def send_password_reset_email_via_mail_ru(email, code, username):
         msg['Subject'] = 'Код восстановления пароля - Техресурс'
         msg['X-Mailer'] = 'Django App'
         
-        # Отправляем
         with smtplib.SMTP('127.0.0.1', 25) as server:
             server.send_message(msg)
         
@@ -3088,22 +3064,18 @@ def send_invoice_email(order):
             'email': order.customer_email,
         }
         
-        # Расчет итогов с учетом скидки
         subtotal = Decimal('0')
         original_subtotal = Decimal('0')
         items_data = []
         
         for index, order_item in enumerate(order_items, 1):
-            # Цена со скидкой (уже сохранена в order_item.price)
             discounted_price = order_item.price
             quantity = order_item.quantity
             discounted_total = discounted_price * quantity
             
-            # Оригинальная цена (без скидки)
             original_price = order_item.product.get_display_price('RUB')
             original_total = original_price * quantity
             
-            # Считаем НДС от цены со скидкой
             vat_amount = discounted_total * order_item.vat_rate / (100 + order_item.vat_rate)
             
             subtotal += discounted_total
@@ -3117,16 +3089,15 @@ def send_invoice_email(order):
                 'sku': order_item.product.article or '',
                 'quantity': quantity,
                 'unit': 'шт.',
-                'unit_price': discounted_price,  # ← Цена со скидкой
-                'original_unit_price': original_price if has_discount else None,  # ← Оригинальная цена
-                'line_total': discounted_total,  # ← Сумма со скидкой
-                'original_line_total': original_total if has_discount else None,  # ← Оригинальная сумма
+                'unit_price': discounted_price,  #
+                'original_unit_price': original_price if has_discount else None,  # 
+                'line_total': discounted_total,  # 
+                'original_line_total': original_total if has_discount else None,  # 
                 'discount_percent': ((original_price - discounted_price) / original_price * 100) if has_discount else 0,
                 'vat': vat_amount,
                 'vat_rate': order_item.vat_rate,
             })
         
-        # Общая скидка
         discount_amount = original_subtotal - subtotal
         discount_percent = (discount_amount / original_subtotal * 100) if original_subtotal > 0 else 0
         
@@ -3140,7 +3111,7 @@ def send_invoice_email(order):
             'discount_percent': discount_percent,
             'net': price_without_vat,
             'vat': vat_total,
-            'gross': subtotal,  # ← Итоговая сумма со скидкой
+            'gross': subtotal,  # 
             'vat_rate': order.vat_rate,
         }
         
@@ -3218,8 +3189,8 @@ Email: {company_info['email']}
             """,
             is_critical=False,
             order=order,
-            pdf_file=pdf_file,  # Передаём PDF файл
-            pdf_filename=pdf_filename  # Передаём имя файла
+            pdf_file=pdf_file,  # 
+            pdf_filename=pdf_filename  # 
         )
         order.invoice_pdf_sent_to_telegram = admin_notification_sent 
         order.save()
@@ -3614,7 +3585,7 @@ def anonymous_create_order(request):
                 customer_inn=inn,
                 customer_kpp=request.POST.get('kpp', '').strip(),
                 delivery_address=request.POST.get('delivery_address', '').strip(),
-                legal_address=request.POST.get('legal_address', '').strip(),  # ✅ Добавлено
+                legal_address=request.POST.get('legal_address', '').strip(),  # 
                 status='processing',
                 ip_address=get_client_ip(request),
                 user_agent=request.META.get('HTTP_USER_AGENT', ''),
@@ -4219,7 +4190,6 @@ def submit_privacy_request(request):
     """Обработка формы запросов по персональным данным"""
     if request.method == 'POST':
         try:
-            # Базовые проверки
             required_fields = ['full_name', 'email', 'request_type', 'description']
             for field in required_fields:
                 if not request.POST.get(field):
@@ -4227,17 +4197,14 @@ def submit_privacy_request(request):
                         'error': f'Не заполнено обязательное поле: {field}'
                     })
             
-            # Проверка согласия на обработку
             if not request.POST.get('agree_processing'):
                 return render(request, 'main/privacy_request_error.html', {
                     'error': 'Необходимо дать согласие на обработку персональных данных'
                 })
             
-            # Получаем IP адрес и User Agent
             ip_address = request.META.get('REMOTE_ADDR', '')
             user_agent = request.META.get('HTTP_USER_AGENT', '')[:500]
             
-            # Создаем запись в базе данных
             privacy_request = PrivacyRequest.objects.create(
                 full_name=request.POST.get('full_name'),
                 email=request.POST.get('email'),
@@ -4248,18 +4215,15 @@ def submit_privacy_request(request):
                 ip_address=ip_address,
                 user_agent=user_agent,
                 incoming_number=f"ПД-{timezone.now().strftime('%Y%m%d-%H%M%S')}",
-                deadline=timezone.now().date() + timedelta(days=30)  # Срок 30 дней по закону
+                deadline=timezone.now().date() + timedelta(days=30)  
             )
             
-            # Обработка файла документа (если есть)
             if 'verification_document' in request.FILES:
                 document = request.FILES['verification_document']
-                # Проверка размера файла (макс 5MB)
                 if document.size > 5 * 1024 * 1024:
                     privacy_request.notes = f"Файл отклонен: размер {document.size} байт превышает 5MB"
                     privacy_request.save()
                 else:
-                    # Проверка расширения
                     allowed_extensions = ['.pdf', '.jpg', '.jpeg', '.png']
                     import os
                     ext = os.path.splitext(document.name)[1].lower()
@@ -4270,10 +4234,8 @@ def submit_privacy_request(request):
                         privacy_request.notes = f"Файл отклонен: недопустимое расширение {ext}"
                         privacy_request.save()
             
-            # 1. Отправляем уведомление в Telegram
             email_sent = send_privacy_request_notification(privacy_request)
             
-            # 3. Пытаемся отправить email подтверждение пользователю
             user_email_sent = False
             try:
                 send_mail(
@@ -4332,7 +4294,6 @@ def send_admin_notification(subject, message, is_critical=False, order=None, pdf
         prefix = "🚨 КРИТИЧЕСКОЕ: " if is_critical else ""
         full_subject = f"[ТЕХРЕСУРС] {prefix}{subject}"
         
-        # HTML-версия для красоты
         html_message = f"""
         <!DOCTYPE html>
         <html>
@@ -4352,7 +4313,6 @@ def send_admin_notification(subject, message, is_critical=False, order=None, pdf
         
         plain_message = f"{subject}\n\n{message}\n\nВремя: {timezone.now().strftime('%d.%m.%Y %H:%M:%S')}"
         
-        # Создаём email с возможностью вложений
         email = EmailMultiAlternatives(
             subject=full_subject,
             body=plain_message,
@@ -4361,12 +4321,9 @@ def send_admin_notification(subject, message, is_critical=False, order=None, pdf
             reply_to=['noreply@tech-re.ru'],
         )
         
-        # Добавляем HTML версию
         email.attach_alternative(html_message, "text/html")
         
-        # Если есть PDF файл, прикрепляем его
         if pdf_file and pdf_filename:
-            # Если pdf_file это BytesIO, получаем содержимое
             if hasattr(pdf_file, 'getvalue'):
                 pdf_content = pdf_file.getvalue()
             else:
@@ -4374,10 +4331,8 @@ def send_admin_notification(subject, message, is_critical=False, order=None, pdf
             
             email.attach(pdf_filename, pdf_content, 'application/pdf')
         
-        # Отправляем
         email.send(fail_silently=False)
         
-        # Логируем
         NotificationLog.objects.create(
             order=order,
             notification_type='admin_notification',
@@ -4514,7 +4469,6 @@ def send_invoice_report_email(request):
         overdue_count = invoices.filter(status='overdue').count()
         overdue_amount = invoices.filter(status='overdue').aggregate(Sum('amount'))['amount__sum'] or 0
         
-        # Формируем список последних 10 счетов
         recent_invoices = ""
         for invoice in invoices.order_by('-invoice_date')[:10]:
             status_icon = {

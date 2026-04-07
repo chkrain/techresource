@@ -47,7 +47,7 @@ class UserRegisterForm(forms.ModelForm):
 
     privacy_consent = forms.BooleanField(
         required=True,
-        label='',  # Пустая метка
+        label='',  
         widget=forms.CheckboxInput()
     )
     
@@ -537,7 +537,6 @@ class SecureUserCreationForm(UserCreationForm):
         # if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password1):
         #     raise ValidationError('Пароль должен содержать хотя бы один специальный символ.')
         
-        # Проверка на распространенные пароли
         common_passwords = ['password', '123456', 'qwerty', 'admin']
         if password1.lower() in common_passwords:
             raise ValidationError('Этот пароль слишком распространен. Выберите другой.')
