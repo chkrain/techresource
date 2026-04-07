@@ -68,148 +68,31 @@
 </section>
 
 <style>
-.success-section {
-    padding: 80px 0;
-    min-height: 70vh;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+.success-section{padding:80px 0;min-height:70vh;background:linear-gradient(135deg,#f8f9fa 0,#e9ecef 100%)}
+.success-card{max-width:600px;margin:0 auto;background:white;border-radius:16px;padding:48px;box-shadow:0 10px 30px rgba(0,0,0,0.08);text-align:center}
+.success-icon{margin-bottom:24px}
+.success-card h1{color:#2c3e50;margin-bottom:12px;font-size:32px}
+.success-subtitle{color:#7f8c8d;margin-bottom:32px;font-size:18px}
+.request-details{background:#f8f9fa;border-radius:12px;padding:24px;margin:32px 0;text-align:left}
+.detail-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e9ecef}
+.detail-item:last-child{border-bottom:none}
+.detail-label{color:#6c757d;font-weight:500}
+.detail-value{color:#2c3e50;font-weight:600}
+.legal-info{background:#e8f5e9;border-left:4px solid #4CAF50;padding:20px;border-radius:0 8px 8px 0;margin:32px 0;text-align:left}
+.legal-info h3{color:#2e7d32;margin-bottom:16px}
+.steps-list{padding-left:20px;color:#424242}
+.steps-list li{margin-bottom:10px;line-height:1.5}
+.actions{display:flex;gap:16px;justify-content:center;margin:32px 0;flex-wrap:wrap}
+.actions .btn{padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:500;transition:all 0.3s}
+.btn-secondary{background:#6c757d;color:white;border:none}
+.btn-primary{background:#007bff;color:white;border:none}
+.btn-secondary:hover{background:#5a6268}
+.btn-primary:hover{background:#0056b3}
+.contact-reminder{margin-top:32px;padding-top:24px;border-top:1px solid #e9ecef;color:#6c757d;font-size:14px}
+@media (max-width:768px){.success-card{padding:32px 24px;margin:0 16px}
+ .actions{flex-direction:column}
+ .actions .btn{width:100%}
 }
 
-.success-card {
-    max-width: 600px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 16px;
-    padding: 48px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    text-align: center;
-}
-
-.success-icon {
-    margin-bottom: 24px;
-}
-
-.success-card h1 {
-    color: #2c3e50;
-    margin-bottom: 12px;
-    font-size: 32px;
-}
-
-.success-subtitle {
-    color: #7f8c8d;
-    margin-bottom: 32px;
-    font-size: 18px;
-}
-
-.request-details {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 24px;
-    margin: 32px 0;
-    text-align: left;
-}
-
-.detail-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.detail-item:last-child {
-    border-bottom: none;
-}
-
-.detail-label {
-    color: #6c757d;
-    font-weight: 500;
-}
-
-.detail-value {
-    color: #2c3e50;
-    font-weight: 600;
-}
-
-.legal-info {
-    background: #e8f5e9;
-    border-left: 4px solid #4CAF50;
-    padding: 20px;
-    border-radius: 0 8px 8px 0;
-    margin: 32px 0;
-    text-align: left;
-}
-
-.legal-info h3 {
-    color: #2e7d32;
-    margin-bottom: 16px;
-}
-
-.steps-list {
-    padding-left: 20px;
-    color: #424242;
-}
-
-.steps-list li {
-    margin-bottom: 10px;
-    line-height: 1.5;
-}
-
-.actions {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-    margin: 32px 0;
-    flex-wrap: wrap;
-}
-
-.actions .btn {
-    padding: 12px 24px;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.3s;
-}
-
-.btn-secondary {
-    background: #6c757d;
-    color: white;
-    border: none;
-}
-
-.btn-primary {
-    background: #007bff;
-    color: white;
-    border: none;
-}
-
-.btn-secondary:hover {
-    background: #5a6268;
-}
-
-.btn-primary:hover {
-    background: #0056b3;
-}
-
-.contact-reminder {
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid #e9ecef;
-    color: #6c757d;
-    font-size: 14px;
-}
-
-@media (max-width: 768px) {
-    .success-card {
-        padding: 32px 24px;
-        margin: 0 16px;
-    }
-    
-    .actions {
-        flex-direction: column;
-    }
-    
-    .actions .btn {
-        width: 100%;
-    }
-}
 </style>
 {% endblock %}

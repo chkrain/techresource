@@ -199,56 +199,7 @@
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    AOS.init({
-        duration: 800,
-        once: true,
-        offset: 100
-    });
-
-    const statNumbers = document.querySelectorAll('.stat-number');
-    statNumbers.forEach(stat => {
-        const target = parseInt(stat.textContent);
-        const duration = 2000;
-        const step = target / (duration / 16);
-        let current = 0;
-        
-        const timer = setInterval(() => {
-            current += step;
-            if (current >= target) {
-                stat.textContent = target + '+';
-                clearInterval(timer);
-            } else {
-                stat.textContent = Math.floor(current);
-            }
-        }, 16);
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    const partnerStats = document.querySelectorAll('.partner-stat-number');
-    partnerStats.forEach(stat => {
-        const text = stat.textContent;
-        if (text.includes('+') || text.includes('%')) {
-            const target = parseInt(text);
-            if (!isNaN(target)) {
-                const duration = 1500;
-                const step = target / (duration / 16);
-                let current = 0;
-                
-                const timer = setInterval(() => {
-                    current += step;
-                    if (current >= target) {
-                        stat.textContent = text;
-                        clearInterval(timer);
-                    } else {
-                        stat.textContent = Math.floor(current) + (text.includes('%') ? '%' : '');
-                    }
-                }, 16);
-            }
-        }
-    });
-});
+document.addEventListener('DOMContentLoaded',function(){AOS.init({duration:800,once:true,offset:100});const statNumbers=document.querySelectorAll('.stat-number');statNumbers.forEach(stat=>{const target=parseInt(stat.textContent);const duration=2000;const step=target/(duration/16);let current=0;const timer=setInterval(()=>{current+=step;if(current>=target){stat.textContent=target+'+';clearInterval(timer)}else{stat.textContent=Math.floor(current)}},16)})});document.addEventListener('DOMContentLoaded',function(){const partnerStats=document.querySelectorAll('.partner-stat-number');partnerStats.forEach(stat=>{const text=stat.textContent;if(text.includes('+')||text.includes('%')){const target=parseInt(text);if(!isNaN(target)){const duration=1500;const step=target/(duration/16);let current=0;const timer=setInterval(()=>{current+=step;if(current>=target){stat.textContent=text;clearInterval(timer)}else{stat.textContent=Math.floor(current)+(text.includes('%')?'%':'')}},16)}}})});
 </script>
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>

@@ -46,120 +46,26 @@
 </section>
 
 <style>
-.error-section {
-    padding: 80px 0;
-    min-height: 70vh;
-    background: linear-gradient(135deg, #fdf2f2 0%, #fce8e8 100%);
+.error-section{padding:80px 0;min-height:70vh;background:linear-gradient(135deg,#fdf2f2 0,#fce8e8 100%)}
+.error-card{max-width:600px;margin:0 auto;background:white;border-radius:16px;padding:48px;box-shadow:0 10px 30px rgba(0,0,0,0.08);text-align:center}
+.error-icon{margin-bottom:24px}
+.error-card h1{color:#c62828;margin-bottom:12px;font-size:32px}
+.error-subtitle{color:#d32f2f;margin-bottom:32px;font-size:18px}
+.error-details{background:#ffebee;border-radius:12px;padding:24px;margin:32px 0;text-align:left;color:#b71c1c;border-left:4px solid #f44336}
+.suggestions{text-align:left;margin:32px 0;padding:20px;background:#f8f9fa;border-radius:8px}
+.suggestions h3{color:#2c3e50;margin-bottom:16px}
+.suggestions ul{padding-left:20px;color:#424242}
+.suggestions li{margin-bottom:10px;line-height:1.5}
+.actions{display:flex;gap:16px;justify-content:center;margin:32px 0;flex-wrap:wrap}
+.actions .btn{padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:500;transition:all 0.3s}
+.btn-secondary{background:#6c757d;color:white;border:none}
+.btn-primary{background:#007bff;color:white;border:none}
+.btn-secondary:hover{background:#5a6268}
+.btn-primary:hover{background:#0056b3}
+@media (max-width:768px){.error-card{padding:32px 24px;margin:0 16px}
+ .actions{flex-direction:column}
+ .actions .btn{width:100%}
 }
 
-.error-card {
-    max-width: 600px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 16px;
-    padding: 48px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    text-align: center;
-}
-
-.error-icon {
-    margin-bottom: 24px;
-}
-
-.error-card h1 {
-    color: #c62828;
-    margin-bottom: 12px;
-    font-size: 32px;
-}
-
-.error-subtitle {
-    color: #d32f2f;
-    margin-bottom: 32px;
-    font-size: 18px;
-}
-
-.error-details {
-    background: #ffebee;
-    border-radius: 12px;
-    padding: 24px;
-    margin: 32px 0;
-    text-align: left;
-    color: #b71c1c;
-    border-left: 4px solid #f44336;
-}
-
-.suggestions {
-    text-align: left;
-    margin: 32px 0;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.suggestions h3 {
-    color: #2c3e50;
-    margin-bottom: 16px;
-}
-
-.suggestions ul {
-    padding-left: 20px;
-    color: #424242;
-}
-
-.suggestions li {
-    margin-bottom: 10px;
-    line-height: 1.5;
-}
-
-.actions {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-    margin: 32px 0;
-    flex-wrap: wrap;
-}
-
-.actions .btn {
-    padding: 12px 24px;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.3s;
-}
-
-.btn-secondary {
-    background: #6c757d;
-    color: white;
-    border: none;
-}
-
-.btn-primary {
-    background: #007bff;
-    color: white;
-    border: none;
-}
-
-.btn-secondary:hover {
-    background: #5a6268;
-}
-
-.btn-primary:hover {
-    background: #0056b3;
-}
-
-@media (max-width: 768px) {
-    .error-card {
-        padding: 32px 24px;
-        margin: 0 16px;
-    }
-    
-    .actions {
-        flex-direction: column;
-    }
-    
-    .actions .btn {
-        width: 100%;
-    }
-}
 </style>
 {% endblock %}

@@ -120,62 +120,6 @@
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        AOS.init({
-            duration: 1000,
-            once: true,
-            offset: 50,
-            easing: 'ease-out-cubic',
-            delay: 0,
-            mirror: false
-        });
-
-        const createScrollAnimations = () => {
-            const elements = document.querySelectorAll('.feature-item, .child-item, .nav-item');
-            
-            elements.forEach((element, index) => {
-                element.addEventListener('mouseenter', function() {
-                    this.style.transform = this.style.transform.replace('scale(1.02)', 'scale(1.05)');
-                });
-                
-                element.addEventListener('mouseleave', function() {
-                    this.style.transform = this.style.transform.replace('scale(1.05)', 'scale(1.02)');
-                });
-            });
-        };
-
-        createScrollAnimations();
-
-        let ticking = false;
-        
-        const updateParallax = () => {
-            const scrolled = window.pageYOffset;
-            const hero = document.querySelector('.service-page-hero');
-            if (hero) {
-                const rate = scrolled * 0.4;
-                hero.style.transform = `translateY(${rate}px) scale(${1 + scrolled * 0.0001})`;
-            }
-            ticking = false;
-        };
-
-        const onScroll = () => {
-            if (!ticking) {
-                requestAnimationFrame(updateParallax);
-                ticking = true;
-            }
-        };
-
-        window.addEventListener('scroll', onScroll, { passive: true });
-
-        const animateGradients = () => {
-            const cta = document.querySelector('.service-cta');
-            if (cta) {
-                const scrolled = window.pageYOffset;
-                const rate = (scrolled * 0.5) % 360;
-                cta.style.background = `linear-gradient(${135 + Math.sin(scrolled * 0.01) * 10}deg, #667eea 0%, #764ba2 100%)`;
-            }
-        };
-
-    });
+document.addEventListener('DOMContentLoaded',function(){AOS.init({duration:1000,once:true,offset:50,easing:'ease-out-cubic',delay:0,mirror:false});const createScrollAnimations=()=>{const elements=document.querySelectorAll('.feature-item, .child-item, .nav-item');elements.forEach((element,index)=>{element.addEventListener('mouseenter',function(){this.style.transform=this.style.transform.replace('scale(1.02)','scale(1.05)')});element.addEventListener('mouseleave',function(){this.style.transform=this.style.transform.replace('scale(1.05)','scale(1.02)')})})};createScrollAnimations();let ticking=false;const updateParallax=()=>{const scrolled=window.pageYOffset;const hero=document.querySelector('.service-page-hero');if(hero){const rate=scrolled*0.4;hero.style.transform=`translateY(${rate}px)scale(${1+scrolled*0.0001})`}ticking=false};const onScroll=()=>{if(!ticking){requestAnimationFrame(updateParallax);ticking=true}};window.addEventListener('scroll',onScroll,{passive:true});const animateGradients=()=>{const cta=document.querySelector('.service-cta');if(cta){const scrolled=window.pageYOffset;const rate=(scrolled*0.5)%360;cta.style.background=`linear-gradient(${135+Math.sin(scrolled*0.01)*10}deg,#667eea 0%,#764ba2 100%)`}}});
 </script>
 {% endblock %}

@@ -108,257 +108,41 @@
 </section>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const descriptionTextarea = document.getElementById('description');
-    const charCount = document.getElementById('char-count');
-    
-    if (descriptionTextarea && charCount) {
-        descriptionTextarea.addEventListener('input', function() {
-            charCount.textContent = this.value.length;
-        });
-        
-        charCount.textContent = descriptionTextarea.value.length;
-    }
-    
-    const form = document.querySelector('.privacy-request-form');
-    form.addEventListener('submit', function(e) {
-        const requiredFields = form.querySelectorAll('[required]');
-        let hasError = false;
-        
-        requiredFields.forEach(function(field) {
-            const parent = field.closest('.form-group');
-            
-            parent.classList.remove('error');
-            const existingError = parent.querySelector('.error-message');
-            if (existingError) {
-                existingError.remove();
-            }
-            
-            if (field.type === 'checkbox' && !field.checked) {
-                parent.classList.add('error');
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'error-message';
-                errorMsg.textContent = 'Это поле обязательно для заполнения';
-                parent.appendChild(errorMsg);
-                hasError = true;
-            } else if (field.type !== 'checkbox' && field.type !== 'file' && !field.value.trim()) {
-                parent.classList.add('error');
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'error-message';
-                errorMsg.textContent = 'Это поле обязательно для заполнения';
-                parent.appendChild(errorMsg);
-                hasError = true;
-            }
-        });
-        
-        if (hasError) {
-            e.preventDefault();
-            const firstError = form.querySelector('.error');
-            if (firstError) {
-                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-    });
-});
+document.addEventListener('DOMContentLoaded',function(){const descriptionTextarea=document.getElementById('description');const charCount=document.getElementById('char-count');if(descriptionTextarea&&charCount){descriptionTextarea.addEventListener('input',function(){charCount.textContent=this.value.length});charCount.textContent=descriptionTextarea.value.length}const form=document.querySelector('.privacy-request-form');form.addEventListener('submit',function(e){const requiredFields=form.querySelectorAll('[required]');let hasError=false;requiredFields.forEach(function(field){const parent=field.closest('.form-group');parent.classList.remove('error');const existingError=parent.querySelector('.error-message');if(existingError){existingError.remove()}if(field.type==='checkbox'&&!field.checked){parent.classList.add('error');const errorMsg=document.createElement('div');errorMsg.className='error-message';errorMsg.textContent='Это поле обязательно для заполнения';parent.appendChild(errorMsg);hasError=true}else if(field.type!=='checkbox'&&field.type!=='file'&&!field.value.trim()){parent.classList.add('error');const errorMsg=document.createElement('div');errorMsg.className='error-message';errorMsg.textContent='Это поле обязательно для заполнения';parent.appendChild(errorMsg);hasError=true}});if(hasError){e.preventDefault();const firstError=form.querySelector('.error');if(firstError){firstError.scrollIntoView({behavior:'smooth',block:'center'})}}})});
 </script>
 
 <style>
-.privacy-hero, .card {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-.privacy-request-form {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-    color: #000;
-    margin: 0;
-    padding: 0;
-    background: #fff;
-}
-
-.privacy-request-form .form-group {
-    margin-bottom: 24px;
-}
-
-.privacy-request-form {
-    border-radius: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-    color: #000;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background: #fff;
-}
-
-.privacy-request-form .form-group {
-    margin-bottom: 24px;
+.privacy-hero,.card{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.privacy-request-form{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:16px;line-height:1.5;color:#000;margin:0;padding:0;background:#fff}
+.privacy-request-form .form-group{margin-bottom:24px}
+.privacy-request-form{border-radius:20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:16px;line-height:1.5;color:#000;max-width:800px;margin:0 auto;padding:20px;background:#fff}
+.privacy-request-form .form-group{margin-bottom:24px}
+.privacy-request-form label{display:block;margin-bottom:8px;font-weight:600;color:#000}
+.privacy-request-form label[required]::after{content:" *";color:#d00}
+.privacy-request-form .form-select,.privacy-request-form .form-input,.privacy-request-form .form-textarea{width:100%;padding:12px 16px;border:2px solid #ddd;border-radius:6px;font-size:16px;color:#000;background:#fff;transition:border-color 0.2s;box-sizing:border-box}
+.privacy-request-form .form-select:focus,.privacy-request-form .form-input:focus,.privacy-request-form .form-textarea:focus{outline:none;border-color:#0066cc;box-shadow:0 0 0 3px rgba(0,102,204,0.1)}
+.privacy-request-form .form-row{display:flex;gap:20px;margin-bottom:24px}
+.privacy-request-form .form-row .half{flex:1}
+.privacy-request-form .form-textarea{min-height:120px;resize:vertical;font-family:inherit}
+.privacy-request-form .char-counter{text-align:right;font-size:14px;color:#666;margin-top:4px}
+.privacy-request-form .char-counter #char-count{font-weight:600}
+.privacy-request-form .help-text{display:block;margin-top:6px;font-size:14px;color:#666;line-height:1.4}
+.privacy-request-form .checkbox-group{display:flex;align-items:flex-start;gap:10px}
+.privacy-request-form .checkbox-group input[type="checkbox"]{margin-top:4px;flex-shrink:0;width:18px;height:18px}
+.privacy-request-form .checkbox-group label{margin-bottom:0;font-weight:normal;line-height:1.4}
+.privacy-request-form .btn{display:block;width:100%;padding:14px;background:#0066cc;color:#fff;border:none;border-radius:6px;font-size:18px;font-weight:600;cursor:pointer;transition:background 0.2s}
+.privacy-request-form .btn:hover{background:#0052a3}
+.privacy-request-form .btn:active{background:#004080}
+.privacy-request-form .form-note{display:block;text-align:center;margin-top:10px;font-size:14px;color:#666}
+.privacy-request-form .legal-notice{margin-top:30px;padding:16px;background:#f8f9fa;border-left:4px solid #0066cc;font-size:14px;line-height:1.5}
+.privacy-request-form .legal-notice p{margin:0;color:#000}
+.privacy-request-form .legal-notice strong{color:#000}
+.privacy-request-form .error{border-color:#d00 !important}
+.privacy-request-form .error-message{color:#d00;font-size:14px;margin-top:4px}
+@media (max-width:768px){.privacy-request-form .form-row{flex-direction:column;gap:0}
+ .privacy-request-form .form-row .half{margin-bottom:24px}
+ .privacy-request-form .form-row .half:last-child{margin-bottom:0}
 }
 
-.privacy-request-form label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #000;
-}
-
-.privacy-request-form label[required]::after {
-    content: " *";
-    color: #d00;
-}
-
-.privacy-request-form .form-select,
-.privacy-request-form .form-input,
-.privacy-request-form .form-textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
-    color: #000;
-    background: #fff;
-    transition: border-color 0.2s;
-    box-sizing: border-box;
-}
-
-.privacy-request-form .form-select:focus,
-.privacy-request-form .form-input:focus,
-.privacy-request-form .form-textarea:focus {
-    outline: none;
-    border-color: #0066cc;
-    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
-}
-
-.privacy-request-form .form-row {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 24px;
-}
-
-.privacy-request-form .form-row .half {
-    flex: 1;
-}
-
-.privacy-request-form .form-textarea {
-    min-height: 120px;
-    resize: vertical;
-    font-family: inherit;
-}
-
-.privacy-request-form .char-counter {
-    text-align: right;
-    font-size: 14px;
-    color: #666;
-    margin-top: 4px;
-}
-
-.privacy-request-form .char-counter #char-count {
-    font-weight: 600;
-}
-
-.privacy-request-form .help-text {
-    display: block;
-    margin-top: 6px;
-    font-size: 14px;
-    color: #666;
-    line-height: 1.4;
-}
-
-.privacy-request-form .checkbox-group {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-.privacy-request-form .checkbox-group input[type="checkbox"] {
-    margin-top: 4px;
-    flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-}
-
-.privacy-request-form .checkbox-group label {
-    margin-bottom: 0;
-    font-weight: normal;
-    line-height: 1.4;
-}
-
-.privacy-request-form .btn {
-    display: block;
-    width: 100%;
-    padding: 14px;
-    background: #0066cc;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.privacy-request-form .btn:hover {
-    background: #0052a3;
-}
-
-.privacy-request-form .btn:active {
-    background: #004080;
-}
-
-.privacy-request-form .form-note {
-    display: block;
-    text-align: center;
-    margin-top: 10px;
-    font-size: 14px;
-    color: #666;
-}
-
-.privacy-request-form .legal-notice {
-    margin-top: 30px;
-    padding: 16px;
-    background: #f8f9fa;
-    border-left: 4px solid #0066cc;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.privacy-request-form .legal-notice p {
-    margin: 0;
-    color: #000;
-}
-
-.privacy-request-form .legal-notice strong {
-    color: #000;
-}
-
-.privacy-request-form .error {
-    border-color: #d00 !important;
-}
-
-.privacy-request-form .error-message {
-    color: #d00;
-    font-size: 14px;
-    margin-top: 4px;
-}
-
-@media (max-width: 768px) {
-    .privacy-request-form .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
-    
-    .privacy-request-form .form-row .half {
-        margin-bottom: 24px;
-    }
-    
-    .privacy-request-form .form-row .half:last-child {
-        margin-bottom: 0;
-    }
-}
 </style>
 {% endblock %}

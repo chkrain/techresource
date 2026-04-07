@@ -465,32 +465,7 @@
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const descriptionTextarea = document.getElementById('description');
-    const charCount = document.getElementById('char-count');
-    
-    if (descriptionTextarea && charCount) {
-        descriptionTextarea.addEventListener('input', function() {
-            charCount.textContent = this.value.length;
-        });
-    }
-    
-    const navLinks = document.querySelectorAll('.nav-linklink');
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            
-            if (targetElement) {
-                window.scrollTo({
-                    top: targetElement.offsetTop - 100,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
-});
+document.addEventListener('DOMContentLoaded',function(){const descriptionTextarea=document.getElementById('description');const charCount=document.getElementById('char-count');if(descriptionTextarea&&charCount){descriptionTextarea.addEventListener('input',function(){charCount.textContent=this.value.length})}const navLinks=document.querySelectorAll('.nav-linklink');navLinks.forEach(link=>{link.addEventListener('click',function(e){e.preventDefault();const targetId=this.getAttribute('href');const targetElement=document.querySelector(targetId);if(targetElement){window.scrollTo({top:targetElement.offsetTop-100,behavior:'smooth'})}})})});
 </script>
 
 <style>

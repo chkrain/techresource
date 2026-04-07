@@ -107,68 +107,6 @@
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const animateOnScroll = () => {
-        const elements = document.querySelectorAll('.suggestion-item, .action-card');
-        elements.forEach((element, index) => {
-            setTimeout(() => {
-                element.style.opacity = '0';
-                element.style.transform = 'translateY(30px)';
-                element.style.transition = 'all 0.6s ease';
-                
-                setTimeout(() => {
-                    element.style.opacity = '1';
-                    element.style.transform = 'translateY(0)';
-                }, 100);
-            }, index * 100);
-        });
-    };
-
-    setTimeout(animateOnScroll, 500);
-
-    const techDetails = document.querySelector('details');
-    if (techDetails) {
-        techDetails.addEventListener('toggle', function() {
-            if (this.open) {
-                this.style.background = '#f8f9fa';
-            } else {
-                this.style.background = 'white';
-            }
-        });
-    }
-
-    if (document.querySelector('[data-error-code="500"]')) {
-        createErrorParticles();
-    }
-
-    function createErrorParticles() {
-        const hero = document.querySelector('.error-hero');
-        for (let i = 0; i < 15; i++) {
-            const particle = document.createElement('div');
-            particle.style.cssText = `
-                position: absolute;
-                width: ${Math.random() * 6 + 2}px;
-                height: ${Math.random() * 6 + 2}px;
-                background: rgba(255,255,255,${Math.random() * 0.3 + 0.1});
-                border-radius: 50%;
-                left: ${Math.random() * 100}%;
-                top: ${Math.random() * 100}%;
-                animation: float ${Math.random() * 10 + 5}s linear infinite;
-            `;
-            hero.appendChild(particle);
-        }
-
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes float {
-                0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-                10% { opacity: 1; }
-                90% { opacity: 1; }
-                100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-});
+document.addEventListener('DOMContentLoaded',function(){const animateOnScroll=()=>{const elements=document.querySelectorAll('.suggestion-item, .action-card');elements.forEach((element,index)=>{setTimeout(()=>{element.style.opacity='0';element.style.transform='translateY(30px)';element.style.transition='all 0.6s ease';setTimeout(()=>{element.style.opacity='1';element.style.transform='translateY(0)'},100)},index*100)})};setTimeout(animateOnScroll,500);const techDetails=document.querySelector('details');if(techDetails){techDetails.addEventListener('toggle',function(){if(this.open){this.style.background='#f8f9fa'}else{this.style.background='white'}})}if(document.querySelector('[data-error-code="500"]')){createErrorParticles()}function createErrorParticles(){const hero=document.querySelector('.error-hero');for(let i=0;i<15;i++){const particle=document.createElement('div');particle.style.cssText=`position:absolute;width:${Math.random()*6+2}px;height:${Math.random()*6+2}px;background:rgba(255,255,255,${Math.random()*0.3+0.1});border-radius:50%;left:${Math.random()*100}%;top:${Math.random()*100}%;animation:float ${Math.random()*10+5}s linear infinite;`;hero.appendChild(particle)}const style=document.createElement('style');style.textContent=`@keyframes float{0%{transform:translateY(100vh)rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-100px)rotate(360deg);opacity:0}}`;document.head.appendChild(style)}});
 </script>
 {% endblock %}
