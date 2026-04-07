@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Техресурс — Инженерные решения{% endblock %}</title>
+    <title>{% block title %}Техресурс - Инженерные решения{% endblock %}</title>
     <meta name="description" content="{% block description %}Инновационные инженерные решения, монтаж, разработка ПО, техподдержка.{% endblock %}">
 
     <link rel="icon" href="{% static 'favicon.ico' %}?v=1.2" />
@@ -103,18 +103,14 @@
         const bar = document.getElementById("loader-progress-bar");
         const percent = document.getElementById("loader-percent");
         const loader = document.getElementById("page-loader");
-        
         let progress = 0;
         let progressInterval;
-
         function updateProgress(targetProgress) {
             if (progressInterval) clearInterval(progressInterval);
-            
             progressInterval = setInterval(() => {
                 if (progress < targetProgress) {
                     const increment = Math.random() * (progress < 50 ? 15 : 5);
                     progress = Math.min(progress + increment, targetProgress);
-                    
                     bar.style.width = progress + "%";
                     percent.textContent = Math.floor(progress) + "%";
                 } else {
@@ -122,24 +118,19 @@
                 }
             }, 80);
         }
-
         updateProgress(70);
-
         setTimeout(() => {
             updateProgress(90);
         }, 300);
-
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     updateProgress(90);
-                    
                     setTimeout(() => {
                         if (progress < 100) {
                             progress = 100;
                             bar.style.width = "100%";
                             percent.textContent = "100%";
-                            
                             setTimeout(() => {
                                 loader.classList.add("hidden");
                             }, 200);
@@ -148,7 +139,6 @@
                 }, 200);
             });
         }
-
         const firstImage = document.querySelector('img');
         if (firstImage) {
             if (firstImage.complete) {
@@ -159,19 +149,16 @@
                 });
             }
         }
-
         setTimeout(() => {
             if (!loader.classList.contains('hidden')) {
                 progress = 100;
                 bar.style.width = "100%";
                 percent.textContent = "100%";
-                
                 setTimeout(() => {
                     loader.classList.add("hidden");
                 }, 200);
             }
         }, 2000);
-
         const userInteractions = ['touchstart', 'click', 'keydown', 'scroll'];
         userInteractions.forEach(event => {
             document.addEventListener(event, () => {
@@ -179,7 +166,6 @@
                     progress = 100;
                     bar.style.width = "100%";
                     percent.textContent = "100%";
-                    
                     setTimeout(() => {
                         loader.classList.add("hidden");
                     }, 150);
@@ -189,7 +175,6 @@
     });
     </script>
     {% endif %}
-    
 
     {% block meta %}
     <meta name="mobile-web-app-capable" content="yes">
@@ -232,7 +217,6 @@
     </script>
     {% endblock %}
 
-    
     {% csrf_token %}
     <meta name="csrf-token" content="{{ csrf_token }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -240,7 +224,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    {% block extra_css %}{% endblock %}
+    {% block extra_css %}
+    {% endblock %}
 
     <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
@@ -255,11 +240,9 @@
         <div class="loader-content">
             <img src="{% static 'images/favicon/logo-128.svg' %}?v=1.1" class="loader-logo" alt="Техресурс">
             <div class="loader-title">Техресурс</div>
-
             <div class="loader-progress">
                 <div class="loader-progress-bar" id="loader-progress-bar"></div>
             </div>
-
             <div class="loader-percent" id="loader-percent">0%</div>
         </div>
     </div>
@@ -282,15 +265,15 @@
                     <i class="fas fa-home"></i>
                     Главная
                 </a>
-                <a href="/about/" class="nav-link" title="О компании ООО Техресурс">
+                <a href="/about/" class="nav-link" title="О компании ООО Техресурс. Занимаемся инжинирингом более тринадцати лет. Связь по почте {{ company_email }}">
                     <i class="fas fa-building"></i>
                     О&nbsp;компании
                 </a>
-                <a href="/services/" class="nav-link" title="Услуги компании ООО Техресурс">
+                <a href="/services/" class="nav-link" title="Услуги компании: проектирование, монтаж, электромонтаж, поставка оборудования, разработка ПО, разработка визуализации, интеграция различных систем, пусконаладка">
                     <i class="fas fa-cogs"></i>
                     Услуги
                 </a>
-                <a href="/products/" class="nav-link" title="Список товаров">
+                <a href="/products/" class="nav-link" title="Список товаров. Здесь вы найдете товары от клемм до шнековых транспортеров. Если не нашли нужного товара - напишите нам {{ company_email }}">
                     <i class="fas fa-box"></i>
                     Товары
                 </a>
@@ -365,7 +348,7 @@
                         </div>
                     </div>
                 {% else %}
-                    <a href="{% url 'anonymous_order_page' %}" class="nav-link" title="Быстрый анонимный заказ без входа в аккаунт" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <a href="{% url 'anonymous_order_page' %}" class="nav-link" title="Быстрый анонимный заказ без входа в аккаунт. Оплата по счёту. Доступно юрлицам" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                         <i class="fas fa-bolt"></i>
                         Заказ
                         {% if request.session.anonymous_cart and request.session.anonymous_cart|length > 0 %}
@@ -373,7 +356,7 @@
                         {% endif %}
                     </a>
                     
-                    <a href="/login/" class="nav-link">
+                    <a href="/login/" class="nav-link" title="Вход в аккаунт решает сразу несколько задач: сохранение адресов, информации об оплате, избранные товары, корзину. Появляется возможность оставлять отзывы как на товары, так и на статьи блога.">
                         <i class="fas fa-sign-in-alt"></i>
                         Войти
                     </a>
@@ -384,7 +367,7 @@
                 {% endif %}
                 
                 {% if user.is_staff %}
-                    <a href="/admin-dashboard/" class="nav-link admin-panel">
+                    <a href="/admin-dashboard/" class="nav-link admin-panel" title="Администратораская панель. Если у вас она отображается, но вы не администратор - свяжитесь, пожалуйста, с нами {{ company_email }}">
                         <i class="fas fa-tachometer-alt"></i>
                         Панель управления
                     </a>
@@ -426,13 +409,13 @@
                     <h3>Техресурс</h3>
                     <p>Инженерный подход на всех этапах создания автоматизированных систем управления технологическими процессами</p>
                     <div class="social-links">
-                        <a href="https://vk.ru/techres" target="_blank" class="social-link" aria-label="VKontakte">
+                        <a href="https://vk.ru/techres" target="_blank" class="social-link" aria-label="VKontakte" title="Перейти в социальную сеть ВКонтакте, группа компании ООО Техресурс">
                             <i class="fab fa-vk"></i>
                         </a>
-                        <a href="https://t.me/techresourceru" target="_blank" class="social-link" aria-label="Telegram">
+                        <a href="https://t.me/techresourceru" target="_blank" class="social-link" aria-label="Telegram" title="Перейти в мессенджер Телеграм, канал компании ООО Техресурс">
                             <i class="fab fa-telegram"></i>
                         </a>
-                        <a href="mailto:{{ company_email }}" class="social-link" aria-label="Email">
+                        <a href="mailto:{{ company_email }}" class="social-link" aria-label="Email" title="Написать нам на почту">
                             <i class="fas fa-envelope"></i>
                         </a>
                     </div>
@@ -441,21 +424,21 @@
                 <div class="footer-section">
                     <h3>Контакты</h3>
                     <ul class="footer-links">
-                        <li><a href="/contacts/"><i class="fas fa-chevron-right"></i>Контакты</a></li>
+                        <li><a href="/contacts/"><i class="fas fa-chevron-right" title="Перейти на страницу контактов"></i>Контакты</a></li>
                         <li>
-                            <a href="tel:{{ company_phone|cut:' '|cut:'('|cut:')'|cut:'-'|cut:'–'|cut:'—' }}">
+                            <a href="tel:{{ company_phone|cut:' '|cut:'('|cut:')'|cut:'-'|cut:'–'|cut:'—' }}" title="Звоните в рабочее время ПН-ПТ 8:00-17:00">
                                 <i class="fas fa-phone"></i>
                                 {{ company_phone }}
                             </a>
                         </li>
                         <li>
-                            <a href="mailto:{{ company_email }}">
+                            <a href="mailto:{{ company_email }}" title="Пишите в любое время. Среднее время ответа - 1 час">
                                 <i class="fas fa-envelope"></i>
                                 {{ company_email }}
                             </a>
                         </li>
                         <li>
-                            <a href="https://yandex.ru/maps/-/CLtkf21g" target="_blank">
+                            <a href="https://yandex.ru/maps/-/CLtkf21g" target="_blank" title="Для посещения свяжитесь с нами заранее, выбрав дату и время (ПН-ПТ 8:00-17:00)">
                                 <i class="fas fa-map-marker-alt"></i>
                                 {{ company_address }}
                             </a>
@@ -470,31 +453,31 @@
                 <div class="footer-section">
                     <h3>Услуги</h3>
                     <ul class="footer-links">
-                        <li><a href="/services/turnkey/"><i class="fas fa-chevron-right"></i>Проекты под ключ</a></li>
-                        <li><a href="/services/design/"><i class="fas fa-chevron-right"></i>Проектирование</a></li>
-                        <li><a href="/services/electrical/"><i class="fas fa-chevron-right"></i>Монтаж</a></li>
-                        <li><a href="/services/software/"><i class="fas fa-chevron-right"></i>Разработка&nbsp;ПО</a></li>
-                        <li><a href="/services/equipment/"><i class="fas fa-chevron-right"></i>Поставка оборудования</a></li>
-                        <li><a href="/services/support/"><i class="fas fa-chevron-right"></i>Техподдержка</a></li>
-                        <li><a href="/services/maintenance/"><i class="fas fa-chevron-right"></i>Сервисное обслуживание</a></li>
+                        <li><a href="/services/turnkey/" title="Примеры проектов, которые мы сделали целиком - от и до."><i class="fas fa-chevron-right"></i>Проекты под ключ</a></li>
+                        <li><a href="/services/design/" title="Проектирование силовых шкафов, АСУ ТП, монтажных трасс, общий вид, планировка"><i class="fas fa-chevron-right"></i>Проектирование</a></li>
+                        <li><a href="/services/electrical/" title="Качественный монтаж и электромонтаж от сертифицированных специалистов"><i class="fas fa-chevron-right"></i>Монтаж</a></li>
+                        <li><a href="/services/software/" title="Разработка программного обеспечения от наших разработчиков"><i class="fas fa-chevron-right"></i>Разработка&nbsp;ПО</a></li>
+                        <li><a href="/services/equipment/" title="Поставка оборудования - самые передовые технологии в ваших руках"><i class="fas fa-chevron-right"></i>Поставка оборудования</a></li>
+                        <li><a href="/services/support/" title="Техническая поддержка по гарантии в случае, если у вас возникнут вопросы после сдачи объекта или на этапе его создания"><i class="fas fa-chevron-right"></i>Техподдержка</a></li>
+                        <li><a href="/services/maintenance/" title="Обслуживание объектов после сдачи"><i class="fas fa-chevron-right"></i>Сервисное обслуживание</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-section">
                     <h3>Ресурсы</h3>
                     <ul class="footer-links">
-                        <li><a href="/about/"><i class="fas fa-chevron-right"></i>О&nbsp;компании</a></li>
-                        <li><a href="/products/"><i class="fas fa-chevron-right"></i>Каталог</a></li>
-                        <li><a href="/"><i class="fas fa-chevron-right"></i>Главная</a></li>
-                        <li><a href="/support/"><i class="fas fa-chevron-right"></i>Поддержка</a></li>
-                        <li><a href="/blog/"><i class="fas fa-chevron-right"></i>Блог</a></li>
-                        <li><a href="/about/#partnerCard"><i class="fas fa-chevron-right"></i>Карта партнера</a></li>
+                        <li><a href="/about/" title="О компании Техресурс. Работаем более 13 лет. Множество партнеров как из России, так и из-за рубежа, в т.ч. из Китая"><i class="fas fa-chevron-right"></i>О&nbsp;компании</a></li>
+                        <li><a href="/products/" title="Каталог товарв. Camozzi, WAM, Siemens, KRAX, Shneider, FAS-elec и многое другое. Для запароса КП пишите на почту {{ company_email }}"><i class="fas fa-chevron-right"></i>Каталог</a></li>
+                        <li><a href="/" title="Главная страница"><i class="fas fa-chevron-right"></i>Главная</a></li>
+                        <li><a href="/support/" title="Произошло что-то непонятное? Пишите!"><i class="fas fa-chevron-right"></i>Поддержка</a></li>
+                        <li><a href="/blog/" title="Прочитать статьи блога и поделиться своим мнением"><i class="fas fa-chevron-right"></i>Блог</a></li>
+                        <li><a href="/about/#partnerCard" title="ИНН, КПП, ОГРН, БАНК, БИК"><i class="fas fa-chevron-right"></i>Карта партнера</a></li>
                     </ul>
                 </div>
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; <span id="currentYear"></span> ООО "Техресурс". Все права защищены. <a href="/privacy/" style="color: var(--accent);">Политика конфиденциальности</a></p>
+                <p>&copy; <span id="currentYear"></span> ООО "Техресурс". Все права защищены. <a href="/privacy/" title="Политика конфиденциальности. ООО Техресурс." style="color: var(--accent);">Политика конфиденциальности</a></p>
             </div>
         </div>
     </footer>

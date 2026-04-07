@@ -12,13 +12,28 @@
 <meta name="keywords" content="проекты под ключ, комплексные решения, промышленное проектирование, электромонтаж, пусконаладка">
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/turnkey.css' %}?v=1.5">
+{% endblock %}
+
 {% block content %}
 <div class="turnkey-hero">
     <div class="hero-content">
         <h1 class="hero-title">Наши проекты</h1>
         <p class="hero-subtitle">Комплексная реализация от концепции до ввода в эксплуатацию</p>
+        <div class="projects-nav">
+            <span class="projects-nav-label">Проекты:</span>
+            <a href="#altyshki" class="projects-nav-link">Автоматизация трепела</a>
+            <a href="#pesok" class="projects-nav-link">Обогащение песка</a>
+            <a href="#lptvs" class="projects-nav-link">Силовые шкафы</a>
+            <a href="#urusuu" class="projects-nav-link">Цементный хаб</a>
+            <a href="#vasylevo" class="projects-nav-link">Склад цемента</a>
+            <a href="#silosov" class="projects-nav-link">Сборка силосов</a>
+            <a href="#bsu2" class="projects-nav-link">Монтаж БСУ</a>
+        </div>
     </div>
 </div>
+
 
 <section class="project-example-section">
     <div class="container">
@@ -38,7 +53,7 @@
                     <p class="project-description">Комплексная автоматизация линий фасовки и переработки трепела, аспирационной, вентиляционной и отопительной систем.</p>
                     
                     <button class="project-toggle-btn">
-                        <span class="toggle-text">Подробнее о проекте</span>
+                        <span class="toggle-text">Подробнее</span>
                         <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
@@ -54,10 +69,10 @@
                             <span class="stage-duration">28 дней</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Требовалось модернизировать устаревшую линию исполнительных механизмов. Существующее оборудование не обеспечивало необходимую точность и производительность, отсутствовала система контроля качества, удаленное управление с операторского компьютера, линии аспирации, вентиляции, отопления.</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Прибыли на предприятие для проведения детального обследования. 
                                 Проанализировали существующие исполнительные механизмы и систему 
                                 управления с центрального пульта. Разработали и внедрили комплексное 
@@ -100,10 +115,10 @@
                             <span class="stage-duration">34 дня</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Требовалось заменить устаревшую электрическую инфраструктуру, проложить новые кабельные трассы, установить современное щитовое и шкафное оборудование, интегрировать новую систему к старым силовым шкафам.</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Предварительно собрали и настроили новые шкафы - силовые и 
                                 шкафы АСУ ТП, провели полное тестирование в условиях офиса, 
                                 после чего в готовом и проверенном виде доставили на объект. На месте 
@@ -170,13 +185,13 @@
                             <span class="stage-duration">24 дня</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Необходимо было разработать систему управления линией с возможностью удаленного 
                                 мониторинга, управления с операторского компьютера, анализом данных, умной 
                                 системой запуска и останова оборудования, предупреждения об угрозах с 
                                 интуитивно понятным интерфейсом</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Разработали и отладили программное обеспечение с полным циклом 
                                 тестирования. Реализовали двойной режим управления: дистанционный с 
                                 операторского компьютера и ручной с местных панелей с блокировкой одновременного 
@@ -246,10 +261,10 @@
                             <span class="stage-duration">14 дней</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Требовалось провести комплексные испытания системы, обучить персонал работе с новым оборудованием и сдать объект в промышленную эксплуатацию.</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Разработали и отладили программное обеспечение с полным 
                                 циклом тестирования. Реализовали двойной режим управления: 
                                 дистанционный с операторского компьютера и ручной с местных панелей 
@@ -289,7 +304,7 @@
                     <p class="project-description">Комплексная автоматизация линий переработки песка</p>
                     
                     <button class="project-toggle-btn">
-                        <span class="toggle-text">Подробнее о проекте</span>
+                        <span class="toggle-text">Подробнее</span>
                         <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
@@ -305,10 +320,10 @@
                             <span class="stage-duration">16 дней</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Создать проект для автоматизации обогащения песка</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Прибыли на предприятие для проведения детального обследования. 
                                 Проанализировали, какие необходимы исполнительные механизмы. Разработали и внедрили комплексное 
                                 решение. Подготовили полный пакет 
@@ -325,10 +340,10 @@
                             <span class="stage-duration">34 дня</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Полностью смонтировать электрооборудование, собрать шкафы АСУ ТП.</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Предварительно собрали и настроили новые шкафы - силовые и 
                                 шкафы АСУ ТП, провели полное тестирование, 
                                 после чего в готовом и проверенном виде доставили на объект. Подключили 
@@ -348,13 +363,13 @@
                             <span class="stage-duration">24 дня</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Необходимо было разработать систему управления линией с возможностью удаленного 
                                 мониторинга, управления с операторского компьютера, анализом данных, умной 
                                 системой запуска и останова оборудования, предупреждения об угрозах с 
                                 интуитивно понятным интерфейсом</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Разработали и отладили программное обеспечение с полным циклом 
                                 тестирования. Реализовали двойной режим управления: дистанционный с 
                                 операторского компьютера и ручной с местных панелей с блокировкой одновременного 
@@ -403,10 +418,10 @@
                             <span class="stage-duration">5 дней</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Требовалось провести комплексные испытания системы, обучить персонал работе с новым оборудованием и сдать объект в промышленную эксплуатацию.</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Отладили программное обеспечение с полным 
                                 циклом тестирования. Подготовили подробную инструкцию для оператора и провели 
                                 тестирование знаний для быстрой адаптации персонала.</p>
@@ -430,7 +445,7 @@
                     <p class="project-description">Реализация обновленного силового оборудования</p>
                     
                     <button class="project-toggle-btn">
-                        <span class="toggle-text">Подробнее о проекте</span>
+                        <span class="toggle-text">Подробнее</span>
                         <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
@@ -446,10 +461,10 @@
                             <span class="stage-duration">4 дня</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Создать проект для нового силового оборудования</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Создали проект, предусматривающий все поставленные задачи.
                             </p>
                         </div>
@@ -477,10 +492,10 @@
                             <span class="stage-duration">6 часов</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Полностью смонтировать электрооборудование, собрать силовый шкафы</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>В связи с тем, что данное силовое оборудование необходимо для
                                 работы нескольких действующх предприятий мы обозначили оптимальный временной диапазон,
                                 в который без потерь для заводов отключили старое оборудование и подключили 
@@ -511,10 +526,10 @@
                             <span class="stage-duration">2 часа</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Требовалось в условиях ограниченного времени проверить оборудование.</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Проверили всё действующее оборудование, резервное питание.</p>
                         </div>
                     </div>
@@ -532,10 +547,10 @@
                 </div>
                 <div class="project-info">
                     <h3>Цементный хаб Уруссу</h3>
-                    <p class="project-description">Сборка новых силосов и замена старых, автоматизация склада</p>
+                    <p class="project-description">Реконструкция, строительство перевалки цемента</p>
                     
                     <button class="project-toggle-btn">
-                        <span class="toggle-text">Подробнее о проекте</span>
+                        <span class="toggle-text">Подробнее</span>
                         <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
@@ -551,10 +566,10 @@
                             <span class="stage-duration">2 недели</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Спроектировать новый цементный хаб</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Основная информация по проектированию данного объекта представлена здесь: <a href="https://tech-re.ru/services/design/#urusu" target="_blank">проектирование хаба</a></p>
 
                             <div class="stage-gallery">
@@ -575,10 +590,10 @@
                             <span class="stage-duration">1 неделя</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>На объекте оценить текущее состоянее оборудования. Провести анализ для дальнейшего обновления</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>С помощью современного ПО спроектировали трехмерную модель нового склада, оценили его работоспособность в визуализации и приступили к демонтажу непригодного оборудования</p>
                             
                             <div class="stage-gallery">
@@ -599,10 +614,10 @@
                             <span class="stage-duration">3 недели</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>После демонтажа собрать новые силосы</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Собрали новые силосы и установили их</p>
 
                             <div class="stage-gallery">
@@ -665,10 +680,10 @@
                             <span class="stage-duration">1 неделя</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Смонтировать шнеки</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Смонтировали шнеки, расключили "поле" со шкафом, провели ПНР</p>
                             <div class="stage-gallery">
                                 <div class="gallery-item zoomable-container">
@@ -729,11 +744,11 @@
                     </div>
                 </div>
                 <div class="project-info">
-                    <h3>Склад цемента Васильево</h3>
+                    <h3>Склад цемента - модернизация</h3>
                     <p class="project-description">Проектирование, поставка оборудования, монтаж и пусконаладка склада цемента в Васильево.</p>
                     
                     <button class="project-toggle-btn">
-                        <span class="toggle-text">Подробнее о проекте</span>
+                        <span class="toggle-text">Подробнее</span>
                         <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
@@ -749,10 +764,10 @@
                             <span class="stage-duration">1.5 недели</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Спроектировать новый склад цемента, учесть прием материала путем подачи с грузовых вагонов поезда.</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Составили проект, смоделировали его работоспособность и согласовали результат с заказчиками.</p>
 
                             <div class="stage-gallery">
@@ -773,10 +788,10 @@
                             <span class="stage-duration">1 месяц</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Привезти новое оборудование, произвести демонтаж старого оборудования, поставить компрессоры, подать питающие, совершить монтаж силового и транспортного оборудования.</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Поставили новое оборудование, в кратчайшие сроки провели монтаж и электромонтаж, поставили пневматическое оборудование</p>
                             
                             <div class="stage-gallery">
@@ -853,10 +868,10 @@
                             <span class="stage-duration">1 неделя</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Собрать шкаф управления</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Сделали проект, провели монтаж шкафа и проверили его в цеховых условиях, после чего перевезли на объект и интегрировали с оборудованием.</p>
 
                             <div class="stage-gallery">
@@ -885,7 +900,7 @@
                             <span class="stage-duration">1.5 недели</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Поставили нужное оборудование на объект, установили его и подключили всё необходимое, проверив работоспособность</p>
 
                             <div class="stage-gallery">
@@ -920,40 +935,30 @@
                             <span class="stage-duration">4 дня</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Интегрировать приемный бункер и проверить его разботоспособность</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Установили приемный бункер, создали необходимые условия для первоначальной фильтрации материала, проверили работоспособность с учетом влаго- и морозоустойчивости.</p>
-
+                            <span style="color: #555;">На фотографиях представлен монтаж приемного бункера под хоппер (вагон)</span>
                             <div class="stage-gallery">
                                 <div class="gallery-item zoomable-container">
                                     <img src="{% static 'images/vasylevo/t-1.JPEG' %}" alt="Скада" class="zoomable" loading="lazy">
                                     <div class="image-overlay">
                                         <span class="zoom-hint">Увеличить</span>
                                     </div>
-                                    <span>Подготовка к установке приемного бункера</span>
                                 </div>
                                 <div class="gallery-item zoomable-container">
                                     <img src="{% static 'images/vasylevo/t-4.webp' %}" alt="Скада" class="zoomable" loading="lazy">
                                     <div class="image-overlay">
                                         <span class="zoom-hint">Увеличить</span>
                                     </div>
-                                    <span>Установленный бункер</span>
                                 </div>
                                 <div class="gallery-item zoomable-container">
                                     <img src="{% static 'images/vasylevo/t-2.JPEG' %}" alt="Скада" class="zoomable" loading="lazy">
                                     <div class="image-overlay">
                                         <span class="zoom-hint">Увеличить</span>
                                     </div>
-                                    <span>Решетка первичной фильтрации</span>
-                                </div>
-                                <div class="gallery-item zoomable-container">
-                                    <img src="{% static 'images/vasylevo/poezd.webp' %}" alt="Скада" class="zoomable" loading="lazy">
-                                    <div class="image-overlay">
-                                        <span class="zoom-hint">Увеличить</span>
-                                    </div>
-                                    <span>Момент проверки работоспособности с реальным грузом</span>
                                 </div>
                             </div>
                         </div>
@@ -965,10 +970,10 @@
                             <span class="stage-duration">1 неделя</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>Пусконаладить объект</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>Проверили все системы, испытали систему при различных полевых условиях, включая возможные критические состояния.</p>
 
                             <div class="stage-gallery">
@@ -1007,6 +1012,349 @@
             </div>
         </div>
 
+        <div class="project-card" id="silosov">
+            <div class="project-preview">
+                <div class="project-image">
+                    <img src="{% static 'images/silos/007758d3-478c-49d2-8abc-c1ac14eb9484.jpg' %}" alt="Сборка силосов" class="zoomable" loading="lazy">
+                    <div class="image-overlay">
+                        <span class="zoom-hint">Нажмите для увеличения</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3>Сборка силосов</h3>
+                    <p class="project-description">Комплексная сборка силосов под ключ</p>
+                    
+                    <button class="project-toggle-btn">
+                        <span class="toggle-text">Подробнее</span>
+                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="project-dropdown">
+                <div class="dropdown-content">
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Сборка силосов</h4>
+                            <span class="stage-duration">Процесс монтажа</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Процесс сборки силосов:</h5>
+                            <p>Выполнена комплексная сборка силосов с соблюдением всех технологических норм.</p>
+
+                            <!-- Swiper слайдер -->
+                            <div class="swiper project-swiper" id="silosSwiper">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/007758d3-478c-49d2-8abc-c1ac14eb9484.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/01159d40-2cd2-4efc-a33e-969107d3c541.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/02c5b860-515b-447c-8b8a-2e3bbffcf3a7.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/2583b68f-c6d2-45b2-a9ef-ab985d3df4e0.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/32f602d0-d950-4fc8-82f5-3535087a74cf.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/37bfbef2-72b2-4aea-9f97-13dc992cb130.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/46d96dd2-ab91-4228-9132-ac72a8763ea7.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/4a74a76a-219c-4fda-8192-92fb1867470b.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/4fcee0e7-1bda-4a0d-b07e-2a960bdeb9c7.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/515634cc-091c-47c0-a6af-a216201d6ae7.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/52b88997-abd1-4e0a-8b5f-e71329163c98.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/57feee6f-ca63-483e-84b4-f9f106238492.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/6067403b-08c0-42b0-923b-c41627e51b62.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/619dd719-86f8-40ba-be8e-1f0225b48cd3.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/658c866b-33c6-4814-9973-80c4d15b687b.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/73740ebf-f74e-4fdb-b4f3-e46a23e3d7b3.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/77290888-c087-4c40-b1c2-193a49c752a5.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/78640f9f-dbe8-4312-9ce3-7c750f56e70b.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/78be5d69-dcda-47c9-820c-2cf0d638503e.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/81facb0b-6f2e-4516-8c2c-abe8117dda9d.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/8202eb52-9695-4ec9-816f-40f5c9eea96e.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/83a64930-f3d6-4d84-b291-290e3f562e8a.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/8642846c-ce1d-4772-9192-5a6dd3b7456c.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/8d456fb4-7700-424a-b655-10f11d96bc94.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/91bb1ee9-5bdf-40ec-81f8-a7d1faf2f9e0.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/968cacc2-f1a7-4b9f-b51e-90568496a5b9.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/9c87a5f7-5edb-45bf-b517-1098b6eda17b.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/9efda96e-7668-41f9-9107-c493b3a6ff7b.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/a33edd36-417d-4946-8aa0-5933fdf62b64.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/ab7277c5-9fd0-4d66-8ef8-5134b05a06e7.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/b553c954-4416-428e-9df9-8e1fd155330d.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/c06ac31f-97c1-48ed-9a71-fdaa2a0bf076.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/caf20c0d-fe8a-4feb-8c26-3c716bb29c25.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/cb5bc621-b7ad-410a-ad28-e484980a32fb.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/d753a07a-01e8-4287-8f8d-763b94f39384.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/df470013-9a64-4cbf-914d-02f58f83aa3c.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/e67b95d6-e054-49c0-a2ad-dbe0e2192dc3.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/ee768735-1c69-4674-9ba8-5a2391fbf134.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/f2c3c864-ebe7-41fd-902c-34c924279b12.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/silos/febaec8f-c38b-4f65-976b-83f700ba9622.jpg' %}" alt="Сборка силоса">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Управление -->
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="project-card" id="bsu2">
+            <div class="project-preview">
+                <div class="project-image">
+                    <img src="{% static 'images/bsu2/IMG_8195.JPEG' %}" alt="Монтаж БСУ" class="zoomable" loading="lazy">
+                    <div class="image-overlay">
+                        <span class="zoom-hint">Нажмите для увеличения</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3>Монтаж БСУ</h3>
+                    <p class="project-description">Комплексный монтаж БСУ под ключ</p>
+                    
+                    <button class="project-toggle-btn">
+                        <span class="toggle-text">Подробнее</span>
+                        <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="project-dropdown">
+                <div class="dropdown-content">
+                    <div class="project-stage">
+                        <div class="stage-header">
+                            <h4>Монтаж БСУ</h4>
+                            <span class="stage-duration">Процесс монтажа</span>
+                        </div>
+                        <div class="stage-content">
+                            <h5>Процесс монтажа БСУ:</h5>
+                            <p>Выполнена комплексная сборка силосов БСУ-2 с соблюдением всех технологических норм.</p>
+
+                            <div class="swiper project-swiper" id="bsu2Swiper">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/1BC6C5E1-74B3-41D5-92F6-35AA311CFE51.jpg' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/3B22C615-5442-4C71-A38C-1BD2EFC1933E.jpg' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/7b6f74ec-90e8-4360-85a0-63a2f35795da.jpg' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/96fb497a-224b-4eef-b1f1-3709ee569288.jpg' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/ea290491-1225-481c-854f-b1a552e6dcbb.jpg' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_1500.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_1501.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_1502.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_1503.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_1504.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_1505.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_1548.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_1549.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_1552.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_1554.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_8195.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_8197.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_8198.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_8199.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_8203.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_8204.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="{% static 'images/bsu2/IMG_9226.JPEG' %}" alt="Сборка силоса БСУ-2">
+                                        <div class="slide-caption"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <!-- <div class="project-card" id="ID">
             <div class="project-preview">
                 <div class="project-image">
@@ -1020,7 +1368,7 @@
                     <p class="project-description">OPIS</p>
                     
                     <button class="project-toggle-btn">
-                        <span class="toggle-text">Подробнее о проекте</span>
+                        <span class="toggle-text">Подробнее</span>
                         <svg class="toggle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
@@ -1036,10 +1384,10 @@
                             <span class="stage-duration">SCOC</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>OPIS</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>OPIS</p>
 
                             <div class="stage-gallery">
@@ -1060,10 +1408,10 @@
                             <span class="stage-duration">SCOC</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>OPIS</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>OPIS</p>
                             
                             <div class="stage-gallery">
@@ -1084,10 +1432,10 @@
                             <span class="stage-duration">SCOC</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>OPIS</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>OPIS</p>
 
                             <div class="stage-gallery">
@@ -1108,10 +1456,10 @@
                             <span class="stage-duration">SCOC</span>
                         </div>
                         <div class="stage-content">
-                            <h5>Что нужно было сделать:</h5>
+                            <h5>Задача:</h5>
                             <p>OPIS</p>
                             
-                            <h5>Что мы сделали:</h5>
+                            <h5>Результат:</h5>
                             <p>OPIS</p>
                         </div>
                     </div>
@@ -1126,6 +1474,144 @@
     </div>
 </section>
 
-<link rel="stylesheet" href="{% static 'css/turnkey.css' %}?v=1.2">
-<script type="text/javascript" src="{% static 'js/turnkey.js' %}?v=1.1"></script>
+<script type="text/javascript" src="{% static 'js/turnkey.js' %}?v=1.8"></script>
+<style>
+.project-swiper {
+    width: 100%;
+    height: auto;
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.project-swiper .swiper-slide {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+}
+
+.project-swiper .swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.project-swiper .swiper-slide:hover img {
+    transform: scale(1.05);
+}
+
+.slide-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    padding: 20px 15px 10px;
+    font-size: 14px;
+    text-align: center;
+    pointer-events: none;
+}
+
+.project-swiper .swiper-button-prev,
+.project-swiper .swiper-button-next {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    color: #2c3e50;
+    transition: all 0.3s ease;
+}
+
+.project-swiper .swiper-button-prev:after,
+.project-swiper .swiper-button-next:after {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.project-swiper .swiper-button-prev:hover,
+.project-swiper .swiper-button-next:hover {
+    background: white;
+    transform: scale(1.1);
+}
+
+.project-swiper .swiper-pagination-bullet {
+    background: white;
+    opacity: 0.7;
+}
+
+.project-swiper .swiper-pagination-bullet-active {
+    background: #007bff;
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .project-swiper .swiper-button-prev,
+    .project-swiper .swiper-button-next {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .project-swiper .swiper-button-prev:after,
+    .project-swiper .swiper-button-next:after {
+        font-size: 14px;
+    }
+    
+    .slide-caption {
+        font-size: 11px;
+        padding: 15px 10px 8px;
+    }
+}
+</style>
+<script>
+function initProjectSliders() {
+    const silosSwiper = document.getElementById('silosSwiper');
+    if (silosSwiper && typeof Swiper !== 'undefined') {
+        new Swiper(silosSwiper, {
+            slidesPerView: 1,
+            spaceBetween: 20,
+            loop: true,
+            autoplay: {
+                delay: 4000,
+                disableOnInteraction: false,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+                dynamicBullets: true,
+            },
+            breakpoints: {
+                640: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                },
+                1024: {
+                    slidesPerView: 3,
+                    spaceBetween: 30,
+                },
+            },
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initProjectSliders();
+});
+document.querySelectorAll('.project-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        setTimeout(() => {
+            initProjectSliders();
+        }, 300);
+    });
+});
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 {% endblock %}

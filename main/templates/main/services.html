@@ -68,44 +68,177 @@
 </script>
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<link rel="stylesheet" href="{% static 'css/service.css' %}?v=5.1">
+<link rel="stylesheet" href="{% static 'css/page_header.css' %}?v=1.4">
+{% endblock %}
+
 {% block content %}
+<div class="page-navigation">
+    <div class="container">
+        <div class="nav-links">
+            <a href="#projects" class="nav-link-page" data-scroll>Проекты</a>
+            <a href="#main-services" class="nav-link-page" data-scroll>Направления</a>
+            <a href="#additional-services" class="nav-link-page" data-scroll>Услуги</a>
+            <a href="#process" class="nav-link-page" data-scroll>Методы</a>
+            <a href="#cta-call" class="nav-link-page" data-scroll>Контакты</a>
+        </div>
+    </div>
+</div>
+
 <div class="services-hero">
     <div class="hero-content">
+        <div class="hero-breadcrumb" style="position: absolute; top: 12px; left: 24px;">
+            <a href="/" style="color: white;">Главная</a>
+            <span class="breadcrumb-divider">/</span>
+            <span>Услуги</span>
+        </div>
         <h1 class="hero-title">Наши услуги</h1>
         <p class="hero-subtitle">Полный спектр инженерных решений для трансформации вашего бизнеса</p>
     </div>
 </div>
 
-<h2 class="turnkey-promo-title">Проекты</h2>
+<h2 class="turnkey-promo-title" id="projects">Проекты</h2>
 
 <div class="turnkey-promo">
     <div class="container">
         <div class="turnkey-promo-content">
             <div class="turnkey-promo-text">
-                <p class="turnkey-promo-desc">Полный цикл реализации: от проектирования до пусконаладки. Единый подрядчик - гарантия качества и сроков.</p>
+                <p class="turnkey-promo-desc" style="color: white;">Полный цикл реализации: от проектирования до пусконаладки. Единый подрядчик - гарантия качества и сроков.</p>
                 <div class="turnkey-features">
-                    <div class="feature">
-                        <span>Проектирование</span>
-                    </div>
-                    <div class="feature">
-                        <span>Монтаж оборудования</span>
-                    </div>
-                    <div class="feature">
-                        <span>Электромонтаж</span>
-                    </div>
-                    <div class="feature">
-                        <span>Разработка ПО</span>
-                    </div>
-                    <div class="feature">
-                        <span>Пусконаладка</span>
-                    </div>
-                    <div class="feature">
-                        <span>Обучение персонала</span>
+                    <a href="/services/design/" style="text-decoration: none; color: white;">
+                        <div class="feature">
+                            <span>Проектирование</span>
+                        </div>
+                    </a>
+                    <a href="/services/electrical/" style="text-decoration: none; color: white;">
+                        <div class="feature">
+                            <span>Монтаж оборудования</span>
+                        </div>
+                    </a>
+                    <a href="/services/electrical/" style="text-decoration: none; color: white;">
+                        <div class="feature">
+                            <span>Электромонтаж</span>
+                        </div>
+                    </a>
+                    <a href="/services/software/" style="text-decoration: none; color: white;">
+                        <div class="feature">
+                            <span>Разработка ПО</span>
+                        </div>
+                    </a>
+                    <a href="/services/turnkey/" style="text-decoration: none; color: white;">
+                        <div class="feature">
+                            <span>Пусконаладка</span>
+                        </div>
+                    </a>
+                    <a href="/services/support/" style="text-decoration: none; color: white;">
+                        <div class="feature">
+                            <span>Обучение персонала</span>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="projects-swiper-container">
+                    <div class="swiper projects-swiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <a href="/services/turnkey/#altyshki" class="project-slide-link">
+                                    <div class="project-slide-image">
+                                        <img src="{% static 'images/img/altcomp.webp' %}" alt="Автоматизация трепела" loading="lazy">
+                                    </div>
+                                    <div class="project-slide-content">
+                                        <h4>Автоматизация трепела</h4>
+                                        <p>Автоматизация линии фасовки и переработки трепела</p>
+                                        
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <div class="swiper-slide">
+                                <a href="/services/turnkey/#pesok" class="project-slide-link">
+                                    <div class="project-slide-image">
+                                        <img src="{% static 'images/img/pesoksca.webp' %}" alt="Обогащение песка" loading="lazy">
+                                    </div>
+                                    <div class="project-slide-content">
+                                        <h4>Обогащение песка</h4>
+                                        <p>Автоматизация линии фасовки и обогащения песка</p>
+                                        
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <div class="swiper-slide">
+                                <a href="/services/turnkey/#lptvs" class="project-slide-link">
+                                    <div class="project-slide-image">
+                                        <img src="{% static 'images/img/lptvs-4.webp' %}" alt="Силовые шкафы" loading="lazy">
+                                    </div>
+                                    <div class="project-slide-content">
+                                        <h4>Силовые шкафы</h4>
+                                        <p>Поставка новых силовых шкафов</p>
+                                        
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <div class="swiper-slide">
+                                <a href="/services/turnkey/#urusuu" class="project-slide-link">
+                                    <div class="project-slide-image">
+                                        <img src="{% static 'images/urusu/gotovoe.webp' %}" alt="Цементный хаб" loading="lazy">
+                                    </div>
+                                    <div class="project-slide-content">
+                                        <h4>Цементный хаб</h4>
+                                        <p>Реконструкция перевалки цемента</p>
+                                        
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <div class="swiper-slide">
+                                <a href="/services/turnkey/#vasylevo" class="project-slide-link">
+                                    <div class="project-slide-image">
+                                        <img src="{% static 'images/vasylevo/g-5.JPEG' %}" alt="Склад цемента" loading="lazy">
+                                    </div>
+                                    <div class="project-slide-content">
+                                        <h4>Склад цемента</h4>
+                                        <p>Модернизация склада цемента</p>
+                                        
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <div class="swiper-slide">
+                                <a href="/services/turnkey/#silosov" class="project-slide-link">
+                                    <div class="project-slide-image">
+                                        <img src="{% static 'images/silos/007758d3-478c-49d2-8abc-c1ac14eb9484.jpg' %}" alt="Сборка силосов" loading="lazy">
+                                    </div>
+                                    <div class="project-slide-content">
+                                        <h4>Сборка силосов</h4>
+                                        <p>Комплексная сборка силосов</p>
+                                        
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <div class="swiper-slide">
+                                <a href="/services/turnkey/#bsu2" class="project-slide-link">
+                                    <div class="project-slide-image">
+                                        <img src="{% static 'images/bsu2/IMG_8195.JPEG' %}" alt="Монтаж БСУ" loading="lazy">
+                                    </div>
+                                    <div class="project-slide-content">
+                                        <h4>Монтаж БСУ</h4>
+                                        <p>Комплексный монтаж БСУ</p>
+                                        
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="swiper-button-prev"></div>
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-pagination"></div>
                     </div>
                 </div>
-                <a href="{% url 'turnkey_projects' %}" class="turnkey-promo-btn">
-                    Узнать подробнее
-                </a>
             </div>
         </div>
     </div>
@@ -151,7 +284,6 @@
                             </ul>
                             {% endif %}
                         </div>
-                        <a href="{{ service.url }}" class="service-btn">Подробнее</a>
                     </a>
                 </div>
                 {% empty %}
@@ -256,7 +388,7 @@
         </div>
     </section>
 
-    <section class="process-section">
+    <section class="process-section" id="process">
         <div class="container">
             <h2 class="section-title hows-we">Как мы работаем</h2>
             <p class="section-subtitle">Четкий поэтапный подход к реализации ваших проектов</p>
@@ -333,7 +465,7 @@
                 </div>
             </div>
             
-            <div class="process-cta" data-aos="zoom-in">
+            <div class="process-cta" data-aos="zoom-in" id="cta-call">
                 <div class="cta-content">
                     <h3>Готовы начать проект?</h3>
                     <p>Оставьте заявку и получите бесплатную консультацию нашего специалиста</p>
@@ -350,8 +482,9 @@
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-<script type="text/javascript" src="{% static 'js/service.js' %}?v=1.4"></script>
-<link rel="stylesheet" href="{% static 'css/service.css' %}?v=3.9">
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script type="text/javascript" src="{% static 'js/service.js' %}?v=1.9"></script>
+<script type="text/javascript" src="{% static 'js/page_header.js' %}?v=1.2"></script>
 <link rel="prefetch" href="{% url 'service_design' %}" as="document">
 <link rel="prefetch" href="{% url 'service_electrical' %}" as="document">
 <link rel="prefetch" href="{% url 'service_software' %}" as="document">
