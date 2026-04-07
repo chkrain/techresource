@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect
 from django.utils.deprecation import MiddlewareMixin
 from django.contrib.auth import logout
 import logging
+import time
 
 logger = logging.getLogger('django.security')
 

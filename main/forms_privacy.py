@@ -1,5 +1,7 @@
 # main/forms_privacy.py
 from django import forms
+from django.core.cache import cache
+import requests
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 

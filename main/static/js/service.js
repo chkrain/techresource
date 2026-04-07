@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  (AOS.init({ duration: 800, once: !0, offset: 100 }),
+  (AOS.init({ duration: 800, once: true, offset: 100, disable: false }),
     anime({
       targets: ".hero-title",
       translateY: [30, 0],
@@ -85,11 +85,11 @@ document.addEventListener("DOMContentLoaded", function () {
           ).observe(a);
         }));
     }, 1e3),
-    window.addEventListener("scroll", function () {
-      const e = window.pageYOffset,
-        t = document.querySelector(".services-hero");
-      t && (t.style.transform = `translateY(${0.5 * e}px)`);
-    }),
+    // window.addEventListener("scroll", function () {
+    //   const e = window.pageYOffset,
+    //     t = document.querySelector(".services-hero");
+    //   t && (t.style.transform = `translateY(${0.5 * e}px)`);
+    // }),
     document.querySelectorAll(".service-btn").forEach((e) => {
       e.addEventListener("click", function (e) {
         anime({
@@ -148,5 +148,62 @@ document.addEventListener("DOMContentLoaded", function () {
         card.classList.remove("flipped");
       });
     }
+  });
+  // Инициализация Swiper слайдера проектов с задержкой
+  function initProjectsSwiper() {
+      if (typeof Swiper !== 'undefined') {
+          const swiperContainer = document.querySelector('.projects-swiper');
+          if (swiperContainer && !swiperContainer.swiper) {
+              setTimeout(function() {
+                  new Swiper('.projects-swiper', {
+                      slidesPerView: 1,
+                      spaceBetween: 20,
+                      loop: true,
+                      autoplay: {
+                          delay: 5000,
+                          disableOnInteraction: false,
+                          pauseOnMouseEnter: true,
+                      },
+                      navigation: {
+                          nextEl: '.swiper-button-next',
+                          prevEl: '.swiper-button-prev',
+                      },
+                      pagination: {
+                          el: '.swiper-pagination',
+                          clickable: true,
+                          dynamicBullets: true,
+                      },
+                      breakpoints: {
+                          640: {
+                              slidesPerView: 2,
+                              spaceBetween: 20,
+                          },
+                          992: {
+                              slidesPerView: 3,
+                              spaceBetween: 25,
+                          },
+                          1200: {
+                              slidesPerView: 4,
+                              spaceBetween: 25,
+                          },
+                      },
+                  });
+              }, 300);
+          }
+      }
+  }
+
+  // Запускаем инициализацию после загрузки страницы и после AOS
+  if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+          setTimeout(initProjectsSwiper, 500);
+      });
+  } else {
+      setTimeout(initProjectsSwiper, 500);
+  }
+
+  // Также запускаем после возможных AJAX обновлений
+  window.addEventListener('load', function() {
+      setTimeout(initProjectsSwiper, 200);
   });
 });

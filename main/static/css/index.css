@@ -936,104 +936,6 @@ section {
   margin: 1rem;
 }
 
-.page-navigation {
-    background: #2c3e50;
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-}
-
-.page-navigation .nav-links {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    padding: 1rem 0;
-    flex-wrap: wrap;
-}
-
-.nav-link-page {
-    color: rgba(255,255,255,0.8);
-    text-decoration: none;
-    font-weight: 500;
-    padding: 0.5rem 1.2rem;
-    border-radius: 30px;
-    transition: all 0.3s ease;
-    font-size: 0.95rem;
-    letter-spacing: 0.5px;
-    display: flex;
-}
-
-.nav-link-page img {
-  max-width: 24px;
-  margin-right: 8px;
-}
-
-@media screen and (max-width: 768px) {
-  .nav-link-page img {
-    max-width: 12px;
-    margin-right: 4px;
-}
-}
-
-.nav-link-page:hover {
-    color: white;
-    background: rgba(255,255,255,0.1);
-}
-
-/* Активное состояние - корпоративный синий */
-.nav-link-page.active {
-    background: #42586e;
-    color: white;
-}
-
-/* Убираем подчеркивание у активной ссылки */
-.nav-link-page.active::after {
-    display: none;
-}
-
-.nav-link-page::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 2px;
-    background: #0052cc; /* Корпоративный синий */
-    transition: width 0.3s ease;
-}
-
-.nav-link-page:hover::after {
-    width: 70%;
-}
-
-@media (max-width: 768px) {
-    .page-navigation .nav-links {
-        gap: 0.5rem;
-        padding: 0.75rem 0;
-    }
-    
-    .nav-link-page {
-        font-size: 0.85rem;
-        padding: 0.4rem 0.8rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .page-navigation .nav-links {
-        gap: 0.3rem;
-    }
-    
-    .nav-link-page {
-        font-size: 0.75rem;
-        padding: 0.3rem 0.6rem;
-    }
-}
-
-    /* Стили для превью проектов */
 .projects-preview-section {
     background: linear-gradient(135deg, #f8f9fa 0%, #eef2f7 100%);
     padding: 80px 0;
@@ -1291,26 +1193,6 @@ section {
     .partners-mini-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-}
-
-.header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: transparent;
-    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
-}
-
-.header-scrolled {
-    background: rgba(44, 62, 80, 0.95);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-}
-
-.header-hidden {
-    transform: translateY(-100%);
 }
 
 main {
