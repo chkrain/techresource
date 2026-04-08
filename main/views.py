@@ -2578,13 +2578,13 @@ def send_support_notification(ticket, attachments):
         subject = f"Заявка в поддержку #{ticket.id} - {ticket.subject}"
         
         message = f"""
-🆔 Номер заявки: #{ticket.id}
-📋 Тема: {ticket.subject}
-🚨 Приоритет: {ticket.get_priority_display()}
-👤 Пользователь: {ticket.user.username if ticket.user else 'Гость'}
-📧 Email: {ticket.user.email if ticket.user and ticket.user.email else 'Не указан'}
-🌐 IP: {ticket.ip_address}
-📱 User Agent: {ticket.user_agent[:200] if ticket.user_agent else 'Не указан'}
+Номер заявки: #{ticket.id}
+Тема: {ticket.subject}
+Приоритет: {ticket.get_priority_display()}
+Пользователь: {ticket.user.username if ticket.user else 'Гость'}
+Email: {ticket.user.email if ticket.user and ticket.user.email else 'Не указан'}
+IP: {ticket.ip_address}
+User Agent: {ticket.user_agent[:200] if ticket.user_agent else 'Не указан'}
 
 📝 Описание:
 {ticket.description}
@@ -2965,7 +2965,6 @@ def send_password_changed_confirmation(email, username):
                     <p>Пароль успешно изменен</p>
                 </div>
                 <div class="content">
-                    <div class="success-icon">✅</div>
                     <h2>Здравствуйте, {username}!</h2>
                     <p>Мы подтверждаем, что пароль для вашего аккаунта был успешно изменен.</p>
                     <p><strong>Дата изменения:</strong> {timezone.now().strftime('%d.%m.%Y %H:%M')}</p>
@@ -3173,7 +3172,7 @@ Email: {company_info['email']}
         admin_notification_sent = send_admin_notification(
             subject=f"Счет №{order.invoice_number} отправлен клиенту",
             message=f"""
-        📄 СЧЕТ ОТПРАВЛЕН КЛИЕНТУ
+        СЧЕТ ОТПРАВЛЕН КЛИЕНТУ
 
         Клиент: {order.customer_name}
         Email: {order.customer_email}
@@ -3185,7 +3184,7 @@ Email: {company_info['email']}
         Товары:
         {chr(10).join([f"  • {item.product.name} x{item.quantity} - {item.get_total_price()} руб." for item in order.orderitem_set.all()])}
 
-        💡 Копия счета прикреплена к этому письму.
+        Копия счета прикреплена к этому письму.
             """,
             is_critical=False,
             order=order,
@@ -4358,23 +4357,23 @@ def send_cancellation_notification(order):
         message = f"""
 ❌ ЗАКАЗ ОТМЕНЕН #{order.id}
 
-👤 Клиент: {order.customer_name}
-📞 Телефон: {order.customer_phone}
-📧 Email: {order.customer_email}
+Клиент: {order.customer_name}
+Телефон: {order.customer_phone}
+Email: {order.customer_email}
 
-💰 Стоимость:
+Стоимость:
   • Товары: {order.total_price} руб.
   • Доставка: {order.delivery_cost} руб.
   • Итого: {order.final_price} руб.
 
-🚚 Адрес: {order.delivery_address}
+Адрес: {order.delivery_address}
 
-📦 Товары:
+Товары:
 {items_text}
 
-⚠️ Требуется вернуть средства клиенту (если оплата была произведена)
+Требуется вернуть средства клиенту (если оплата была произведена)
 
-🕒 Время отмены: {timezone.now().strftime('%d.%m.%Y %H:%M')}
+Время отмены: {timezone.now().strftime('%d.%m.%Y %H:%M')}
 """
         return send_admin_notification(subject, message, is_critical=True, order=order)
         
@@ -4392,20 +4391,20 @@ def send_order_status_notification(order, old_status, new_status):
         
         subject = f"Статус заказа #{order.id} изменен"
         message = f"""
-🔄 ИЗМЕНЕНИЕ СТАТУСА ЗАКАЗА #{order.id}
+ИЗМЕНЕНИЕ СТАТУСА ЗАКАЗА #{order.id}
 
-📊 Статус: {status_text}
+Статус: {status_text}
 
-👤 Клиент: {order.customer_name}
-📞 Телефон: {order.customer_phone}
-📧 Email: {order.customer_email}
+Клиент: {order.customer_name}
+Телефон: {order.customer_phone}
+Email: {order.customer_email}
 
-💰 Стоимость:
+Стоимость:
   • Товары: {order.total_price} руб.
   • Доставка: {order.delivery_cost} руб.
 {commission_text}  • Итого: {order.final_price} руб.
 
-⏰ Время: {timezone.now().strftime('%d.%m.%Y %H:%M')}
+Время: {timezone.now().strftime('%d.%m.%Y %H:%M')}
 """
         return send_admin_notification(subject, message, is_critical=(new_status in ['cancelled', 'refunded']), order=order)
         
@@ -4421,24 +4420,24 @@ def send_refund_request_notification(order, reason):
         
         subject = f"Запрос возврата средств по заказу #{order.id}"
         message = f"""
-💰 ЗАПРОС ВОЗВРАТА СРЕДСТВ
+ЗАПРОС ВОЗВРАТА СРЕДСТВ
 
-🆔 Заказ: #{order.id}
+Заказ: #{order.id}
 
-👤 Клиент: {order.customer_name}
-📞 Телефон: {order.customer_phone}
-📧 Email: {order.customer_email}
+Клиент: {order.customer_name}
+Телефон: {order.customer_phone}
+Email: {order.customer_email}
 
-💰 Стоимость:
+Стоимость:
   • Товары: {order.total_price} руб.
   • Доставка: {order.delivery_cost} руб.
 {commission_text}  • Итого к возврату: {order.final_price} руб.
 
-📝 Причина возврата: {reason}
+Причина возврата: {reason}
 
-⏰ Время запроса: {timezone.now().strftime('%d.%m.%Y %H:%M')}
+Время запроса: {timezone.now().strftime('%d.%m.%Y %H:%M')}
 
-⚠️ Требуется обработать возврат средств
+Требуется обработать возврат средств
 """
         return send_admin_notification(subject, message, is_critical=True, order=order)
         
@@ -4489,22 +4488,22 @@ def send_invoice_report_email(request):
         
         subject = f"Отчет по счетам"
         message = f"""
-📊 ОТЧЕТ ПО СЧЕТАМ
+ОТЧЕТ ПО СЧЕТАМ
 
-📅 Период: {date_from or 'Все время'} - {date_to or 'Сегодня'}
-📋 Фильтр статуса: {dict(InvoiceRegistry.STATUS_CHOICES).get(status_filter, 'Все')}
+Период: {date_from or 'Все время'} - {date_to or 'Сегодня'}
+Фильтр статуса: {dict(InvoiceRegistry.STATUS_CHOICES).get(status_filter, 'Все')}
 
-📈 СТАТИСТИКА:
+СТАТИСТИКА:
   • Всего счетов: {total_count}
   • Общая сумма: {total_amount:,.2f} руб.
   • Оплачено: {paid_amount:,.2f} руб.
   • Просрочено счетов: {overdue_count}
   • Сумма просрочки: {overdue_amount:,.2f} руб.
 
-📋 ПОСЛЕДНИЕ 10 СЧЕТОВ:
+ПОСЛЕДНИЕ 10 СЧЕТОВ:
 {recent_invoices}
 
-⏰ Время отчета: {timezone.now().strftime('%d.%m.%Y %H:%M')}
+Время отчета: {timezone.now().strftime('%d.%m.%Y %H:%M')}
 """
         
         success = send_admin_notification(subject, message, is_critical=False)
@@ -4533,29 +4532,29 @@ def send_privacy_request_notification(privacy_request):
     try:
         subject = f"Новый запрос по персональным данным #{privacy_request.incoming_number}"
         message = f"""
-📋 НОВЫЙ ЗАПРОС ПО ПЕРСОНАЛЬНЫМ ДАННЫМ
+НОВЫЙ ЗАПРОС ПО ПЕРСОНАЛЬНЫМ ДАННЫМ
 
-🆔 Номер: #{privacy_request.incoming_number}
-📋 Тип: {privacy_request.get_request_type_display()}
-⏰ Срок: {privacy_request.deadline.strftime('%d.%m.%Y')} (30 дней)
+Номер: #{privacy_request.incoming_number}
+Тип: {privacy_request.get_request_type_display()}
+Срок: {privacy_request.deadline.strftime('%d.%m.%Y')} (30 дней)
 
-👤 КОНТАКТНАЯ ИНФОРМАЦИЯ:
+КОНТАКТНАЯ ИНФОРМАЦИЯ:
   • ФИО: {privacy_request.full_name}
   • Email: {privacy_request.email}
   • Телефон: {privacy_request.phone or 'Не указан'}
   • Способ ответа: {privacy_request.get_preferred_response_display()}
 
-🌐 ТЕХНИЧЕСКАЯ ИНФОРМАЦИЯ:
+ТЕХНИЧЕСКАЯ ИНФОРМАЦИЯ:
   • IP: {privacy_request.ip_address or 'Неизвестен'}
   • User Agent: {privacy_request.user_agent[:200] if privacy_request.user_agent else 'Неизвестен'}
 
-📝 ОПИСАНИЕ ЗАПРОСА:
+ОПИСАНИЕ ЗАПРОСА:
 {privacy_request.description[:1000]}
 
-🕒 Время получения: {privacy_request.created_at.strftime('%d.%m.%Y %H:%M')}
-📊 Статус: {privacy_request.get_status_display()}
+Время получения: {privacy_request.created_at.strftime('%d.%m.%Y %H:%M')}
+Статус: {privacy_request.get_status_display()}
 
-🔗 Ссылка на админку: https://tech-re.ru/admin/main/privacyrequest/{privacy_request.id}/
+Ссылка на админку: https://tech-re.ru/admin/main/privacyrequest/{privacy_request.id}/
 """
         return send_admin_notification(subject, message, is_critical=True)
         
