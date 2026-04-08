@@ -168,10 +168,10 @@
 <div id="toast-container" class="toast-container"></div>
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/wish.css' %}">
+<link rel="stylesheet" href="{% static 'css/wish.css' %}?v={{ static_version }}">
 {% endblock %}
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/wish.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/wish.js' %}?v={{ static_version }}"></script>
 {% endblock %}

@@ -15,6 +15,7 @@ def base_context(request):
         'company_name': getattr(settings, 'COMPANY_NAME', 'Техресурс'),
         'company_address': getattr(settings, 'COMPANY_ADDRESS', 'Казань, ул. Техническая, 52'),
         'company_work_hours': getattr(settings, 'COMPANY_WORK_HOURS', 'Пн-Пт: 8:00-17:00'),
+        'static_version': getattr(settings, 'STATIC_VERSION', '1.0'),
     })
     
     try:

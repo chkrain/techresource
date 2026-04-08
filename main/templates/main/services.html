@@ -70,8 +70,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-<link rel="stylesheet" href="{% static 'css/service.css' %}?v=5.1">
-<link rel="stylesheet" href="{% static 'css/page_header.css' %}?v=1.4">
+<link rel="stylesheet" href="{% static 'css/service.css' %}?v={{ static_version }}">
+<link rel="stylesheet" href="{% static 'css/page_header.css' %}?v={{ static_version }}">
 {% endblock %}
 
 {% block content %}
@@ -483,8 +483,8 @@
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script type="text/javascript" src="{% static 'js/service.js' %}?v=1.9"></script>
-<script type="text/javascript" src="{% static 'js/page_header.js' %}?v=1.2"></script>
+<script type="text/javascript" src="{% static 'js/service.js' %}?v={{ static_version }}"></script>
+<script type="text/javascript" src="{% static 'js/page_header.js' %}?v={{ static_version }}"></script>
 <link rel="prefetch" href="{% url 'service_design' %}" as="document">
 <link rel="prefetch" href="{% url 'service_electrical' %}" as="document">
 <link rel="prefetch" href="{% url 'service_software' %}" as="document">

@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/turnkey.css' %}?v=1.5">
+<link rel="stylesheet" href="{% static 'css/turnkey.css' %}?v={{ static_version }}">
 {% endblock %}
 
 {% block content %}
@@ -1474,7 +1474,7 @@
     </div>
 </section>
 
-<script type="text/javascript" src="{% static 'js/turnkey.js' %}?v=1.8"></script>
+<script type="text/javascript" src="{% static 'js/turnkey.js' %}?v={{ static_version }}"></script>
 <style>
 .project-swiper{width:100%;height:auto;margin:20px 0;border-radius:12px;overflow:hidden}
 .project-swiper .swiper-slide{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:16 / 9}

@@ -4,7 +4,7 @@
 
 {% block content %}
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/dynamic_service.css' %}">
+<link rel="stylesheet" href="{% static 'css/dynamic_service.css' %}?v={{ static_version }}">
 
 {% if breadcrumbs %}
 <nav class="breadcrumbs" data-aos="fade-down" data-aos-duration="800">

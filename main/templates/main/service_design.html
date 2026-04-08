@@ -62,7 +62,7 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/services.css' %}?v=2.6">
+<link rel="stylesheet" href="{% static 'css/services.css' %}?v={{ static_version }}">
 {% endblock %}
 
 {% block content %}
@@ -814,5 +814,5 @@
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
-<script src="{% static 'js/services.js' %}?v=4.1"></script>
+<script src="{% static 'js/services.js' %}?v={{ static_version }}"></script>
 {% endblock %}

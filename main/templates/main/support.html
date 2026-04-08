@@ -64,7 +64,7 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/support.css' %}?v=1.2">
+<link rel="stylesheet" href="{% static 'css/support.css' %}?v={{ static_version }}">
 {% endblock %}
 
 {% block content %}
@@ -259,7 +259,7 @@
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/support.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/support.js' %}?v={{ static_version }}"></script>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>
     function toggleMenu() {

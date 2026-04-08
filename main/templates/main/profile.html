@@ -574,9 +574,9 @@
 document.addEventListener('DOMContentLoaded',function(){const bioTextarea=document.querySelector('#id_public_bio');const bioCounter=document.getElementById('bio-counter');if(bioTextarea&&bioCounter){bioCounter.textContent=`${bioTextarea.value.length}/1000`;bioTextarea.addEventListener('input',function(){bioCounter.textContent=`${this.value.length}/1000`})}const avatarInput=document.querySelector('#id_avatar');const avatarPreviewImg=document.getElementById('avatar-preview-img');const avatarPreviewDefault=document.getElementById('avatar-preview-default');if(avatarInput){avatarInput.addEventListener('change',function(e){if(this.files&&this.files[0]){const reader=new FileReader();reader.onload=function(e){if(avatarPreviewImg){avatarPreviewImg.src=e.target.result}else if(avatarPreviewDefault){const img=document.createElement('img');img.id='avatar-preview-img';img.src=e.target.result;img.alt='Аватар';avatarPreviewDefault.replaceWith(img)}};reader.readAsDataURL(this.files[0])}})}const tabLinks=document.querySelectorAll('.nav-item');const tabContents=document.querySelectorAll('.tab-content');tabLinks.forEach(link=>{link.addEventListener('click',function(e){e.preventDefault();tabLinks.forEach(l=>l.classList.remove('active'));this.classList.add('active');tabContents.forEach(content=>content.classList.remove('active'));const targetTab=document.querySelector(this.getAttribute('href'));if(targetTab){targetTab.classList.add('active')}})})});
 </script>
 
-<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=1.7">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v={{ static_version }}">
 
-<script type="text/javascript" src="{% static 'js/profile.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/profile.js' %}?v={{ static_version }}"></script>
 <script type="text/javascript" src="{% static 'js/metrika.js' %}"></script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105767211" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <script type="text/javascript" src="{% static 'js/tag.js' %}"></script>
