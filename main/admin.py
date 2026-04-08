@@ -16,7 +16,7 @@ from .models import (
     FraudDetectionLog, RateLimitLog, CSPViolationReport, Wishlist, WishlistItem,
     SupportTicket, SupportAttachment, ServicePage, PasswordResetToken, InvoiceRegistry, 
     Category, CurrencyRate, PrivacyRequest, PrivacyConsent, PrivacyConsentLog,
-    ClientDiscount, ClientPriceContract, PriceList, PriceListItem
+    ClientDiscount, ClientPriceContract, PriceList, PriceListItem, TechnicalTask
 )
 
 logger = logging.getLogger('django.security')
@@ -1003,3 +1003,104 @@ class PriceListItemInline(admin.TabularInline):
 
 
 PriceListAdmin.inlines = [PriceListItemInline]
+
+@admin.register(TechnicalTask)
+class TechnicalTaskAdmin(admin.ModelAdmin):
+    list_display = ('id', 'get_status_badge', 'title', 'full_name', 'task_type', 'priority', 'created_at', 'get_attachment_icon')
+    list_filter = ('status', 'task_type', 'priority', 'is_draft', 'created_at')
+    search_fields = ('title', 'full_name', 'company', 'email', 'phone', 'description')
+    readonly_fields = ('created_at', 'updated_at', 'submitted_at', 'ip_address', 'session_key', 'draft_data')
+    list_per_page = 25
+    date_hierarchy = 'created_at'
+    
+    fieldsets = (
+        ('Статус и информация', {
+            'fields': ('status', 'is_draft', 'priority', 'admin_comment')
+        }),
+        ('Контактная информация', {
+            'fields': ('full_name', 'company', 'phone', 'email')
+        }),
+        ('Информация о проекте', {
+            'fields': ('task_type', 'title', 'deadline', 'budget')
+        }),
+        ('Технические данные', {
+            'fields': ('description', 'requirements', 'attachments')
+        }),
+        ('Системная информация', {
+            'fields': ('user', 'ip_address', 'session_key', 'created_at', 'updated_at', 'submitted_at', 'draft_data'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def get_status_badge(self, obj):
+        """Цветной бейдж статуса"""
+        colors = {
+            'new': '🔵 Новое',
+            'processing': '🟡 В обработке',
+            'quoted': '🟣 КП отправлено',
+            'approved': '🟢 Согласовано',
+            'completed': '✅ Выполнено',
+            'rejected': '🔴 Отклонено',
+        }
+        return colors.get(obj.status, obj.status)
+    get_status_badge.short_description = 'Статус'
+    get_status_badge.admin_order_field = 'status'
+    
+    def get_attachment_icon(self, obj):
+        """Иконка вложений"""
+        if obj.attachments and len(obj.attachments) > 0:
+            return format_html('📎 {}', len(obj.attachments))
+        return '—'
+    get_attachment_icon.short_description = 'Вложения'
+    
+    def save_model(self, request, obj, form, change):
+        """При сохранении отправляем уведомление об изменении статуса"""
+        if change:
+            old_obj = TechnicalTask.objects.get(pk=obj.pk)
+            if old_obj.status != obj.status and not obj.is_draft:
+                from .views import send_task_status_notification
+                send_task_status_notification(obj, old_obj.status, obj.status, obj.admin_comment)
+        super().save_model(request, obj, form, change)
+    
+    def get_queryset(self, request):
+        """Фильтруем черновики по умолчанию"""
+        qs = super().get_queryset(request)
+        if not request.GET.get('show_drafts'):
+            qs = qs.filter(is_draft=False)
+        return qs
+    
+    def changelist_view(self, request, extra_context=None):
+        """Добавляем статистику в список"""
+        extra_context = extra_context or {}
+        
+        stats = {
+            'total': TechnicalTask.objects.filter(is_draft=False).count(),
+            'new': TechnicalTask.objects.filter(status='new', is_draft=False).count(),
+            'processing': TechnicalTask.objects.filter(status='processing', is_draft=False).count(),
+            'quoted': TechnicalTask.objects.filter(status='quoted', is_draft=False).count(),
+            'approved': TechnicalTask.objects.filter(status='approved', is_draft=False).count(),
+            'completed': TechnicalTask.objects.filter(status='completed', is_draft=False).count(),
+            'rejected': TechnicalTask.objects.filter(status='rejected', is_draft=False).count(),
+            'drafts': TechnicalTask.objects.filter(is_draft=True).count(),
+        }
+        
+        extra_context['task_stats'] = stats
+        return super().changelist_view(request, extra_context=extra_context)
+
+
+@admin.action(description='Отметить как "В обработке"')
+def mark_as_processing(modeladmin, request, queryset):
+    updated = queryset.filter(is_draft=False).update(status='processing')
+    modeladmin.message_user(request, f'{updated} ТЗ отмечены как "В обработке"')
+
+@admin.action(description='Отметить как "КП отправлено"')
+def mark_as_quoted(modeladmin, request, queryset):
+    updated = queryset.filter(is_draft=False).update(status='quoted')
+    modeladmin.message_user(request, f'{updated} ТЗ отмечены как "КП отправлено"')
+
+@admin.action(description='Отметить как "Выполнено"')
+def mark_as_completed(modeladmin, request, queryset):
+    updated = queryset.filter(is_draft=False).update(status='completed')
+    modeladmin.message_user(request, f'{updated} ТЗ отмечены как "Выполнено"')
+
+TechnicalTaskAdmin.actions = [mark_as_processing, mark_as_quoted, mark_as_completed]

@@ -4561,3 +4561,341 @@ def send_privacy_request_notification(privacy_request):
     except Exception as e:
         logger.error(f"Ошибка отправки уведомления о запросе ПД: {e}")
         return False
+
+def technical_task_view(request):
+    """Страница создания технического задания"""
+    
+    draft_data = None
+    if request.user.is_authenticated:
+        try:
+            draft = TechnicalTask.objects.filter(
+                user=request.user, 
+                is_draft=True
+            ).order_by('-created_at').first()
+            if draft:
+                draft_data = draft
+        except:
+            pass
+    elif request.session.get('technical_task_draft_id'):
+        try:
+            draft = TechnicalTask.objects.get(
+                id=request.session['technical_task_draft_id'],
+                is_draft=True
+            )
+            draft_data = draft
+        except TechnicalTask.DoesNotExist:
+            pass
+    
+    if request.method == 'POST':
+        form = TechnicalTaskForm(request.POST, request.FILES)
+        
+        if form.is_valid():
+            task = form.save(commit=False)
+            
+            if request.user.is_authenticated:
+                task.user = request.user
+            else:
+                task.session_key = request.session.session_key or request.session.create()
+            
+            task.ip_address = get_client_ip(request)
+            task.is_draft = False
+            task.submitted_at = timezone.now()
+            task.status = 'new'
+            
+            task.save()
+            
+            attachments = request.FILES.getlist('attachments')
+            send_technical_task_notification(task, attachments)
+            
+            if request.session.get('technical_task_draft_id'):
+                del request.session['technical_task_draft_id']
+            
+            messages.success(request, 
+                '✅ Техническое задание успешно отправлено! '
+                'Наш специалист свяжется с вами в ближайшее время.'
+            )
+            
+            return redirect('technical_task_success')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{error}')
+    else:
+        initial_data = {}
+        if draft_data:
+            initial_data = {
+                'full_name': draft_data.full_name,
+                'company': draft_data.company,
+                'phone': draft_data.phone,
+                'email': draft_data.email,
+                'task_type': draft_data.task_type,
+                'title': draft_data.title,
+                'priority': draft_data.priority,
+                'deadline': draft_data.deadline,
+                'budget': draft_data.budget,
+                'description': draft_data.description,
+                'requirements': draft_data.requirements,
+            }
+            messages.info(request, '📝 Загружен сохраненный черновик')
+        
+        form = TechnicalTaskForm(initial=initial_data)
+    
+    context = {
+        'form': form,
+        'draft_exists': draft_data is not None,
+    }
+    return render(request, 'main/technical_task.html', context)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def auto_save_technical_task(request):
+    """Автосохранение черновика технического задания"""
+    try:
+        if request.content_type and 'application/json' in request.content_type:
+            data = json.loads(request.body)
+        else:
+            data = {}
+            for key in ['full_name', 'company', 'phone', 'email', 'task_type', 
+                        'title', 'priority', 'deadline', 'budget', 'description', 'requirements']:
+                if key in request.POST:
+                    data[key] = request.POST[key]
+        
+        draft = None
+        
+        if request.user.is_authenticated:
+            draft = TechnicalTask.objects.filter(
+                user=request.user,
+                is_draft=True
+            ).first()
+        elif request.session.get('technical_task_draft_id'):
+            try:
+                draft = TechnicalTask.objects.get(
+                    id=request.session['technical_task_draft_id'],
+                    is_draft=True
+                )
+            except TechnicalTask.DoesNotExist:
+                draft = None
+        
+        if not draft:
+            draft = TechnicalTask(is_draft=True)
+            if request.user.is_authenticated:
+                draft.user = request.user
+            else:
+                draft.session_key = request.session.session_key or request.session.create()
+        
+        for field in ['full_name', 'company', 'phone', 'email', 'task_type', 
+                      'title', 'priority', 'deadline', 'budget', 'description', 'requirements']:
+            if field in data and data[field]:
+                setattr(draft, field, data[field])
+        
+        draft.draft_data = data
+        
+        if request.FILES.getlist('attachments'):
+            files_info = []
+            for file in request.FILES.getlist('attachments'):
+                files_info.append({
+                    'name': file.name,
+                    'size': file.size,
+                    'type': file.content_type,
+                })
+            draft.attachments = files_info
+        
+        draft.save()
+        
+        request.session['technical_task_draft_id'] = draft.id
+        request.session.modified = True
+        
+        return JsonResponse({
+            'success': True,
+            'draft_id': draft.id,
+            'saved_at': timezone.now().isoformat(),
+            'has_files': bool(draft.attachments)
+        })
+        
+    except Exception as e:
+        logger.error(f"Ошибка автосохранения ТЗ: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+def technical_task_success(request):
+    """Страница успешной отправки ТЗ"""
+    return render(request, 'main/technical_task_success.html')
+
+def send_technical_task_notification(task, attachments=None):
+    """Отправка уведомления о новом техническом задании на email"""
+    try:
+        subject = f"Новое техническое задание #{task.id} - {task.title}"
+        
+        context = {
+            'task': task,
+            'task_type_display': task.get_task_type_display(),
+            'priority_display': task.get_priority_display(),
+            'created_at': task.created_at.strftime('%d.%m.%Y %H:%M'),
+            'admin_url': f"https://tech-re.ru/admin/main/technicaltask/{task.id}/",
+        }
+        
+        html_content = render_to_string('main/technical_task_notification.html', context)
+        
+        plain_message = f"""
+НОВОЕ ТЕХНИЧЕСКОЕ ЗАДАНИЕ #{task.id}
+
+Клиент: {task.full_name}
+Компания: {task.company or 'Не указана'}
+Телефон: {task.phone}
+Email: {task.email}
+
+Тип задачи: {task.get_task_type_display()}
+Название: {task.title}
+Приоритет: {task.get_priority_display()}
+Желаемый срок: {task.deadline or 'Не указан'}
+Бюджет: {task.budget or 'Не указан'}
+
+Описание задачи:
+{task.description}
+
+Технические требования:
+{task.requirements or 'Не указаны'}
+
+Время получения: {task.created_at.strftime('%d.%m.%Y %H:%M')}
+
+Ссылка в админке: https://tech-re.ru/admin/main/technicaltask/{task.id}/
+        """
+        
+        admin_email = getattr(settings, 'ADMIN_NOTIFICATION_EMAIL', 'info@tech-re.ru')
+        
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[admin_email],
+            reply_to=[task.email],
+            headers={
+                'X-Priority': '2',
+                'X-MSMail-Priority': 'Normal',
+            }
+        )
+        
+        email.attach_alternative(html_content, "text/html")
+        
+        if attachments:
+            for file in attachments:
+                if file and hasattr(file, 'name') and hasattr(file, 'read'):
+                    try:
+                        file.seek(0)  
+                        email.attach(file.name, file.read(), file.content_type)
+                    except Exception as file_error:
+                        logger.error(f"Ошибка прикрепления файла {file.name}: {file_error}")
+        
+        email.send(fail_silently=False)
+        
+        logger.info(f"Уведомление о ТЗ #{task.id} отправлено на {admin_email}")
+        
+        send_technical_task_confirmation(task)
+        
+        NotificationLog.objects.create(
+            notification_type='technical_task',
+            message=f'Новое ТЗ #{task.id} от {task.full_name}',
+            sent_to=admin_email,
+            success=True
+        )
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"Ошибка отправки уведомления о ТЗ: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        NotificationLog.objects.create(
+            notification_type='technical_task',
+            message=f'Ошибка отправки ТЗ #{task.id}',
+            sent_to='',
+            success=False,
+            error_message=str(e)
+        )
+        return False
+
+def send_technical_task_confirmation(task):
+    """Отправка подтверждения клиенту о получении ТЗ (по аналогии с счетом)"""
+    try:
+        subject = f"Техническое задание #{task.id} получено - Техресурс"
+        
+        context = {
+            'task': task,
+            'task_type_display': task.get_task_type_display(),
+            'priority_display': task.get_priority_display(),
+        }
+        
+        html_content = render_to_string('main/technical_task_confirmation.html', context)
+        
+        plain_message = f"""
+Здравствуйте, {task.full_name}!
+
+Мы получили ваше техническое задание "{task.title}" (тип: {task.get_task_type_display()}) и уже приступили к его обработке.
+
+Что будет дальше:
+1. Наш специалист изучит вашу задачу (обычно в течение 1 рабочего дня)
+2. При необходимости мы свяжемся с вами для уточнения деталей
+3. После анализа мы подготовим коммерческое предложение
+
+Если у вас есть дополнительные вопросы, просто ответьте на это письмо или позвоните нам: +7 (937) 524-68-88
+
+С уважением,
+Команда Техресурс
+
+Это сообщение создано автоматически, не нужно отвечать на него
+        """
+        
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[task.email],
+            reply_to=['noreply@tech-re.ru'],
+            headers={
+                'X-Priority': '2',
+                'X-MSMail-Priority': 'Normal',
+            }
+        )
+        
+        email.attach_alternative(html_content, "text/html")
+        email.send(fail_silently=False)
+        
+        logger.info(f"Подтверждение для клиента {task.email} отправлено")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Ошибка отправки подтверждения клиенту: {e}")
+        return False
+
+def send_task_status_notification(task, old_status, new_status, comment):
+    """Отправка уведомления об изменении статуса ТЗ"""
+    try:
+        subject = f"Статус вашего технического задания #{task.id} обновлен - Техресурс"
+        
+        context = {
+            'task': task,
+            'old_status': dict(TechnicalTask._meta.get_field('status').choices).get(old_status, old_status),
+            'new_status': dict(TechnicalTask._meta.get_field('status').choices).get(new_status, new_status),
+            'admin_comment': comment,
+        }
+        
+        html_message = render_to_string('main/emails/task_status_notification.html', context)
+        plain_message = strip_tags(html_message)
+        
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[task.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"Ошибка отправки уведомления о статусе ТЗ: {e}")
+        return False

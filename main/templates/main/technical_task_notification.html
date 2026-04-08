@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новое техническое задание</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #0052cc 0%, #0066cc 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .header p {
+            margin: 10px 0 0;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+        }
+        .info-block {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0052cc;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .info-label {
+            font-weight: bold;
+            width: 130px;
+            color: #0052cc;
+        }
+        .info-value {
+            flex: 1;
+            color: #333;
+        }
+        .description-block {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            margin-top: 10px;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-high { background: #e53e3e; color: white; }
+        .badge-medium { background: #ed8936; color: white; }
+        .badge-low { background: #48bb78; color: white; }
+        .badge-urgent { background: #c53030; color: white; }
+        .admin-link {
+            display: inline-block;
+            background: #0052cc;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .admin-link:hover {
+            background: #0047b3;
+        }
+        @media (max-width: 600px) {
+            .info-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="padding: 20px;">
+        <div class="container">
+            <div class="header">
+                <h1>📋 Новое техническое задание</h1>
+                <p>ТЗ №{{ task.id }}</p>
+            </div>
+            
+            <div class="content">
+                <div class="info-block">
+                    <h3 style="margin-top: 0; color: #0052cc;">Контактная информация</h3>
+                    <div class="info-row">
+                        <div class="info-label">ФИО:</div>
+                        <div class="info-value">{{ task.full_name }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Компания:</div>
+                        <div class="info-value">{{ task.company|default:"Не указана" }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Телефон:</div>
+                        <div class="info-value">{{ task.phone }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Email:</div>
+                        <div class="info-value">{{ task.email }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-block">
+                    <h3 style="margin-top: 0; color: #0052cc;">Информация о проекте</h3>
+                    <div class="info-row">
+                        <div class="info-label">Тип задачи:</div>
+                        <div class="info-value">{{ task_type_display }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Название:</div>
+                        <div class="info-value"><strong>{{ task.title }}</strong></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Приоритет:</div>
+                        <div class="info-value">
+                            <span class="badge badge-{{ task.priority }}">
+                                {{ priority_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Желаемый срок:</div>
+                        <div class="info-value">{{ task.deadline|default:"Не указан"|date:"d.m.Y" }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Бюджет:</div>
+                        <div class="info-value">{{ task.budget|default:"Не указан" }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-block">
+                    <h3 style="margin-top: 0; color: #0052cc;">Описание задачи</h3>
+                    <div class="description-block">
+                        {{ task.description|linebreaks }}
+                    </div>
+                </div>
+                
+                {% if task.requirements %}
+                <div class="info-block">
+                    <h3 style="margin-top: 0; color: #0052cc;">Технические требования</h3>
+                    <div class="description-block">
+                        {{ task.requirements|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div style="text-align: center;">
+                    <a href="{{ admin_url }}" class="admin-link">
+                        Перейти в админку
+                    </a>
+                </div>
+                
+                <div class="info-block" style="background: #fff3cd; border-left-color: #ffc107;">
+                    <div class="info-row">
+                        <div class="info-label">Время получения:</div>
+                        <div class="info-value">{{ created_at }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">IP адрес:</div>
+                        <div class="info-value">{{ task.ip_address|default:"Не определен" }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>© {% now "Y" %} Техресурс. Все права защищены.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,176 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Техническое задание - Техресурс{% endblock %}
+
+{% block extra_css %}
+<style>
+  .tech-task-container{max-width:900px;margin:0 auto;padding:2rem 0}
+  option {color: black;}
+ .tech-task-header{text-align:center;margin-bottom:3rem}
+ .tech-task-header h1{font-size:2.5rem;color:var(--white);margin-bottom:1rem}
+ .tech-task-header p{font-size:1.1rem;color:var(--gray-light);max-width:700px;margin:0 auto}
+ .form-section{background:rgba(255,255,255,0.05);border-radius:var(--border-radius-lg);padding:2rem;margin-bottom:2rem;border:1px solid rgba(255,255,255,0.1)}
+ .form-section-title{font-size:1.3rem;font-weight:600;margin-bottom:1.5rem;padding-bottom:0.75rem;border-bottom:2px solid var(--primary);display:inline-block}
+ .form-group{margin-bottom:1.5rem}
+ .form-group label{display:block;margin-bottom:0.5rem;font-weight:500;color:var(--white)}
+ .form-group label .required{color:var(--danger);margin-left:0.25rem}
+ .form-group input,.form-group select,.form-group textarea{width:100%;padding:0.875rem 1rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:var(--border-radius);color:var(--white);font-size:1rem;transition:var(--transition)}
+ .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--primary);background:rgba(255,255,255,0.15);box-shadow:0 0 0 3px rgba(0,82,204,0.2)}
+ .form-group input::placeholder,.form-group textarea::placeholder{color:rgba(255,255,255,0.5)}
+ .form-row{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem}
+ .form-row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+ .help-text{font-size:0.8rem;color:rgba(255,255,255,0.6);margin-top:0.5rem}
+ .file-upload-area{border:2px dashed rgba(255,255,255,0.2);border-radius:var(--border-radius);padding:2rem;text-align:center;cursor:pointer;transition:var(--transition)}
+ .file-upload-area:hover{border-color:var(--primary);background:rgba(0,82,204,0.05)}
+ .file-upload-area i{font-size:2rem;margin-bottom:0.5rem;color:var(--primary)}
+ .file-list{margin-top:1rem;display:flex;flex-wrap:wrap;gap:0.5rem}
+ .file-item{background:rgba(0,82,204,0.2);padding:0.5rem 1rem;border-radius:50px;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem}
+ .file-item .remove-file{cursor:pointer;color:var(--danger)}
+ .btn-submit{width:100%;padding:1.25rem;font-size:1.1rem;font-weight:600;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:var(--white);border:none;border-radius:var(--border-radius);cursor:pointer;transition:var(--transition)}
+ .btn-submit:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,82,204,0.3)}
+ .auto-save-toast{position:fixed;bottom:2rem;right:2rem;background:#28a745;color:white;padding:0.75rem 1.5rem;border-radius:50px;font-size:0.9rem;display:flex;align-items:center;gap:0.75rem;z-index:1000;opacity:0;transform:translateY(20px);transition:all 0.3s ease;pointer-events:none;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+ .auto-save-toast.show{opacity:1;transform:translateY(0)}
+ .auto-save-toast i{font-size:1.1rem}
+ .saving-indicator{position:fixed;bottom:2rem;right:2rem;background:rgba(0,0,0,0.8);color:white;padding:0.75rem 1.5rem;border-radius:50px;font-size:0.9rem;display:none;align-items:center;gap:0.75rem;z-index:1000}
+ .saving-indicator.show{display:flex}
+ .saving-indicator .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite}
+ @keyframes spin{to{transform:rotate(360deg)}
+ }
+ @media (max-width:768px){.form-row,.form-row-3{grid-template-columns:1fr;gap:1rem}
+ .form-section{padding:1.5rem}
+ .tech-task-header h1{font-size:1.8rem}
+ .auto-save-toast,.saving-indicator{bottom:1rem;right:1rem;left:1rem;text-align:center;justify-content:center}
+ }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="tech-task-container">
+        <div class="tech-task-header">
+            <h1>Техническое задание</h1>
+            <p>Заполните форму, чтобы получить коммерческое предложение или рассчитать стоимость проекта</p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" id="technicalTaskForm">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <div class="form-section-title">
+                    Контактная информация
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.full_name.id_for_label }}">ФИО <span class="required">*</span></label>
+                        {{ form.full_name }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.company.id_for_label }}">Компания</label>
+                        {{ form.company }}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.phone.id_for_label }}">Телефон <span class="required">*</span></label>
+                        {{ form.phone }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}">Email <span class="required">*</span></label>
+                        {{ form.email }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="fas fa-project-diagram"></i> Информация о проекте
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.task_type.id_for_label }}">Тип задачи <span class="required">*</span></label>
+                    {{ form.task_type }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}">Название проекта <span class="required">*</span></label>
+                    {{ form.title }}
+                    <div class="help-text">Краткое описание того, что требуется сделать</div>
+                </div>
+                
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label for="{{ form.priority.id_for_label }}">Приоритет</label>
+                        {{ form.priority }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.deadline.id_for_label }}">Желаемый срок</label>
+                        {{ form.deadline }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.budget.id_for_label }}">Бюджет (приблизительно)</label>
+                        {{ form.budget }}
+                        <div class="help-text">Например: до 500 000 ₽</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="fas fa-microchip"></i> Технические данные
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">Описание задачи <span class="required">*</span></label>
+                    {{ form.description }}
+                    <div class="help-text">Подробно опишите, что нужно сделать</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.requirements.id_for_label }}">Технические требования</label>
+                    {{ form.requirements }}
+                    <div class="help-text">Оборудование, протоколы связи, условия эксплуатации и другие важные детали</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Вложения (документы, схемы, ТЗ)</label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Нажмите или перетащите файлы для загрузки</p>
+                        <input type="file" name="attachments" id="fileInput" multiple style="display: none;">
+                    </div>
+                    <div class="file-list" id="fileList"></div>
+                    <div class="help-text">Поддерживаются: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, DWG (макс. 20 МБ)</div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-submit" id="submitBtn">
+                <i class="fas fa-paper-plane"></i> Отправить техническое задание
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="auto-save-toast" id="autoSaveToast">
+    <i class="fas fa-save"></i>
+    <span>Черновик сохранен</span>
+</div>
+
+<div class="saving-indicator" id="savingIndicator">
+    <div class="spinner"></div>
+    <span>Сохранение...</span>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const form=document.getElementById('technicalTaskForm');const autoSaveToast=document.getElementById('autoSaveToast');const savingIndicator=document.getElementById('savingIndicator');let autoSaveTimer=null;let isSaving=false;const AUTO_SAVE_DELAY=2000;function showAutoSaveToast(){autoSaveToast.classList.add('show');setTimeout(()=>{autoSaveToast.classList.remove('show')},2000)}function showSavingIndicator(){savingIndicator.classList.add('show')}function hideSavingIndicator(){savingIndicator.classList.remove('show')}function getCsrfToken(){return document.querySelector('[name=csrfmiddlewaretoken]').value}function getFormDataForAutoSave(){const formData=new FormData(form);const data={};for(let[key,value]of formData.entries()){if(key!=='attachments'&&key!=='csrfmiddlewaretoken'){data[key]=value}}return data}async function autoSave(){if(isSaving)return;const data=getFormDataForAutoSave();const hasData=Object.values(data).some(v=>v&&v.trim&&v.trim()!=='');if(!hasData)return;isSaving=true;showSavingIndicator();try{const response=await fetch('/auto-save-technical-task/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCsrfToken()},body:JSON.stringify(data)});const result=await response.json();if(result.success){showAutoSaveToast()}else{console.warn('Auto-save warning:',result.error)}}catch(error){console.error('Auto-save error:',error)}finally{isSaving=false;hideSavingIndicator()}}function scheduleAutoSave(){if(autoSaveTimer){clearTimeout(autoSaveTimer)}autoSaveTimer=setTimeout(autoSave,AUTO_SAVE_DELAY)}const inputs=form.querySelectorAll('input, select, textarea');inputs.forEach(input=>{input.addEventListener('input',scheduleAutoSave);input.addEventListener('change',scheduleAutoSave)});const fileUploadArea=document.getElementById('fileUploadArea');const fileInput=document.getElementById('fileInput');const fileList=document.getElementById('fileList');let selectedFiles=[];fileUploadArea.addEventListener('click',()=>{fileInput.click()});fileUploadArea.addEventListener('dragover',(e)=>{e.preventDefault();fileUploadArea.style.borderColor='var(--primary)';fileUploadArea.style.background='rgba(0, 82, 204, 0.05)'});fileUploadArea.addEventListener('dragleave',(e)=>{e.preventDefault();fileUploadArea.style.borderColor='rgba(255, 255, 255, 0.2)';fileUploadArea.style.background='transparent'});fileUploadArea.addEventListener('drop',(e)=>{e.preventDefault();const files=Array.from(e.dataTransfer.files);addFiles(files);fileUploadArea.style.borderColor='rgba(255, 255, 255, 0.2)';fileUploadArea.style.background='transparent';scheduleAutoSave()});fileInput.addEventListener('change',(e)=>{addFiles(Array.from(e.target.files));scheduleAutoSave()});function addFiles(files){files.forEach(file=>{if(file.size>20*1024*1024){alert(`Файл${file.name}превышает20МБ`);return}selectedFiles.push(file)});updateFileList();updateFormData()}function updateFileList(){fileList.innerHTML='';selectedFiles.forEach((file,index)=>{const fileItem=document.createElement('div');fileItem.className='file-item';fileItem.innerHTML=`<i class="fas fa-file"></i><span>${escapeHtml(file.name)}</span><small>(${(file.size/1024).toFixed(1)}KB)</small><i class="fas fa-times remove-file"data-index="${index}"></i>`;fileList.appendChild(fileItem)});document.querySelectorAll('.remove-file').forEach(btn=>{btn.addEventListener('click',(e)=>{const index=parseInt(btn.dataset.index);selectedFiles.splice(index,1);updateFileList();updateFormData();scheduleAutoSave()})})}function updateFormData(){const dataTransfer=new DataTransfer();selectedFiles.forEach(file=>{dataTransfer.items.add(file)});fileInput.files=dataTransfer.files}function escapeHtml(text){const div=document.createElement('div');div.textContent=text;return div.innerHTML}form.addEventListener('submit',(e)=>{const required=['full_name','phone','email','task_type','title','description'];let isValid=true;required.forEach(field=>{const input=form.querySelector(`[name=${field}]`);if(input&&!input.value.trim()){input.style.borderColor='var(--danger)';isValid=false}else if(input){input.style.borderColor=''}});if(!isValid){e.preventDefault();alert('Пожалуйста, заполните все обязательные поля')}});window.addEventListener('beforeunload',()=>{const data=getFormDataForAutoSave();const hasData=Object.values(data).some(v=>v&&v.trim&&v.trim()!=='');if(hasData){navigator.sendBeacon('/auto-save-technical-task/',JSON.stringify(data))}});
+</script>
+{% endblock %}

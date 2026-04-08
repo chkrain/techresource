@@ -1,0 +1,33 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}ТЗ отправлено - Техресурс{% endblock %}
+
+{% block content %}
+<div class="container" style="min-height: 60vh; display: flex; align-items: center; justify-content: center;">
+    <div style="text-align: center; max-width: 600px; margin: 4rem auto;">
+        <h1 style="font-size: 2rem; margin-bottom: 1rem; color: var(--white);">
+            Техническое задание получено!
+        </h1>
+        <p style="font-size: 1.1rem; color: var(--gray-light); margin-bottom: 2rem;">
+            Спасибо за обращение! Наш специалист свяжется с вами в ближайшее время для уточнения деталей.
+        </p>
+        <div style="background: rgba(255, 255, 255, 0.05); border-radius: var(--border-radius); padding: 1.5rem; margin-bottom: 2rem;">
+            <p style="margin-bottom: 0.5rem;">
+                <strong>Копия ТЗ отправлена на вашу почту</strong>
+            </p>
+            <p style="margin-bottom: 0;">
+                Среднее время ответа - 1 рабочий день
+            </p>
+        </div>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{% url 'index' %}" class="btn btn-primary">
+                На главную
+            </a>
+            <a href="{% url 'technical_task' %}" class="btn btn-secondary">
+                Отправить еще
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

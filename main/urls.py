@@ -117,4 +117,7 @@ urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'images/favicon/favicon.ico')),
     path('manifest.json', TemplateView.as_view(template_name='manifest.json',content_type='application/json'), name='manifest'),
     path('robots.txt', custom_robots_txt),
+    path('technical-task/', views.technical_task_view, name='technical_task'),
+    path('technical-task/success/', views.technical_task_success, name='technical_task_success'),
+    path('auto-save-technical-task/', views.auto_save_technical_task, name='auto_save_technical_task'),
 ]

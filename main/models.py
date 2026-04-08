@@ -3383,22 +3383,26 @@ class TechnicalTask(models.Model):
         ('urgent', 'Срочно'),
     ]
     
+    # Контактная информация
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     full_name = models.CharField('ФИО', max_length=200)
     company = models.CharField('Компания', max_length=200, blank=True)
     phone = models.CharField('Телефон', max_length=20)
     email = models.EmailField('Email')
     
+    # Данные ТЗ
     task_type = models.CharField('Тип задачи', max_length=20, choices=TASK_TYPES)
     title = models.CharField('Название проекта', max_length=300)
     priority = models.CharField('Приоритет', max_length=10, choices=PRIORITY, default='medium')
     deadline = models.DateField('Желаемый срок', null=True, blank=True)
     budget = models.CharField('Бюджет (приблизительно)', max_length=100, blank=True)
     
+    # Технические данные
     description = models.TextField('Описание задачи')
     requirements = models.TextField('Технические требования', blank=True, help_text='Оборудование, протоколы, условия эксплуатации')
     attachments = models.JSONField('Вложения', default=list, blank=True)
     
+    # Статус
     status = models.CharField('Статус', max_length=20, default='new', choices=[
         ('new', 'Новая'),
         ('processing', 'В обработке'),
@@ -3408,7 +3412,11 @@ class TechnicalTask(models.Model):
         ('rejected', 'Отклонено'),
     ])
     
-    draft_data = models.JSONField('Черновик', default=dict, blank=True)  
+    # Комментарий администратора (ДОБАВИТЬ ЭТО ПОЛЕ)
+    admin_comment = models.TextField('Комментарий администратора', blank=True)
+    
+    # Системные поля
+    draft_data = models.JSONField('Черновик', default=dict, blank=True)
     is_draft = models.BooleanField('Черновик', default=True)
     created_at = models.DateTimeField('Создано', auto_now_add=True)
     updated_at = models.DateTimeField('Обновлено', auto_now=True)

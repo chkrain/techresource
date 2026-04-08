@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #0052cc; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { padding: 30px; background: #f8f9fa; border-radius: 0 0 10px 10px; }
+        .info { background: #e8f4f8; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px; }
+        .button { background: #0052cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Техресурс</h1>
+            <p>Ваше техническое задание принято</p>
+        </div>
+        <div class="content">
+            <h2>Здравствуйте, {{ task.full_name }}!</h2>
+            
+            <p>Мы получили ваше техническое задание <strong>"{{ task.title }}"</strong> и уже приступили к его обработке.</p>
+            
+            <div class="info">
+                <h3>Информация о задаче:</h3>
+                <p><strong>Номер задачи:</strong> №{{ task.id }}</p>
+                <p><strong>Тип задачи:</strong> {{ task_type_display }}</p>
+                <p><strong>Приоритет:</strong> {{ priority_display }}</p>
+                <p><strong>Дата создания:</strong> {{ task.created_at|date:"d.m.Y H:i" }}</p>
+            </div>
+            
+            <h3>Дальнейшие действия:</h3>
+            <ol>
+                <li>Наш специалист изучит вашу задачу (обычно в течение 1 рабочего дня)</li>
+                <li>При необходимости мы свяжемся с вами для уточнения деталей</li>
+                <li>После анализа мы подготовим коммерческое предложение</li>
+            </ol>
+            
+            <p>Если у вас есть дополнительные вопросы, напишите или позвоните нам:</p>
+            <p><strong>Телефон:</strong> +7 (937) 524-68-88<br>
+            <strong>Email:</strong> info@tech-re.ru</p>
+            
+            <p style="margin-top: 30px;">
+                <small>С уважением,<br>Команда Техресурс</small>
+            </p>
+        </div>
+        <div class="footer">
+            <p>Это сообщение создано автоматически, пожалуйста, не отвечайте на него.</p>
+            <p>© {% now "Y" %} Техресурс. Все права защищены.</p>
+        </div>
+    </div>
+</body>
+</html>
