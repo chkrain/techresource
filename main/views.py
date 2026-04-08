@@ -46,8 +46,8 @@ from weasyprint import HTML, CSS
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from .models import SupportAttachment
-from .forms import SupportTicketForm
+from .models import SupportAttachment, TechnicalTask
+from .forms import SupportTicketForm, TechnicalTaskForm
 import tempfile
 from blog.models import BlogComment, BlogArticle
 from .models import Product, Cart, CartItem, Order, OrderItem, UserProfile, Address, NotificationLog, SecurityLog, PasswordResetToken, LoginAttempt, OrderStatusLog, WishlistItem, Wishlist, ProductReview, Admin2FA, ServicePage, InvoiceRegistry, Category, CurrencyRate, PrivacyRequest, PrivacyConsent, PrivacyConsentLog

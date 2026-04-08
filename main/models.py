@@ -3362,3 +3362,64 @@ class CommercialOffer(models.Model):
     class Meta:
         verbose_name = "Коммерческое предложение"
         verbose_name_plural = "Коммерческие предложения"
+
+class TechnicalTask(models.Model):
+    """Техническое задание от клиента"""
+    
+    TASK_TYPES = [
+        ('automation', 'Автоматизация технологических процессов'),
+        ('electrical', 'Электромонтажные работы'),
+        ('software', 'Разработка ПО/SCADA'),
+        ('equipment', 'Поставка оборудования'),
+        ('maintenance', 'Сервисное обслуживание'),
+        ('turnkey', 'Проект под ключ'),
+        ('other', 'Другое'),
+    ]
+    
+    PRIORITY = [
+        ('low', 'Низкий'),
+        ('medium', 'Средний'),
+        ('high', 'Высокий'),
+        ('urgent', 'Срочно'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    full_name = models.CharField('ФИО', max_length=200)
+    company = models.CharField('Компания', max_length=200, blank=True)
+    phone = models.CharField('Телефон', max_length=20)
+    email = models.EmailField('Email')
+    
+    task_type = models.CharField('Тип задачи', max_length=20, choices=TASK_TYPES)
+    title = models.CharField('Название проекта', max_length=300)
+    priority = models.CharField('Приоритет', max_length=10, choices=PRIORITY, default='medium')
+    deadline = models.DateField('Желаемый срок', null=True, blank=True)
+    budget = models.CharField('Бюджет (приблизительно)', max_length=100, blank=True)
+    
+    description = models.TextField('Описание задачи')
+    requirements = models.TextField('Технические требования', blank=True, help_text='Оборудование, протоколы, условия эксплуатации')
+    attachments = models.JSONField('Вложения', default=list, blank=True)
+    
+    status = models.CharField('Статус', max_length=20, default='new', choices=[
+        ('new', 'Новая'),
+        ('processing', 'В обработке'),
+        ('quoted', 'КП отправлено'),
+        ('approved', 'Согласовано'),
+        ('completed', 'Выполнено'),
+        ('rejected', 'Отклонено'),
+    ])
+    
+    draft_data = models.JSONField('Черновик', default=dict, blank=True)  
+    is_draft = models.BooleanField('Черновик', default=True)
+    created_at = models.DateTimeField('Создано', auto_now_add=True)
+    updated_at = models.DateTimeField('Обновлено', auto_now=True)
+    submitted_at = models.DateTimeField('Отправлено', null=True, blank=True)
+    ip_address = models.GenericIPAddressField('IP адрес', null=True, blank=True)
+    session_key = models.CharField('Ключ сессии', max_length=40, blank=True)
+    
+    class Meta:
+        verbose_name = 'Техническое задание'
+        verbose_name_plural = 'Технические задания'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"ТЗ #{self.id} - {self.title}"

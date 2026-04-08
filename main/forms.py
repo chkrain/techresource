@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
-from .models import UserProfile, Address
+from .models import UserProfile, Address, TechnicalTask, LoginAttempt, ProductReview, SupportTicket, UserProfile
 import random
 from datetime import timedelta
 from django.utils import timezone
@@ -10,12 +10,10 @@ import re
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from .models import LoginAttempt, ProductReview
 import os
 User = get_user_model()
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
-from .models import SupportTicket, UserProfile
 from .validators import validate_avatar, validate_profile_background
 from .forms_privacy import OrderPrivacyField, SupportPrivacyField, ContactPrivacyField
 
@@ -972,3 +970,54 @@ class ConsentForm(forms.Form):
             self.add_error('prohibited_actions', 'При выборе "не запрещено, с условиями" необходимо указать хотя бы одно запрещенное действие.')
         
         return cleaned_data
+    
+class TechnicalTaskForm(forms.ModelForm):
+    class Meta:
+        model = TechnicalTask
+        fields = [
+            'full_name', 'company', 'phone', 'email',
+            'task_type', 'title', 'priority', 'deadline', 'budget',
+            'description', 'requirements'
+        ]
+        widgets = {
+            'full_name': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Иванов Иван Иванович'
+            }),
+            'company': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'ООО "Техресурс"'
+            }),
+            'phone': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': '+7 (___) ___-__-__'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'info@example.com'
+            }),
+            'task_type': forms.Select(attrs={'class': 'form-control'}),
+            'title': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Автоматизация линии розлива'
+            }),
+            'priority': forms.Select(attrs={'class': 'form-control'}),
+            'deadline': forms.DateInput(attrs={
+                'class': 'form-control', 
+                'type': 'date'
+            }),
+            'budget': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'до 10 000 000 ₽'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control', 
+                'rows': 6,
+                'placeholder': 'Опишите задачу подробнее...'
+            }),
+            'requirements': forms.Textarea(attrs={
+                'class': 'form-control', 
+                'rows': 4,
+                'placeholder': 'Особые требования: марки оборудования, протоколы связи, условия эксплуатации...'
+            }),
+        }
