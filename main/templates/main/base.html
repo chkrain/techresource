@@ -270,6 +270,7 @@
                     <h3>Контакты</h3>
                     <ul class="footer-links">
                         <li><a href="/contacts/"><i class="fas fa-chevron-right" title="Перейти на страницу контактов"></i>Контакты</a></li>
+                        <li><a href="/technical-task/"><i class="fas fa-chevron-right" title="Перейти на страницу заполнения технического задания"></i>Тех.задание</a></li>
                         <li>
                             <a href="tel:{{ company_phone|cut:' '|cut:'('|cut:')'|cut:'-'|cut:'–'|cut:'—' }}" title="Звоните в рабочее время ПН-ПТ 8:00-17:00">
                                 <i class="fas fa-phone"></i>
@@ -331,9 +332,25 @@
         <i class="fas fa-chevron-up"></i>
     </button>
 
+    <div class="btn-left">
+        <a href="/contacts/" style="text-decoration: none;">
+            <button class="Btn contacts">
+                <span class="svgIcon">&#9742;</span>
+                <span class="text">Контакты</span>
+            </button>
+        </a>
+        <a href="/technical-task/" style="text-decoration: none;">
+            <button class="Btn technical">
+                <span class="svgIcon">&#9881;</span>
+                <span class="text">Тех. задание</span>
+            </button>
+        </a>
+    </div>
+
+    <link rel="stylesheet" href="{% static 'css/basebtn.css' %}?v={{ static_version }}">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     {% block extra_js %}
-    <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/base.js' %}?v={{ static_version }}"></script>
     {% endblock %}
 </body>
 </html>

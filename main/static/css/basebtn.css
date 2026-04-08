@@ -1,0 +1,81 @@
+.btn-left {
+display: flex;
+flex-direction: column;
+gap: 15px;
+position: fixed;
+left: 16px;
+bottom: 16px;
+}
+
+@media screen and (max-width: 1024px) {
+    .btn-left {
+        display: none;
+    }
+}
+
+.Btn {
+border: none;
+border-radius: 50%;
+width: 45px;
+height: 45px;
+display: flex;
+align-items: center;
+justify-content: center;
+transition-duration: 0.4s;
+cursor: pointer;
+position: relative;
+overflow: hidden;
+box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.contacts {
+background: rgba(44, 62, 80, 1)
+}
+
+.contacts:hover {
+background: rgba(44, 62, 80, 1)
+}
+
+.technical {
+background: rgba(44, 62, 80, 1)
+}
+
+.technical:hover {
+background: rgba(44, 62, 80, 1)
+}
+
+.Btn:hover {
+width: 130px;
+transition-duration: 0.4s;
+border-radius: 30px;
+box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.Btn:hover .text {
+opacity: 1;
+transition-duration: 0.4s;
+}
+
+.Btn:hover .svgIcon {
+opacity: 0;
+transition-duration: 0.3s;
+}
+
+.text {
+position: absolute;
+color: white;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+font-size: 14px;
+font-weight: 600;
+letter-spacing: 0.5px;
+white-space: nowrap;
+opacity: 0;
+transition-duration: 0.4s;
+pointer-events: none;
+}
+
+.svgIcon {
+font-size: 22px;
+transition-duration: 0.3s;
+color: white;
+}
