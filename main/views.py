@@ -4638,7 +4638,7 @@ def technical_task_view(request):
                 'description': draft_data.description,
                 'requirements': draft_data.requirements,
             }
-            messages.info(request, '📝 Загружен сохраненный черновик')
+            messages.info(request, 'Загружен сохраненный черновик')
         
         form = TechnicalTaskForm(initial=initial_data)
     
