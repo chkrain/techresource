@@ -641,17 +641,19 @@ def search_suggestions(request):
     suggestions = []
     
     if len(query) >= 2:
+        # Используем только поля, которые поддерживают icontains
         products = Product.objects.filter(
             Q(name__icontains=query) |
             Q(article__icontains=query) |
-            Q(category__icontains=query),
+            Q(brand__icontains=query) |
+            Q(description__icontains=query),
             is_active=True
         ).distinct()[:10]
         
         for product in products:
             suggestions.append({
                 'name': product.name,
-                'category': product.category,
+                'category': product.category.name if product.category else '',
                 'article': product.article
             })
     

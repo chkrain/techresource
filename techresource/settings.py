@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 import socket
 from pathlib import Path
-from dotenv import load_dotenv
+from dotenv import load_dotenv  
 
 load_dotenv()
 
@@ -114,7 +114,10 @@ DATABASES = {
         'USER': os.getenv('USER_DB', ''),     
         'PASSWORD': os.getenv('PASSWORD_DB', ''),
         'HOST': os.getenv('HOST_DB', ''),                
-        'PORT': os.getenv('PORT_DB', ''),                   
+        'PORT': os.getenv('PORT_DB', ''),    
+        'TEST': {
+            'NAME': 'test_techresource',  
+        }               
     }
 }
 
@@ -296,3 +299,57 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880
 
 ADMIN_NOTIFICATION_EMAIL = os.getenv('ADMIN_NOTIFICATION_EMAIL', 'info@tech-re.ru')
+
+
+
+
+
+# --------------------------------------------------------------------------------------------------------------------
+
+import sys
+
+if 'test' in sys.argv or 'test_coverage' in sys.argv:
+    ORIGINAL_DATABASES = DATABASES.copy()
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',  # База данных в оперативной памяти (очень быстро)
+            'TEST': {
+                'NAME': ':memory:',
+                'MIGRATE': True,  # Выполнять миграции
+            }
+        }
+    }
+    
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'test-cache',
+        },
+        'profiles': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'test-profiles-cache',
+        }
+    }
+
+    CSP_IMG_SRC = ["'self'", "data:", "https:", "*"]
+    CSP_STYLE_SRC = ["'self'", "'unsafe-inline'", "*"]
+    CSP_SCRIPT_SRC = ["'self'", "'unsafe-inline'", "*"]
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100MB
+    FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024   # 50MB
+    
+    print("\n" + "="*60)
+    print("🔧 ТЕСТОВЫЙ РЕЖИМ: Используется SQLite (in-memory)")
+    print("="*60 + "\n")
+
+if 'test' in sys.argv:
+    PASSWORD_HASHERS = [
+        'django.contrib.auth.hashers.MD5PasswordHasher',
+    ]
+    
+    RATELIMIT_ENABLE = False
+    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+    RECAPTCHA_TEST_MODE = True
