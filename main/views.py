@@ -4901,3 +4901,9 @@ def send_task_status_notification(task, old_status, new_status, comment):
     except Exception as e:
         logger.error(f"Ошибка отправки уведомления о статусе ТЗ: {e}")
         return False
+
+def cart_api_count(request):
+    """API для получения количества товаров в корзине"""
+    from .models import Cart
+    cart = Cart.get_cart(request)
+    return JsonResponse({'count': cart.get_total_items()})

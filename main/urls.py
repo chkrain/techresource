@@ -120,4 +120,5 @@ urlpatterns = [
     path('technical-task/', views.technical_task_view, name='technical_task'),
     path('technical-task/success/', views.technical_task_success, name='technical_task_success'),
     path('auto-save-technical-task/', views.auto_save_technical_task, name='auto_save_technical_task'),
+    path('cart/api/count/', views.cart_api_count, name='cart_api_count'),
 ]
