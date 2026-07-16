@@ -392,7 +392,7 @@ async function handleAddToCart(e) {
       "success",
     ),
       updateCartCounter(s.cart_count),
-      (this.innerHTML = "✅ Добавлено!"),
+      (this.innerHTML = "Добавлено!"),
       setTimeout(() => {
         ((this.innerHTML = n),
           (this.disabled = !1),
@@ -448,7 +448,7 @@ function showToast(e, t = "success") {
   if (!n) return;
   const o = document.createElement("div");
   ((o.className = `toast ${t}`),
-    (o.innerHTML = `\n<span class="toast-icon">${"success" === t ? "✅" : "❌"}</span>\n        <span class="toast-message">${e}</span>\n`),
+    (o.innerHTML = `\n<span class="toast-icon">${"success" === t ? "U+1F5F8" : "U+2717"}</span>\n        <span class="toast-message">${e}</span>\n`),
     n.appendChild(o),
     setTimeout(() => o.classList.add("show"), 100),
     setTimeout(() => {

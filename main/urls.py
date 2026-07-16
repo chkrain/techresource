@@ -11,6 +11,7 @@ from .views_privacy import (
     detailed_consents_list,
     get_detailed_consent_info,
 )
+from .views import assistant_api
 from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.views.generic import TemplateView
@@ -121,4 +122,5 @@ urlpatterns = [
     path('technical-task/success/', views.technical_task_success, name='technical_task_success'),
     path('auto-save-technical-task/', views.auto_save_technical_task, name='auto_save_technical_task'),
     path('cart/api/count/', views.cart_api_count, name='cart_api_count'),
+    path('api/assistant/', assistant_api, name='assistant_api'),
 ]

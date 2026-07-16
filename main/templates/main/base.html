@@ -12,7 +12,7 @@
 
     {% if request.path == "/" %}
     <style>
-        #page-loader{position:fixed;inset:0;background:#2c3e50;display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 0.5s ease,visibility 0.5s ease} #page-loader.hidden{opacity:0;visibility:hidden} .loader-content{text-align:center;display:flex;flex-direction:column;align-items:center} .loader-logo{width:110px;opacity:0;transform:scale(0.8);animation:logoFade 0.6s ease forwards} h1,h2,h3,h4,h5,h6,.nav-link,.btn{font-weight:600} .loader-title{margin-top:18px;font-size:1.8rem;font-weight:800;color:white;opacity:0;animation:fadeInUp 0.6s ease forwards 0.3s} .loader-progress{width:260px;height:8px;background:#e5e5e5;border-radius:6px;overflow:hidden;margin-top:40px;position:relative} .loader-progress-bar{height:100%;width:0;background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:6px;transition:width 0.15s ease-out} .loader-percent{margin-top:10px;font-size:1rem;font-weight:600;color:white;opacity:0;animation:fadeIn 0.5s ease forwards 0.4s} @keyframes logoFade{to{opacity:1;transform:scale(1)} } @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} } @keyframes fadeIn{from{opacity:0} to{opacity:1} }
+        #page-loader{position:fixed;inset:0;background:#2c3e50;display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 0.5s ease,visibility 0.5s ease} #page-loader.hidden{opacity:0;visibility:hidden} .loader-content{text-align:center;display:flex;flex-direction:column;align-items:center} .loader-logo{width:310px;opacity:0;transform:scale(0.8);animation:logoFade 0.6s ease forwards} h1,h2,h3,h4,h5,h6,.nav-link,.btn{font-weight:600} .loader-title{margin-top:18px;font-size:1.8rem;font-weight:800;color:white;opacity:0;animation:fadeInUp 0.6s ease forwards 0.3s} .loader-progress{width:260px;height:8px;background:#e5e5e5;border-radius:6px;overflow:hidden;margin-top:40px;position:relative} .loader-progress-bar{height:100%;width:0;background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:6px;transition:width 0.15s ease-out} .loader-percent{margin-top:10px;font-size:1rem;font-weight:600;color:white;opacity:0;animation:fadeIn 0.5s ease forwards 0.4s} @keyframes logoFade{to{opacity:1;transform:scale(1)} } @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} } @keyframes fadeIn{from{opacity:0} to{opacity:1} }
     </style>
     <script>
     document.addEventListener("DOMContentLoaded",()=>{const bar=document.getElementById("loader-progress-bar");const percent=document.getElementById("loader-percent");const loader=document.getElementById("page-loader");let progress=0;let progressInterval;function updateProgress(targetProgress){if(progressInterval)clearInterval(progressInterval);progressInterval=setInterval(()=>{if(progress<targetProgress){const increment=Math.random()*(progress<50?15:5);progress=Math.min(progress+increment,targetProgress);bar.style.width=progress+"%";percent.textContent=Math.floor(progress)+"%"}else{clearInterval(progressInterval)}},80)}updateProgress(70);setTimeout(()=>{updateProgress(90)},300);if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{updateProgress(90);setTimeout(()=>{if(progress<100){progress=100;bar.style.width="100%";percent.textContent="100%";setTimeout(()=>{loader.classList.add("hidden")},200)}},500)},200)})}const firstImage=document.querySelector('img');if(firstImage){if(firstImage.complete){updateProgress(95)}else{firstImage.addEventListener('load',()=>{updateProgress(95)})}}setTimeout(()=>{if(!loader.classList.contains('hidden')){progress=100;bar.style.width="100%";percent.textContent="100%";setTimeout(()=>{loader.classList.add("hidden")},200)}},2000);const userInteractions=['touchstart','click','keydown','scroll'];userInteractions.forEach(event=>{document.addEventListener(event,()=>{if(!loader.classList.contains('hidden')){progress=100;bar.style.width="100%";percent.textContent="100%";setTimeout(()=>{loader.classList.add("hidden")},150)}},{once:true})})});
@@ -38,7 +38,7 @@
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
         "name": "{{ company_name }}",
-        "image": "{% static 'images/favicon.svg' %}",
+        "image": "{% static 'images/newlogowhite.ico' %}",
         "address": {
             "@type": "PostalAddress",
             "streetAddress": "ул. Техническая, 52",
@@ -76,15 +76,36 @@
     <link rel="preload" href="{% static 'css/base.css' %}?v={{ static_version }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ static_version }}"></noscript>
     <script src="{% static 'js/vpn_detection.js' %}?v={{ static_version }}"></script>
-    <script src="{% static 'js/smart_assistant.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/urls.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/greetings.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/automation.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/services.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/prices.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/products.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/contacts.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/delivery.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/warranty.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/payment.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/tech_task.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/projects.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/partners.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/blog.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/reviews.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/support.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/training.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/security.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/industries.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/data/equipment.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/smart_assistant.js' %}?v={{ static_version }}"></script>
+    <script src="{% static 'js/assistant/indexassistant.js' %}?v={{ static_version }}"></script>
 </head>
 <body>
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div id="tsparticles"></div>
     {% if request.path == "/" %}
     <div id="page-loader">
         <div class="loader-content">
-            <img src="{% static 'images/favicon/logo-128.svg' %}?v={{ static_version }}" class="loader-logo" alt="Техресурс">
-            <div class="loader-title">Техресурс</div>
+            <img src="{% static 'images/favicon/newlogowhite.svg' %}?v={{ static_version }}" class="loader-logo" alt="Техресурс">
             <div class="loader-progress">
                 <div class="loader-progress-bar" id="loader-progress-bar"></div>
             </div>
@@ -95,7 +116,7 @@
     <header class="header" id="header">
         <div class="container">
             <a href="/" class="logo">
-                <span class="logo-icon"><img src="{% static 'images/favicon/logo-128.svg' %}?v={{ static_version }}" alt="logo" style="width: 50px;"></span>
+                <span class="logo-icon"><img src="{% static 'images/favicon/newlogowhite.svg' %}?v={{ static_version }}" alt="logo" style="width: 100px;"></span>
                 <div class="logo-text">
                     <div class="logo-main"></div>
                 </div>
@@ -351,6 +372,8 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     {% block extra_js %}
     <script type="text/javascript" src="{% static 'js/base.js' %}?v={{ static_version }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@1.39.1/tsparticles.min.js"></script>
+    <script src="{% static 'js/particles-config.js' %}?v={{ static_version }}"></script>
     {% endblock %}
 </body>
 </html>

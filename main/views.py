@@ -4905,5 +4905,47 @@ def send_task_status_notification(task, old_status, new_status, comment):
 def cart_api_count(request):
     """API для получения количества товаров в корзине"""
     from .models import Cart
-    cart = Cart.get_cart(request)
-    return JsonResponse({'count': cart.get_total_items()})
+    
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        count = cart.get_items_count() 
+    else:
+        cart = request.session.get('anonymous_cart', {})
+        count = sum(item.get('quantity', 0) for item in cart.values())
+    
+    return JsonResponse({'count': count})
+
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+@require_POST
+def assistant_api(request):
+    """API для ИИ-помощника"""
+    try:
+        data = json.loads(request.body)
+        message = data.get('message', '').lower()
+        context = data.get('context', {})
+        
+        responses = {
+            'услуг': '🏗️ Мы предоставляем: проектирование, монтаж, разработку ПО, поставку оборудования, техподдержку и сервисное обслуживание.',
+            'монтаж': '⚡ Выполняем электромонтажные работы любой сложности. Работаем с силовыми шкафами, кабельными трассами, подключаем оборудование.',
+            'заказ': '🛒 Для заказа добавьте товары в корзину и оформите заказ. Юрлицам — оплата по счету.',
+            'цена': '💰 Стоимость зависит от модели, объема и сложности. Заполните ТЗ для точного расчета.',
+            'контакт': '📞 +7 (937) 524-68-88, info@tech-re.ru, Казань, ул. Техническая, 52',
+            'техзадание': '📋 Заполните ТЗ: /technical-task/. Мы подготовим КП за 1-2 дня.',
+        }
+        
+        response = None
+        for key, value in responses.items():
+            if key in message:
+                response = value
+                break
+        
+        if not response:
+            response = '🤔 Я могу помочь с услугами, заказом, ценами и контактами. Напишите конкретнее!'
+        
+        return JsonResponse({'response': response})
+        
+    except Exception as e:
+        return JsonResponse({'response': '😅 Извините, произошла ошибка. Попробуйте еще раз.'})
