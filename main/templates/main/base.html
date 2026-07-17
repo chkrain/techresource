@@ -99,7 +99,8 @@
     <script src="{% static 'js/assistant/smart_assistant.js' %}?v={{ static_version }}"></script>
     <script src="{% static 'js/assistant/indexassistant.js' %}?v={{ static_version }}"></script>
 </head>
-<body>
+<!-- .bg-dot-grid .bg-blueprint-grid .bg-dark-tech -->
+<body class="bg-3d-cubes">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
     <div id="tsparticles"></div>
     {% if request.path == "/" %}

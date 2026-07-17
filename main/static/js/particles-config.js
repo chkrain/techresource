@@ -1,71 +1,82 @@
-// static/js/particles-config.js - Улучшенная версия
+// static/js/particles-config.js - Элегантная версия
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof tsParticles !== 'undefined') {
         tsParticles.load('tsparticles', {
-            fpsLimit: 30,
+            fpsLimit: 60,
             interactivity: {
                 events: {
                     onHover: {
                         enable: true,
-                        mode: 'attract' // Частицы притягиваются к курсору
+                        mode: 'grab' // Мягкое притяжение при наведении
                     },
                     resize: true
                 },
                 modes: {
-                    attract: {
-                        distance: 200,
-                        duration: 0.4,
-                        factor: 1.5 // Усилил притяжение
+                    grab: {
+                        distance: 150,
+                        links: {
+                            opacity: 0.3
+                        }
                     }
                 }
             },
             particles: {
                 color: {
-                    value: '#ffffff'
+                    value: '#c0c0c0' // Серебристый оттенок вместо белого
                 },
                 links: {
-                    color: '#ffffff',
-                    distance: 180, // Увеличил расстояние связей
+                    color: '#c0c0c0',
+                    distance: 120,
                     enable: true,
-                    opacity: 0.35, // Ярче связи
-                    width: 1.5 // Толще линии
+                    opacity: 0.15, // Едва заметные связи
+                    width: 0.8
                 },
                 move: {
                     enable: true,
-                    speed: 0.4, // Чуть быстрее
+                    speed: 0.3,
                     direction: 'none',
-                    random: true,
+                    random: false, // Убираем случайность движения
                     straight: false,
                     outModes: {
-                        default: 'bounce'
-                    }
+                        default: 'out' // Частицы плавно выходят за края
+                    },
+                    drift: 0 // Убираем дрейф
                 },
                 number: {
                     density: {
                         enable: true,
-                        area: 1000 // Плотнее
+                        area: 1200
                     },
-                    value: 40 // Больше частиц
+                    value: 30 // Умеренное количество
                 },
                 opacity: {
-                    value: 0.4, // Ярче
+                    value: 0.25,
                     random: true,
                     anim: {
-                        enable: false
+                        enable: true,
+                        speed: 0.5,
+                        minimumValue: 0.1,
+                        sync: false
                     }
                 },
                 shape: {
                     type: 'circle'
                 },
                 size: {
-                    value: { min: 2, max: 5 }, // Крупнее
+                    value: { min: 1, max: 3 },
                     random: true,
                     anim: {
-                        enable: false
+                        enable: true,
+                        speed: 0.5,
+                        minimumValue: 0.5,
+                        sync: false
                     }
                 }
             },
-            detectRetina: true
+            detectRetina: true,
+            background: {
+                color: 'transparent' // Прозрачный фон
+            }
         });
     }
 });
