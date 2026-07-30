@@ -290,7 +290,7 @@ COMPANY_NUMBER = '8 (937) 524-68-88'
 COMPANY_NAME = 'Техресурс'
 COMPANY_ADDRESS = 'Казань, ул. Техническая, 52'
 COMPANY_WORK_HOURS = 'Пн-Пт 08:00-17:00'
-STATIC_VERSION = '26.4.7.17'
+STATIC_VERSION = '26.4.7.25'
 
 PRIVACY_REQUEST_DOCS = 'privacy_requests/'
 PRIVACY_ADMIN_EMAIL = 'info@techresurs.ru'

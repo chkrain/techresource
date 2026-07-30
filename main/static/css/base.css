@@ -965,3 +965,9 @@ main.container > section:first-of-type {
     transform: rotate(-45deg);
     bottom: 0;
 }
+
+@media screen and (min-width: 768px) {
+  .mobile-menu-btn {
+    display: none !important;
+  }
+}
