@@ -259,6 +259,11 @@ section {
   font-size: 2.5rem;
   margin-bottom: 1rem;
 }
+@media screen and (max-width: 600px) {
+  .cta-content h2 {
+    font-size: 1.5rem;
+  }
+}
 .cta-content p {
   font-size: 1.2rem;
   opacity: 0.9;

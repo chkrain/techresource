@@ -210,15 +210,14 @@ MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Настройки email (для уведомлений)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'  # Локальный Exim4
-EMAIL_PORT = 25           # Стандартный порт SMTP
+EMAIL_HOST = 'localhost'  
+EMAIL_PORT = 25          
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
-EMAIL_HOST_USER = ''      # Если не требуется аутентификация
-EMAIL_HOST_PASSWORD = ''  # Если не требуется аутентификация
-DEFAULT_FROM_EMAIL = 'noreply@tech-re.ru'  # ЛОКАЛЬНЫЙ домен вместо mail.ru
+EMAIL_HOST_USER = ''     
+EMAIL_HOST_PASSWORD = ''  
+DEFAULT_FROM_EMAIL = 'noreply@tech-re.ru'
 SERVER_EMAIL = 'noreply@tech-re.ru'
 EMAIL_SUBJECT_PREFIX = '[Техресурс] '
 
@@ -291,7 +290,7 @@ COMPANY_NUMBER = '8 (937) 524-68-88'
 COMPANY_NAME = 'Техресурс'
 COMPANY_ADDRESS = 'Казань, ул. Техническая, 52'
 COMPANY_WORK_HOURS = 'Пн-Пт 08:00-17:00'
-STATIC_VERSION = '26.4.7.9'
+STATIC_VERSION = '26.4.7.17'
 
 PRIVACY_REQUEST_DOCS = 'privacy_requests/'
 PRIVACY_ADMIN_EMAIL = 'info@techresurs.ru'

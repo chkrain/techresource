@@ -914,3 +914,54 @@ main.container > section:first-of-type {
         black 100%
     );
 }
+.mobile-menu-btn {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-menu-btn .hamburger-icon {
+    position: relative;
+    width: 24px;
+    height: 2px;
+    background: white;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-btn .hamburger-icon::before,
+.mobile-menu-btn .hamburger-icon::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 2px;
+    background: white;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    left: 0;
+}
+
+.mobile-menu-btn .hamburger-icon::before {
+    top: -8px;
+}
+
+.mobile-menu-btn .hamburger-icon::after {
+    bottom: -8px;
+}
+
+.mobile-menu-btn.active .hamburger-icon {
+    background: transparent;
+}
+
+.mobile-menu-btn.active .hamburger-icon::before {
+    transform: rotate(45deg);
+    top: 0;
+}
+
+.mobile-menu-btn.active .hamburger-icon::after {
+    transform: rotate(-45deg);
+    bottom: 0;
+}
